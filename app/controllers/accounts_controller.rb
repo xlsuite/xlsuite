@@ -352,7 +352,7 @@ class AccountsController < ApplicationController
         
         @acct.owner = @owner
         @acct.save!
-        @acct.grant_all_permissions_to_owner
+        MethodCallbackFuture.create!(:model => @acct, :method => :grant_all_permissions_to_owner, :system => true, :priority => 10)
 
         # We reload the account to refresh the party and contact routes
         # Or else, the email contact route won't be found in account's #send_confirmation_email
