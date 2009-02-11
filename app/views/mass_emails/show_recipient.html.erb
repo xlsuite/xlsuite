@@ -1,0 +1,22 @@
+<table>
+  <tr>
+    <td>From:</td>
+    <td><%= h(@email.sender.to_formatted_s) %></td>
+  <tr>  
+  <tr>
+    <td>To:</td>
+    <td><%= h(@mass_recipient.to_formatted_s) %></td>
+  <tr>
+  <tr>
+    <td>Sent at:</td>
+    <td><%= @mass_recipient.sent_at.strftime("%b %d, %Y %I:%M%p") %></td>
+  <tr>
+  <tr>
+    <td>Subject:</td>
+    <td><%= h(@mass_recipient.generated_subject) %></td>
+  <tr>
+</table>
+<div>
+  <%= h(@mass_recipient.generated_body) %>
+</div>
+<p><%= link_to "Back to Sent", mass_emails_path(:folder => 'sent') %>

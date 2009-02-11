@@ -1,0 +1,25 @@
+<h2 class="page_header">New Destination</h2>
+<div class="ipage destination_new">
+  <% inline_remote_form_for(:destination, @destination, :url => destinations_path) do |f| %>
+    <%= render_inside_panel_notifications_container %>
+      <table>
+        <tr>
+          <td>Country:</td>
+          <td><%= f.select :country, destination_country_selections %></td>
+        </tr>
+        <tr>
+          <td>State:</td>
+          <td><%= f.text_field_with_auto_complete :state, :values => [] %></td>
+        </tr>
+        <tr>
+          <td>Cost:</td>
+          <td><%= f.text_field :cost %></td>
+        </tr>
+      </table>
+    <br class="clear"/>
+    <div class="destination-form-buttons">
+      <%= submit_tag "Create", :class=> "button" %>
+      <%= link_to_function "Cancel", "xl.closeTabPanel('destinations_new_nil')" %>
+    </div>
+  <% end %>
+</div>

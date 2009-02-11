@@ -1,0 +1,5 @@
+    <% form_tag(@saml_request_doc.root.attributes['AssertionConsumerServiceURL'], :name=>"acsForm", :id=>"acsForm") do %>
+        <%= hidden_field_tag 'SAMLResponse', @saml_response %>
+        <%= hidden_field_tag 'RelayState', params['RelayState'] %>
+        You may now <%= submit_tag 'continue to Google' %>
+    <% end %>

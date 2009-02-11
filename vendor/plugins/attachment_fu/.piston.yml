@@ -1,0 +1,8 @@
+--- 
+format: 1
+handler: 
+  commit: 9610d9cc764026727f02cb623751e497898e35f9
+  url: git://github.com/technoweenie/attachment_fu.git
+lock: false
+repository_url: git://github.com/technoweenie/attachment_fu.git
+repository_class: Piston::Git::Repository

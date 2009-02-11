@@ -1,0 +1,128 @@
+<div id="listOfImportColumns" style="display:none; height: 20px; overflow: auto;">
+  <h2>Contact Import Columns</h2>
+  <dl id="partyImportColumns">
+  
+    <dd>Party
+      <dl>
+        <dd model="Party" field="first_name" name="" text="First Name" class="draggable mappingColumn">First Name</dd>
+        <dd model="Party" field="middle_name" name="" text="Middle Name" class="draggable mappingColumn">Middle Name</dd>
+        <dd model="Party" field="last_name" name="" text="Last Name" class="draggable mappingColumn">Last Name</dd>
+        <dd model="Party" field="full_name" name="" text="Full Name" class="draggable mappingColumn">Full Name</dd>
+        <dd model="Party" field="honorific" name="" text="Honorific" class="draggable mappingColumn">Honorific</dd>
+        <dd model="Party" field="company_name" name="" text="Company Name" class="draggable mappingColumn">Company Name</dd>
+        <dd model="Party" field="position" name="" text="Position" class="draggable mappingColumn">Position</dd>
+        <dd model="Party" field="notes" name="" text="Notes" class="draggable mappingColumn">Notes</dd>
+        <dd model="Party" field="tag_list" name="" text="Tags" class="draggable mappingColumn">Tags</dd>
+        <dd model="Party" field="biography" name="" text="Biography" class="draggable mappingColumn">Biography</dd>
+        <dd model="Party" field="avatar" name="" text="Avatar URL" class="draggable mappingColumn">Avatar URL</dd>
+      </dl>
+    </dd>
+
+    <dd>E-Mails
+      <dl>
+        <dd model="EmailContactRoute" field="email_address" name="Main" text="E-Mail (Main)" class="draggable mappingColumn">E-Mail (Main)</dd>
+        <dd model="EmailContactRoute" field="email_address" name="Office" text="E-Mail (Office)" class="draggable mappingColumn">E-Mail (Office)</dd>
+        <dd model="EmailContactRoute" field="email_address" name="Home" text="E-Mail (Home)" class="draggable mappingColumn">E-Mail (Home)</dd>
+      </dl>
+    </dd>
+
+    <dd>Links
+      <dl>
+        <dd model="LinkContactRoute" field="url" name="Blog" text="URL (Blog)" class="draggable mappingColumn">URL (Blog)</dd>
+        <dd model="LinkContactRoute" field="url" name="Company" text="URL (Company)" class="draggable mappingColumn">URL (Company)</dd>
+        <dd model="LinkContactRoute" field="url" name="Personal" text="URL (Personal)" class="draggable mappingColumn">URL (Personal)</dd>
+      </dl>
+    </dd>
+
+    <dd>Phones
+      <dl>
+        <dt>Main</dt>
+        <dd>
+          <dl>
+            <dd model="PhoneContactRoute" field="number" name="Main" text="Number (Main)" class="draggable mappingColumn">Number</dd>
+            <dd model="PhoneContactRoute" field="extension" name="Main" text="Extension (Main)" class="draggable mappingColumn">Extension</dd>
+          </dl>
+        </dd>
+        <dt>Office</dt>
+        <dd>
+          <dl>
+            <dd model="PhoneContactRoute" field="number" name="Office" text="Number (Office)" class="draggable mappingColumn">Number</dd>
+            <dd model="PhoneContactRoute" field="extension" name="Office" text="Extension (Office)" class="draggable mappingColumn">Extension</dd>
+          </dl>
+        </dd>
+        <dt>Home</dt>
+        <dd>
+          <dl>
+            <dd model="PhoneContactRoute" field="number" name="Home" text="Number (Home)" class="draggable mappingColumn">Number</dd>
+            <dd model="PhoneContactRoute" field="extension" name="Home" text="Extension (Home)" class="draggable mappingColumn">Extension</dd>
+          </dl>
+        </dd>
+        <dt>Fax</dt>
+        <dd>
+          <dl>
+            <dd model="PhoneContactRoute" field="number" name="Fax" text="Number (Fax)" class="draggable mappingColumn">Number</dd>
+            <dd model="PhoneContactRoute" field="extension" name="Fax" text="Extension (Fax)" class="draggable mappingColumn">Extension</dd>
+          </dl>
+        </dd>
+        <dt>Mobile</dt>
+        <dd>
+          <dl>
+            <dd model="PhoneContactRoute" field="number" name="Mobile" text="Number (Mobile)" class="draggable mappingColumn">Number</dd>
+            <dd model="PhoneContactRoute" field="extension" name="Mobile" text="Extension (Mobile)" class="draggable mappingColumn">Extension</dd>
+          </dl>
+        </dd>
+        <dt>DID</dt>
+        <dd>
+          <dl>
+            <dd model="PhoneContactRoute" field="number" name="DID" text="Number (DID)" class="draggable mappingColumn">Number</dd>
+            <dd model="PhoneContactRoute" field="extension" name="DID" text="Extension (DID)" class="draggable mappingColumn">Extension</dd>
+          </dl>
+        </dd>
+      </dl>
+    </dd>
+
+    <dd>Addresses
+      <dl>
+        <dt>Main</dt>
+        <dd>
+          <dl>
+            <dd model="AddressContactRoute" field="line1" name="Main" text="Line 1 (Main)" class="draggable mappingColumn">Line 1</dd>
+            <dd model="AddressContactRoute" field="line2" name="Main" text="Line 2 (Main)" class="draggable mappingColumn">Line 2</dd>
+            <dd model="AddressContactRoute" field="line3" name="Main" text="Line 3 (Main)" class="draggable mappingColumn">Line 3</dd>
+            <dd model="AddressContactRoute" field="city" name="Main" text="City (Main)" class="draggable mappingColumn">City</dd>
+            <dd model="AddressContactRoute" field="state" name="Main" text="Province/State (Main)" class="draggable mappingColumn">Province/State</dd>
+            <dd model="AddressContactRoute" field="country" name="Main" text="Country (Main)" class="draggable mappingColumn">Country</dd>
+            <dd model="AddressContactRoute" field="zip" name="Main" text="Postal/Zip Code (Main)" class="draggable mappingColumn">Postal/Zip Code</dd>
+          </dl>
+        </dd>
+  
+        <dt>Office</dt>
+        <dd>
+          <dl>
+            <dd model="AddressContactRoute" field="line1" name="Office" text="Line 1 (Office)" class="draggable mappingColumn">Line 1</dd>
+            <dd model="AddressContactRoute" field="line2" name="Office" text="Line 2 (Office)" class="draggable mappingColumn">Line 2</dd>
+            <dd model="AddressContactRoute" field="line3" name="Office" text="Line 3 (Office)" class="draggable mappingColumn">Line 3</dd>
+            <dd model="AddressContactRoute" field="city" name="Office" text="City (Office)" class="draggable mappingColumn">City</dd>
+            <dd model="AddressContactRoute" field="state" name="Office" text="Province/State (Office)" class="draggable mappingColumn">Province/State</dd>
+            <dd model="AddressContactRoute" field="country" name="Office" text="Country (Office)" class="draggable mappingColumn">Country</dd>
+            <dd model="AddressContactRoute" field="zip" name="Office" text="Postal/Zip Code (Office)" class="draggable mappingColumn">Postal/Zip Code</dd>
+          </dl>
+        </dd>
+  
+        <dt>Home</dt>
+        <dd>
+          <dl>
+            <dd model="AddressContactRoute" field="line1" name="Home" text="Line 1 (Home)" class="draggable mappingColumn">Line 1</dd>
+            <dd model="AddressContactRoute" field="line2" name="Home" text="Line 2 (Home)" class="draggable mappingColumn">Line 2</dd>
+            <dd model="AddressContactRoute" field="line3" name="Home" text="Line 3 (Home)" class="draggable mappingColumn">Line 3</dd>
+            <dd model="AddressContactRoute" field="city" name="Home" text="City (Home)" class="draggable mappingColumn">City</dd>
+            <dd model="AddressContactRoute" field="state" name="Home" text="Province/State (Home)" class="draggable mappingColumn">Province/State</dd>
+            <dd model="AddressContactRoute" field="country" name="Home" text="Country (Home)" class="draggable mappingColumn">Country</dd>
+            <dd model="AddressContactRoute" field="zip" name="Home" text="Postal/Zip Code (Home)" class="draggable mappingColumn">Postal/Zip Code</dd>
+          </dl>
+        </dd>
+      </dl>
+    </dd>
+
+  </dl>
+</div>

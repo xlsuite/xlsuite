@@ -1,0 +1,81 @@
+<%= javascript_include_tag "mappers/edit" %>
+<%= stylesheet_link_tag "mappers/edit" %>
+
+<%= content_tag 'p', h(flash[:warning]), :class => 'notice' if flash[:warning] %>
+<h1>IMPORTING <%= @import.filename %></h1>
+
+<div id="import_and_mapper_form">
+<%= form_tag go_import_path(@import), :id => 'import_form' %>
+  <% fields_for :import do |i| %>
+    <p>
+      <label>Force import?</label>
+      <%= i.check_box :force %>
+    </p>
+    <%= i.hidden_field :id %>
+  <% end %>
+&nbsp; | &nbsp;
+  <p>
+    Exclude the first&nbsp;
+     <%= text_field_tag "mappings[header_lines_count]", (@import && @import.mappings ? (@import.mappings[:header_lines_count] || 0) : 0), :class => "header_lines_count" %>
+    &nbsp;data rows
+  </p>
+&nbsp; | &nbsp;
+  <p>
+    Exclude record with no email
+    <%= check_box_tag "mappings[exclude_no_email]", 1, (@import && @import.mappings ? (@import.mappings[:exclude_no_email].blank? ? false : @import.mappings[:exclude_no_email]) : false) %>
+  </p>
+&nbsp; | &nbsp;
+  <p>
+    <label>Use Mapper:</label>
+    <select id="defaultMapperSelection" onChange="sendAJAXRequestToUpdateMappings(this)">
+      <%= options_for_select([["None", 0]] + @mappers.map {|e| [e.name, e.id]}, 0) %>
+    </select>
+    <%= throbber("defaultMapperSelection_throbber") %>
+  </p>
+  <br class="clear" />
+  <p>
+    <label>Add Tag(s):</label>
+    <%= text_field_tag "mappings[tag_list]", (@import && @import.mappings ? (@import.mappings[:tag_list] || "") : "") %>
+  </p>
+&nbsp; | &nbsp;
+  <p>
+    <label>Add To Group:</label>
+    <%= select_tag "mappings[group]", "<option value="">None</option>" + options_from_collection_for_select(@groups, "name", "name", (@import && @import.mappings ? (@import.mappings[:group] || "") : "")) %>
+  </p>
+&nbsp; | &nbsp;
+  <p>
+    <label>Create Profile for Imports:</label>
+    <%= check_box_tag "mappings[create_profile]", 1, (@import && @import.mappings ? (@import.mappings[:create_profile].blank? ? false : @import.mappings[:create_profile]) : false) %>
+  </p>
+
+  <table id="mappingsTable">
+    <thead>
+      <tr><%= render_mapping_table_header(@data.size) %></tr>
+    </thead>
+    <tbody>
+      <%= render_mapper_rows(@data, @mappings) %>
+    </tbody>
+  </table>
+
+  <p>
+    <%= submit_tag "Import" %>
+    <%= submit_to_remote "save_mapping", "Save Mapping", :url => save_import_path(@import), 
+        :loading => '$("saveImportMapping_throbber").show()', :loaded => '$("saveImportMapping_throbber").hide()'%>
+    <%= throbber("saveImportMapping_throbber") %>
+    <%= link_to "Cancel", imports_path %>
+  </p>
+  <p>
+    <%= link_to_function "Save as a Template Mapper", '$("mapper_form").show()' %>
+  </p>
+</form>
+
+<form id="mapper_form" style="display:none" onsubmit="submitImportAndMappingForm(); return false;">    
+  <%= render :partial => "mappers/form" %>
+  <p>
+    <%= submit_tag "Save"%>
+    <%= throbber("saveTemplateMapping_throbber") %>
+    <%= link_to_function "Cancel", '$("mapper_form").hide()' %>
+  </p>
+</form>
+
+</div>

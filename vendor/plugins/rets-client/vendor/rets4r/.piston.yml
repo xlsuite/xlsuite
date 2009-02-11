@@ -1,0 +1,8 @@
+--- 
+format: 1
+handler: 
+  piston:remote-revision: 25
+  piston:uuid: 6e28116c-8b58-4119-a867-99e0a1d2a8e4
+lock: 
+repository_url: svn://rubyforge.org/var/svn/rets4r/trunk
+repository_class: Piston::Svn::Repository

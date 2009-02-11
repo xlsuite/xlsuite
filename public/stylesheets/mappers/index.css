@@ -1,0 +1,15 @@
+#mapperIndexTable { width: 100%; border: 1px solid #8CA076; }
+#mapperIndexTable tr, #mapperIndexTable td, #mapperIndexTable th { border: thin solid #8CA076; }
+ 
+ 
+#mapperIndexTable th { 
+height: 30px; 
+background: url(../../images/table_headerBg.png) repeat-x; 
+border-right: 1px solid #fff; 
+font-weight: bold; 
+color: #fff;
+text-align: center; }
+#mapperIndexTable th.last {border-right: 1px solid #8CA076;}
+#mapperIndexTable tr, #mapperIndexTable td { border: 0 solid #8CA076; }
+#mapperIndexTable td {padding: 2px;}
+#mapperIndexTable td.options a {display:block;} 

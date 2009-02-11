@@ -1,0 +1,5 @@
+<% apply_to ||= nil %>
+<ul id="<%= object_name %>_tag_cloud" class="tag_cloud inline">
+  <%= render :partial => "tags/tag", :collection => tags, :spacer_template => "shared/list_comma",
+      :locals => {:apply_to => apply_to} %>
+</ul>

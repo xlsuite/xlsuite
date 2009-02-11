@@ -1,0 +1,123 @@
+page << create_tab_using_ajax_response("Email") do
+%Q`
+    
+    $('updaterDump').innerHTML = '<div id="xl.email.gridPanel.container.inbox"></div><div id="xl.email.gridPanel.container.outbox"></div><div id="xl.email.gridPanel.container.draft"></div><div id="xl.email.gridPanel.container.sent"></div>';
+    
+    xl.log('Sandbox Constructor Top');
+    
+    var messagePanelId = "email_sandbox_message_panel";
+    
+    // This houses the messagePanel which gets swapped out
+    // on gridPanel.celldblclick
+    var wrapper = new Ext.Panel({
+      id: messagePanelId + '.wrapper',
+      autoScroll: true,
+      //height: '50%',
+      layout: 'fit'
+    });
+    // Special property to determine if message is to be opened in a new tab or not
+    //wrapper.xlEmail_hasBeenUsed = false;
+    
+    var messagePanel = new Ext.Panel({
+      //region: 'center',
+      height: 400,
+      autoScroll: true,
+      cls: 'emailMessage',  // This applies to the class of the base Element
+      id: messagePanelId,
+      html: "<br /><p>Double-click an email subject to display it.</p>"
+      // Using an id instead of a contentEl means we don't have to clean
+      // the contentEl up after the panel is destroyed; we just have to
+      // keep track of this ID
+    });
+    
+    wrapper.add(messagePanel);
+    
+    var tabPanel = new Ext.TabPanel({
+      activeTab: 0,
+      //height: '50%',
+      tabPosition: 'bottom',
+      split: false,
+      defaults: { autoHeight: false, autoScroll: false },
+      border: false,
+      deferredRender: false,
+      activeTab: 'xl.email.gridPanel.#{@mailbox}'
+    });
+    
+    xl.log('Created message panel and tab panel! Creating Inbox tab panel...');
+    
+    tabPanel.add(xl.email.generateMailboxPanel('inbox', [
+        {id: 'sender_name', dataIndex: 'sender_name', header: "From", sortable: true, renderer: xl.email.senderNameRenderer},
+        {id: 'subject', dataIndex: 'subject', header: "Subject", sortable: true},
+        {id: 'received_at', dataIndex: 'received_at', header: "Date Received", sortable: true, renderer: xl.email.dateRenderer }
+      ], messagePanelId)
+    );
+    
+    xl.log('Created Inbox tab panel! Creating Outbox tab panel...');
+    
+    tabPanel.add(xl.email.generateMailboxPanel('outbox', [
+        {id: 'to_names', dataIndex: 'to_names', header: "To", sortable: true},
+        {id: 'subject', dataIndex: 'subject', header: "Subject", sortable: true},
+        {id: 'created_at', dataIndex: 'created_at', header: "Date Created", sortable: true, renderer: xl.email.dateRenderer }
+      ], messagePanelId)
+    );
+    
+    xl.log('Created Outbox tab panel! Creating Draft tab panel...');
+    
+    tabPanel.add(xl.email.generateMailboxPanel('draft', [
+        {id: 'to_names', dataIndex: 'to_names', header: "To", sortable: true},
+        {id: 'subject', dataIndex: 'subject', header: "Subject", sortable: true},
+        {id: 'created_at', dataIndex: 'created_at', header: "Date Created", sortable: true, renderer: xl.email.dateRenderer },
+        {id: 'updated_at', dataIndex: 'updated_at', header: "Last Updated", sortable: true, renderer: xl.email.dateRenderer }
+      ], messagePanelId)
+    );
+    
+    xl.log('Created Draft tab panel! Creating Sent tab panel...');
+    
+    tabPanel.add(xl.email.generateMailboxPanel('sent', [
+        {id: 'to_names', dataIndex: 'to_names', header: "To", sortable: true},
+        {id: 'subject', dataIndex: 'subject', header: "Subject", sortable: true},
+        {id: 'sent_at', dataIndex: 'sent_at', header: "Date Sent", sortable: true, renderer: xl.email.dateRenderer }
+      ], messagePanelId)
+    );
+    
+    xl.log ('Created Sent tab panel! Creating layout panel...');
+    
+    #{generateEmailLabelPanels}
+
+    var extra_links_span = parent.Ext.get('#{create_id_from_params}' + '-other-links');
+    
+    var new_link_el = "<span><a href=\\"#\\" onClick=\\"xl.openNewTabPanel('emails_new_nil', '#{sandbox_new_emails_path}');\\">New Email</a></span>&nbsp;&nbsp;";
+
+    extra_links_span.insertHtml('afterBegin', new_link_el, false);
+   
+    var layoutPanel = new Ext.Panel({
+      layout: 'ux.rowfit',
+      border: false, bodyBorder: false, frame: false,
+      items: [
+        wrapper,
+        {
+          xtype: 'panel',
+          id: messagePanelId + '.splitBar',
+          height: 15,
+          border: false,
+          bodyBorder: false,
+          frame: false,
+          cls: 'IHaveASplitBar',
+          html: '<div style="height: 15px; background: url(/javascripts/extjs/resources/images/xl/horizontal-split-handle.gif); background-position: top; background-repeat: no-repeat;">&nbsp;</div>'
+        },
+        tabPanel
+      ],
+      style: 'padding: 10px;'  // Push the whole TabPanel in by 10px on all sides
+    });
+    
+    xl.log('Created layout panel! End of constructor...');
+    
+    newPanel.add(layoutPanel);
+    
+    var _afterRenderCallback = function() {
+      var splitBar = new Ext.SplitBar(messagePanelId + '.splitBar', messagePanelId + '.wrapper', Ext.SplitBar.VERTICAL, Ext.SplitBar.TOP);
+      splitBar.setAdapter(new Ext.ux.layout.RowFitLayout.SplitAdapter(splitBar));
+      #{open_email_after_render}
+    }
+`  
+end

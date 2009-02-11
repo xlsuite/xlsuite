@@ -1,0 +1,27 @@
+prepend = %Q`
+  var #{dom_id(@entity)}_form_handler = new XlSuite.FormHandler("#{dom_id(@entity)}_form", {now:true, defaultValue:"N/A", registerNewObject:true});
+  Ext.EventManager.on("show_add_field", 'click', showAddField);
+  Ext.EventManager.on("contactOptions_values", "change", showAddFieldGo.bindAsEventListener(this, #{typed_dom_id(@entity, :form_handler)}));
+  Ext.EventManager.on("contactOptions_values", "blur", showAddFieldCancel);
+  Ext.EventManager.on("show_add_field_cancel", "click", showAddFieldCancel);
+  
+  var #{dom_id(@entity)}_authorization_handler = new XlSuite.AuthorizationHandler(#{typed_dom_id(@entity, :authorizations).to_json}, #{entity_path(@entity).to_json}, {now:true});
+`
+
+page << create_tab_using_ajax_response("#{@entity.classification} | #{@entity.name}", prepend) do
+%Q`
+  var wrapperPanel = new Ext.Panel({
+    cls: 'IAmAPanelWithBorderLayoutContainer',
+    region: 'center',
+    autoScroll: true
+  });
+
+  var formPanel = new Ext.Panel({
+    region: 'center',
+    html: #{render(:partial => "edit").to_json}
+  });
+  wrapperPanel.add(formPanel);
+
+  newPanel.add(wrapperPanel);
+`
+end

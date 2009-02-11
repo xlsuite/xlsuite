@@ -1,0 +1,66 @@
+<% content_for(:js) do -%>
+<%= javascript_include_tag "xl_suite/form_handler.js" %>
+<%= javascript_tag <<EOF
+var #{typed_dom_id(@acct, :form_handler)} = new XlSuite.FormHandler("#{dom_id(@acct)}");
+EOF
+%>
+<% end -%>
+
+<% inline_form_for(:account, @acct, :url => account_path(@acct), :id => dom_id(@acct), :html => {:method => :put}) do |f| %>
+  <%= error_messages_for(:acct) %>
+
+  <fieldset>
+    <h3>XL Account</h3>
+    <ol id="domains">
+      <%= render :partial => 'domain', :collection => @domains %>
+    </ol>
+  </fieldset>
+
+  <fieldset>
+    <h3>Available Modules</h3>
+    <ol id="options">
+      <%= render :partial => "option", :collection => AccountModule::AVAILABLE_MODULES, :locals => {:account => @acct} %>
+    </ol>
+  </fieldset>
+
+  <br/>
+  <fieldset>
+    <h3>Account Master Login</h3>
+    <p>Username is 
+<% if @acct.owner %>
+    <%= f.view_field(:owner, :value => link_to(h(@acct.owner.display_name), "mailto:#{@acct.owner.main_email.address}"), :label => "Account owner") %>
+<% else %>
+    <%= f.view_field(:owner, :value => "unknown", :label => "Account owner") %>
+<% end %>
+    </p>
+    <p>Password is ******</p>
+    <p>Title: <%= f.text_field :title, :size => 40 %></p>
+    <p>Expires at: <%= f.text_field :expires_at, :value => format_date_time(@acct.expires_at), :size => 20 %></p>    
+  </fieldset>
+
+  <br/>
+  <fieldset>
+    <p><b>Billing Info</b> (next bill date xxxx/xx/xx)</p>
+    <p><%= @acct.owner ? @acct.owner.display_name : "unknown" %></p>
+    <p><%= @acct.owner.main_email.address %></p>
+    <p><%= @acct.owner.main_phone.main_identifier %></p>
+    <p><%= @acct.owner.main_address.main_identifier %></p>
+  </fieldset>
+
+  <br/>
+  <p>$x.xx Monthly</p>
+  
+  <br/>
+  <p><%= link_to_function "Change payment method", "" %> or <%= link_to_function "cancel your account", "" %></p>
+  <p>Any changes made in payment periods, methods or cancellations will take effect at the end of your current billing cycle.</p>
+  
+  <br/>
+  <p>Account created by <%= @acct.owner %> on <%= @acct.created_at.strftime("%Y/%m/%d at %I:%M %p")%></p>
+  <p>Account updated by <%= @acct.owner %> on <%= @acct.updated_at.strftime("%Y/%m/%d at %I:%M %p")%></p> 
+   
+  <p><%= submit_tag "Save" %></p>
+  
+  <div style="display:none">
+    <%= hidden_field_tag :elsewhere, nil %>
+  </div>
+<% end %>

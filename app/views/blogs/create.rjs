@@ -1,0 +1,8 @@
+page << update_notices_using_ajax_response(:on_root => true)
+page.replace_html "new_blog_errorMessages", @blog.errors.full_messages.blank? ? @syntax_error : error_messages_for(:blog)
+
+if @created
+  page << refresh_grid_datastore_with_key("blogs")
+  page << "xl.openNewTabPanel('blogs_edit_#{@blog.id}', #{edit_blog_path(@blog).to_json});" unless @close
+  page << "xl.closeTabs('blogs_new_nil');"
+end

@@ -1,0 +1,459 @@
+/* XLsuite  CSS > blocks
+
+created: 2007-02-12 | by: max 
+updated: 2007-11-14 | by: jstubbs 
+purpose: custom standard blocks of content, such as login, search
+details: contains login, breadcrumbs, search module, search results
+
+
+/*recently added - needs sorting 2007-12-11 */
+
+/*Contact - General Page*/
+#party-wrap .mapLink { font-size: x-small; border-bottom: 1px solid #ddd; }
+#party-wrap .parties_footer {display: block; width: 500px; clear: both; border-top: 1px solid #ddd; font-size: x-small; margin: 0 auto; text-align: center;}
+.party-wrap p.recordStatus span.createdBy_date, p.recordStatus span.modifiedBy_date {background: #BCDBF6;}
+.party-wrap p.recordStatus {font-size: x-small; text-align: center;}
+
+
+/* global */
+
+
+.user_options {display: block; width: 100%; margin-bottom: 1em;}
+	.user_options a {font-size: x-small}
+.wrap {display: block; width: 100%; height: 100%; margin: 3em;}
+
+
+/*____________*/
+
+  #content                      { padding-left: 200px;   /* LC width */ padding-right: 280px;  /* RC width */ }
+	#content .column              { margin-top: 25px; float: left; position: relative; }
+	#contentCenter                { width: 100%; background: #fff; height:100%;}
+  #contentCenterNoScroll        { width: 100%; background: #fff;}
+	/* #contentRight{ width: 280px; margin-right: -280px; background: #fff; } */
+	#contentLeft                  { width: 200px; margin-left: -100%; right: 200px; background: #fff; }
+	
+  #footer                       { clear: both; background: #fff; border-top: 1px solid #ccc; padding: 5px; text-align: right; }
+	#footer div.options a         { margin: 0px 4px; }
+	
+  #logo                         { height: 20px; width: 50px; position: absolute; right: 135px; top: 5px; }
+
+/* DIVs for two columns layout ______________________________________________________________________*/
+
+#spannedColumns           { width: 780px; margin: 30px 6px; }
+
+/* Center column - 'tabbed' content loads here */
+
+#mainContentArea          { clear: both; width: 90%; margin: 0px auto; min-height: 500px; background: #fff; border: 1px solid #ccc; padding: 10px; }
+
+/*replaces mainContentArea on spanned columns*/
+
+.mainContent              { width: 98%; border-left: 0px solid #c7c7c7; border-right: 1px solid #c7c7c7; border-bottom: 1px solid #c7c7c7; padding-top: 19px; padding-bottom: 26px; }
+
+/* Left Column specifics */
+
+img.brand                 { margin-left: 14px; margin-top: 10px; width: 170px; height: 56px }
+   #upperLeft             { padding-top: 20px; height: 80px; }
+
+/* odds n ends */
+
+img.calendar              { margin-bottom: -4px; }
+
+/*miscellany*/
+
+.column_block                    { display: block; float: left; }
+
+/*padding*/
+
+.padded_6                        { padding: 6px; }
+
+
+/* inline lists */
+ul.inline_list li               { display: inline; }
+/* ul.inline                    { list-style-type: none; } defaulted */
+ul.inline li                    { display: inline; } /* margin: 0; padding: 0; defaulted */
+ul.inline li.separator          { margin-right: 0.25em; margin-left: -0.2em; }
+
+/*tags*/
+
+span#more_tags {line-height: 18px;}
+
+/* Paginator - used on list pages - updated 07-11-08 */
+
+#paginator                      { display: block; height: 36px; margin: 1em 0;}
+#paginator p					{ margin-top: 3px; font-size: .9em;}
+#paginator select 				{ margin-top: 2px; }
+.pageViewer                     { display: inline; float: left; margin: 2px 10px; }
+
+/*login stuff*/
+
+.flashLogo                      { width: 100px; height: 100px; display: block; float: left;}
+
+/* labels on parties pages */
+
+.partyLabel                     { width: 180px;height: 118px;
+                                  background: transparent url(../../images/parties_referenceCard.png) no-repeat 0 0; 
+							      padding: 40px 35px;
+							      float: left;
+							      margin-left: 30px;
+							      margin-top: 16px;}
+
+/* centered element */
+
+.centerBlock                    { width: 100%; display: block; text-align: center; margin: 20px auto; }
+
+
+
+/* Emulate table headers */
+
+div.tableHeader                 { background:transparent url(../../images/table_headerBg.png) repeat-x scroll 0%; 
+                                  height: 29px;}
+div.tableHeader h2              { color: #fff; font-weight: bold; padding: 6px; }
+
+
+
+/* emulate table bground */
+
+ li.bg                          { background: #f5f5dc; }
+
+/*new accounts page*/
+
+#accountsNew                    { }
+
+/*common header - can be reused */ 
+
+h2.cHeader                      { color: #94C74D;
+                                  font-family:"Lucida Sans", Helvetica, Arial, Verdana, sans-serif;
+							      font-size:18px;
+							      font-weight: bold;}
+								  
+/* new accounts ? */							   
+#accountsNew h2                      { margin-left: 1em; }
+#accountsNew h3                      { font-weight: bold; border-bottom: 1px solid #eee; margin-bottom: 1em; }
+#accountsNew form div.pseudoFieldset { border: 1px solid #ddd; padding: 1em; margin: 1em; width: 62%; }
+#accountsNew form label              { float:left; margin-left: 3em; margin-bottom: -13px; }
+#accountsNew form input              { float: right; margin-right: 9em; margin-top: -2px; }
+#accountsNew form br                 { clear: both; }
+
+
+    /* clear default form styles */
+    #new_domain_name_edit, #new_domain_name_show, 
+	#new_email_contact_route_email_address_show, 
+	#new_email_contact_route_email_address_edit    { padding: none !important; float: none !important; }
+    
+    /* indicators */
+    #new_domain_name_indicator                     { margin-left: 4px;}
+    
+    /* inputs */
+	
+    #accountsNew div.row                                   { margin: 9px 0    !important; }
+    #accountsNew div.row input                             { width: 200px    !important; }
+    #accountsNew div.row select                            { width: 204px    !important; 
+	                                                         margin-right: 9em;
+													         float: right;}
+    
+    #accountsNew #new_address_contact_route_zip_field,
+    #accountsNew #new_address_contact_route_state_field,
+    #accountsNew #new_address_contact_route_country_field  { }
+    
+    #accountsNew #new_address_contact_route_state_field,
+    #accountsNew #new_address_contact_route_country_field,
+    #accountsNew #new_address_contact_route_zip_field,
+    #accountsNew #new_phone_contact_route_name_field,
+    #accountsNew #new_phone_contact_route_number_field     { margin-right: 9em; }
+    
+    #accountsNew input.submit                              { float: none       !important; 
+	                                                         margin-left: 16em !important;}
+
+
+
+
+/* Email - shared styles Added 2007-11-08 */
+
+h2.mail_header { display: block; padding: 6px; text-align: left; color: #fff; background: #8BA075; font-weight: bold; border-top: 1px solid #fff; }
+.mail_body {height: 100%; min-width: 600px; display:block; background: #F5F5DB; margin: 3em;}
+div.mail_user_options { display: block; height: 45px; padding-top: 18px; }
+	div.mail_user_options span.links { margin-left: 36px;}
+	div.mail_user_options span.links a { padding: 2px 4px; border: 1px solid #8dc63f;}
+	div.mail_user_options span.links a:hover { border: 1px solid #666}
+.email_identities_toggle {margin-left: 3.1%; margin-bottom: 1em; width: 50%; clear: both; margin-bottom: .5em;}
+	.email_identities_toggle label {display: block;width: 6%; text-align: right; margin-right: 10px; float: left;}	
+#email_form, #new_mass_email {margin: 0 36px !important;}
+#email_form input, #email_form select, #email_form textarea, #new_mass_email input, #new_mass_email select, #new_mass_email textarea {padding: .3em;}
+#email_form p.subject, #new_mass_email p.subject {margin: 1em 0;}
+#email_form p.subject label, #new_mass_email p.subject label {float: left; font-weight: bold; display: block; width: 7%; text-align: right;}
+#email_form p.subject input, #new_mass_email p.subject input {float: right; width: 91.8%;}
+.e_body label {display: block; width: 4%; float: left; text-align: right;}
+.e_body textarea {width: 91.8%; float:right; overflow: auto; height: 240px;}
+.mail_footer {border-top: 1px solid #333; margin-top: 1em;}
+	.mail_footer #paginator {float: right; margin-right: 36px;}
+#email_form div#bottom_console span.links {margin-left: 5% !important;}
+#e_sched { float: right; margin-top: -18px}
+#email_scheduled_at_1i {width: 60px;}
+#email_scheduled_at_2i {width: 100px;}
+#email_scheduled_at_3i {width: 50px;}
+#email_scheduled_at_4i {width: 50px;}
+#email_scheduled_at_5i {width: 50px;}
+
+/*Email Template*/
+
+
+.template_edit form {width: 800px; margin: 1em auto; padding: 1em;}
+.template_edit input[type=submit] { border: 1px solid #8dc63f; background: #fff; padding: 2px 4px; cursor: pointer;}
+.template_console {margin: 1em 0;}
+.templates_block { display: inline; height: 180px; margin: 6px; float: left;}	
+	
+.templates_block p {clear: both; margin: .5em 0;}
+.templates_block span.label {clear: both; display: block; width: 25%; float: left; text-align: right; font-weight: bold;}
+.templates_block input, .templates_block textarea {width: 70%; float: right; margin-bottom: 1em;}
+.templates_block textarea {padding: 2px;}
+.templates_block ul.tag_cloud {margin-top: .5em; display: block; width: 100%; overflow: scroll; height: 253px;}
+.template_edit .sB {width: 400px} .template_edit .lB {width: 600px;} /*block sizing*/
+
+.template_edit #sbts {width: 800px; display: block; min-width: 800px;}
+.template_edit #sb {}
+.template_edit #sb {}
+.template_edit #ts {float: none;}
+
+.template_edit #ld {margin-left: 96px;}
+.template_edit #tgz {margin-left: 96px;}
+
+.template_edit #ts ul {margin-top:2em; font-size: 11px;}
+.template_edit #ts ul li{line-height: 14px;}
+#_template_description { height: 228px;}
+
+.template_edit #acz .multiple_select {height: 150px; width: 70%; margin: 0 4px;}
+.template_edit #acz .multiple_select li {}
+.template_edit #acz .multiple_select li label {width: 88%; display: block;}
+.template_edit #acz .multiple_select li input {width: 14px;}
+
+
+/* 500 page */
+
+.errorForm h2 {
+display:block;
+font-weight: bold;
+border-bottom: 1px solid #ddd;
+margin-bottom: 1em;
+}
+
+.errorForm p                           { margin: 1em; }
+.errorForm form input.paypalButton     { border:none; margin-left: 1em; }
+.errorForm form.contact                { width: 60%; display: block; }
+.errorForm form.contact label          { float: left; margin-bottom: .5em;}
+.errorForm form.contact input.text     { float: right; margin-bottom: .5em;}
+.errorForm form.contact p              { margin-bottom: 1em !important; clear: both;}
+.errorForm form.contact input.checkbox { float:left; margin-right: 20px;} 
+
+table { font-size: inherit; }
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+/* WEST PANEL */
+/* My Dashboard */
+     .x-tool-collapse-west,
+     .x-tool-collapse-east                     { background-image: none; }
+
+/* Acordions */
+
+/* Quick Entry */
+
+     #quickEntryPanel form                     { padding: 2px;}
+     #quickEntryPanel select                     { width: 95px;}
+     #quick_entry_for_field                    { width: 162px;}
+     .quickEntry                               { width: 194px; margin: 3px 0px 0px 0px;}
+     #quick_entry_save_to_field                { width: 194px;}
+
+/* My History */
+
+     #myHistoryList div                        { text-align: left; width: 100%; }
+
+/* Unread Messages */
+
+     #mailList div                             { text-align: left; width: 100%;}
+
+/* My Feeds */
+
+     #myFeedsList div                          { text-align: left; width: 100%;}
+
+/* My Email Labels */
+
+     #myEmailLabelsList div                    { text-align: left; width: 100%;}
+     
+/* Saved Searches */
+
+     .mail-column ,
+     .mail-column-bg                           { float: left; display: inline;}
+     
+     .mail-column li ,
+     .mail-column-bg li                        { height: auto; display: block;}
+     
+     .panel-container-with-yscroll             {  }
+     .savedSearchTitle                         { width: 148px;color: #0088CC;}
+     .saved-searches-icons                     { width: 44px; height: 16px;}
+
+     
+/* NORTH PANEL */
+
+     #north                                    { background-color: #e8e7e2; color: #FFF;}
+     #header                                   { float: left; disply: inline;
+                                                 height: 25px; width: 100%; position: relative; z-index: 1000;
+                                                 background: #e8e7e2 url(../javascripts/extjs/resources/images/xl/header-bg.png) repeat-x 0 0; margin: 0px 0px 0px 0px; border-bottom: 1px solid #7a7773;}
+	   #leftHeader                               { float: left; display: inline; width: 200px; padding: 4px 0px; text-align: left;
+                                                 overflow: hidden; }
+     #leftHeader .favicon                      { float: left; display: inline; margin: 0px 0px 0px 4px; }
+  div#leftHeader p span#userName               { float: left; display: inline; margin: 0px 0px 0px 4px; font-weight: normal; font-size: 11px; text-transform: uppercase; text-align: left; color: #7a7773;}
+	   /*#horizontalNav                            { margin: -1px 0px 0px 0px; background-color: #e8e7e2; width: 600px; }*/
+	   /*#horizontalNav  { width: 612px;}            /*js 2007-11-14*/
+	   #mainSearchBar                            { float: right; display: inline; width: 240px; 
+                                                 position: absolute; top: 0; right: 0; padding-top: 2px; }
+	   #searchConsole                            { width: 450px; position: absolute; top:23px; right:0; background: #fff; color: #444;}
+     #searchBar .searchBarLabel                { color: #7a7773; }
+
+  
+/* EAST PANEL */
+/* Related to ... */
+
+/* Accordions */
+
+/* Messages */
+
+     #recordMessagesPanel div                  { text-align: left; width: 100%;}
+
+/* Files */
+
+     #recordFilesPanel div                     { text-align: left; width: 100%;}
+
+/* Payments */
+
+     #recordPaymentsPanel div                  { text-align: left; width: 100%;}
+
+/* SOUTH PANEL */
+
+/* no more bugs icon */
+
+#no-more-bugs                                  {float:right;}
+
+.ipage {padding: 10px; text-align: left;}
+
+/* from links index page */
+
+#top_index {
+    height: 14em; 
+    width: 100%;
+    font-size: 120%; 
+    overflow: auto; 
+    white-space: nowrap;
+    border-style: solid;
+    border-bottom-width: 2px;
+    border-top-width: 0px;
+    border-left-width: 0px;
+    border-right-width: 0px;    
+  }
+  
+/*Bug buster*/  
+
+/*CMS___________________________________________________________________*/
+
+
+/*globals*/
+
+.errorExplanation {margin: 1em; padding: 1em; border: 1px solid red;}
+.errorExplanation h2 {color: red; font-weight: bold; margin-bottom: 1em;}
+.errorExplanation p {}
+.errorExplanation ul {}
+.errorExplanation ul li {padding-left: 16px; background: url(../images/icons/generic_error.png) no-repeat 0 2px; font-weight: bold;}
+p.save_options {clear: both;}
+p.save_options img#save_indicator {margin-bottom: -3px; margin-left: 3px;}
+
+/*layouts*/
+
+
+
+#layout_edit_body {clear: both;}
+	#layout_edit_body label {font-weight: bold; float: left; margin-left: 78px; margin-bottom: -16px;}
+	#layout_edit_body textarea {width: 86%; margin-left: 120px; margin-bottom: 1em; padding: 1em; font-family: 'Courier', 'Courier New', Arial, Verdana, sans-serif; color: blue;}
+
+#layout_edit_options {width: 400px; float: left;}
+	#layout_edit_options label {float: left; width: 30%; text-align: right; font-weight: bold;}
+	#layout_edit_options input {width: 60%; float: left;}
+	#layout_edit_options p {margin: 4px 0; display: block; height: 1.5em;}
+
+#layout_edit_mdomain {width: 895px; height: 120px; float: left; margin-left: 120px;}
+	#layout_edit_mdomain label {width: 100%; font-weight: bold;}
+	#layout_edit_mdomain textarea {width: 96%; clear: both; overflow: auto; margin-top: .5em; padding: .5em;}
+	#layout_edit_mdomain p.tip {font-size: 10px;}
+
+#layout_edit_auth {clear: both; margin-left: 120px}
+#layout_edit_auth div {width: 288px; height: 200px; float: left; margin: 0 6px;}
+	#layout_edit_auth span.label {font-weight: bold;}
+	#layout_edit_auth ul.multiple_select {margin: .5em 0;}
+	
+/* page create/edit */
+
+#behavior_content {}
+#behavior_content p.description {margin-top: .6em; font-weight: bold;}
+#behavior_values_text {width: 98.5%; margin: .6em 0; padding: 1em; font-family: 'Courier', 'Courier New', Arial, Verdana, sans-serif; color: blue;}
+#cms_edit_forms {margin: .6em 0;}
+#cms_edit_forms label {font-weight: bold; margin-right: 4px;}
+
+#page_edit_options {width: 300px; height: 200px; float: left;}
+	#page_edit_options label {float: left; width: 30%; text-align: right;}
+	#page_edit_options input {width: 60%; float: left;}
+	#page_edit_options select {width: 62%; float: left;}
+	#page_edit_options p {margin: 4px 0; display: block; height: 1.5em;}
+
+#page_edit_mdomain {width: 300px; height: 200px; float: left;}
+	#page_edit_mdomain label {width: 100%;}
+	#page_edit_mdomain textarea {width: 98%; clear: both; overflow: auto; margin-top: .5em;}
+	#page_edit_mdomain p.tip {font-size: 10px;}
+
+#page_edit_auth {clear: both; margin-left: 120px;}
+#page_edit_auth div {width: 288px; height: 200px; float: left; margin: 0 6px;}
+	#page_edit_auth span.label {font-weight: bold;}
+	#page_edit_auth ul.multiple_select {margin: .5em 0;}
+	#page_edit_auth ul.multiple_select li {font-weight: normal;}
+	
+/*snippet create/edit*/
+#snippet_edit_options {width: 300px; height: 100px; float: left;}
+	#snippet_edit_options label {float: left; width: 30%; text-align: right;}
+	#snippet_edit_options input {width: 60%; float: left;}
+	#snippet_edit_options select {width: 62%; float: left;}
+	#snippet_edit_options p {margin: 4px 0; display: block; height: 1.5em;}
+
+#snippet_edit_mdomain {width: 300px; height: 100px; float: left;}
+	#snippet_edit_mdomain label {width: 100%;}
+	#snippet_edit_mdomain textarea {width: 98%; clear: both; overflow: auto; margin-top: .5em;}
+	#snippet_edit_mdomain p.tip {font-size: 10px;}
+
+#snippet_edit_auth div {width: 288px; height: 200px; float: left; margin: 0 6px;}
+	#snippet_edit_auth span.label {font-weight: bold;}
+	#snippet_edit_auth ul.multiple_select {margin: .5em 0;}
+	#snippet_edit_auth ul.multiple_select li {font-weight: normal;}
+	
+/*feed create/edit */
+
+
+
+.feed_edit_options {width: 600px; height: 114px;}
+	.feed_edit_options input, .feed_edit_options input textarea {width: 60%; float: left;}
+	.feed_edit_options label {width: 30%; float: left; text-align: right; font-weight: bold; margin-left: 8px;}
+	.feed_edit_options p {margin: 4px 0; display: block; height: 1.5em;}
+#feed_description {padding: 2px; height: 60px; overflow:auto;}
+
+.feed_edit_tags {width: 600px; height: 70px; clear: both;}
+.feed_edit_tags label {width: 30%; float: left; text-align: right; font-weight: bold; margin-left: 8px;}
+.feed_edit_tags textarea {height: 60px; padding: 2px; overflow: auto;}
+.feed_edit_tagCl {height: 80px; width: 366px; margin-left: 188px;}
+.feed_edit_tagCl ul.tag_cloud {height: 60; overflow: auto; margin: 0;}
+
+.feed_chk {margin-bottom: 1em;}
+
+
+/*new email account (general contact)*/
+
+#email_accounts_list {display: none;}
+#email_account_create_form {padding: 10px; width: 300px; display: block;}
+#email_account_create_form p {margin-bottom: .6em; clear: both; display: block; line-height: 2em;}
+#email_account_create_form label {display: block; float: left; text-align: right; margin-right: 4px; width: 100px; margin-top: -4px; font-weight: bold;}
+#email_account_create_form input, #email_account_create_form select {float: left; width: 190px;}
+#email_account_create_form input.button {width: auto; margin-top: 2px; margin-right: 4px;}
+#email_account_create_form link_button {}

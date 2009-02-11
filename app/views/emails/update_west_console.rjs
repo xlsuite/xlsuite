@@ -1,0 +1,3 @@
+page.replace_html "mailList", :partial => "list_emails", :collection =>@unread_emails 
+page.replace_html "mail-panel-title", "My Recent Unread Messages (#{@unread_emails_count})"
+page.replace_html "myHistoryList", :partial => "list_sent_and_read_emails", :collection =>@sent_and_read_emails 

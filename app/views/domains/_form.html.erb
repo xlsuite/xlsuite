@@ -1,0 +1,35 @@
+<%= error_messages_for :domain %>
+<% fields_for :domain do |f| %>
+  <p><label for="domain_name">Name:</label><br/>
+    <%= f.text_field :name, :size => 30 %>
+  </p>
+  <p><label for="domain_role">Role:</label><br/>
+    <%= f.select :role, Domain::AvailableRoles %>
+  </p>
+  <p><label for="domain_price">Selling price:</label><br/>
+    <%= f.text_field :price, :size => 8 %>
+  </p>
+  <p><label for="domain_description">Description (uses Textile markup):</label><br/>
+    <%= f.text_area :description, :size => "50x3" %>
+  </p>
+  <% if !@domain.find_thumbnails.blank? && !@domain.new_record?%>
+    <p>
+      Current preview thumbnail: 
+      <%= render_domain_thumbnail(@domain, false) %>
+    </p>
+  <% end -%>
+  <p>
+    Upload preview thumbnail:
+  </p>
+  <p>
+    <%= f.file_field :picture, :size => 80, :class=> "text" %>
+  </p>
+<% if @domain.new_record? && @domain_subscription_with_empty_slot.nil? %>
+  <%= render_domain_subscription_products_selection(@domain_subscription_products_map) %>
+<% end %>
+  <p>
+    <%= submit_tag "Save" %>
+    or
+    <%= link_to "Cancel", domains_path %>
+  </p>
+<% end -%>

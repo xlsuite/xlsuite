@@ -1,0 +1,603 @@
+addr_route = @order.ship_to
+
+page << create_tab_using_ajax_response("Edit Order | #{@order.number}") do
+%Q`
+  var prefix = '#{dom_id(@order)}';
+
+  #{create_DateField}
+  #{create_InvoiceToButton}
+  #{create_countries_and_states_store}
+  
+  var form = {url: #{order_path(@order).to_json}, object: 'ship_to'};
+  var statusForm = {url: #{order_path(@order).to_json}, object: 'order'};
+
+  var statusStore = new Ext.data.SimpleStore({
+    fields: ['value'],
+    data: [#{edit_order_status_selections}]
+  });
+
+
+  var formPanel = new Ext.Panel({
+    autoScroll: true,
+    id: prefix + '.layout.formPanel',
+    width: '100%',
+    layout: 'table',
+    layoutConfig: {
+      columns: 3
+    },
+    items: [
+    {
+      html: '<h2 class="page_header">Edit Order <label> Number:</label>#{@order.number}</h2>',
+      colspan: 3
+    },
+    {
+      layout: 'form',
+      layoutConfig: { columns: 1 },
+      width: 250,
+      labelAlign: "top",
+      items: [
+      DateField, 
+      {
+        style: 'padding-top: 15px;',
+        html: "Invoice to: "+#{(content_tag :div, @order.invoice_to ? @order.invoice_to.display_name : "", :id => typed_dom_id(@order, :invoice_to)).to_json}
+      },
+      InvoiceToButton, 
+      { style: 'padding-top: 15px;' },
+      xl.widget.InlineActiveField({ 
+        form: statusForm, 
+        field: {
+          displayField: 'value', 
+          valueField: 'value',
+          fieldLabel: 'Status',
+          value: '#{@order.status}', 
+          name: 'status', 
+          type: 'combobox', 
+          store: statusStore, 
+          editable : false,
+          triggerAction: 'all',
+          mode: 'local'
+        }
+      })]
+    },
+    {
+      layout: 'form', 
+      width: 280, 
+      items: [
+        {
+          html: "Ship to:"
+        },
+        xl.widget.InlineActiveField({ form: form, field: {value: #{addr_route.line1.to_json}, name: 'line1', fieldLabel: 'Line 1', id: '#{typed_dom_id(@order, :line1)}'}}),
+        xl.widget.InlineActiveField({ form: form, field: {value: #{addr_route.line2.to_json}, name: 'line2', fieldLabel: 'Line 2', id: '#{typed_dom_id(@order, :line2)}'}}),
+        xl.widget.InlineActiveField({ form: form, field: {value: #{addr_route.line3.to_json}, name: 'line3', fieldLabel: 'Line 3', id: '#{typed_dom_id(@order, :line3)}' }}),
+        xl.widget.InlineActiveField({ form: form, field: {value: #{addr_route.city.to_json}, name: 'city', fieldLabel: 'City', id: '#{typed_dom_id(@order, :city)}'}}),
+        xl.widget.InlineActiveField({ 
+          form: form, 
+          field: {
+            value: '#{addr_route.state}', 
+            name: 'state', 
+            displayField: 'value', 
+            valueField: 'value',
+            fieldLabel: 'State', 
+            id: '#{typed_dom_id(@order, :state)}',
+            type: 'combobox', 
+            store: statesStore,
+            triggerAction: 'all',
+            mode: 'local'
+          }
+        }),
+        xl.widget.InlineActiveField({ 
+          form: form, 
+          field: {
+            value: '#{addr_route.country}', 
+            name: 'country', 
+            displayField: 'value', 
+            valueField: 'value',
+            fieldLabel: 'Country', 
+            id: '#{typed_dom_id(@order, :country)}',
+            type: 'combobox', 
+            store: countriesStore,
+            triggerAction: 'all',
+            mode: 'local'
+          }
+        }),
+        xl.widget.InlineActiveField({ form: form, field: {value: #{addr_route.zip.to_json}, name: 'zip', fieldLabel: 'Zip', id: '#{typed_dom_id(@order, :zip)}'}})
+      ]
+    },
+    {
+      width: 250,
+      items: [
+        {
+          layout: 'form',
+          items: [
+            xl.widget.InlineActiveField({ form: statusForm, field: {value: '#{@order.shipping_fee.to_s}', name: 'shipping_fee', fieldLabel: 'Shipping Fee', id: '#{typed_dom_id(@order, :shipping_fee)}'}}), 
+            { html: '#{content_tag :div, "", :id => typed_dom_id(@order, :recommended_shipping)}' }
+          ]},
+        { html: #{render(:partial => 'edit').to_json} }
+      ]
+    }
+    ]
+  });
+  
+  var generateTotalsToolbar = function() {
+    var toolbar = new Ext.Toolbar({
+      autoWidth: true,
+      items: [
+      {
+        text: "Send Order",
+        handler: function(){
+          var sendOrderTemplate;
+          new Ajax.Request(#{get_send_order_template_orders_path().to_json}, {
+            method: 'get',
+            onSuccess: function(transport){
+              response = Ext.util.JSON.decode(transport.responseText);
+              sendOrderTemplate = response.template_name;
+              if(sendOrderTemplate)
+              {
+                xl.openNewTabPanel('emails_new_nil', #{@send_order_path.to_json});
+              }
+              else
+              {
+                Ext.Msg.show({
+                  title: "Send order template not found",
+                  msg: "The default send order email template cannot be found. Please create it first, and send the order again.",
+                  buttons: Ext.Msg.OK,
+                  fn: function(btn){
+                    if ( btn.match(new RegExp("ok","i")) ) {
+                      xl.openNewTabPanel('send_order_new_nil', #{new_template_path(:_template => {:label => current_domain.get_config("send_order_template"), 
+                            :subject => "Order Confirmation", :body => "Thank you for your order. Please validate and pay online following this link: http://#{current_domain.name}/orders?uuid=__UUID__ 
+                                                                        \n<p>Subtotal: __SUBTOTAL__</p>\n<p>Total: __TOTAL__</p>"}).to_json.gsub("amp;", "")})
+                    }
+                  }
+                })
+              }
+            }
+          });
+          
+        }
+      },
+        new Ext.Toolbar.TextItem("<div id='#{typed_dom_id(@order, :subtotal, :div)}' class='subtotal totals'>SubTotal: <span id='#{typed_dom_id(@order, :subtotal)}'>#{@order.subtotal_amount}</span></div>")
+      ,{
+        text: "<div class='total totals'>Total: <span id='#{typed_dom_id(@order, :total)}'>#{@order.total_amount}</span></div>",
+        handler: function(){ 
+          new Ajax.Request(#{get_totals_order_path(@order).to_json},{
+            method: 'get',
+            onSuccess: function(transport){
+              response = Ext.util.JSON.decode(transport.responseText);
+              Ext.Msg.show({
+                title: "Order totals", 
+                msg: #{generateTotalMessage},
+                minWidth: 400, 
+                defaultTextHeight: 200, 
+                buttons: Ext.Msg.OK
+              });
+            }
+          });
+        }
+      }]  // end items
+    });
+    return toolbar;
+  }; 
+  
+  //++++++++++++++++++++++++++++++-- Order Lines tab --+++++++++++++++++++++++++++++++//
+  var orderLinesRecordAndStore = xl.widget.SimpleJSONStore({
+    url: '#{order_order_lines_path(@order)}',
+    doLoad: true,
+    doSmartMappings: true,
+    fields: [
+      'id', 'quantity', 'retail_price', 'description', 'extension', 'target_id', 'target_name'
+    ]
+  });
+  
+  var orderLineProductAutoCompleteRecord = new Ext.data.Record.create([
+    {name: 'display', mapping: 'display'},
+    {name: 'value', mapping: 'value'},
+    {name: 'id', mapping: 'id'}
+  ]);
+
+  var orderLineProductAutoCompleteReader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, orderLineProductAutoCompleteRecord)
+  var orderLineProductAutoCompleteConnection = new Ext.data.Connection({url: #{formatted_auto_complete_sale_events_path(:format => :json).to_json}, method: 'get'});
+  var orderLineProductAutoCompleteProxy = new Ext.data.HttpProxy(orderLineProductAutoCompleteConnection)
+  var orderLineProductAutoCompleteStore = new Ext.data.Store({proxy: orderLineProductAutoCompleteProxy, reader: orderLineProductAutoCompleteReader});
+
+  orderLineProductAutoCompleteStore.on('load', function(store, records, options){
+    store.remove(store.getAt(0)); 
+  });
+
+  var productNameComboBox = new Ext.form.ComboBox({
+    store: orderLineProductAutoCompleteStore,
+    displayField: 'display',
+    valueField: 'value',
+    triggerAction: 'all',
+    forceSelection: true,
+    minChars: 0,
+    allowBlank: false,
+    minListWidth: 275,
+    resizable: true
+  });
+  
+  var orderLinesActionsMenu = new Ext.menu.Menu({});
+  var orderLinesGridPanel = new Ext.grid.EditorGridPanel({
+    store: orderLinesRecordAndStore.store,
+    cm: new Ext.grid.ColumnModel([ 
+      { 
+        id: "order_line",
+        header: "Product",
+        width: 200,
+        dataIndex: "target_name",
+        editor: productNameComboBox
+      },
+      { 
+        id: "description",
+        header: "Description",
+        dataIndex: "description",
+        editor: #{renderTextFieldEditor}
+      },
+      { 
+        header: "Retail price",
+        dataIndex: "retail_price",
+        editor: #{renderTextFieldEditor}
+      },
+      { 
+        header: "Quantity",
+        dataIndex: "quantity",
+        editor: #{renderTextFieldEditor}
+      },
+      { 
+        header: "Extension",
+        dataIndex: "extension"
+      }
+    ]),
+    
+    tbar: [
+      'Order lines'
+    ],
+    
+    autoScroll: true,
+    autoWidth: true,
+    autoExpandColumn: 'description', 
+    clicksToEdit: 2,
+    selModel: new Ext.grid.RowSelectionModel, 
+    enableDragDrop: true, 
+    ddGroup: 'testDDGroup'
+  });
+  
+  var selectAllAction = new Ext.Action({
+    text: "Select all",
+    iconCls: "display_none"
+  });
+
+  var clearAllAction = new Ext.Action({
+    text: "Clear all",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var deleteAction = new Ext.Action({
+    text: "Delete",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var selectionMenu =  new Ext.menu.Menu({
+    items: [selectAllAction, clearAllAction]
+  });
+  
+  selectionMenu.addSeparator();
+  selectionMenu.add(deleteAction);
+  
+  clearAllAction.setHandler(function(e) {
+    orderLinesGridPanel.getSelectionModel().clearSelections();
+    selectedIds = [];
+    e.disable();
+  });
+
+  selectAllAction.setHandler(function(e) {
+    orderLinesGridPanel.getSelectionModel().selectAll();
+    e.disable();
+  });
+  
+  deleteAction.setHandler(function(e) {
+    Ext.Msg.confirm("", "Delete selected order lines permanently?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        orderLinesGridPanel.disable();
+        params['ids'] = selectedIds.toString();
+        new Ajax.Request(#{destroy_collection_order_order_lines_path(@order).to_json}, {
+          method: 'post',
+          parameters: params,
+          onSuccess: function(transport){
+            orderLinesGridPanel.enable();
+          }
+        });
+      }
+    });
+  });
+  
+  var tempTargetId = null;
+  productNameComboBox.on("beforeselect", function(comboBox, targetRecord, index){
+    tempTargetId = targetRecord.id;
+  });
+  
+  productNameComboBox.on("valid", function(comboBox){
+    var temp = comboBox.getRawValue().stripTags().gsub("&nbsp;", "");
+    comboBox.setRawValue(temp);
+  });
+
+  productNameComboBox.on("focus", function(comboBox){
+    var temp = comboBox.getRawValue().stripTags().gsub("&nbsp;", "");
+    comboBox.setRawValue(temp);
+  });
+
+  var orderLinesPath = #{order_order_line_path(:order_id => @order, :id => "__ID__").to_json};
+
+  orderLinesGridPanel.on("validateedit", function(event){
+    var record = event.record;
+    var editedFieldName = event.field;
+
+    record.set(editedFieldName, event.value);
+
+    if(tempTargetId){
+      record.set("target_id", tempTargetId);
+      tempTargetId = null;
+    };
+
+    var method = "put";
+    var objectId = record.get("id");
+
+    var params = {};
+    
+    params["order_line[quantity]"] = record.get("quantity");
+    if(editedFieldName == "target_name"){
+      params["order_line[target_id]"] = record.get("target_id");
+    }
+    else{
+      params["order_line[description]"] = record.get("description");
+      params["order_line[retail_price]"] = record.get("retail_price");
+    }
+    
+    if(objectId == ""){
+      method = "post";
+      new Ajax.Request(#{order_order_lines_path(@order).to_json},{
+        method: method,
+        parameters: params,
+        onSuccess: function(transport){
+          response = Ext.util.JSON.decode(transport.responseText);
+          record.set('id', response.id);
+          record.set('quantity', response.quantity);
+          record.set('retail_price', response.retail_price);
+          record.set('description', response.description);
+          record.set('extension', response.extension);
+          record.set('target_name', response.target_name);
+          record.set('target_id', response.target_id);
+          if(response.subtotal)
+          {
+            $('#{typed_dom_id(@order, :subtotal)}').innerHTML = response.subtotal;
+            $('#{typed_dom_id(@order, :subtotal)}').highlight();
+          }
+          if(response.total)
+          {
+            $('#{typed_dom_id(@order, :total)}').innerHTML = response.total;
+            $('#{typed_dom_id(@order, :total)}').highlight();
+          }
+          $("status-bar-notifications").innerHTML = "Order Line successfully created"
+        }
+      });
+    }
+    else{
+      new Ajax.Request(orderLinesPath.sub("__ID__", objectId),{
+        method: method,
+        parameters: params,
+        onSuccess: function(transport){
+          response = Ext.util.JSON.decode(transport.responseText);
+          record.set('quantity', response.quantity);
+          record.set('retail_price', response.retail_price);
+          record.set('description', response.description);
+          record.set('extension', response.extension);
+          record.set('target_name', response.target_name);
+          record.set('target_id', response.target_id);
+          if(response.subtotal)
+          {
+            $('#{typed_dom_id(@order, :subtotal)}').innerHTML = response.subtotal;
+            $('#{typed_dom_id(@order, :subtotal)}').highlight();
+          }
+          if(response.total)
+          {
+            $('#{typed_dom_id(@order, :total)}').innerHTML = response.total;
+            $('#{typed_dom_id(@order, :total)}').highlight();
+          }
+          $("status-bar-notifications").innerHTML = "Order Line successfully updated"
+        }
+      });
+    }
+    return true;
+  });
+  
+  orderLinesGridPanel.on("render", function(g) {
+    var ddrow = new Ext.ux.dd.GridReorderDropTarget(g, {
+       copy: false
+       ,listeners: {
+         afterrowmove: function(objThis, oldIndex, newIndex, records) {
+           var ds = orderLinesGridPanel.getStore();
+           var positions = [];
+           all_records = ds.getRange(0, orderLinesGridPanel.getStore().getCount()-1);
+           all_records.each(function(record){
+             positions.push(ds.indexOfId(record.id));
+           });
+           orderLinesGridPanel.stopEditing();
+           new Ajax.Request(#{reposition_lines_order_order_lines_path(@order).to_json},{
+             method: "POST",
+             parameters: { ids: all_records.invoke("get", "id").join(","), positions: positions.join(",") },
+             onSuccess: function(transport){
+               $("status-bar-notifications").innerHTML = "Order Line(s) successfully repositioned"
+             }, 
+             onFailure: function(transport){
+               Ext.Msg.alert("Failed", "Order line move failed");
+             }
+           });
+         }
+       }
+    });
+  });
+  
+  //++++++++++++++++++++++++++++++-- Payments tab --+++++++++++++++++++++++++++++++//
+  var orderPaymentsRecordAndStore = xl.widget.SimpleJSONStore({
+    url: #{@formatted_order_payments_path.to_json},
+    doLoad: true,
+    doSmartMappings: true,
+    fields: [
+      'id', 'created_at', 'updated_at', 'payment_method', 'amount', 'state'
+    ]
+  });
+  
+  var orderPaymentsGridPanel = new Ext.grid.EditorGridPanel({
+    store: orderPaymentsRecordAndStore.store,
+    cm: new Ext.grid.ColumnModel([ 
+      { id: "state",
+        header: "Status", 
+        dataIndex: "state"
+      },{ 
+        id: "created_at",
+        header: "Created at",
+        dataIndex: "created_at"
+      },{ 
+        id: "updated_at",
+        header: "Updated at",
+        dataIndex: "updated_at"
+      },{ 
+        id: "payment_method",
+        header: "Payment Method",
+        dataIndex: "payment_method"
+      },{ 
+        id: "amount",
+        header: "Amount",
+        dataIndex: "amount"
+      }]),
+    tbar: [
+      'Order lines'
+    ],
+    
+    autoScroll: true,
+    autoWidth: true,
+    clicksToEdit: 1,
+    selModel: new Ext.grid.RowSelectionModel, 
+    autoHeight: false,
+    autoHeight: true
+  });
+  
+  xl.runningGrids.set("#{typed_dom_id(@order, :order_lines_grid)}", orderLinesGridPanel);
+  newPanel.on("destroy", function(){
+    #{refresh_grid_datastore_of("order")}
+    xl.runningGrids.unset("orderLinesGridPanel");
+  });
+  newPanel.on("hide", function(){ 
+    #{refresh_grid_datastore_of("order")}
+  });
+  
+  var tabPanel  = new Ext.TabPanel({
+    split: true,
+    tabPosition: 'bottom',
+    border: false, bodyBoder: false, frame: false,
+    style: 'padding: 10px;',  // Push the whole TabPanel in 10px on all sides
+    defaults: {
+      cls: 'border2pxLightGreen',
+      autoHeight: false,
+      height: 250,
+      autoScroll: true
+    },
+    activeTab: 0,
+    deferredRender: true,
+    items: [{
+      title: 'Order lines',
+      layout: 'ux.rowfit',
+      autoWidth: true,
+      items: [orderLinesGridPanel],
+      listeners: {
+        "show": function(){
+            orderLinesGridPanel.setWidth(wrapperPanel.getInnerWidth()-24);
+          }
+      }
+    },{
+      title: 'Taxes',
+      autoLoad: {url:#{tax_fields_order_path(@order).to_json}, scripts:true}
+    },{
+      title: 'Payments (#{@order.payments.count})',
+      layout: 'ux.rowfit',
+      items: [orderPaymentsGridPanel]
+    }]
+  });
+  
+
+  var wrapperPanel = new Ext.Panel({
+    bbar: generateTotalsToolbar(),
+    layout: 'ux.rowfit',
+    cls: 'IAmAPanelWithBorderLayoutContainer',
+    items: [
+      formPanel, {
+        id: prefix + '.layout.splitBar',
+        height: 15,
+        border: false,
+        bodyBorder: false,
+        frame: false,
+        cls: 'IHaveASplitBar',
+        html: '<div style="height: 15px; background: url(/javascripts/extjs/resources/images/xl/horizontal-split-handle.gif); background-position: top; background-repeat: no-repeat;">&nbsp;</div>'
+      },
+      tabPanel
+    ],
+    listeners: {
+      "bodyresize": function(){
+          orderLinesGridPanel.setWidth(wrapperPanel.getInnerWidth()-24);
+        }
+    }
+  });
+  
+  newPanel.add(wrapperPanel);
+  
+  xl.viewport.render();
+  
+  $('#{typed_dom_id(@order, :subtotal, :div)}').up('.ytb-text').removeClassName('ytb-text');
+  
+  var addOrderLineHandler = function(){
+      var ol = new orderLinesRecordAndStore.record({
+          id: "",
+          target_id: "",
+          target_name: "",
+          quantity: "", 
+          retail_price: "",
+          description: "", 
+          extension: ""
+      });
+      orderLinesGridPanel.stopEditing();
+      orderLinesRecordAndStore.store.insert(orderLinesRecordAndStore.store.getCount(), ol);
+      orderLinesGridPanel.startEditing(orderLinesRecordAndStore.store.getCount()-1, 0);
+    };
+  
+  orderLinesGridPanel.getTopToolbar().add({ text: "Add Order Line", handler: addOrderLineHandler}, {text: "Actions", menu: selectionMenu});
+  
+  orderLinesGridPanel.getSelectionModel().on("selectionchange", function(){
+    records = orderLinesGridPanel.getSelectionModel().getSelections();
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    selectedIds = ids;
+    
+    if(ids.length>0){
+      clearAllAction.enable();
+      deleteAction.enable();
+    }
+    else
+      deleteAction.disable();
+      selectAllAction.enable();
+  });
+  
+  var _afterRenderCallback = function() {
+    var splitBar = new Ext.SplitBar(prefix+'.layout.splitBar', prefix+'.layout.formPanel', Ext.SplitBar.VERTICAL, Ext.SplitBar.TOP);
+    splitBar.setAdapter(new Ext.ux.layout.RowFitLayout.SplitAdapter(splitBar));
+  }
+`
+end
+
+
+page << %Q`
+  new XlSuite.FormHandler("#{dom_id(@order)}_form", {now:true, defaultValue:"N/A"});
+`

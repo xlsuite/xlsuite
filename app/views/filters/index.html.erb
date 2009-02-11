@@ -1,0 +1,24 @@
+<div class="ipage">
+<%= link_to("New Filter", new_filter_path, :class=> "small" )%>
+
+<table style="width:95%">
+  <thead>
+    <tr>
+      <td style="width:20%">Name</td><td style="width:50%">Description</td><td style="width:25%">Labeled with</td><td style="width:10%"></td>
+    </tr>
+  </thead>
+  <tbody>
+  <% @filters.each do |filter| %>
+    <% content_tag :tr, :id => "filter_#{filter.id}_row" do%>
+      <td><%= link_to filter.name, edit_filter_path(filter) %></td>
+      <td><%= filter.description%></td>
+      <td><%= filter.email_label.name %></td>
+      <td><%= link_to_remote "Destroy", :method => :delete, :url => filter_path(filter), :confirm => "Are you sure?"%></td>
+    <% end-%>
+  <% end %>  
+  </tbody>
+</table>
+<script>
+  parent.myEmailLabelsRefresh();
+</script>
+</div>

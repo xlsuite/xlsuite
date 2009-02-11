@@ -1,0 +1,63 @@
+<html>
+<head>
+  <style type="text/css">
+html, body { font-family: arial, sans-serif; font-size: 10pt; }
+pre { background: #f3f3f3; padding: .2em; font-size: 9pt; }
+  </style>
+</head>
+<body>
+<h1>Exception Caught</h1>
+<h2><%=h @exception.class.name %></h2>
+<% if @domain then -%>
+<p>Domain: <%=h @domain.name %></p>
+<% end -%>
+<p><%=h @exception.message %></p>
+
+<h3>Backtrace</h3>
+<pre><%=h @backtrace.join("\n") %></pre>
+<% if @current_user then -%>
+<h2>Current User</h2>
+<p>Login: <tt><%=h @current_user.login %></tt><br/>
+E-Mail: <tt><%=h @current_user.email %></tt><br/>
+URL: <a href="<%= @domain %>/admin/parties/<%= @current_user.id %>/edit"><tt><%= @domain %>/admin/parties/<%= @current_user.id %>/edit</tt></a></p>
+<% end -%>
+
+<% if @request_env || @request_params then -%>
+<h2>Request</h2>
+<% if @request_env then -%>
+<p>URI:    <a href="<%= @domain %><%=h @request_env['REQUEST_URI'] %>"><tt><%=h @request_env['REQUEST_URI'] %></tt></a><br/>
+From:   <tt><%=h @request_env['REMOTE_ADDR'] %></tt><br/>
+Method: <tt><%=h @request_env['REQUEST_METHOD'] %></tt></p>
+<% end -%>
+
+<% if @request_params then %>
+<h3>Parameters</h3>
+<pre><%=h @request_params.to_yaml %></pre>
+<% end -%>
+<% end -%>
+
+<% if @incoming_requests then -%>
+<h2>Browsing History</h2>
+<p><em>More recent</em></p>
+<ol>
+<% @incoming_requests.each do |uri| -%>
+  <li><a href="<%= @domain %><%=h uri %>"><%=h uri %></a></li>
+<% end -%>
+</ol>
+<p><em>Older</em></p>
+<% end -%>
+<% if @session then -%>
+
+<h3>Session</h3>
+<pre><%=h @session.to_yaml %></pre>
+<% end -%>
+<% if @response then -%>
+
+<h2>Response Headers</h2>
+<pre><%=h @response.headers.to_yaml %></pre>
+
+<h2>Body</h2>
+<pre><%=h @response.body %></pre>
+<% end -%>
+</body>
+</html>

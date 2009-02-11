@@ -1,0 +1,15 @@
+<dt>Tags</dt>
+<dd>
+  <ul class="inline">
+    <%= render :partial => "tag", :collection => details.tags, :spacer_template => "shared/list_comma" %>
+  </ul>
+  &nbsp;
+</dd>
+<dt>Filename</dt>
+<dd><%= link_to(h(details.filename), download_asset_url(details)) %></dd>
+<dt>Size</dt>
+<dd><%= number_to_human_size(details.size) %></dd>
+<dt>Created</dt>
+<dd><%= format_date_time(details.created_at) %></dd>
+<dt>By</dt>
+<dd><%= link_to_party(details.owner) %></dd>

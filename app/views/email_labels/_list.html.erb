@@ -1,0 +1,7 @@
+
+<div class="<%= cycle('mail-column', 'mail-column-bg', :name => 'email_labels_column_bg_switch') %>" 
+onclick="new Ajax.Request('/admin/emails/sandbox', {asynchronous:true, evalScripts:true, method:'get', parameters:'mailbox=<%=list.name.to_s%>'}); return false;">
+  <%= link_to_remote list.name, {:url => '/admin/emails/sandbox', :method => :get, :with => "'mailbox=#{list.name}'"} %>
+
+</div>
+

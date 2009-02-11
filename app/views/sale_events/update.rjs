@@ -1,0 +1,6 @@
+if @updated
+  page << refresh_grid_datastore_of("sale_event") if (params[:sale_event][:name] || params[:sale_event][:start_date] || params[:sale_event][:end_date])
+  page.replace_html(typed_dom_id(@sale_event, :timestamps), render_object_timestamps(@sale_event))
+end
+
+page << update_inside_panel_notifications("sale_events_edit_#{@sale_event.id}")

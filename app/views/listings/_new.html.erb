@@ -1,0 +1,4 @@
+<h1>Creating New Listing</h1>
+<% remote_form_for :listing, @listing, :url => listings_path, :html => {:multipart => true} do |f| %>
+  <%= render :partial => 'form', :locals => {:f => f} %>
+<% end %>

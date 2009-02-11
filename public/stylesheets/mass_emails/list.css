@@ -1,0 +1,12 @@
+#emails_list { width: 100%; border: 0px solid #8CA076; }
+#emails_list th { 
+height: 30px; 
+background: url(../../images/table_headerBg.png) repeat-x; 
+border-right: 1px solid #fff; 
+font-weight: bold; 
+color: #fff;
+text-align: center; }
+#emails_list th.last {border-right: 1px solid #8CA076;}
+#emails_list tr, #importIndexTable td { border: 0 solid #8CA076; }
+#emails_list td {padding: 2px;}
+#emails_list td.options a {display:block;} 

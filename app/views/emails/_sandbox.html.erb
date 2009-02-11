@@ -1,0 +1,114 @@
+<script id="constructor" type="text/javascript">
+  function constructor(params) {
+    xl.log('Sandbox Constructor Top');
+    
+    var spawnedElementIds = [];
+
+    var messagePanelId = Ext.id();
+    
+		// This houses the messagePanel which gets swapped out
+		// on gridPanel.celldblclick
+		var wrapper = new Ext.Panel({
+		  split: true
+			id: messagePanelId + '.wrapper',
+			autoScroll: true,
+			layout: 'fit',
+			region: 'center',
+			split: true
+		});
+		// Special property to determine if message is to be opened in a new tab or not
+    wrapper.xlEmail_hasBeenUsed = false;
+    
+    var messagePanel = new Ext.Panel({
+      //region: 'center',
+      height: 400,
+      autoScroll: true,
+  		cls: 'emailMessage',	// This applies to the class of the base Element
+  		id: messagePanelId,
+  		html: "<br /><p>Double-click an email subject to display it.</p>"
+  		// Using an id instead of a contentEl means we don't have to clean
+  		// the contentEl up after the panel is destroyed; we just have to
+  		// keep track of this ID
+    });
+    
+	  wrapper.add(messagePanel);
+		
+    var tabPanel = new Ext.TabPanel({
+      activeTab: 0,
+      region: 'south',
+      tabPosition: 'bottom',
+      split: true,
+      height: 100,
+      defaults: { autoHeight: false, autoScroll: false },
+      border: false
+    });
+		
+    xl.log('Created message panel and tab panel! Creating Inbox tab panel...');
+		
+		tabPanel.add(xl.email.generateMailboxPanel('inbox', [
+        {id: 'sender_name', dataIndex: 'sender_name', header: "From", sortable: true, renderer: xl.email.senderNameRenderer},
+        {id: 'subject', dataIndex: 'subject', header: "Subject", sortable: true},
+        {id: 'received_at', dataIndex: 'received_at', header: "Date Received", sortable: true, renderer: xl.email.dateRenderer }
+      ], messagePanelId)
+    );
+		
+		xl.log('Created Inbox tab panel! Creating Outbox tab panel...');
+		
+    tabPanel.add(xl.email.generateMailboxPanel('outbox', [
+    		{id: 'to_names', dataIndex: 'to_names', header: "To", sortable: true},
+        {id: 'subject', dataIndex: 'subject', header: "Subject", sortable: true},
+        {id: 'created_at', dataIndex: 'created_at', header: "Date Created", sortable: true, renderer: xl.email.dateRenderer }
+      ], messagePanelId)
+    );
+		
+		xl.log('Created Outbox tab panel! Creating Draft tab panel...');
+		
+    tabPanel.add(xl.email.generateMailboxPanel('draft', [
+				{id: 'to_names', dataIndex: 'to_names', header: "To", sortable: true},
+        {id: 'subject', dataIndex: 'subject', header: "Subject", sortable: true},
+				{id: 'created_at', dataIndex: 'created_at', header: "Date Created", sortable: true, renderer: xl.email.dateRenderer },
+				{id: 'updated_at', dataIndex: 'updated_at', header: "Last Updated", sortable: true, renderer: xl.email.dateRenderer }
+      ], messagePanelId)
+    );
+    
+		xl.log('Created Draft tab panel! Creating Sent tab panel...');
+		
+    tabPanel.add(xl.email.generateMailboxPanel('sent', [
+    		{id: 'to_names', dataIndex: 'to_names', header: "To", sortable: true},
+        {id: 'subject', dataIndex: 'subject', header: "Subject", sortable: true},
+        {id: 'sent_at', dataIndex: 'sent_at', header: "Date Sent", sortable: true, renderer: xl.email.dateRenderer }
+      ], messagePanelId)
+    );
+		
+		xl.log ('Created Sent tab panel! Creating layout panel...');
+		
+    var layoutPanel = new Ext.Panel({
+      layout: 'border',
+      border: false, bodyBorder: false, frame: false,
+      items: [wrapper, tabPanel],
+      style: 'padding: 10px;',  // Push the whole TabPanel in by 10px on all sides
+      cls: "IAmAPanelWithBorderLayoutContainer"
+    });
+    
+    
+    //layoutPanel.on('destroy', function() { xl.log('destroy'); });
+    //layoutPanel.on('beforedestroy', function() { xl.log('beforedestroy'); return true; });
+    
+		xl.log('Created layout panel! End of constructor...');
+
+    return {
+      <% if @email_id %>
+        callback: function() {
+          xl.email.asyncLoadMessage(<%= @email_id %>, messagePanelId);
+        }, 
+      <% end %>
+      panel: layoutPanel,
+      title: 'Email'
+    }
+  } // constructor();
+</script>
+
+<div id="xl.email.gridPanel.inbox"></div>
+<div id="xl.email.gridPanel.outbox"></div>
+<div id="xl.email.gridPanel.draft"></div>
+<div id="xl.email.gridPanel.sent"></div>

@@ -1,0 +1,17 @@
+<div class="ipage">
+  <div id="group_details_wrapper">
+    <p id="new_group"><%= link_to "Add New Group", new_group_path, :icon => "group_add" %></p>
+    <%= throbber(:group_details_throbber) %>
+    <div id="group_details"></div>
+    <div id="group_details_actions" style="display:none"> <%= submit_tag "Save", :id => "close_group_details", :name => nil, :class => 'button' %> <%= throbber :close_group_details_indicator %> </div>
+  </div>
+  <div class="grps">
+    <div class="tableHeader">
+      <h2>Groups</h2>
+    </div>
+    <ul id="groups">
+      <%= render :partial => @groups %>
+    </ul>
+  </div>
+  <div><%= paginator_on(@page) %></div>
+</div>

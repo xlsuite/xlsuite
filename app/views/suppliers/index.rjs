@@ -1,0 +1,301 @@
+limit = params[:limit] || 50
+suppliers_url_json = formatted_suppliers_path(:format => :json).to_json
+
+after_render = %Q`
+  ds.load({params: {start: 0, limit: #{limit} }});
+`
+
+page << create_tab_using_ajax_response("Suppliers", after_render) do
+%Q`
+  /***************
+   ** FUNCTIONS **
+   ***************/
+   var openNewWindow = function(button, event) {
+     var nameField = new Ext.form.TextField({
+       fieldLabel: 'Name',
+       allowBlank: false
+     });
+     var errorPanel = new Ext.Panel({
+       html: ''
+     });
+
+     var window = new Ext.Window({
+       autoHeight: true,
+       width: 250,
+       header: false,
+       headerAsText: false,
+
+       plain: true,
+       floating: true,
+       shadow: true,
+       constrain: true,
+
+       closable: false,
+       collapsibe: false,
+       draggable: false,
+       maximizable: false,
+       minimizable: false,
+       resizable: false,
+       modal: event == null,
+
+       items: [
+         {
+           html: '<p>Please enter the supplier name:</p><br />'
+         },
+         {
+           layout: 'form',
+           labelWidth: 50,
+           labelAlign: 'right',
+           items: nameField
+         },
+         errorPanel
+       ],
+
+       defaultButton: 1,
+       buttons: [
+         {
+           text: 'Cancel',
+           handler: function() {
+             window.hide();
+             window.close(); // This destroys it
+           }
+         },
+         {
+           text: 'Create',
+           handler: function() {
+             xl.widget.DoAsyncCreateAndOpenEdit({
+              object: 'supplier',
+              async_create: {
+                url: #{async_create_suppliers_path.to_json},
+                params: {name: nameField.getRawValue()},
+              },
+              edit: #{edit_supplier_path(:id => '__ID__').to_json},
+              success: function(id) {
+                window.close();
+                ds.reload();
+              }
+            });
+           } // end handler
+         } // end Create Button
+       ] // end buttons
+     });
+     
+     if (event != null) {
+       window.setPagePosition(event.getXY()[0] + 10, event.getXY()[1] + 10);
+       window.show(button.getId());
+     } else {
+       window.show();
+     }
+  };
+  var selectedIds = null;
+
+  // create supplier record
+  var SupplierRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'object_id'},
+    {name: 'name', mapping: 'name'},
+    {name: 'current_po_status', mapping: 'current_po_status'},
+    {name: 'threshold_products', mapping: 'threshold_products'},
+    {name: 'total_products', mapping: 'total_products'},
+    {name: 'last_order_at', mapping: 'last_order_at'},
+    {name: 'last_delivery_at', mapping: 'last_delivery_at'},
+    {name: 'average_delivery_time', mapping: 'average_delivery_time'},
+    {name: 'average_margin', mapping: 'average_margin'}
+  ]);
+
+  // data reader to parse the json response
+  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "object_id"}, SupplierRecord);
+
+  // set up connection of the data
+  var connection = new Ext.data.Connection({url: #{suppliers_url_json}, method: 'get'});
+  var proxy = new Ext.data.HttpProxy(connection);
+
+  // set up the data store and then send request to the server
+  var ds = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+
+  // set up the ext grid object
+  var xg = Ext.grid;
+
+  // define paging toolbar that is going to be appended to the footer of the grid panel
+  var paging = new Ext.PagingToolbar({
+    store: ds,
+    pageSize: #{limit},
+    displayInfo: true,
+    displayMsg: 'Displaying {0} to {1} of {2}',
+    emptyMsg: "No record to display",
+    cls: "bottom-toolbar paging-toolbar-bottom",
+    plugins: [new Ext.ux.PageSizePlugin]
+  });
+  
+  #{create_grid_tbar_filter_field}
+  
+  #{create_grid_tbar_clear_button}
+
+  var gridTopToolbar = new Ext.Toolbar({
+    items: [{text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+  });
+
+  // create GridPanel object
+  var grid = new Ext.grid.GridPanel({
+    store: ds,
+    cm: new xg.ColumnModel([
+        {header: "Name", width: 150, sortable: true, dataIndex: 'name'},
+        {header: "Current PO Status", width: 150, sortable: true, dataIndex: 'current_po_status'},
+        {header: "Threshold Products", width: 150, sortable: true, dataIndex: 'threshold_products'},
+        {header: "Total Products", width: 150, sortable: true, dataIndex: 'total_products'},
+        {header: "Last Order", width: 150, sortable: true, dataIndex: 'last_order'},
+        {header: "Last Delivery", width: 150, sortable: true, dataIndex: 'last_delivery'},
+        {header: "Average Delivery Time", width: 150, sortable: true, dataIndex: 'average_delivery_time'},
+        {header: "Average Margin", width: 150, sortable: true, dataIndex: 'average_margin'}
+      ]),
+    viewConfig: {
+      forceFit: false
+    },
+    autoScroll: true,
+    autoWidth: true,
+    height: #{get_default_grid_height(nil)},
+    tbar: gridTopToolbar,
+    bbar: paging,
+    footer: true,
+    loadMask: true,
+    iconCls: 'icon-grid'
+  });
+
+  newPanel.add(grid);
+  xl.runningGrids.set("suppliers", grid);
+  newPanel.on("destroy", function(){
+    xl.runningGrids.unset("suppliers");
+  });
+  
+  // add extra links to the header
+  newPanel.getTopToolbar().add({
+    text: 'New',
+    handler: openNewWindow
+  });
+  
+  var editsupplierUrl = #{edit_supplier_path(:id => "__ID__").to_json};
+  // set double click action on grid cells
+  grid.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
+    var record = ds.getAt(rowIndex);
+    var id = record.data.id.split("_").last();
+
+    xl.openNewTabPanel(('suppliers_edit_'+id), editsupplierUrl.sub("__ID__", id));
+  });
+
+  var selectAllAction = new Ext.Action({
+    text: "Select all",
+    iconCls: "display_none"
+  });
+
+  var clearAllAction = new Ext.Action({
+    text: "Clear all",
+    iconCls: "display_none",
+    disabled: true
+  });
+
+  var duplicateAction = new Ext.Action({
+    text: "Duplicate",
+    iconCls: "display_none",
+    disabled: true
+  });
+
+  var printSummaryAction = new Ext.Action({
+    text: "Print Summary",
+    iconCls: "display_none",
+    disabled: true
+  });
+
+  var tagAction = new Ext.Action({
+    text: "Tag...",
+    iconCls: "display_none",
+    disabled: true
+  });
+
+  var deleteAction = new Ext.Action({
+    text: "Delete",
+    iconCls: "display_none",
+    disabled: true
+  });
+
+  var expandAllAction = new Ext.Action({
+    text: "Expand all",
+    disabled: true
+  });
+
+  var collapseAllAction = new Ext.Action({
+    text: "Collapse all",
+    disabled: true
+  });
+
+  var selectionMenu =  new Ext.menu.Menu({
+    items: [selectAllAction, clearAllAction]
+  });
+  selectionMenu.addSeparator();
+  selectionMenu.add(duplicateAction, printSummaryAction, tagAction);
+  selectionMenu.addSeparator();
+  selectionMenu.add(deleteAction);
+
+  xl.viewport.render();
+  grid.getTopToolbar().add({ text: "Actions", menu: selectionMenu });
+
+  clearAllAction.setHandler(function(e) {
+    grid.getSelectionModel().clearSelections();
+    selectedIds = [];
+    e.disable();
+  });
+
+  selectAllAction.setHandler(function(e) {
+    grid.getSelectionModel().selectAll();
+    e.disable();
+  });
+
+  deleteAction.setHandler(function(e) {
+    Ext.Msg.confirm("", "Delete selected suppliers permanently?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        params['ids'] = selectedIds.toString();
+        new Ajax.Request(#{destroy_collection_suppliers_path.to_json}, {
+          method: 'post',
+          parameters: params
+        });
+      }
+    });
+  });
+
+  tagAction.setHandler(function(e) {
+    Ext.Msg.prompt("Please input tag", "", function(btn, text){
+      if ( btn.match(new RegExp("ok","i")) ) {
+        var params = {};
+        params['ids'] = selectedIds.toString();
+        params['tag_list'] = text;
+        new Ajax.Request(#{tagged_collection_suppliers_path.to_json}, {
+          method: 'post',
+          parameters: params
+        });
+      }
+    });
+  });
+
+  grid.getSelectionModel().on("selectionchange", function(){
+    records = grid.getSelectionModel().getSelections();
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id.split("_").last());
+    });
+    selectedIds = ids;
+
+    if(ids.length>0){
+      selectionMenu.items.each(function(e) {e.enable();});
+      duplicateAction.disable();
+      printSummaryAction.disable();
+    }
+    else{
+      selectionMenu.items.each(function(e) {e.disable();});
+      selectAllAction.enable();
+    }
+  });
+  
+  var _afterRenderCallback = function() {
+    if (#{!params[:new].nil?}) openNewWindow(null, null);
+  }
+`
+end

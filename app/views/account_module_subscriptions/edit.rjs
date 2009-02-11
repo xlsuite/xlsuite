@@ -1,0 +1,68 @@
+page << create_tab_using_ajax_response("Editing XL Subscription") do
+%Q`
+  var paymentMethodField = new Ext.form.TextField({
+    fieldLabel: "Payment method",
+    disabled: true,
+    value: "paypal"
+  });
+  
+  var createdOnField = new Ext.form.TextField({
+    fieldLabel: "Created on",
+    disabled: true,
+    value: #{@acct_mod_subscription.created_at.strftime('%b %d, %Y').to_json}
+  });
+  
+  var subscriptionFeeField = new Ext.form.TextField({
+    fieldLabel: "Subscription fee",
+    disabled: true,
+    value: #{@acct_mod_subscription.subscription_fee.format(:with_currency).to_json}
+  });
+
+  var setupFeeField = new Ext.form.TextField({
+    fieldLabel: "Setup fee",
+    disabled: true,
+    value: #{@acct_mod_subscription.setup_fee.format(:with_currency).to_json}
+  });
+  
+  var statusField = new Ext.form.TextField({
+    fieldLabel: "Status",
+    disabled: true,
+    value: #{@acct_mod_subscription.status.to_json}
+  });
+
+  var installedTemplateNameField = new Ext.form.TextField({
+    fieldLabel: "Template",
+    disabled: true,
+    value: #{@acct_mod_subscription.installed_account_template_name.to_json}
+  });
+
+  #{self.initialize_installed_account_modules_panel}
+  
+  var payButton = new Ext.Toolbar.Button({
+    text: "Pay",
+    handler: function(btn){
+      Ext.Ajax.request({
+        url: #{pay_account_module_subscription_path(@acct_mod_subscription).to_json},
+        method: "POST",
+        success: function(response, options){
+          var response =  Ext.util.JSON.decode(response.responseText);
+          open(response.redirect_url, "Test");
+        }
+      })
+    }
+  });
+  
+  var formPanel = new Ext.Panel({
+    layout: "form",
+    items: [paymentMethodField, createdOnField, statusField, setupFeeField, subscriptionFeeField, installedTemplateNameField, installedAccountModulesPanel],
+    listeners: {
+      render: function(cpt){
+        xl.fitToOwnerCt(cpt);
+      }
+    },
+    tbar: [payButton]
+  });
+
+  newPanel.add(formPanel);
+`
+end

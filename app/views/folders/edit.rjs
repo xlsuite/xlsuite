@@ -1,0 +1,103 @@
+page << create_tab_using_ajax_response("Editing #{@folder.name}") do
+%Q`
+  var formButtons = [{
+        text: 'Save',
+        handler: function(me, event){
+            if (formPanel.getForm().isValid()){
+              formPanel.getForm().doAction('submit', {
+                method: "put",
+                url: #{folder_path(@folder).to_json},
+                success: function(form, action){
+                  formPanel.el.unmask();
+                  xl.maskedPanels.remove(layoutPanel);
+                  response = action.result;
+                  $("status-bar-notifications").innerHTML = response.flash;
+                  
+                  xl.fileTreePanel.getNodeById("folder_#{@folder.id}").setText(response.folder_name);
+                  
+                  //var nodes = Ext.DomQuery.select("div[class*=x-tree-node-el]");
+                  //nodes.each(function(node){
+                  //  if(node.readAttribute('ext:tree-node-id') == "folder_#{@folder.id}")
+                  //  {
+                  //    node.down('span',1).innerHTML = response.folder_name;
+                  //  }
+                  //});
+                  //Ext.DomQuery.selectNode("div[ext:tree-node-id=folder_#{@folder.id}]").value = response.folder_name;
+                }, 
+                failure: function(form, action){
+                  response = action.result;
+                  Ext.Msg.alert("Saving failed", response.flash);
+                  $("status-bar-notifications").innerHTML = response.flash;
+                }
+              });
+              formPanel.el.mask("Updating...");
+              xl.maskedPanels.push(formPanel);
+            }
+            else {
+              formPanel.el.mask("Please check the required fields");
+              var tempFunction = function() {formPanel.el.unmask()};
+              tempFunction.defer(1500);
+            }
+          }
+      },{
+        text: "Cancel",
+        handler: function(me, event){
+            xl.closeTabPanel('folders_edit_#{@folder.id}')
+          }
+      }];
+
+  var formPanel = new Ext.form.FormPanel({
+    autoScroll: true,
+    tbar: formButtons,
+    bbar: formButtons,
+    items: [
+      {
+        html: '<div class="notices" id="#{dom_id(@folder)}_errorMessages"/>'
+      },
+      {
+        html: '<h2 class="page_header">Edit Folder</h2>'
+      },
+      new Ext.form.TextField({
+        fieldLabel: "Name",
+        width: 350,
+        name: "folder[name]",
+        allowBlank: false,
+        value: #{@folder.name.to_json}
+      }),
+      new Ext.form.TextArea({
+        fieldLabel: "Description",
+        width: 350,
+        name: "folder[description]",
+        value: #{(@folder.description).to_json}
+      }),
+      {
+        layout: 'form',
+        labelWidth: 180,
+        items: [
+          new Ext.form.Checkbox({
+            checked: #{@folder.private},
+            name: 'folder[private]', 
+            inputValue: 1,
+            fieldLabel: "Private folder"
+          }),
+          new Ext.form.Checkbox({
+            checked: #{@folder.inherit},
+            name: 'folder[inherit]', 
+            fieldLabel: "Inherit attributes from parent"
+          }),
+          new Ext.form.Checkbox({
+            checked: #{@folder.pass_on_attr},
+            name: 'folder[pass_on_attr]', 
+            fieldLabel: "Pass on attributes to children"
+          })
+        ]
+      },
+      {
+        html: #{render(:partial => 'edit').to_json}
+      }
+    ]
+  });
+
+  newPanel.add(formPanel);
+`
+end

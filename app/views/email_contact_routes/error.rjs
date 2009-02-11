@@ -1,0 +1,5 @@
+page.alert "E-Mail address #{@email_address.address.inspect} #{[@email_address.errors.on(:email_address)].flatten.join('; ')}"
+page[typed_dom_id(@email_address, :address, :edit)].show
+page[typed_dom_id(@email_address, :address, :show)].hide
+page[typed_dom_id(@email_address, :address, :indicator)].hide
+page[typed_dom_id(@email_address, :address, :field)].activate

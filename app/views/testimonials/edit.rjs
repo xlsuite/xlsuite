@@ -1,0 +1,89 @@
+page << create_tab_using_ajax_response("Editing Testimonial") do
+%Q`
+  #{render_tags_panel("testimonial[tag_list]", @testimonial, current_account.testimonials.tags, {}, {:collapsible => false, :title => ""}, true)}
+
+  #{generate_save_close_cancel_toolbar(@testimonial, testimonial_path(@testimonial), testimonial_path(:id => @testimonial.id, :commit_type => "close") )}
+  
+  #{self.initialize_edit_author_auto_complete_field}
+
+  var emailAddressField = new Ext.form.TextField({
+    fieldLabel: "Email address",
+    name: "testimonial[email_address]",
+    value: #{@testimonial.email_address.to_json}
+  });
+  var phoneNumberField = new Ext.form.TextField({
+    fieldLabel: "Phone",
+    name: "testimonial[phone_number]",
+    value: #{@testimonial.phone_number.to_json}
+  });
+  var websiteUrlField = new Ext.form.TextField({
+    fieldLabel: "Website",
+    name: "testimonial[website_url]",
+    value: #{@testimonial.website_url.to_json}
+  });
+  var domainPatternsField = new Ext.form.TextArea({
+    hideLabel: true,
+    name: 'testimonial[domain_patterns]',
+    width: 200,
+    height: 100,
+    value: #{@testimonial.domain_patterns.to_json},
+    listeners: {
+      'resize': function(component){
+        var size = component.ownerCt.body.getSize();
+        component.suspendEvents();
+        component.setSize(size.width-20, 100);
+        component.resumeEvents();
+      }
+    }, 
+    style: "font-family:monospace"
+  });
+
+  var otherSettingsPanel = new Ext.Panel({
+    layout: "column",
+    items: [{
+      title: "Tags",
+      columnWidth: .5,
+      items: tagsPanel
+    },{
+      width: .1,
+      html: ""
+    },{
+      title: "Domain Patterns",
+      columnWidth: .5,
+      items: domainPatternsField
+    }]
+  });
+  
+  var bodyField = new Ext.ux.HtmlEditor({
+    hideLabel: true,
+    name: 'testimonial[body]',
+    width: '99%',
+    height: 300,
+    value: #{@testimonial.body.to_json},
+    listeners: {
+      'render': function(component){
+        component.getToolbar().insertButton(16, #{html_editor_image_video_embed_button(@testimonial)});
+      }
+    }
+  });
+
+  var formPanel = new Ext.form.FormPanel({
+    autoScroll: true,
+    tbar: tbarbbarButtons,
+    bbar: tbarbbarButtons,
+    labelWidth: 125,
+    items: [
+      {html: '<div class="notices" id="#{dom_id(@testimonial)}_errorMessages"/>'},
+      authorAutoCompleteField,
+      emailAddressField,
+      websiteUrlField,
+      phoneNumberField,
+      {html: "Body/Content"},
+      bodyField,
+      otherSettingsPanel
+    ]
+  });
+
+  newPanel.add(formPanel);
+`
+end

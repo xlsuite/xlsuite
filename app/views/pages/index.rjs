@@ -1,0 +1,350 @@
+limit = params[:limit] || 50
+
+after_render = %Q`
+  ds.load({params: {start: 0, limit: #{limit} }});
+`
+
+page << create_tab_using_ajax_response("Pages | Index", after_render) do
+%Q`
+
+  var selectedIds = null;
+  
+  var pagePath = #{page_path("__ID__").to_json};
+  
+  var domainStore = new Ext.data.SimpleStore({
+    fields: ['value'],
+    data: #{([["All"]] + @source_domains.map{|domain| [domain.name]}).to_json}
+  });
+  
+  var domainSelection = xl.widget.FormField({
+      displayField: 'value', 
+      valueField: 'value',
+      fieldLabel: 'Status',
+      value: 'All', 
+      name: 'domain', 
+      type: 'combobox', 
+      store: domainStore, 
+      editable : false,
+      triggerAction: 'all',
+      mode: 'local'
+  });
+  
+  var PageRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'title', mapping: 'title'}, 
+    {name: 'status', mapping: 'status'}, 
+    {name: 'behavior', mapping: 'behavior'}, 
+    {name: 'fullslug', mapping: 'fullslug'},
+    {name: 'domain_patterns', mapping: 'domain_patterns'},
+    {name: 'layout', mapping: 'layout'},
+    {name: 'updator_id', mapping: 'updator'},
+    {name: 'updated_at', mapping: 'updated_at'},
+    {name: 'domains', mapping: 'domains'}
+  ]);
+  // data reader to parse the json response
+  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, PageRecord);
+  
+  // set up connection of the data
+  var connection = new Ext.data.Connection({url: #{formatted_pages_path(:format => :json).to_json}, method: 'get'});
+  var proxy = new Ext.data.HttpProxy(connection);
+
+  // set up the data store and then send request to the server
+  var ds = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+  
+    // define paging toolbar that is going to be appended to the footer of the grid panel
+  var paging = new Ext.PagingToolbar({
+    store: ds,
+    pageSize: #{limit},
+    displayInfo: true,
+    displayMsg: 'Displaying {0} to {1} of {2}',
+    emptyMsg: "No record to display",
+    cls: "bottom-toolbar paging-toolbar-bottom",
+    plugins: [new Ext.ux.PageSizePlugin]
+  });
+  
+  domainSelection.on('select', function(el, newValue, oldValue){
+    ds.baseParams['domain'] = newValue.data.value;
+    ds.reload({params: {start: 0, limit: ds.lastOptions.params.limit}});
+  });
+  
+  #{create_grid_tbar_filter_field}
+  
+  #{create_grid_tbar_clear_button}
+  
+  var gridTopToolbar = new Ext.Toolbar({
+    cls: "top-toolbar",
+    items: [{text: "Show Domain:"}, domainSelection, {text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+  });
+
+  var statusStore = new Ext.data.SimpleStore({
+    fields: ['value','id'],
+    data: #{Page::STATUSES_FOR_SELECT.map(&:to_a).to_json}
+  });
+  
+  var statusComboBox = new Ext.form.ComboBox({
+    store: statusStore,
+    displayField: 'value',
+    valueField: 'id',
+    triggerAction: 'all',
+    minChars: 0,
+    allowBlank: false, 
+    editable: false,
+    mode: 'local'
+  });
+
+  var layoutsStore = xl.generateSimpleHttpJSONStore({
+    fieldNames: ['value','id'],
+    url: '#{async_get_selection_layouts_path}',
+    autoLoad: false,
+    doLoad: false
+  });
+  
+  var layoutsComboBox = new Ext.form.ComboBox({
+    store: layoutsStore,
+    displayField: 'value',
+    valueField: 'value',
+    triggerAction: 'all',
+    minChars: 0,
+    minListWidth: 200,
+    resizable: true,
+    allowBlank: false, 
+    editable: false,
+    mode: 'remote',
+    listeners: {
+      'expand': function(me){
+        me.store.reload();
+      }
+    }
+  });
+  
+  var addChildRenderer = function(value, cell, record) {
+    return '<a href="#">Add Child</a>';
+  };
+  
+  var editRenderer = function(value, cell, record) {
+    return '<div class="icon_pencilGo pointerOnHover"/>';
+  };
+  
+  var grid = new Ext.grid.EditorGridPanel({
+      store: ds,
+      cm: new Ext.grid.ColumnModel([
+          {id: "edit", width: 30, dataIndex: 'id', renderer: editRenderer, sortable: false, menuDisabled: true, hideable: false, tooltip: "Click here to go to full edit mode" },
+          {id: "title", header: "Title", sortable: true, dataIndex: 'title', 
+            renderer: function(value, meta, record){
+              var slug = record.get('fullslug')
+              if(slug.length == 0)
+                return value;
+              var level = slug.split("/").length;
+              var display_title = "";
+              for(i=0; i < level; i++)
+                display_title = display_title.concat("&nbsp;&nbsp;");
+              display_title = display_title.concat(value);
+              return display_title;
+            }, 
+            editor: new Ext.form.TextField()
+          },
+          {id: "status", header: "Status", width: 70, sortable: true, dataIndex: 'status', editor: statusComboBox},
+          {id: "behavior", hidden: true, header: "Behavior", sortable: true, dataIndex: 'behavior'},
+          {id: "layout", header: "Layout", sortable: true, dataIndex: 'layout', editor: layoutsComboBox},
+          {id: "fullslug", width: 150, header: "Slug", sortable: true, dataIndex: 'fullslug', editor: new Ext.form.TextField()},
+          {id: "domain_patterns", width: 120, header: "Domain Pattern", sortable: true, dataIndex: 'domain_patterns', editor: new Ext.form.TextArea({listeners: {'focus': function(me){me.setWidth(250);}}})},
+          {id: "updated_at", hidden: true, header: "Updated at", sortable: true, dataIndex: 'updated_at'},
+          {id: "updator", hidden: true, header: "Updated By", sortable: true, dataIndex: 'updator_id'},
+          {id: "domains", width: 140, header: "View on Domain", sortable: false, dataIndex: 'domains'},
+          {id: "add_child", dataIndex: 'id',  width: 65, header: "Add child", sortable: false, renderer: addChildRenderer}
+        ]),
+      autoScroll: true,
+      autoExpandColumn: 'title',
+      autoExpandMin: 150,
+      autoWidth: true,
+      height: #{get_default_grid_height(nil)},
+      clicksToEdit:1,
+      tbar: gridTopToolbar, 
+      bbar: paging,
+      loadMask: true,
+      selModel: new Ext.grid.RowSelectionModel
+  });
+  
+  var selectAllAction = new Ext.Action({
+    text: "Select all",
+    iconCls: "display_none"
+  });
+
+  var clearAllAction = new Ext.Action({
+    text: "Clear all",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var deleteAction = new Ext.Action({
+    text: "Delete",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var duplicateAction = new Ext.Action({
+    text: "Duplicate",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var embedCodeAction = new Ext.Action({
+    text: "Embed code",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var selectionMenu =  new Ext.menu.Menu({
+    items: [selectAllAction, clearAllAction]
+  });
+  
+  selectionMenu.addSeparator();
+  selectionMenu.add(duplicateAction, embedCodeAction);
+  selectionMenu.addSeparator();
+  selectionMenu.add(deleteAction);
+  
+  clearAllAction.setHandler(function(e) {
+    grid.getSelectionModel().clearSelections();
+    selectedIds = [];
+    e.disable();
+  });
+
+  selectAllAction.setHandler(function(e) {
+    grid.getSelectionModel().selectAll();
+    e.disable();
+  });
+  
+  duplicateAction.setHandler(function(e) {
+    var params = {};
+    params['id'] = selectedIds.toString();
+    new Ajax.Request(#{new_page_path.to_json}, {
+      method: 'get',
+      parameters: params
+    });
+  });
+  
+  deleteAction.setHandler(function(e) {
+    Ext.Msg.confirm("", "Delete selected pages permanently?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        params['ids'] = selectedIds.toString();
+        new Ajax.Request(#{destroy_collection_pages_path.to_json}, {
+          method: 'post',
+          parameters: params
+        });
+      }
+    });
+  });
+  
+  var embedCodePagePath = #{embed_code_page_path(:id => "__ID__").to_json};
+  embedCodeAction.setHandler(function(e) {
+    var selectedId = selectedIds.first();
+    Ext.Ajax.request({
+      url: embedCodePagePath.sub("__ID__", selectedId),
+      method: "GET"
+    });
+  });
+  
+  newPanel.add(grid);
+  xl.runningGrids.set("page", grid);
+  newPanel.on("destroy", function(){
+    xl.runningGrids.unset("page");
+  });
+  
+  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
+  extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('pages_new_nil', #{new_page_path.to_json})").to_json});
+  
+  var editPageUrl = #{edit_page_path(:id => "__ID__").to_json};
+  grid.on("cellclick", function(gr, rowIndex, columnIndex, e) {
+    var record = ds.getAt(rowIndex);
+    var id = record.data.id;
+    switch(columnIndex){
+      case grid.getColumnModel().getIndexById("add_child"):
+        xl.openNewTabPanel('pages_new_nil', '/admin/pages/new?parent_id='+id);
+        break;
+      case grid.getColumnModel().getIndexById("edit"):
+        xl.openNewTabPanel('pages_edit_'+id, editPageUrl.sub("__ID__", id));
+        break;
+      default:
+        break;
+    }
+  });
+
+  xl.viewport.render();
+  
+  grid.getTopToolbar().add({ text: "Actions", menu: selectionMenu });
+  
+  grid.getSelectionModel().on("selectionchange", function(){
+    records = grid.getSelectionModel().getSelections();
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    selectedIds = ids;
+
+    if(ids.length>0){
+      clearAllAction.enable();
+      deleteAction.enable();
+      if(ids.length==1) {
+        duplicateAction.enable();
+        embedCodeAction.enable();
+      }
+      else{
+        duplicateAction.disable();
+        embedCodeAction.disable();
+      }
+    }
+    else{
+      deleteAction.disable();
+      selectAllAction.enable();
+      duplicateAction.disable();
+      embedCodeAction.disable();
+    }
+  });
+
+  grid.on("validateedit", function(event){
+    var record = event.record;
+    var editedFieldName = event.field;
+    
+    record.set(editedFieldName, event.value);
+    var method = "put";
+    var objectId = record.get("id");
+
+    var params = {};
+    if(editedFieldName == "fullslug")
+      params["refresh"] = "true";
+    params["from_index"] = "true";
+    params["page[title]"] = record.get("title");
+    params["page[status]"] = record.get("status");
+    params["page[behavior]"] = record.get("behavior");
+    params["page[layout]"] = record.get("layout");
+    params["page[fullslug]"] = record.get("fullslug");
+    params["page[domain_patterns]"] = record.get("domain_patterns");
+    
+    new Ajax.Request(pagePath.sub("__ID__", objectId),{
+      method: method,
+      parameters: params,
+      onSuccess: function(transport){
+        response = Ext.util.JSON.decode(transport.responseText);
+        record.set('id', response.id);
+        record.set('title', response.title);
+        record.set('status', response.status);
+        record.set('behavior', response.behavior);
+        record.set('layout', response.layout);
+        record.set('fullslug', response.fullslug);
+        record.set('domain_patterns', response.domain_patterns);
+        record.set('domains', response.domains);
+        $("status-bar-notifications").innerHTML = response.flash;
+        if(response.flash.include('Error:'))
+          event.grid.getView().getCell(event.row, event.column).highlight({startcolor: "FF5721"});
+        else
+          event.grid.getView().getCell(event.row, event.column).highlight();
+        if(response.refresh)
+          grid.getStore().reload();
+      }
+    });
+
+  });
+`
+end
+

@@ -1,0 +1,6 @@
+<h2>Editing <%= @payment_plan.name %> Payment Plan</h2>
+<% form_for :payment_plan, :url => payment_plan_path(@payment_plan), :html => {:method => :put} do |f| %>
+  <%= render :partial => "form", :locals => {:f => f} %>
+  <%= submit_tag 'Save' %>
+  <%= link_to 'Cancel', payment_plans_path %>
+<% end %>

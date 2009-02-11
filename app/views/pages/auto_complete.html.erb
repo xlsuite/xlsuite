@@ -1,0 +1,5 @@
+<ul>
+<%= @pages.map do |page|
+  content_tag(:li, h(page.title), :id => dom_id(page), :fullslug => page.to_url)
+end.join("\n") %>
+</ul>

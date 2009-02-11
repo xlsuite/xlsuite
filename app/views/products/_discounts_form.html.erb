@@ -1,0 +1,30 @@
+<% inline_remote_form_for :product, @product, :url => product_path(@product), :html => {:method => :put, :id => (dom_id(@product) + "_discounts_form")} do |f| %>
+  <div class='product-discounts-north-east'>
+    <p>
+      <label>Discount Internet Orders</label>
+      <%= f.check_box :discount_internet_orders, :onclick => product_checkbox_js(:discount_internet_orders) %>&nbsp;
+      <%= throbber(typed_dom_id(@product, :discount_internet_orders, :indicator)) %>
+      %
+      <%= f.text_field :internet_discount %>
+    </p>
+  </div>
+
+  <div class='product-discounts-south-east'>
+    <p><b>Bulk Rates</b></p>
+    <p>
+      <label>Apply to Sales Events?</label>
+      <%= f.check_box :apply_to_sales_events, :onclick => product_checkbox_js(:apply_to_sales_events) %>
+      <%= throbber(typed_dom_id(@product, :apply_to_sales_events, :indicator)) %>
+    </p>
+    <p>
+      <label>Apply to Affiliations?</label>
+      <%= f.check_box :apply_to_affiliations, :onclick => product_checkbox_js(:apply_to_affiliations) %>
+      <%= throbber(typed_dom_id(@product, :apply_to_affiliations, :indicator)) %>
+    </p>
+    <p>
+      <label>Apply to Internet Orders?</label>
+      <%= f.check_box :apply_to_internet_orders, :onclick => product_checkbox_js(:apply_to_internet_orders) %>
+      <%= throbber(typed_dom_id(@product, :apply_to_internet_orders, :indicator)) %>
+    </p>
+  </div>  
+<% end %>

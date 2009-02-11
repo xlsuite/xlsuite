@@ -1,0 +1,22 @@
+if @attribute.ends_with?("_id") then
+  plain_attribute = @attribute.gsub("_id", "")
+  element_name = typed_dom_id(@party, plain_attribute, :show)
+  value = @party.send(plain_attribute)
+else
+  element_name = typed_dom_id(@party, @attribute, :show)
+  value = @party.send(@attribute)
+end
+
+method = value.blank? ? "addClassName" : "removeClassName"
+
+page.replace_html element_name, value
+page << %Q($("#{element_name}").#{method}("blank");)
+
+# Handle special cases here
+case @attribute
+when "referred_by_id"
+  page << <<EOF
+var link = $("#{typed_dom_id(@party, plain_attribute, :link)}");
+link.setAttribute("href", "#{party_path(@party.referred_by)}");
+EOF
+end

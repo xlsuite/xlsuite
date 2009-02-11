@@ -1,0 +1,81 @@
+<% content_for(:js) do -%>
+  <%= javascript_include_tag "emails/form.js" %>
+  <%= javascript_include_tag "emails/menu.js" %>
+  <%= javascript_include_tag "multifile" %>
+<% end -%>
+
+  <%= hidden_field_tag :commit, nil %>
+  <%= hidden_field_tag "email[sender][name]", current_user.name.to_forward_s %>
+	
+<table class="email_new">
+  <tr>
+	  <td>
+      <label>From:</label>
+		</td>
+		<td>
+			<%= select_tag "email[sender][address]", options_for_select(@email_addresses.map{|e| [e.to_formatted_s, e.email_address]}, @email.sender ? @email.sender.address : "") %>
+    </td>
+	</tr>
+	
+	  <%= render :partial => "menu" %> 
+	
+	<tr>
+	  <td>&nbsp;</td>
+	  <td>
+      <%= text_area_tag "email_tos", h(@email.tos.to_formatted_s), :size => "60x3", :name => "email[tos]" %>
+    </td>
+  </tr>
+	<tr id="email_ccs_wrapper" <%= 'style="display: none"' if @email.ccs.blank? %>
+	  <td>
+      <label for="email_ccs">
+        <%= link_to_function("Cc: ", "hideEmailCcs()", :style => (@email.ccs.blank? ? "" : "display: none")) %>
+      </label>
+		</td>
+	  <td>
+      <%= text_area_tag "email_ccs", h(@email.ccs.to_formatted_s), :size => "60x3", :name => "email[ccs]" %>
+		</td>
+  <tr id="email_bccs_wrapper" <%= 'style="display: none"' if @email.bccs.blank? %>> 
+	   <td> 
+       <label for="email_bccs">
+         <%= link_to_function("Bcc: ", "hideEmailBccs()", :style => (@email.bccs.blank? ? "" : "display: none")) %>
+       </label>
+		 </td>
+		 <td>
+       <%= text_area_tag "email_bccs", h(@email.bccs.to_formatted_s), :size => "60x3", :name => "email[bccs]" %>
+	   </td>
+  </tr>
+  <tr>
+	  <td>&nbsp;</td>
+	  <td>
+      <%= link_to_function("Add Bcc", "showEmailBccs()", :id => "email_bccs_link", :style => (@email.bccs.blank? ? "" : "display: none") ) %>
+      <%= link_to_function("Add Cc", "showEmailCcs()", :id => "email_ccs_link", :style => (@email.ccs.blank? ? "" : "display: none") )  %>
+		</td>
+  </tr>
+	<tr>
+		<td>
+      <label for="email_subject">Subject: </label>
+		</td>
+		<td>
+      <%= text_field_tag "email_subject", @email.subject, :name => "email[subject]", :class => "text" %>
+		</td>
+  </tr>
+	<tr>
+	  <td class="bodyLabel">
+      <label for="email_body">Body: </label>
+		</td>
+		<td>
+       <%= text_area_tag "email[body]", @email.body, :size => "60x5", :class=>"email_body" %>
+		</td>
+	</tr>
+</table>
+  <%= javascript_tag "changeSelectedIndexToDefaultSelectedIndex('email[sender][address]')" %>
+  <%= render :partial => 'attachments' %>
+  <div id="bottom_console" class="mail_user_options left clear">
+    <span class="links">
+      <%= link_to "Send", "#", :class => "submit send" %>
+      <%= link_to "Save", "#", :class => "submit save" %>
+      <%= link_to "Discard", emails_path %>
+    </span>  
+  <p id="e_sched" class="clear">Scheduled at: <%= datetime_select :email, :scheduled_at %></p>
+  </div>
+  

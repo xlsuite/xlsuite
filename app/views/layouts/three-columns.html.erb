@@ -1,0 +1,23 @@
+<%= render :partial => "shared/doctype" %>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <%= render :partial => "shared/head" %>
+</head>
+<body>
+<div id="wrap">
+  <%= render :partial => "shared/header_row" %>
+  <%= render :partial => "shared/module_search" %>
+  <div id="content">
+    <div id="contentCenter" class="column">
+      <%= render :partial => "shared/notifications" %>
+      <div id="spannedColumns"></div>
+      <div id="mainContentArea">
+        <%= yield %>
+      </div>
+    </div>
+    <%= render :partial => "shared/consoles" %>
+  </div>
+  <%= render :partial => "shared/footer" %>
+</div>
+</body>
+</html>

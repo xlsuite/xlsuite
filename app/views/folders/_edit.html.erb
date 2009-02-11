@@ -1,0 +1,5 @@
+<% inline_form_for(:folder, :url => folder_path(@folder), :html => { :method => :put, :id => "folder_auth_#{dom_id(@folder)}" }) do |f| %>
+  <div id="page_edit_auth" style="margin-top:30px">
+    <%= authorization_fields_for :folder %>
+  </div>
+<% end %>

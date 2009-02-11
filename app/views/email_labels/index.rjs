@@ -1,0 +1,178 @@
+limit = params[:limit] || 50
+
+page << "myEmailLabelsRefresh();"
+page << create_tab_using_ajax_response("Email labels | Index") do
+%Q`
+
+  var selectedIds = null;
+  
+  var emailLabelPath = #{email_label_path("__ID__").to_json};
+  
+  var LabelRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'name', mapping: 'name'}, 
+    {name: 'url'}
+  ]);
+  // data reader to parse the json response
+  var reader = new Ext.data.JsonReader({total: "total", root: "collection", id: "id"}, LabelRecord);
+  
+  // set up connection of the data
+  var connection = new Ext.data.Connection({url: #{formatted_email_labels_path(:format => :json).to_json}, method: 'get'});
+  var proxy = new Ext.data.HttpProxy(connection);
+
+  // set up the data store and then send request to the server
+  var ds = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+  ds.load({params: {start: 0, limit: #{limit} }});
+  
+  var url = #{link_to_function("Open", "xl.openNewTabPanel('emails_sandbox_nil', '/admin/emails/sandbox?mailbox=__NAME__')").to_json};
+  
+  ds.on("datachanged", function(e){
+    e.each(function(record){
+      record.set('url', url.sub("__NAME__", record.get("name")));
+    });
+  });
+  
+  var addButton = new Ext.Toolbar.Button({
+      text: 'Add Label',
+      handler : function(){
+          var p = new LabelRecord({
+              name: "New Label"
+          });
+          grid.stopEditing();
+          ds.insert(0, p);
+          grid.startEditing(0, 0);
+      }
+  });
+  
+  var gridTopToolbar = new Ext.Toolbar({
+    cls: "top-toolbar",
+    items: [addButton]
+  });
+  
+  var grid = new Ext.grid.EditorGridPanel({
+      store: ds,
+      cm: new Ext.grid.ColumnModel([
+          {id: "name", width: 300, header: "Name", sortable: true, dataIndex: 'name', editor: new Ext.form.TextField({allowBlank: false})},
+          {id: "url", header: "", sortable: false, dataIndex: 'url'}
+        ]),
+      viewConfig: {
+        forceFit: false
+      },
+      autoScroll: true,
+      autoWidth: true,
+      autoExpandColumn: "url",
+      height: #{get_default_grid_height(nil)},
+      clicksToEdit:1,
+      tbar: gridTopToolbar, 
+      selModel: new Ext.grid.RowSelectionModel
+  });
+  
+  // set double click action on grid cells
+  //grid.on("celldbclick", function(gr, rowIndex, columnIndex, e) {
+  //  var record = ds.getAt(rowIndex);
+  //  xl.openNewTabPanel(('emails_sandbox_nil'), '/admin/emails/sandbox', ("mailbox="+record.get("name")));
+  //});
+  
+  var selectAllAction = new Ext.Action({
+    text: "Select all",
+    iconCls: "display_none"
+  });
+
+  var clearAllAction = new Ext.Action({
+    text: "Clear all",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var deleteAction = new Ext.Action({
+    text: "Delete",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var selectionMenu =  new Ext.menu.Menu({
+    items: [selectAllAction, clearAllAction]
+  });
+  
+  selectionMenu.addSeparator();
+  selectionMenu.add(deleteAction);
+  
+  clearAllAction.setHandler(function(e) {
+    grid.getSelectionModel().clearSelections();
+    selectedIds = [];
+    e.disable();
+  });
+
+  selectAllAction.setHandler(function(e) {
+    grid.getSelectionModel().selectAll();
+    e.disable();
+  });
+  
+  deleteAction.setHandler(function(e) {
+    Ext.Msg.confirm("", "Delete selected labels permanently?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        params['ids'] = selectedIds.toString();
+        new Ajax.Request(#{destroy_collection_email_labels_path.to_json}, {
+          method: 'post',
+          parameters: params
+        });
+      }
+    });
+  });
+  
+  newPanel.add(grid);
+  xl.runningGrids.set("emailLabel", grid);
+  newPanel.on("destroy", function(){
+    xl.runningGrids.unset("emailLabel");
+  });
+    
+  xl.viewport.render();
+  
+  grid.getTopToolbar().add({ text: "Actions", menu: selectionMenu });
+  
+  grid.getSelectionModel().on("selectionchange", function(){
+    records = grid.getSelectionModel().getSelections();
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    selectedIds = ids;
+
+    if(ids.length>0){
+      clearAllAction.enable();
+      deleteAction.enable();
+    }
+    else
+      deleteAction.disable();
+  });
+  
+  grid.on("validateedit", function(event){
+    var record = event.record;
+    var editedFieldName = event.field;
+
+    record.set(editedFieldName, event.value);
+    var method = "put";
+    var objectId = record.get("id");
+
+    var params = {};
+    params["email_label[name]"] = record.get("name");
+
+    if(typeof objectId == "undefined"){
+      method = "post";
+      new Ajax.Request(#{email_labels_path().to_json},{
+        method: method,
+        parameters: params
+      });
+    }
+    else{
+      new Ajax.Request(emailLabelPath.sub("__ID__", objectId),{
+        method: method,
+        parameters: params
+      });
+    };
+    return true;
+  });
+
+`
+end

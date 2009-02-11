@@ -1,0 +1,11 @@
+
+<div class="template_edit">
+<% form_for :_template, @_template, :url => templates_path do |f| %>
+  <%= submit_tag "Create" %>
+  <%= link_to "Back", templates_path %>
+  <%= render :partial => 'form', :locals => {:f => f}%>
+  <%= submit_tag "Create" %>
+  <%= link_to "Back", templates_path %>
+<% end %>
+<%= hidden_field_tag "template_target_field", "_template_body" %>
+</div>

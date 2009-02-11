@@ -1,0 +1,70 @@
+V 1.1.2 2005/03/14
+
+- Tidybuf.to_s bugfix: added nil check
+  @struct.bp ? @struct.bp.to_s(@struct.size) : ''
+
+V 1.1.1 2005/03/07
+
+- Bugfix
+
+  Tidybuf.to_s assumes that TidyBuffer.bp is null-terminated. This is
+  only true if the length of the data is evenly divisable by 256, but
+  if Tidy output is e.g. 512 bytes long the buffer is not null-terminated
+  and the code reads out of bounds. Result: garbage chars in output.
+  
+  Fix: Code changed to read only TidyBuffer.size bytes from the buffer. 
+  In TidyBuffer#to_s: @struct.bp.to_s => @struct.bp.to_s(@struct.size)
+  '.'*345 = 512 char output (for testing)
+
+V 1.1.0 2005/02/21
+
+  - $TIDYLIB global eliminated
+    Path to the library is now specified as follows:
+    Tidy.path = '/path/to/tidylib.so'
+
+  - minor code/docs/gemspec cleanup
+
+V 1.0.1
+
+  .sub calls changed to .gsub
+
+V 1.0.0
+
+  Oct/18/2004 - Declared stable, now packaged as a RubyGem
+
+VB.2.5
+
+  - Auto-detection and ENV variables removed, adds too much complexity
+    Module location is now specified by defining $TIDYLIB before require 'tidy'
+    $TIDYLIB is the system path to the library (ex: /usr/lib/tidylib.so)
+    Raises an error if $TIDYLIB is not defined
+
+V.B2.4
+
+  Now uses ENV['TIDY_LIB'] instead of $TIDY_LIB
+
+V B2.3
+
+  - Added library auto-detection
+    a) use $TIDY_LIB if defined
+    b) Search $: and ENV['PATH'] paths for (tidy|tidylib|libtidy|htmltidy).(dll|so)
+    c) Raise an error if not found, otherwise loads
+
+V.B2.2
+
+  - Tidy.to_b added
+
+V.B2.1
+
+  - load_config method added
+
+V.B2
+
+  - load(path) method added, library must be loaded explicity
+    this avoids hard coding the library name
+    require 'tidy'
+    Tidy.load('path/to/tidylib.so')
+    
+V.B1
+
+  First release

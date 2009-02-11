@@ -1,0 +1,9 @@
+#bugReport {display: block; width: 70%; margin:2em auto;}
+#bugReport label {width: 30%; float: left; display: block; font-weight: bold; text-align: right; margin-right: 18px;}
+#bugReport input {float: left; width: 50%; margin-bottom: 2px;}
+#bugReport textarea {float: right; width: 50.1%; margin-right: 16.6%; margin-top: -17px; height: 300px; overflow: auto; padding: 2px;}
+#bugReport input.submit {width: 54px; float:right; margin-right: 16.6%; margin-top: 18px;}
+#bugReport p {clear: both;}
+#bugReport p.roomy {margin-bottom: 1.5em;}
+
+

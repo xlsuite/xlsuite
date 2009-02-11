@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+number_to_keep = ARGV[1].to_i
+number_to_keep = 24/6*7 if number_to_keep.nil? || number_to_keep.zero?
+
+Dir.chdir("/usr/local/www/xlsuite.com/current")
+puts "rake s3:manage:clean_up RAILS_ENV=production KEEP=#{number_to_keep}"

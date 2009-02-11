@@ -1,0 +1,26 @@
+body {height: 100%}
+
+.contact {width:100%;}
+.contact td { padding: 4px; }
+.contact th { border-right: 1px solid #fff; padding-left: 4px; }
+.contact th.lastHeader { border-right: none; }
+tr.tableHeader { height: 30px; padding: 6px; background: url(../../images/table_headerBg.png) repeat-x; }
+tr.tableHeader th, tr.tableHeader th a {font: 11px Verdana, sans-serif; font-weight: bold;  padding: 4px; color: #fff;}
+.contact tr.bg { background: #F5F5DC; }
+.contact tr.bg td { border-right: 1px solid #fff; }
+.contact td a {display:inline;}
+.import_parties {margin-left: 10px;}
+.import_parties a {padding-bottom: 3px; font-weight: bold;} 
+/* console */
+#contactConsole {border-top:1px solid #8CA076;
+padding: 10px 0px;
+}
+.contact td.import_parties a {background: url(../../images/icons/user_go.png) no-repeat 0 0; padding-left: 20px; padding-bottom: 3px;} 
+
+
+/* headers */
+
+th.contact_sort img {float: left; margin-top: -14px; margin-left: -20px;}
+th.contact_sort a {float: right; margin-bottom: -1px; padding-right: 10px !important;}
+th.nudge {}
+th.nudge.span {}

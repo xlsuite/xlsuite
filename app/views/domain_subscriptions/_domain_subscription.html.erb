@@ -1,0 +1,17 @@
+<tr>
+  <td>
+    <ul>
+    <%= domain_subscription.domains.map{|e| "<li>#{e.name}</li>"} %>
+    </ul>
+  </td>
+  <td><%= domain_subscription.status %></td>
+  <td><%= domain_subscription.number_of_domains %></td>
+  <td><%= domain_subscription.amount %></td>
+  <td>
+    <% if domain_subscription.status =~ /^pending$/i %>
+    <%= form_tag(pay_domain_subscription_path(domain_subscription)) %>
+      <%= submit_tag "Pay" %>
+    </form>
+    <% end %>
+  </td>
+</tr>

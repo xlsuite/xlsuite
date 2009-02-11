@@ -1,0 +1,191 @@
+limit = params[:limit] || 50
+templates_url_json = formatted_templates_path(:format => :json).to_json
+
+after_render = %Q`
+  ds.load({params: {start: 0, limit: #{limit} }});
+`
+
+page << create_tab_using_ajax_response("Templates | Index", after_render) do
+%Q`
+  var templatePath = #{template_path("__ID__").to_json};
+  
+  // create file record
+  var TemplateRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'subject', mapping: 'subject'},
+    {name: 'body', mapping: 'body'},
+    {name: 'created_at', mapping: 'created_at'},
+    {name: 'updated_at', mapping: 'updated_at'},
+    {name: 'label', mapping: 'label'},
+    {name: 'description', mapping: 'description'},
+    {name: 'last_modified_by', mapping: 'last_modified_by'},
+  ]);
+  
+  // data reader to parse the json response
+  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, TemplateRecord);
+
+  // set up connection of the data
+  var connection = new Ext.data.Connection({url: #{templates_url_json}, method: 'get'});
+  var proxy = new Ext.data.HttpProxy(connection);
+
+  // set up the data store and then send request to the server
+  var ds = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+
+  // set up the ext grid object
+  var xg = Ext.grid;
+
+  // define paging toolbar that is going to be appended to the footer of the grid panel
+  var paging = new Ext.PagingToolbar({
+    store: ds,
+    pageSize: #{limit},
+    displayInfo: true,
+    displayMsg: 'Displaying {0} to {1} of {2}',
+    emptyMsg: "No record to display",
+    cls: "bottom-toolbar paging-toolbar-bottom",
+    plugins: [new Ext.ux.PageSizePlugin]
+  });
+  
+  #{create_grid_tbar_filter_field}
+  
+  #{create_grid_tbar_clear_button}
+
+  var gridTopToolbar = new Ext.Toolbar({
+    cls: "top-toolbar",
+    items: [{text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+  });
+  
+  var grid = new Ext.grid.GridPanel({
+      store: ds,
+      cm: new Ext.grid.ColumnModel([
+          {id: "label", header: "Label", sortable: true, dataIndex: 'label'},
+          {id: "subject", header: "Subject", sortable: true, dataIndex: 'subject'},
+          {id: "description", header: "Description", sortable: true, dataIndex: 'description'},
+          {id: "created_at", width: 65, header: "Created at", sortable: true, dataIndex: 'created_at', hidden: true},
+          {id: "updated_at", width: 65, header: "Updated at", sortable: true, dataIndex: 'updated_at'},
+          {id: "last_modified_by", width: 50, header: "Last Modified By", sortable: true, dataIndex: 'last_modified_by'},
+        ]),
+      autoScroll: true,
+      autoWidth: true,
+      autoExpandColumn: 'url',
+      height: #{get_default_grid_height(nil)},
+      tbar: gridTopToolbar, 
+      bbar: paging,
+      loadMask: true,
+      viewConfig: { autoFill: true, forceFit: true}
+  });
+  
+  newPanel.add(grid);
+  xl.runningGrids.set("templates", grid);
+  newPanel.on("destroy", function(){
+    xl.runningGrids.unset("templates");
+  });
+  
+  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
+  extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('templates_new_nil', #{new_template_path.to_json})").to_json});
+  
+  var editTemplateUrl = #{edit_template_path(:id => "__ID__").to_json};
+
+  // set double click action on grid cells
+  grid.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
+    var record = ds.getAt(rowIndex);
+    var id = record.data.id;
+
+    switch(columnIndex){
+      default:
+        xl.openNewTabPanel(('templates_edit_'+id), editTemplateUrl.sub("__ID__", id));
+    }
+  });
+  
+  var selectAllAction = new Ext.Action({
+    text: "Select all",
+    iconCls: "display_none"
+  });
+
+  var clearAllAction = new Ext.Action({
+    text: "Clear all",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var deleteAction = new Ext.Action({
+    text: "Delete",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var selectionMenu =  new Ext.menu.Menu({
+    items: [selectAllAction, clearAllAction]
+  });
+  
+  selectionMenu.addSeparator();
+  selectionMenu.add(deleteAction);
+  
+  xl.viewport.render();
+
+  grid.getTopToolbar().add({ text: "Actions", menu: selectionMenu });
+
+  function alertNoTemplatesSelected() {
+    Ext.Msg.alert('No Templates Selected', 'Please select one or more templates to perform that action.');
+  }
+
+  function getSelectedIdsString(records){ 
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    return ids.toString()
+  }
+  
+  clearAllAction.setHandler(function(e) {
+    grid.getSelectionModel().clearSelections();
+    e.disable();
+  });
+
+  selectAllAction.setHandler(function(e) {
+    grid.getSelectionModel().selectAll();
+    e.disable();
+  });
+
+  deleteAction.setHandler(function(e) {
+    var records = grid.getSelectionModel().getSelections();
+    if (records.length == 0) {
+      alertNoTemplatesSelected();
+      return false;
+    }
+    
+    Ext.Msg.confirm("", "Delete selected templates permanently?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        grid.disable();
+        params['ids'] = getSelectedIdsString(records);
+        new Ajax.Request(#{destroy_collection_templates_path.to_json}, {
+          method: 'post',
+          parameters: params,
+          onSuccess: function(transport){
+            grid.enable();
+          }
+        });
+      }
+    });
+  });
+  
+  grid.getSelectionModel().on("selectionchange", function(){
+    records = grid.getSelectionModel().getSelections();
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    selectedIds = ids;
+    
+    if(ids.length>0){
+      clearAllAction.enable();
+      deleteAction.enable();
+    }
+    else
+      deleteAction.disable();
+      selectAllAction.enable();
+  });
+
+  
+`
+end

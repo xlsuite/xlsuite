@@ -1,0 +1,21 @@
+Dear <%= @authorization.name %>,
+
+<%= @attachment.owner.name.to_forward_s %> has granted you access to <%= @attachment.filename %> (<%= number_to_human_size(@attachment.size) %>).
+
+To access the resource, please follow this link:
+  <%= @download_url %>
+
+When you visit this link, you will be prompted for your E-Mail address.  Use:
+  <%= @authorization.email %>
+
+<% unless @attachment.comments.blank? then -%>
+The comments associated with this attachment are:
+
+<%= word_wrap(@attachment.comments, 72) %>
+
+<% end -%>
+
+If you have any problem accessing the attachment, do not hesitate to contact me, Riel, at riel@weputuplights.com.
+
+Have a nice day !
+Rick Stonehouse's Team

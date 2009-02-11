@@ -1,0 +1,68 @@
+--- !ruby/object:Gem::Specification 
+name: attributes
+version: !ruby/object:Gem::Version 
+  version: 5.0.1
+platform: ruby
+authors: 
+- Ara T. Howard
+autorequire: attributes
+bindir: bin
+cert_chain: 
+date: 2007-12-12 00:00:00 -05:00
+default_executable: 
+dependencies: []
+
+description: 
+email: ara.t.howard@gmail.com
+executables: []
+
+extensions: []
+
+extra_rdoc_files: []
+
+files: 
+- a.rb
+- b.rb
+- gemspec.rb
+- gen_readme.rb
+- install.rb
+- lib
+- lib/attributes-5.0.0.rb
+- lib/attributes.rb
+- README
+- README.tmpl
+- samples
+- samples/a.rb
+- samples/b.rb
+- samples/c.rb
+- samples/d.rb
+- samples/e.rb
+- samples/f.rb
+has_rdoc: false
+homepage: http://codeforpeople.com/lib/ruby/attributes/
+post_install_message: 
+rdoc_options: []
+
+require_paths: 
+- lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">"
+    - !ruby/object:Gem::Version 
+      version: 0.0.0
+  version: 
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+requirements: []
+
+rubyforge_project: 
+rubygems_version: 1.2.0
+signing_key: 
+specification_version: 1
+summary: attributes
+test_files: []
+

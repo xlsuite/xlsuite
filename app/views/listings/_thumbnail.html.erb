@@ -1,0 +1,7 @@
+<% content_tag(:li) do %>
+  <% onclick = "xl.createTab('#{download_asset_url(:id => thumbnail)}', 'listing_#{listing.id.to_s}_picture_#{thumbnail.id.to_s}')" %>
+  
+  <a rel="lightbox[<%= listing.id %>]" href="#" onclick="<%=onclick%>">
+    <img src="<%= download_asset_url(:id => thumbnail, :size => size) %>" alt="thumbnail"/>
+  </a>
+<% end -%>

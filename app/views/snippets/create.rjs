@@ -1,0 +1,8 @@
+page << update_notices_using_ajax_response
+page.replace_html "new_snippet_errorMessages", @snippet.errors.full_messages.blank? ? @syntax_error : error_messages_for(:snippet)
+
+if @created
+  page << refresh_grid_datastore_of("snippets")
+  page << "xl.openNewTabPanel('snippets_edit_#{@snippet.id}', #{edit_snippet_path(@snippet).to_json});" unless @close
+  page << "xl.closeTabs('snippets_new_nil');"
+end

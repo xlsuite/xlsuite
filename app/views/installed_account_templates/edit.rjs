@@ -1,0 +1,176 @@
+changed_items_path_json = formatted_changed_items_installed_account_template_path(:id => @installed_account_template.id, :format => :json).to_json
+
+page << create_tab_using_ajax_response("Installed Account Template | #{@installed_account_template.account_template.name}") do
+%Q`
+  var updateButton = new Ext.Button({
+    text: "Update",
+    handler: function(btn, e){
+      Ext.Msg.confirm("Updating template", "Do you want to proceed?", function(btn){
+        if ( btn.match(new RegExp("yes","i")) ) {              
+          formPanel.getForm().doAction("submit", 
+            {
+              url: #{refresh_installed_account_template_path(@installed_account_template).to_json},
+              method: "POST",
+              success: function(response, action){
+                Ext.Msg.alert("Updating template", "Your request has been received. Please refrain from modifying template items. You will receive an email at #{self.current_account.owner.main_email.email_address} once the update has been completed");
+                formPanel.el.unmask();
+              },
+              failure: function(response, action){
+                Ext.Msg.alert("Updating template", "There is a problem while processing your request. Please contact our admin.")
+                formPanel.el.unmask();
+              }
+            }
+          );
+          formPanel.el.mask("Requesting update on \\"#{@installed_account_template.account_template.name}\\"...")    
+        }
+      });
+    }
+  });
+
+  var snippetsCheckboxField = new Ext.form.Checkbox({
+    fieldLabel: "Snippets",
+    name: "update[snippets]",
+    checked: true
+  });
+  
+  var layoutsCheckboxField = new Ext.form.Checkbox({
+    fieldLabel: "Layouts",
+    name: "update[layouts]",
+    checked: true
+  });
+  
+  var pagesCheckboxField = new Ext.form.Checkbox({
+    fieldLabel: "Pages",
+    name: "update[pages]",
+    checked: true
+  });
+  
+  var assetsCheckboxField = new Ext.form.Checkbox({
+    fieldLabel: "Assets",
+    name: "update[assets]",
+    checked: true
+  });
+
+  var configurationsCheckboxField = new Ext.form.Checkbox({
+    fieldLabel: "Configurations",
+    name: "update[configurations]",
+    checked: true
+  });
+  
+  var workflowsCheckboxField = new Ext.form.Checkbox({
+    fieldLabel: "Workflows",
+    name: "update[workflows]",
+    checked: true
+  });
+  
+  var overwriteCheckboxField = new Ext.form.Checkbox({
+    fieldLabel: "Overwrite components with template's?",
+    name: "update[overwrite]"
+  });
+
+  var formPanel = new Ext.form.FormPanel({
+    items: [layoutsCheckboxField, pagesCheckboxField, snippetsCheckboxField, assetsCheckboxField, configurationsCheckboxField, workflowsCheckboxField, overwriteCheckboxField],
+    bbar: [updateButton],
+    tbar: [updateButton]
+  });
+  
+  var ChangedItemRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'type', mapping: 'type'},
+    {name: 'identifier', mapping: 'identifier'},
+    {name: 'domain_patterns', mapping: 'domain_patterns'},
+    {name: 'updated_at', mapping: 'updated_at'}
+  ]);
+  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, ChangedItemRecord);
+  var connection = new Ext.data.Connection({url: #{changed_items_path_json}, method: 'get'});
+  var proxy = new Ext.data.HttpProxy(connection);
+  var changedItemsStore = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+
+  var toTextButton = new Ext.Toolbar.Button({
+    text: "To TEXT",
+    handler: function(btn, e){
+      var text = "";
+      var gridColumnDataIndex = new Array();
+      var gridColumnModel = changedItemsGrid.getColumnModel();
+      for(var i=0; i<gridColumnModel.getColumnCount(); i++){
+        gridColumnDataIndex.push(gridColumnModel.getDataIndex(i));
+      }
+      changedItemsStore.each(function(record){
+        var content = new Array();
+        gridColumnDataIndex.forEach(function(element, index, array){
+          content.push(record.get(element));
+        });
+        text += (content.join(", ") + "\\n"); 
+      });
+      
+      var gridToText = new Ext.form.TextArea({
+        value: text,
+        readOnly: true,
+        listeners: {
+          render: function(cpt){
+            xl.fitToOwnerCt(cpt);
+          }
+        }
+      });
+      
+      var win = new Ext.Window({
+        title: changedItemsGrid.title,
+        items: gridToText,
+        height: 400,
+        width: 300,
+        autoScroll: true,
+        listeners: {
+          resize: function(cpt){
+            xl.fitToOwnerCt(gridToText);
+          }
+        }
+      });
+      win.show();
+    }
+  });
+  
+  var changedItemsGrid = new Ext.grid.GridPanel({
+    title: "Modified item(s) to be replaced",
+    store: changedItemsStore,
+    cm: new Ext.grid.ColumnModel([
+        {id: "type", header: "Type", width: 75, dataIndex: 'type'},
+        {id: "identifier", header: "Identifier", dataIndex: 'identifier'},
+        {id: "domain_patterns", header: "Domain Pattern", dataIndex: 'domain_patterns'},
+        {id: "updated_at", width: 125, header: "Updated at", dataIndex: 'updated_at'}
+      ]),
+    bbar: [toTextButton],
+    listeners: {
+      render: function(cpt){
+        changedItemsStore.load();
+        xl.fitToOwnerCt(cpt);
+      }
+    }
+  });
+  
+  var wrapperPanel = new Ext.Panel({
+    layout: "column",
+    items: [
+      {
+        items: formPanel,
+        listeners: {
+          render: function(cpt){
+            xl.fitToOwnerCtHeight(cpt);
+          }
+        },
+        columnWidth: .2
+      },
+      {
+        items: changedItemsGrid,
+        listeners: {
+          render: function(cpt){
+            xl.fitToOwnerCtHeight(cpt);
+          }
+        },
+        columnWidth: .8
+      }
+    ]
+  });
+
+  newPanel.add(wrapperPanel);
+`
+end

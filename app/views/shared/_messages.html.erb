@@ -1,0 +1,3 @@
+<% id = "messages#{'-' + id.to_s if id}" -%>
+<%= messages = show_flash_messages(:textilize => true, :id => id) -%>
+<%= javascript_tag(visual_effect(:appear, 'notification-area', :duration => 0.5)) unless messages.blank? %>

@@ -1,0 +1,79 @@
+mary_fast_payer:
+  taggable_type: Party
+  taggable_id: 51
+  tag_id: 4560
+
+john_mall:
+  taggable_type: Party
+  taggable_id: 52
+  tag_id: 4561
+
+peter_fast_payer:
+  taggable_type: Party
+  taggable_id: 53
+  tag_id: 4560
+
+peter_mall:
+  taggable_type: Party
+  taggable_id: 53
+  tag_id: 4561
+
+bob_staff:
+  taggable_type: Party
+  taggable_id: 1000001
+  tag_id: 4562
+
+existingbob_staff:
+  taggable_type: Party
+  taggable_id: 1000002
+  tag_id: 4562
+
+longbob_staff:
+  taggable_type: Party
+  taggable_id: 1000003
+  tag_id: 4562
+
+mary_customer:
+  taggable_type: Party
+  taggable_id: 51
+  tag_id: 4563
+
+mary_lead:
+  taggable_type: Party
+  taggable_id: 51
+  tag_id: 4564
+
+john_customer:
+  taggable_type: Party
+  taggable_id: 52
+  tag_id: 4563
+
+john_outstanding:
+  taggable_type: Party
+  taggable_id: 52
+  tag_id: 4565
+
+peter_customer:
+  taggable_type: Party
+  taggable_id: 53
+  tag_id: 4563
+
+peter_lead:
+  taggable_type: Party
+  taggable_id: 53
+  tag_id: 4564
+
+tom_staff:
+  taggable_type: Party
+  taggable_id: 54
+  tag_id: 4562
+
+jerry_staff:
+  taggable_type: Party
+  taggable_id: 55
+  tag_id: 4562
+
+destroyed_sam_customer:
+  taggable_type: Party
+  taggable_id: 56
+  tag_id: 4563

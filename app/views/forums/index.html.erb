@@ -1,0 +1,57 @@
+<% content_for(:head) do -%>
+  <%= auto_discovery_link_tag(:atom, formatted_all_posts_url(:atom)) %>
+<% end -%>
+
+<div class="options" style="float: right;">
+<% when_user_can?(:admin_forum) do %>
+  <%= link_to "Create Forum", new_forum_path, :class => "utility" %>
+  <br/>
+<% end %>
+</div>
+
+<h1 style="margin-top:0;">
+  <%= link_to(icon_tag("feed"), formatted_all_posts_url(:atom), :rel => "alternate", :type => "application/atom+xml") %>
+  Forums
+</h1>
+<p class="subtitle">
+<%= number_with_delimiter(ForumTopic.count) %> topics, <%= number_with_delimiter(ForumPost.count) %> posts, 
+<%= number_with_delimiter(current_account.parties.count(:conditions => "posts_count>0")) %> voices
+  
+</p>
+
+<table border="0" cellspacing="0" cellpadding="0" class="wide forums">
+  <tr>
+    <th class="la" width="70%" colspan="2">Forum</th>
+    <th width="5%">Topics</th>
+    <th width="5%">Posts</th>
+    <th class="la" width="30%">Last Post</th>
+  </tr>
+<% for forum in @forums do %>  
+  <tr>
+    <td class="c2" colspan="2">
+<% when_user_can?(:admin_forum) do %>
+      <div style="float:right;">
+      <%= link_to "Edit", edit_forum_path(forum), :class => "tiny utility", :rel => "directory"  %>&nbsp;|&nbsp;
+      <%= link_to "Delete", forum_path(forum), :class => "tiny utility", :rel => "directory", :method => 'delete', :confirm => "Are you sure?" %>
+      </div>
+      <% end %>
+      <%= link_to(icon_tag("feed"), formatted_forum_posts_url(forum, :atom), :rel => "alternate", :type => "application/atom+xml") %>
+      <%= link_to h(forum.name), forum_path(forum), :class => "title" %>
+      <div class="posts">
+        <%= number_with_delimiter(forum.topics_count) %> topics, 
+        <%= number_with_delimiter(forum.posts_count) %> posts
+      </div>
+      <p class="desc"><%= format_text forum.description %>
+        </p>
+    </td>
+    <td class="ca inv"><%= number_with_delimiter(forum.topics_count) %></td>
+    <td class="ca inv"><%= number_with_delimiter(forum.posts_count) %></td>
+    <td class="inv lp">
+      <% if forum.posts.last %>
+        <%= time_ago_in_words(forum.posts.last.created_at) %><br />
+        by <strong><%= h(forum.posts.last.user.name) %></strong>
+      <% end %>
+    </td>
+  </tr>
+<% end %>
+</table>

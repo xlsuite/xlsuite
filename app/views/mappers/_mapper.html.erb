@@ -1,0 +1,9 @@
+<tr>
+  <td><%= link_to h(mapper.name), edit_mapper_path(mapper) %></td>
+  <td><%= truncate(h(mapper.description), 50) %></td>
+  <td><%= mapper.updated_at.strftime("%m-%d-%Y") %></td>
+  <td><%= mapper.created_at.strftime("%m-%d-%Y") %></td>
+  <td>
+    <%= link_to "Delete", mapper_path(mapper), :method => :delete %>
+  </td>
+</tr>

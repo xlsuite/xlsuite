@@ -1,0 +1,6 @@
+<div class="user_options">
+<% if @party.new_record? then -%>
+        <%= submit_tag "Save", :name => nil, :class => 'button' %>
+<% end -%>
+      <%= link_to_function("Cancel", "parent.xl.closeTabs(parent.$('current-displayed-iframe-source').value)", :style => @party.new_record? ? nil : "display:none") %>
+</div>

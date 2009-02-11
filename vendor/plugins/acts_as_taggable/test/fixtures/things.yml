@@ -1,0 +1,35 @@
+bath:
+  id: 1
+  place_id: 1
+
+bed:
+  id: 2
+  place_id: 1
+
+sushi:
+  id: 3
+  place_id: 1
+
+desk:
+  id: 4
+  place_id: 2
+
+watercooler:
+  id: 5
+  place_id: 2
+
+can_of_spam:
+  id: 6
+  place_id: 2
+
+beer:
+  id: 7
+  place_id: 3
+
+bar:
+  id: 8
+  place_id: 3
+
+chips:
+  id: 9
+  place_id: 3

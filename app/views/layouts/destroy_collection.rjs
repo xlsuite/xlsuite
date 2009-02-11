@@ -1,0 +1,2 @@
+page << update_notices_using_ajax_response
+page << refresh_grid_datastore_of("layouts")

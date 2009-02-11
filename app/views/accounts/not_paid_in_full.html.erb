@@ -1,0 +1,8 @@
+<% form_tag %>
+<p>Account disabled until the unpaid balance is 0.</p>
+<p>Current unpaid balance: <%= current_account.order.balance %></p>
+<p>
+  Please pay using Paypal using this button:
+  <%= submit_tag "Pay using Paypal" %>  
+</p>
+</form>

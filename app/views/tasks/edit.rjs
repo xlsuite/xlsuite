@@ -1,0 +1,405 @@
+
+after_render = %Q`
+  assigneeStore.load();
+`
+afteredit_function = %Q`
+  function(oldValue, decodedResponse, plainResponse){
+    xl.updateStatusBar(decodedResponse.flash);
+    if(decodedResponse.success){
+      #{refresh_grid_datastore_with_key("tasks_grid_"+@task.step.id.to_s)};
+    }    
+  }
+`
+  
+renderTextFieldEditor =
+  %Q`
+    new Ext.form.TextField({
+      selectOnFocus: true
+    })
+  `
+  
+partyNameComboBox = %Q!
+  new Ext.form.ComboBox({
+    store: partyNameAutoCompleteStore,
+    displayField: 'display',
+    valueField: 'value',
+    hideLabel: true,
+    triggerAction: 'all',
+    forceSelection: true,
+    emptyText: "Autocomplete field, please start typing",
+    minChars: 0,
+    width: 480,
+    allowBlank: false
+  });
+!
+
+def generate_hidden_name(obj_type, field_name)
+  field_name = field_name + "_id" if obj_type.classify.constantize.respond_to?(:content_columns)
+  return ("_action["+field_name+"]").to_json
+end
+
+def generate_default_value(param_hash)
+  if param_hash.values.first[:default_value]
+    return eval(param_hash.values.first[:default_value]).to_json
+  end
+  
+  obj_type = param_hash.values.first[:type].to_s
+  field_name = param_hash.keys.first.to_s
+  field_name = field_name + "_id" if obj_type.classify.constantize.respond_to?(:content_columns)
+  return @action.send(field_name).to_json
+end
+
+def generate_mode(param_hash)
+  if param_hash.values.first[:mode]
+    return param_hash.values.first[:mode].to_json
+  else
+    return "local".to_json
+  end
+end
+
+def generate_store(param_hash)
+  if param_hash.values.first[:store][:helper]
+    return eval(param_hash.values.first[:store][:helper])
+  else
+    return %Q`
+      new Ext.data.SimpleStore({
+        fields: ['display', 'value'],
+        data: #{eval(param_hash.values.first[:store]).to_json}
+      })
+    `
+  end
+end
+
+def generate_width(param_hash)
+  if param_hash.values.first[:width]
+    return param_hash.values.first[:width]
+  else
+    return 200
+  end
+end
+
+def generate_empty_text(param_hash)
+  if param_hash.values.first[:empty_text]
+    return param_hash.values.first[:empty_text].to_json
+  else
+    return "".to_json
+  end
+end
+
+page << create_tab_using_ajax_response("Task | Edit", after_render) do
+out = ""
+
+out << %Q`
+
+  var form = {url: #{update_action_workflow_step_task_path(:workflow_id => @workflow.id, :step_id => @step.id, :id => @task.id).to_json}, object: '_action'};
+  
+  //------------------------------- GENERAL PANEL ---------------------------//
+  var generalPanel = new Ext.Panel({
+    layout: 'form',
+    style: 'margin-bottom:10px',
+    items: [
+`
+items = []
+@task.action.class.parameters.each do |param_hash|
+items << if param_hash.values.first[:field] =~ /selection/i
+    [%Q`
+    
+      xl.widget.InlineActiveField({ form: form, afteredit: #{afteredit_function}, field: {
+          fieldLabel: #{(param_hash.values.first[:label] || param_hash.keys.first.to_s.humanize).to_json},
+          hiddenName: #{generate_hidden_name(param_hash.values.first[:type].to_s, param_hash.keys.first.to_s)},
+          name: #{("name"+param_hash.keys.first.to_s).to_json},
+          displayField: 'display',
+          valueField: 'value',
+          mode: #{generate_mode(param_hash)},
+          store: #{generate_store(param_hash)},
+          width: #{generate_width(param_hash)},
+          emptyText: #{generate_empty_text(param_hash)},
+          minChars: 0,
+          type: "combobox",
+          triggerAction: 'all',
+          editable: true,
+          value: #{generate_default_value(param_hash)}
+        }})
+    `]
+  elsif param_hash.values.first[:field] =~ /textarea/i
+    [%Q`
+      xl.widget.InlineActiveField({ form: form, afteredit: #{afteredit_function}, field: {
+          width: 350,
+          fieldLabel: #{(param_hash.values.first[:label] || param_hash.keys.first.to_s.humanize).to_json},
+          name: #{param_hash.keys.first.to_json},
+          type: "textarea",
+          value: #{(@task.action.send(param_hash.keys.first)).to_json}
+        }})
+    `]
+  else
+    [%Q`
+      xl.widget.InlineActiveField({ form: form, afteredit: #{afteredit_function}, field: {
+          width: 350,
+          fieldLabel: #{(param_hash.values.first[:label] || param_hash.keys.first.to_s.humanize).to_json},
+          name: #{param_hash.keys.first.to_json},
+          value: #{(@task.action.send(param_hash.keys.first)).to_json}
+        }})
+    `]
+  end
+end
+out << items.join(",")
+out << %Q`
+    ],
+    autoHeight: true
+  });
+  
+  newPanel.add(generalPanel);
+`
+
+out << %Q`
+  
+  //------------------------------- GENERAL PANEL ---------------------------//
+
+  var deleteRenderer = function(value, cell, record) {
+    return '<div class="icon_delete pointerOnHover"/>';
+  };
+  //------------------------------- ASSIGNEES GRID ---------------------------//
+  var assigneeRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'display_name', mapping: 'display_name'},
+    {name: 'email', mapping: 'email'},
+    {name: 'completed_at', mapping: 'completed_at'},
+    {name: 'completed', mapping: 'completed'}
+  ]);
+
+  // data reader to parse the json response
+  var assigneeReader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, assigneeRecord);
+
+  // set up connection of the data
+  var assigneeConnection = new Ext.data.Connection({url: #{formatted_assignees_path(:task_id => @task.id, :format => :json).to_json}, method: 'get'});
+  var assigneeProxy = new Ext.data.HttpProxy(assigneeConnection);
+
+  // set up the data store and then send request to the server
+  var assigneeStore = new Ext.data.Store({proxy: assigneeProxy, reader: assigneeReader, remoteSort: true, baseParams: {q: ''}});
+  
+
+  // set up connection and data store of autocomplete field
+  var partyNameAutoCompleteRecord = new Ext.data.Record.create([
+    {name: 'display', mapping: 'display'},
+    {name: 'value', mapping: 'value'}
+  ]);
+  
+  var partyNameAutoCompleteReader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, partyNameAutoCompleteRecord)
+  var partyNameAutoCompleteConnection = new Ext.data.Connection({url: #{formatted_extjs_auto_complete_parties_path(:format => :json).to_json}, method: 'get'});
+  var partyNameAutoCompleteProxy = new Ext.data.HttpProxy(partyNameAutoCompleteConnection)
+  var partyNameAutoCompleteStore = new Ext.data.Store({proxy: partyNameAutoCompleteProxy, reader: partyNameAutoCompleteReader});
+  
+  var completedCheckColumn = new Ext.grid.CheckColumn({
+    id: 'completed', 
+    header: "Completed",
+    dataIndex: 'completed',
+    fixed: true,
+    width: 60
+  });
+  
+  var updateAssigneePath = #{assignee_path(:task_id => @task.id, :id => "__ID__").to_json};
+
+  completedCheckColumn.addListener("click", function(element, event, record){
+    var params = {};
+    var method = null;
+    params["assignee[completed]"] = record.get('completed');
+    objectId = record.get('id');
+    method = "PUT";
+    Ext.Ajax.request({
+      url: updateAssigneePath.sub("__ID__", objectId),
+      params: params,
+      method: method,
+      success: function(transport, options){
+        response = Ext.util.JSON.decode(transport.responseText);
+        record.set('completed_at', response.completed_at);
+        record.set('completed', response.completed);
+        $("status-bar-notifications").innerHTML = response.flash;
+        if(response.flash && response.flash.include("Error:"))
+          event.grid.getView().getCell(event.row, event.column).highlight({startcolor: "FF5721"});
+        else
+          event.grid.getView().getCell(event.row, event.column).highlight();
+      }
+    });
+  });
+  
+  var addAssigneeButton = new Ext.Toolbar.Button({
+    text: "Add Assignees", 
+    iconCls: "display_none",
+    handler: function(e) {
+      var comboBoxes = [];
+      
+      var ids = records.invoke('get', 'value');
+    
+      var partyNameComboBox = #{partyNameComboBox}
+    
+      comboBoxes.push(partyNameComboBox);
+      
+      var win = new Ext.Window({
+        title: "Please find the party. The field will autocomplete.",
+        modal: true,
+        layout:'form',
+        width:500,
+        autoHeight:true,
+        closeAction:'hide',
+        plain: true,
+        items: [ partyNameComboBox ],
+        buttons: [{
+          text:'Submit',
+          handler: function(){
+            var party_ids = [];
+            comboBoxes.each(function(el){ party_ids.push(el.value);});
+            Ext.Ajax.request({
+              url: #{create_collection_assignees_path.to_json},
+              method: "POST",
+              params: { party_ids: party_ids.join(','), workflow_id: #{@workflow.id}, step_id: #{@step.id}, task_id: #{@task.id} },
+              failure: xl.logXHRFailure,
+              success: function(request, options) {
+                xl.log("SUCCESS: " + request.responseText);
+                $("status-bar-notifications").innerHTML = request.responseText.flash;
+                assigneesGridPanel.getStore().reload();
+                #{refresh_grid_datastore_with_key("tasks_grid_"+@task.step.id.to_s)};
+              } // end success(r,o)
+            }); // end Ext.Ajax.request
+            win.hide();
+          }
+      },{
+          text: 'Close',
+          handler: function(){
+              win.hide();
+          }
+        },{
+          text: 'Add another party',
+          handler: function(){
+              var newCombo = #{partyNameComboBox};
+              newCombo.show();
+              comboBoxes.push(newCombo);
+              win.add( newCombo );
+              win.syncSize();
+          }         
+        }]
+      });
+      
+      win.show();
+    }
+  });
+
+  var ddTextRenderer = function(value, cell, record) {
+    var i = 0
+    for(i; i < 60; i++)
+      value = value.concat("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+    return value;
+  };
+  
+  var assigneesGridPanel = new Ext.grid.GridPanel({
+    tbar: [{text: "Assignees"}, addAssigneeButton],
+    store: assigneeStore,
+    cm: new Ext.grid.ColumnModel([
+      {
+        id: "delete", 
+        width: 30, 
+        dataIndex: 'id', 
+        renderer: deleteRenderer, 
+        sortable: false, 
+        menuDisabled: true, 
+        hideable: false, 
+        tooltip: "Delete row",
+        fixed: true
+      },
+      {
+        id: "display_name",
+        header: "Name",
+        dataIndex: "display_name",
+        renderer: ddTextRenderer
+      },
+      {
+        id: "email",
+        header: "Email",
+        dataIndex: "email",
+        renderer: ddTextRenderer
+      },
+      completedCheckColumn
+    ]),
+    viewConfig: {autoFill: true, forceFit: true, emptyText: "Add an assignee by clicking on the 'Add Assignees' button"},
+    autoWidth: true,
+    autoHeight: true,
+    autoExpandColumn: 'title',
+    loadMask: true,
+    selModel: new Ext.grid.RowSelectionModel,
+    plugins: completedCheckColumn,
+    enableDragDrop: true, 
+    ddGroup: 'taskDDGroup'
+  });
+  
+  assigneesGridPanel.on("cellclick", function(gr, rowIndex, columnIndex, e) {
+    var record = gr.getStore().getAt(rowIndex);
+    var id = record.data.id;
+
+    switch(columnIndex){
+      case gr.getColumnModel().getIndexById("delete"):
+        Ext.Msg.confirm("", "Delete Assignee permanently?", function(btn){
+          if ( btn.match(new RegExp("yes","i")) ) {
+            var params = {};
+            Ext.Ajax.request({
+              url: #{assignee_path(:task_id => @task.id, :id => "__ID__").to_json}.sub("__ID__", id),
+              method: "DELETE",
+              success: function(transport, options){
+                assigneesGridPanel.getStore().reload();
+                #{refresh_grid_datastore_with_key("tasks_grid_"+@task.step.id.to_s)};
+                response = Ext.util.JSON.decode(transport.responseText);
+                xl.updateStatusBar(response.flash);
+              }
+            });
+          }
+        });
+        break;
+      default:
+        break;
+    }
+  });
+  
+  assigneesGridPanel.on("render", function(g) {
+    var ddrow = new Ext.ux.dd.GridReorderDropTarget(g, {
+       copy: false
+       ,listeners: {
+         afterrowmove: function(objThis, oldIndex, newIndex, records) {
+           var ds = assigneesGridPanel.getStore();
+           var positions = [];
+           all_records = ds.getRange(0, assigneesGridPanel.getStore().getCount()-1);
+           all_records.each(function(record){
+             positions.push(ds.indexOfId(record.id));
+           });
+           assigneesGridPanel.stopEditing();
+           new Ajax.Request(#{reposition_workflow_step_task_assignees_path(:workflow_id => @workflow.id, :step_id => @step.id, :task_id => @task.id).to_json},{
+             method: "POST",
+             parameters: { ids: all_records.invoke("get", "id").join(","), positions: positions.join(",") },
+             onSuccess: function(transport){
+               $("status-bar-notifications").innerHTML = "Assignee(s) successfully repositioned"
+             }, 
+             onFailure: function(transport){
+               Ext.Msg.alert("Failed", "Assignee(s) move failed");
+             }
+           });
+         }
+       }
+    });
+  });
+  
+  xl.runningGrids.set("assignee_grid_task_#{@task.id}", assigneesGridPanel);
+  newPanel.on("destroy", function(){
+    xl.runningGrids.unset("assignee_grid_task_#{@task.id}");
+  });
+  
+  var wrapperPanel = new Ext.Panel({
+    items: [generalPanel, assigneesGridPanel],
+    autoScroll: true,
+    listeners: {
+      "bodyresize": function(){
+          assigneesGridPanel.setWidth(assigneesGridPanel.ownerCt.getSize().width);
+        }
+    },
+    title: "Task Editor: " + #{@task.action.class.to_s.titleize.to_json}
+  });
+  newPanel.add(wrapperPanel);
+`
+out
+end

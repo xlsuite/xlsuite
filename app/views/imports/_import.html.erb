@@ -1,0 +1,8 @@
+<tr class="<%= cycle('', 'bg') %>">
+  <td><%= check_box_tag "import_ids[]", import.id, false, :onclick => "processCheckBoxClick(this)", :id => "import_#{import.id}" %>
+  <td><%= link_to import.filename, edit_import_path(import) %></td>
+  <td><%= import.created_at.strftime("%m-%d-%Y") %></td>
+  <td><%= import.updated_at.strftime("%m-%d-%Y") %></td>
+  <td><%= import.party.display_name %></td>
+  <td><%= link_to import.state || "", summary_import_path(import.id) %></td>
+</tr>

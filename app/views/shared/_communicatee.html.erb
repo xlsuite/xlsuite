@@ -1,0 +1,20 @@
+<h2 id="communications">Communications</h2>
+<table class="list">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Status</th>
+      <th>Recipient</th>
+      <th>Subject</th>
+    </tr>
+  </thead>
+  <tbody>
+<% if communicatee.emails.empty? then -%>
+    <tr>
+      <td colspan="4">None</td>
+    </tr>
+<% else -%>
+    <%= render :partial => 'shared/email', :collection => communicatee.emails %>
+<% end -%>
+  </tbody>
+</table>

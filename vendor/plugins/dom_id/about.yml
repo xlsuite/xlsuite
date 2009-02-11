@@ -1,0 +1,7 @@
+author: topfunky
+summary: Creates a dom_id method for generating unique id's in HTML pages.
+homepage: http://codefluency.com/articles/2006/07/02/rails-views-bulletproofing-dom_id/
+plugin: http://topfunky.net/svn/plugins/dom_id
+license: MIT
+version: 0.2
+rails_version: 1.0+

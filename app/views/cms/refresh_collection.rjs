@@ -1,0 +1,88 @@
+page << %Q`
+  var templateDomainSelections = new Ext.data.SimpleStore({
+    fields: ['value'],
+    data: #{@template_domain_selections.to_json}
+  });
+
+  var replaceLayoutsCheckbox = new Ext.form.Checkbox({
+    fieldLabel: "Replace layouts?",
+    labelSeparator: "",
+    name: "include_layouts",
+    checked: true
+  });
+  
+  var replacePagesCheckbox = new Ext.form.Checkbox({
+    fieldLabel: "Replace pages?",
+    labelSeparator: "",
+    name: "include_pages",
+    checked: true
+  });
+  
+  var replaceSnippetsCheckbox = new Ext.form.Checkbox({
+    fieldLabel: "Replace snippets?",
+    labelSeparator: "",
+    name: "include_snippets",
+    checked: true
+  });
+
+  var refreshPanel = new Ext.form.FormPanel({
+    autoScroll: true,
+    items:[ replaceLayoutsCheckbox,
+        replacePagesCheckbox,
+        replaceSnippetsCheckbox,
+        new Ext.form.ComboBox({
+          fieldLabel: "From",
+          labelSeparator: ":",
+          name: "domain_name",
+          store: templateDomainSelections,
+          displayField: "value",
+          valueField: "value",
+          editable: false,
+          mode: "local",
+          value: #{@template_domain_selections.first.first.to_json},
+          triggerAction: "all"
+        })
+      ]
+  });
+
+  var window = new Ext.Window({
+    title: 'Refresh CMS Components',
+    resizable: false,
+    width: 400,
+
+    items: refreshPanel,
+
+    buttons: [
+    {
+      text: "Replace",
+      handler: function() {
+          var kinds = new Array();
+          if (replaceLayoutsCheckbox.checked) {kinds.push("layouts")};
+          if (replacePagesCheckbox.checked) {kinds.push("pages")};
+          if (replaceSnippetsCheckbox.checked) {kinds.push("snippets")};
+          
+          if (kinds.length < 1){
+            Ext.Msg.show({msg: "Please select a CMS component to be replaced", buttons: Ext.Msg.OK});
+            return false;
+          }
+          
+          Ext.Msg.confirm("Confirm Replacing CMS Components", ("All existing " + kinds.join("/") + " will be deleted. Continue?"), function(buttonText) {
+            if (buttonText.match(new RegExp("yes","i"))) {
+              if (replaceLayoutsCheckbox.checked) {#{mask_grid_datastore_of("layouts", "Replacing...")}};
+              if (replacePagesCheckbox.checked) {#{mask_grid_datastore_of("pages", "Replacing...")}};
+              if (replaceSnippetsCheckbox.checked) {#{mask_grid_datastore_of("snippets", "Replacing...")}};
+              
+              refreshPanel.getForm().doAction('submit', {url: #{do_refresh_collection_cms_path.to_json}});
+              window.hide(); window.close();
+            } // end if(buttonText.match...
+          }); // end Ext.Msg.confirm
+        }
+    },
+    {
+      text: 'Close',
+      handler: function() { window.hide(); window.close(); }
+    }]
+  });
+
+  window.show();
+`

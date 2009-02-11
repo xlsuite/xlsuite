@@ -1,0 +1,483 @@
+limit = params[:limit] || 50
+steps_url_json = formatted_workflow_steps_path(:workflow_id => @workflow.id, :format => :json).to_json
+copy_step_index_steps_url_json = formatted_copy_step_index_workflow_steps_path(:workflow_id => @workflow.id, :format => :json).to_json
+
+after_render = %Q`
+  ds.load();
+  newPanel.on("show", function(){
+    xl.viewport.render();
+    xl.resizeTabPanel();
+    
+    splitHeight = (centerPanel.getSize().height - 128)/2;
+    if(splitHeight < 100)
+      splitHeight = 100;
+    if(typeof triggerLinesGridPanel != "undefined"){
+      triggerLinesGridPanel.setWidth(centerPanel.getSize().width);
+      triggerLinesGridPanel.setHeight(splitHeight);
+    };
+    if(typeof tasksGridPanel != "undefined"){
+      tasksGridPanel.setWidth(centerPanel.getSize().width);
+      tasksGridPanel.setHeight(splitHeight);
+    };
+    
+  });
+`
+
+afteredit_function = %Q`
+  function(oldValue, decodedResponse, plainResponse){
+    xl.updateStatusBar(decodedResponse.flash);
+    if(decodedResponse.success){
+      #{refresh_grid_datastore_of("workflow")};
+    }    
+  }
+`
+
+steps_grid_width = 155
+
+page << create_tab_using_ajax_response("Workflow Edit", after_render) do
+%Q`
+  var selectedIds = null;
+
+  // create step record
+  var StepRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'title', mapping: 'title'},
+    {name: 'description', mapping: 'description'},
+    {name: 'model_class_name', mapping: 'model_class_name'}
+  ]);
+
+  // data reader to parse the json response
+  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, StepRecord);
+
+  // set up connection of the data
+  var connection = new Ext.data.Connection({url: #{steps_url_json}, method: 'get'});
+  var proxy = new Ext.data.HttpProxy(connection);
+
+  // set up the data store and then send request to the server
+  var ds = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+
+  // set up the ext grid object
+  var xg = Ext.grid;  
+  
+  var modelStore = new Ext.data.SimpleStore({
+    fields: ['display'],
+    data: #{Step::VALID_OBJECT_TYPES.map{|e|[e]}.to_json}
+  });
+  
+  var selectObjectField = new Ext.form.ComboBox({
+    fieldLabel: "Object",
+    labelSeparator: " ",
+    displayField: 'display',
+    name: "step[model_class_name]",
+    store: modelStore,
+    value: 'Party', 
+    editable : true,
+    triggerAction: 'all',
+    mode: 'local'
+  });
+  
+  var stepTitleField = new Ext.form.TextField({
+    name: "step[title]",
+    fieldLabel: "Title"
+  });
+  
+  var stepWorkflowField = new Ext.form.Hidden({
+    name: "step[workflow_id]",
+    value: #{@workflow.id.to_json}
+  });
+  
+  var selectObjectFormPanel = new Ext.form.FormPanel({
+    items: [selectObjectField, stepTitleField, stepWorkflowField]
+  });
+
+  var selectObjectWindow = new Ext.Window({
+    title: "Please select an object type",
+    resizable: true,
+    autoScroll: true,
+    closeAction: 'hide',
+    width: 350,
+    height: 123,
+    items: [selectObjectFormPanel],
+    buttons:[
+        {
+          text: "OK",
+          handler: function() {
+              selectObjectFormPanel.el.mask();
+              selectObjectFormPanel.getForm().doAction("submit",
+                {
+                  url: #{workflow_steps_path(:workflow_id => @workflow.id).to_json},
+                  method: "POST",
+                  success: function(form, action){
+                    grid.enable();
+                    selectObjectFormPanel.el.unmask();
+                    response = action.result;
+                    $("status-bar-notifications").innerHTML = response.flash;
+                    stepTitleField.setValue("");
+                    selectObjectWindow.hide();
+                    selectObjectWindow.close();
+                    #{refresh_grid_datastore_of("step")};
+                    centerPanel.getUpdater().update({url: editStepUrl.sub("__ID__", response.id), scripts: true, callback: function(me, success, response, options){
+                      splitHeight = (centerPanel.getSize().height - 128)/2;
+                      if(splitHeight < 100)
+                        splitHeight = 100;
+                      if(typeof triggerLinesGridPanel != "undefined"){
+                        triggerLinesGridPanel.setWidth(centerPanel.getSize().width);
+                        triggerLinesGridPanel.setHeight(splitHeight);
+                        triggerLinesGridPanel.getStore().load();
+                      };
+                      if(typeof tasksGridPanel != "undefined"){
+                        tasksGridPanel.setWidth(centerPanel.getSize().width);
+                        tasksGridPanel.setHeight(splitHeight);
+                        tasksGridPanel.getStore().load();
+                      };
+                    }});
+                    
+                  }, 
+                  failure: function(form, action){
+                    grid.enable();
+                    selectObjectFormPanel.el.unmask();
+                    response = action.result;
+                    Ext.Msg.alert("Saving failed", response.errors);
+                    $("status-bar-notifications").innerHTML = response.flash;
+                  }
+                }
+              );
+            }
+        },
+        {
+          text: 'Cancel',
+          handler: function() { grid.enable(); selectObjectWindow.hide(); selectObjectWindow.close(); }
+        }
+      ]
+  });
+  
+  var addStepButton = new Ext.Toolbar.Button({
+    text: "Add Step",
+    handler: function(button, event){
+      selectObjectWindow.show();
+    }
+  });
+  
+  var GroupingStepRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'title', mapping: 'title'},
+    {name: 'description', mapping: 'description'},
+    {name: 'model_class_name', mapping: 'model_class_name'},
+    {name: 'workflow', mapping: 'workflow'},
+    {name: 'workflow_id', mapping: 'workflow_id'},
+    {name: 'action_descriptions', mapping: 'action_descriptions'}
+  ]);
+
+  // data reader to parse the json response
+  var stepSelectionreader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, GroupingStepRecord);
+
+  // set up connection of the data
+  var stepSelectionconnection = new Ext.data.Connection({url: #{copy_step_index_steps_url_json}, method: 'get'});
+  var stepSelectionproxy = new Ext.data.HttpProxy(stepSelectionconnection);
+
+  // set up the data store and then send request to the server
+  var stepsDS = new Ext.data.GroupingStore({proxy: stepSelectionproxy, reader: stepSelectionreader, sortInfo: {field: 'title', direction:'ASC'}, groupField: 'workflow'});
+
+  var filterByStore = new Ext.data.SimpleStore({
+    fields: ['display', 'value'],
+    data: #{([['This account', current_account.id]] + current_account.available_templates.map{|g|[g.name, g.account.id]}).to_json}
+  });
+  
+  var filterBySelection = new Ext.form.ComboBox({
+    hiddenName: 'filter_by',
+    displayField: 'display', 
+    valueField: 'value',
+    fieldLabel: 'Filter By',
+    value: #{current_account.id},
+    width: 200,
+    store: filterByStore, 
+    editable : false,
+    triggerAction: 'all',
+    mode: 'local',
+    listeners: {
+      'select': function(me, record, index){
+        stepsDS.baseParams['account_id'] = record.data.value;
+        stepsDS.reload({params: {start: 0}});
+      }
+    }
+  });
+
+  // create GridPanel object
+  var stepSelectionGrid = new Ext.grid.GridPanel({
+    store: stepsDS,
+    cm: new xg.ColumnModel([
+        {header: "Title", width: 120, sortable: true, dataIndex: 'title'},
+        {header: "Description", width: 150, sortable: true, dataIndex: 'description'},
+        {header: "Object Type", width: 70, sortable: true, dataIndex: 'model_class_name'},
+        {id: 'step-copy-action-description', header: "Actions", width: 250, sortable: true, dataIndex: 'action_descriptions'},
+        {id: 'workflow', header: "workflow", sortable: true, dataIndex: 'workflow', hidden: true},
+        {id: 'workflow_id', header: "workflow_id", sortable: true, dataIndex: 'workflow_id', hidden: true}
+      ]),
+    view: new Ext.grid.GroupingView({
+      forceFit: true,
+      groupTextTpl: '{text} ({[values.rs.length]} {[values.rs.length > 1 ? "Items" : "Item"]})'
+    }),
+    tbar: [
+      filterBySelection
+    ],
+    autoScroll: true,
+    width: 766,
+    autoHeight: true,
+    footer: true,
+    loadMask: true,
+    iconCls: 'icon-grid'
+  });
+  
+  var copyStepUrl = #{copy_from_workflow_steps_path(:workflow_id => @workflow.id, :step_id => "__ID__", :title => "__TITLE__").to_json};
+  // set double click action on grid cells
+  stepSelectionGrid.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
+    var record = stepsDS.getAt(rowIndex);
+    var id = record.data.id;
+
+    Ext.Msg.prompt('Title', 'Please enter in a title for this new step', function(btn, text){
+      if(btn=="ok"){
+        centerPanel.getUpdater().update({url: copyStepUrl.sub("__ID__", id).sub("__TITLE__", text).sub("&amp;", "&"), scripts: true, callback: function(me, success, response, options){
+          ds.reload();
+          stepSelectionWindow.hide();
+          splitHeight = (centerPanel.getSize().height - 125)/2;
+          if(splitHeight < 100)
+            splitHeight = 100;
+          if(typeof triggerLinesGridPanel != "undefined"){
+            triggerLinesGridPanel.setWidth(centerPanel.getSize().width);
+            triggerLinesGridPanel.setHeight(splitHeight);
+            triggerLinesGridPanel.getStore().load();
+          };
+          if(typeof tasksGridPanel != "undefined"){
+            tasksGridPanel.setWidth(centerPanel.getSize().width);
+            tasksGridPanel.setHeight(splitHeight);
+            tasksGridPanel.getStore().load();
+          };
+        }});
+      }
+    });
+  });
+
+  var stepSelectionWindow = new Ext.Window({
+    title: "Please choose a step to copy from by double clicking",
+    resizable: true,
+    autoScroll: true,
+    closeAction: 'hide',
+    width: 800,
+    height: 400,
+    items: [stepSelectionGrid]
+  });
+  
+  xl.runningGrids.set("steps_copy_workflow_#{@workflow.id}", grid);
+  stepSelectionWindow.on("destroy", function(){
+    xl.runningGrids.unset("steps_copy_workflow_#{@workflow.id}");
+  });
+  
+  var copyStepButton = new Ext.Toolbar.Button({
+    text: "Copy a Step",
+    handler: function(button, event){
+      stepSelectionWindow.show();
+      stepsDS.load({params: {start: 0, account_id: #{current_account.id} }});
+    }
+  });
+  
+  var deleteRenderer = function(value, cell, record) {
+    return '<div class="icon_delete pointerOnHover"/>';
+  };  
+  
+  var ddTextRenderer = function(value, cell, record) {
+    var i = 0
+    for(i; i < 60; i++)
+      value = value.concat("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+    return value;
+  };
+  
+  // create GridPanel object
+  var grid = new Ext.grid.GridPanel({
+    store: ds,
+    tbar: [addStepButton, copyStepButton],
+    cm: new xg.ColumnModel([ {
+          id: "delete", 
+          width: 30, 
+          fixed: true,
+          dataIndex: 'id', 
+          renderer: deleteRenderer, 
+          sortable: false, 
+          menuDisabled: true, 
+          hideable: false, 
+          tooltip: "Delete row"
+        },
+        {header: "Title", width: #{steps_grid_width-35}, sortable: true, dataIndex: 'title', renderer: ddTextRenderer}
+      ]),
+    autoScroll: true,
+    width: #{steps_grid_width},
+    region: "west",
+    split: true,
+    height: #{get_default_grid_height(nil)},
+    footer: true,
+    loadMask: true,
+    iconCls: 'icon-grid',
+    enableDragDrop: true, 
+    ddGroup: 'taskDDGroup'
+  });
+
+  grid.on("cellclick", function(gr, rowIndex, columnIndex, e) {
+    var record = gr.getStore().getAt(rowIndex);
+    var id = record.data.id;
+
+    switch(columnIndex){
+      case gr.getColumnModel().getIndexById("delete"):
+        Ext.Msg.confirm("", "Delete Step permanently?", function(btn){
+          if ( btn.match(new RegExp("yes","i")) ) {
+            var params = {};
+            Ext.Ajax.request({
+              url: #{workflow_step_path(:workflow_id => @workflow.id, :id => "__ID__").to_json}.sub("__ID__", id),
+              method: "DELETE",
+              success: function(transport, options){
+                grid.getStore().reload();
+                response = Ext.util.JSON.decode(transport.responseText);
+                xl.updateStatusBar(response.flash);
+                
+                xl.runningGrids.unset("trigger_lines_"+response.id);
+                xl.runningGrids.unset("tasks_grid_"+response.id);
+                
+                if(response.no_steps_left){
+                  $('step'+response.id+'_edit_div').innerHTML = "Please create a new Step by clicking the 'Add Step' button";
+                }
+                else{
+                  $('step'+response.id+'_edit_div').innerHTML = "Please select a Step from the left by double clicking";
+                }
+              }
+            });
+          }
+        });
+        break;
+      default:
+        break;
+    }
+  });
+  
+  grid.on("render", function(g) {
+    var ddrow = new Ext.ux.dd.GridReorderDropTarget(g, {
+       copy: false
+       ,listeners: {
+         afterrowmove: function(objThis, oldIndex, newIndex, records) {
+           var ds = grid.getStore();
+           var positions = [];
+           all_records = ds.getRange(0, grid.getStore().getCount()-1);
+           all_records.each(function(record){
+             positions.push(ds.indexOfId(record.id));
+           });
+           grid.stopEditing();
+           new Ajax.Request(#{reposition_workflow_steps_path(:workflow_id => @workflow.id).to_json},{
+             method: "POST",
+             parameters: { ids: all_records.invoke("get", "id").join(","), positions: positions.join(",") },
+             onSuccess: function(transport){
+               $("status-bar-notifications").innerHTML = "Step(s) successfully repositioned"
+             }, 
+             onFailure: function(transport){
+               Ext.Msg.alert("Failed", "Step(s) move failed");
+             }
+           });
+         }
+       }
+    });
+  });
+
+  var centerPanel = new Ext.Panel({
+    html: #{(@workflow.steps.blank? ? "Please create a new Step by clicking the 'Add Step' button" : "Please select a Step from the left by double clicking").to_json}, region:"center",
+    title: "Step Editor",
+    listeners: {
+      "bodyresize": function(){
+          splitHeight = (centerPanel.getSize().height - 128)/2;
+          if(splitHeight < 100)
+            splitHeight = 100;
+          if(typeof triggerLinesGridPanel != "undefined"){
+            triggerLinesGridPanel.setWidth(centerPanel.getSize().width);
+            triggerLinesGridPanel.setHeight(splitHeight);
+          };
+          if(typeof tasksGridPanel != "undefined"){
+            tasksGridPanel.setWidth(centerPanel.getSize().width);
+            tasksGridPanel.setHeight(splitHeight);
+          };
+        }
+    },
+    autoScroll: true
+  });
+  
+  var workflow_form = {url: #{workflow_path(@workflow).to_json}, object: 'workflow'};
+  
+  var northPanel = new Ext.Panel({
+    region: "north",
+    height: 100,
+    framed: true,
+    bodyBorder: true,
+    bodyStyle: "width: 3px",
+    title: "Workflow Editor",
+    layout: 'form',
+    items: [
+      xl.widget.InlineActiveField({ form: workflow_form, afteredit: #{afteredit_function}, field: {
+        width: 350,
+        fieldLabel: 'Title',
+        name: 'title',
+        value: #{(@workflow.title || "").to_json}
+      }}),
+      xl.widget.InlineActiveField({ form: workflow_form, afteredit: #{afteredit_function}, field: {
+        width: 700,
+        height: 40,
+        fieldLabel: 'Description',
+        name: 'description',
+        value: #{(@workflow.description || "").to_json},
+        type: 'textarea'
+      }})
+    ]
+  });
+  
+  var layoutPanel = new Ext.Panel({
+    layout: 'border',
+    items: [
+      grid, 
+      northPanel,
+      centerPanel
+    ],
+    listeners: {
+      "bodyresize": function(){
+          grid.setWidth(#{steps_grid_width});
+        }
+    }
+  });
+  newPanel.add(layoutPanel);
+  xl.runningGrids.set("steps", grid);
+  newPanel.on("destroy", function(){
+    xl.runningGrids.unset("steps");
+  });
+
+  // add extra links to the header
+  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
+  extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('workflows_new_nil', #{new_workflow_path.to_json})").to_json});
+
+  var editStepUrl = #{async_edit_workflow_step_path(:workflow_id => @workflow.id, :id => "__ID__").to_json};
+  // set double click action on grid cells
+  grid.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
+    var record = ds.getAt(rowIndex);
+    var id = record.data.id;
+
+    centerPanel.getUpdater().update({url: editStepUrl.sub("__ID__", id), scripts: true, callback: function(me, success, response, options){
+      splitHeight = (centerPanel.getSize().height - 125)/2;
+      if(splitHeight < 100)
+        splitHeight = 100;
+      if(typeof triggerLinesGridPanel != "undefined"){
+        triggerLinesGridPanel.setWidth(centerPanel.getSize().width);
+        triggerLinesGridPanel.setHeight(splitHeight);
+        triggerLinesGridPanel.getStore().load();
+      };
+      if(typeof tasksGridPanel != "undefined"){
+        tasksGridPanel.setWidth(centerPanel.getSize().width);
+        tasksGridPanel.setHeight(splitHeight);
+        tasksGridPanel.getStore().load();
+      };
+    }});
+  });
+
+  xl.viewport.render();
+`
+end

@@ -1,0 +1,19 @@
+<table id="searchResults">
+  <tr class="header">
+    <th class="header01">Main identifier</th>
+    <th class="header02">Type</th>
+    <th class="header03" width="20%">Contact</th>
+  </tr>
+  <tbody>
+<% if @rows.empty? then -%>
+    <tr>
+      <td colspan="3">
+        <p>No results found for <span class="missing"><%=h @search_text %></span>.</p>
+      </td>
+    </tr>
+<% else -%>
+    <%= render :partial => "result", :collection => @rows %>
+<% end -%>
+  </tbody>
+</table>
+<p><%= paginator_on(@page) %></p>

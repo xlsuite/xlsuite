@@ -1,0 +1,260 @@
+limit = params[:limit] || 50
+recipients_url_json = formatted_email_recipients_path(:email_id => @email.id, :format => :json).to_json
+
+after_render = %Q`
+  ds.load({params: {start: 0, limit: #{limit} }});
+`
+page << "var total_recipients = Ext.get('total_recipients_#{@email.id}');"
+page << "if(total_recipients){total_recipients.update('#{@email.mass_recipients.size}');}"
+page << create_tab_using_ajax_response("Recipients | Index", after_render) do
+out = %Q`
+  xl.closeTabPanel('emails_save_#{@email.id}');
+  
+  // create file record
+  var RecipientRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'name', mapping: 'name'},
+    {name: 'address', mapping: 'address'}
+  ]);
+  
+  // data reader to parse the json response
+  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, RecipientRecord);
+
+  // set up connection of the data
+  var connection = new Ext.data.Connection({url: #{recipients_url_json}, method: 'get'});
+  var proxy = new Ext.data.HttpProxy(connection);
+
+  // set up the data store and then send request to the server
+  var ds = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+
+  // set up the ext grid object
+  var xg = Ext.grid;
+
+  // define paging toolbar that is going to be appended to the footer of the grid panel
+  var paging = new Ext.PagingToolbar({
+    store: ds,
+    pageSize: #{limit},
+    displayInfo: true,
+    displayMsg: 'Displaying {0} to {1} of {2}',
+    emptyMsg: "No record to display",
+    cls: "bottom-toolbar paging-toolbar-bottom",
+    plugins: [new Ext.ux.PageSizePlugin]
+  });
+  
+  #{create_grid_tbar_filter_field}
+  
+  #{create_grid_tbar_clear_button}
+
+  var gridTopToolbar = new Ext.Toolbar({
+    cls: "top-toolbar",
+    items: [{text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+  });
+  
+  var editRenderer = function(value, cell, record) {
+    return '<div class="icon_pencilGo pointerOnHover"/>';
+  };
+  
+  var grid = new Ext.grid.GridPanel({
+    store: ds,
+    cm: new Ext.grid.ColumnModel([
+        {id: "name", header: "Name", sortable: true, dataIndex: 'name'},
+        {id: "address", header: "Email Address", sortable: true, dataIndex: 'address'},
+      ]),
+    autoScroll: true,
+    autoWidth: true,
+    height: #{get_default_grid_height(nil)},
+    clicksToEdit:1,
+    tbar: gridTopToolbar, 
+    bbar: paging,
+    selModel: new Ext.grid.RowSelectionModel,
+    loadMask: true,
+    viewConfig: { autoFill: true, forceFit: true}
+  });
+  
+  newPanel.add(grid);
+  xl.runningGrids.set("recipients_emails_#{@email.id}", grid);
+  newPanel.on("destroy", function(){
+    xl.runningGrids.unset("recipients_emails_#{@email.id}");
+  });
+  
+  
+  var selectAllAction = new Ext.Action({
+    text: "Select all",
+    iconCls: "display_none"
+  });
+
+  var clearAllAction = new Ext.Action({
+    text: "Clear all",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var rebuildAction = new Ext.Action({
+    text: "Rebuild Recipients",
+    iconCls: "display_none",
+    disabled: false
+  });
+  
+  var deleteAction = new Ext.Action({
+    text: "Delete",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var selectionMenu =  new Ext.menu.Menu({
+    items: [selectAllAction, clearAllAction]
+  });
+  
+  selectionMenu.addSeparator();
+  selectionMenu.add(rebuildAction);
+  
+  selectionMenu.addSeparator();
+  selectionMenu.add(deleteAction);
+  
+  xl.viewport.render();
+
+  grid.getTopToolbar().add({ text: "Actions", menu: selectionMenu });
+
+  function alertNoRecipientsSelected() {
+    Ext.Msg.alert('No Recipients Selected', 'Please select one or more recipients to perform that action.');
+  }
+
+  function getSelectedIdsString(records){ 
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    return ids.toString()
+  }
+  
+  clearAllAction.setHandler(function(e) {
+    grid.getSelectionModel().clearSelections();
+    e.disable();
+  });
+
+  selectAllAction.setHandler(function(e) {
+    grid.getSelectionModel().selectAll();
+    e.disable();
+  });
+  
+  rebuildAction.setHandler(function(e) {
+    Ext.Msg.show({title:"Rebuild Recipients?", msg:"Do you want to rebuild recipient list? This will overwrite any changes you made to the list.", buttons:Ext.Msg.YESNO, 
+    fn: function(buttonId){
+      if(buttonId=="yes"){
+        newPanel.el.mask("Rebuilding...");
+        Ext.Ajax.request({
+          url: #{rebuild_email_recipients_path(:email_id => @email.id).to_json},
+          method: 'POST',
+          failure: function(request, options) {
+            xl.logXHRFailure;
+            Ext.Msg.alert("Saving failed", "The operation can not be completed at this time.");
+            newPanel.el.unmask();
+          },
+          success: function(request, options) {
+            xl.log('SUCCESS: ' + request.responseText);
+            response = Ext.util.JSON.decode(request.responseText);
+            if(!response.success){
+              Ext.Msg.alert("Sending failed", response.error);
+              newPanel.el.unmask();
+            }
+          }
+        }); // end Ext.Ajax.request
+      }
+    }});
+  });
+  
+  var gids = [];
+  var tags = [];
+  var itemsForDeleteForm = [];
+`
+builders = 0
+@email.tos.map{|t|t.send("recipient_builder")}.each do |builder|
+  next if builder.class==AccountOwnerListBuilder || builder.class==PartyListBuilder
+  builders += 1
+  out << %Q`
+    var removeFrom#{builder.class}#{builder.to_s.gsub("tag=", "")} = new Ext.form.Checkbox({
+      fieldLabel: "Remove from #{(builder.class==TagListBuilder) ? 'Tag: ' : 'Group: '}#{builder.to_s.gsub('tag=','')}",
+      labelSeparator: " ",
+      listeners: {
+        'check': function(me, checked){
+          #{(builder.class==TagListBuilder) ? "tags.push("+builder.tag_syntax.to_json+");" : "gids.push("+builder.recipient_builder_id.to_s+");"}
+        }}
+    });
+    itemsForDeleteForm  = itemsForDeleteForm.concat(removeFrom#{builder.class}#{builder.to_s.gsub("tag=", "")});
+  `
+end
+
+if builders > 0
+out << %Q`
+  var deleteFormPanel = new Ext.form.FormPanel({
+    labelWidth: 150,
+    items: itemsForDeleteForm
+  });
+`
+else
+out << %Q`
+  var deleteFormPanel = new Ext.form.FormPanel({
+    items: [{html:"Are you sure?"}, {xtype:"hidden", name:"blank"}]
+  });
+`
+end
+out << %Q`
+  var deleteWindow = new Ext.Window({
+    title: "Delete contact requests",
+    resizable: false,
+    width: 300,
+    autoHeight: true,
+    items: [deleteFormPanel],
+    buttons:[
+        {
+          text: "OK",
+          handler: function() {
+              var params = {};
+              params['ids'] = selectedIds.toString();
+              params['gids'] = gids.join(",");
+              params['tags'] = tags.join(",");
+              grid.el.mask("Deleting...");
+              deleteFormPanel.getForm().doAction("submit",
+                {
+                  url: #{destroy_collection_email_recipients_path(:email_id => @email.id).to_json},
+                  method: "DELETE",
+                  params: params
+                }
+              )
+              if(deleteFormPanel.getForm().isValid()) {
+                deleteWindow.hide();
+                deleteWindow.close();
+              }
+            }
+        },
+        {
+          text: 'Cancel',
+          handler: function() { deleteWindow.hide(); deleteWindow.close(); }
+        }
+      ]
+  });
+
+  deleteAction.setHandler(function(e) {
+    deleteWindow.show();
+  });
+  
+  grid.getSelectionModel().on("selectionchange", function(){
+    records = grid.getSelectionModel().getSelections();
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    selectedIds = ids;
+    
+    if(ids.length>0){
+      clearAllAction.enable();
+      deleteAction.enable();
+    }
+    else
+      deleteAction.disable();
+      selectAllAction.enable();
+  });
+  
+`
+out
+end

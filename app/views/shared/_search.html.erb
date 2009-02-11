@@ -1,0 +1,51 @@
+<!-- Search Bar (Face) -->
+
+<div id="searchBar" class="menuItem_search">
+  <form class="" action="/admin/search" method="post">
+    <div style="display:inline" class="searchBarLabel" onclick="Element.toggle ('searchConsole');">Search:</div>
+    <div style="display:inline">
+      <input id="search" class="text" type="text" />
+      <input id="mainSearch_button" type="button" value="Go" class="button" />  
+    </div>
+  </form>
+</div>
+
+<!-- Quick Search SubPanel -->
+
+<div id="searchConsole" style="display:none;" class="searchSubPanel">
+  <form method="post" action="/admin/search"> 
+    <div class="subPanelSection">
+      <div class="subPanelHeader">
+        <span>Advanced Search:</span>
+        <a href="#" class="right">Add 'Search' line</a>
+      </div>
+      <fieldset class="searchSubPanelForm">
+        <input id="searchSubject" name="" type="text" class="text" />
+        <select id="searchSubject_options">
+          <option value="Starts with" selected="selected">Starts with</option>
+          <option value="Ends with">Ends with</option>
+          <option value="Contains">Contains</option>
+          <option value="Equals">Equals</option>
+        </select>
+        <input id="searchSubjectValue" name="" type="text" class="text" />          
+        <span class="exclude"><input id="excludeSearch_01" name="" type="checkbox" class="box" /></span>
+      </fieldset>
+    </div>
+    <div id="quickSort" class="subPanelSection">
+      <div class="subPanelHeader">
+        <span>Advanced Sort by:</span>
+        <a href="#" class="right">Add 'Sort by' line</a>
+      </div>
+      <fieldset class="searchSubPanelForm">
+        <span>1:&nbsp;</span><input id="quickSort01" name="" type="text" class="text" />
+        <span class="sort">Sort order:</span>
+        <%= link_to(icon_tag(:shape_align_top, :alt => "Sort ascending"), "", :class => "sortOrder") %><%= link_to(icon_tag(:shape_align_bottom, :alt => "Sort descending"), "", :class => "sortOrder") %>
+      </fieldset>
+    </div>
+    <div class="subPanelSection">
+      <input type="button" value="Search" class="button" />
+      <a href="#">Save Search</a>
+    </div>
+  </form>
+</div>
+

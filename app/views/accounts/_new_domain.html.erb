@@ -1,0 +1,7 @@
+<% new_domain = Domain.new -%>
+<li id="<%= dom_id(new_domain) %>">
+  <%= text_field :domain, :name, :size => 20, :class => "inline" %>
+  <%= link_to_remote('Add new', :url => account_domains_path(@acct), :method => :post, :icon => "add",
+      :loading => visual_effect(:appear, "#{dom_id(new_domain)}_throbber", :duration => 0.33),
+      :submit => dom_id(new_domain)) %>
+  <%= throbber("#{dom_id(new_domain)}_throbber") %></li>

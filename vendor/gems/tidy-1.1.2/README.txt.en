@@ -1,0 +1,36 @@
+Tidy README
+============
+
+  Ruby interface to HTML Tidy Library Project (http://tidy.sf.net)
+
+Requirements
+------------
+
+  * Recent version of Ruby
+  * RubyGems 1.8+ (http://rubygems.rubyforge.org)
+  * HTML Tidy Library (compiled)
+
+Install
+-------
+
+  - Download library from http://tidy.sf.net (pre-compiled versions available).
+  
+  - Install files using one of the following:
+
+    $ gem install tidy-x-x-x.gem
+    $ ruby install.rb
+
+  - Open test/usage.rb, change Tidy.path to point to your compiled Tidy library, run.
+
+Usage
+-----
+
+  See API docs
+
+License
+-------
+
+  Distributes under the same terms as Ruby
+  http://www.ruby-lang.org/en/LICENSE.txt
+
+Kevin Howe <kh at newclear.ca>

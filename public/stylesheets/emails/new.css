@@ -1,0 +1,59 @@
+#email_form {margin: 0 36px !important;}
+
+
+#group_selection, #search_selection, #tag_selection {margin-left: 8.8%; margin-bottom: .5em; margin-top: .5em; width: 331px;}
+
+.email_identities_toggle select {width: 60%;}
+
+
+.email_copyButt {margin-left: 4.85%;}
+.email_copyButt p {}
+
+
+.e_body label {display: block; width: 4%; float: left; text-align: right;}
+.e_body textarea {width: 91.7%; float:right; overflow: auto; height: 240px;}
+
+/* CC input */
+#email_ccs_wrapper, #email_bccs_wrapper {clear: both; display: block; margin: 1em 0;}
+#email_ccs_wrapper textarea, #email_bccs_wrapper textarea {float: right; width: 91.7%; margin-bottom: 1em; }
+#email_bccs_wrapper textarea {}
+#email_ccs_wrapper label, #email_bccs_wrapper label {}
+
+#email_cc_toggle {clear: both; display: block; margin-left: 8%; margin-top: 6px;}
+#email_cc_toggle a {}
+
+#x_att_more, #x_att_authz, #x_attachments { clear: both; }
+#x_attachments { padding: 0; }
+#x_attachments li { padding: 0; margin: 0; background: url(/images/icons/attach.png) left no-repeat; padding-left: 20px; font-weight: normal; font-size: 10px; }
+
+.rm_att { background: url(/images/icons/delete.png) right no-repeat; padding-right: 20px; }
+
+table.email_new {width: 100%;}
+table.email_new label {width: 100%; display: block; text-align: right; font-weight: bold;}
+ table.email_new td {padding: .1em .6em}
+ table.email_new td.label {width: 15%}
+ table.email_new td.input {width: 85%}
+ table.email_new td.email_to select {float: left; margin-right: 1em;}
+ table.email_new td.bodyLabel {vertical-align: top}
+ 
+ /* Specific inputs */
+#email_tos_selection {width: 150px;}
+#email_tos {margin: 0; width: 100%;}
+#email_domain {width: 150px;}
+#email_subject {width: 100%;}
+#email_body {width: 100%; overflow:auto;}
+#email[body] {width: 100%; overflow:auto;}
+ 
+#attachments {display: block; width: 600px; margin: 1em auto; border: 1px solid #ddd; padding: 1em; clear: both;}
+
+#attachments legend, #optOut legend {}
+#attachments p{font-weight: normal; margin: .6em;}
+#attachments input {width: 60%}
+#attachments label {width: 35%; margin-right: 4px; float: left; font-weight: bold;}
+#attachments input[type=checkbox] { width: auto; float: none; }
+#attachments label.check {float: none; font-weight: normal; text-align: left; padding-left: 0.3em;}
+
+
+
+
+

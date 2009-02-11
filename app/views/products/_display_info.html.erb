@@ -1,0 +1,40 @@
+  <%= hidden_field :product, :category_ids, :value => @product.categories.map {|c| c.id}.join(','), :id => typed_dom_id(@product, :category_ids) %>
+  <div class="product_categoryControl">
+	  <div class="wraps">
+      Display in these Categories:
+      <%= throbber(typed_dom_id(@product, :category_ids, :indicator)) %>
+
+      <select id="<%= dom_id(@product) %>_selected_categories" size="12">
+        <%= render :partial => 'cat', :collection => @product.categories, :locals => {:indent => 0, :recurse => false} %>
+      </select>
+	  </div>
+	  <div class="actions">
+      <%= render_product_categories_actions %>
+    </div>
+	  <div class="wraps">
+      Catalog Categories:
+      <%= link_to_function "Define", "" %>
+      <select id="<%= dom_id(@product) %>_available_categories" size="12">
+      <%= render :partial => 'cat', :collection => @root_categories, :locals => {:indent => 0, :recurse => true} %>
+      </select>
+    </div>
+  </div>
+
+   <div id="<%= typed_dom_id(@product, :authorizations) %>" class='product_permissions'>
+     <%= authorization_fields_for :product %>
+   </div>
+ 
+  <div class='product_flags'>
+    <p class="inline">
+      Use DB Data&nbsp;<%= f.check_box :use_db_data, :onclick => product_checkbox_js(:use_db_data) %>
+      <%= throbber(typed_dom_id(@product, :use_db_data, :indicator)) %>
+    </p>
+    <p class="inline">
+      Add Relations&nbsp;<%= f.check_box :add_relations, :onclick => product_checkbox_js(:add_relations) %>
+      <%= throbber(typed_dom_id(@product, :add_relations, :indicator)) %>
+    </p>
+    <p>
+      Show Discounts&nbsp;<%= f.check_box :show_discount, :onclick => product_checkbox_js(:show_discount) %>
+      <%= throbber(typed_dom_id(@product, :show_discount, :indicator)) %>
+    </p>
+  </div>

@@ -1,0 +1,228 @@
+<table border="0" cellspacing="4" cellpadding="0" width="95%" align="center">
+  <col width="240"/><col />
+    <tbody>
+<% %w(roof_lines roof_top eaves paths fences_and_gates).each do |item|
+    next unless @estimate.send(item + '?')
+    next if @estimate.garlands? and item == 'fences_and_gates' -%>
+<%= render :partial => 'shared/estimate/section', :locals => {:item => item} %>
+<% if ('roof_lines' == item and not @estimate.roof_top? and not @estimate.eaves?) or
+      ('roof_top' == item and not @estimate.eaves?)                               or
+      ('eaves' == item)                                                           then
+    if @estimate.roof_lines? or @estimate.roof_top? or @estimate.eaves? then -%>
+    <tr>
+      <td colspan="2">
+        <h3>Roof Slope</h3>
+        <p>We need to know how your roof is split up.  We use percentages for
+          this.</p>
+      </td>
+    </tr>
+    <tr>
+      <td><%= label 'Flat sloped percentage', 'estimate', 'flat_pct' %></td>
+      <td><%= text_field 'estimate', 'flat_pct', :class => 'percent', :size => 4 %> %</td>
+    </tr>
+    <tr>
+      <td><%= label 'Moderately sloped percentage', 'estimate', 'moderate_pct' %></td>
+      <td><%= text_field 'estimate', 'moderate_pct', :class => 'percent', :size => 4 %> %</td>
+    </tr>
+    <tr>
+      <td><%= label 'Steep sloped percentage', 'estimate', 'steep_pct' %></td>
+      <td><%= text_field 'estimate', 'steep_pct', :class => 'percent', :size => 4 %> %</td>
+    </tr>
+    <tr valign="middle">
+      <td><%= label 'Number of peaks', 'estimate', 'number_of_peaks' %></td>
+      <td>
+        <table border="0" cellspacing="0" cellpadding="0" align="left">
+          <tbody>
+            <tr valign="middle">
+              <td><%= text_field 'estimate', 'number_of_peaks', :class => 'number', :size => 4 %></td>
+              <td>
+                <%= image_tag('house_peak.jpg', :alt => 'A house with three peaks', :size => '160x120', :class => 'framed standalong floating') %>
+                <p style="padding-left: 1em; padding-right: 15em;">
+                  Peaks are the parts of your roof where it stands out from
+                  the rest of it.  There are three peaks in this picture, and
+                  all are classified as very steep.
+                </p>
+                <p style="padding-left: 1em; padding-right: 15em;">
+                  This roof would classify as 60%/0%/40%.
+                </p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+<% end end -%>
+<% end -%>
+<% if @estimate.windows? -%>
+    <tr>
+      <td colspan="2">
+        <h3>Windows</h3>
+      </td>
+    </tr>
+    <tr>
+      <td><%= label 'Number of windows', 'estimate', 'windows_qty' %></td>
+      <td><%= text_field 'estimate', 'windows_qty', :class => 'number', :size => 4 %></td>
+    </tr>
+    <tr>
+      <td><%= label 'Approx. average window width', 'estimate', 'windows_avg_width' %></td>
+      <td><%= text_field 'estimate', 'windows_avg_width', :class => 'number', :size => 4 %> <%= measurement_unit_name(:long_name, :mini) %></td>
+    </tr>
+    <tr>
+      <td><%= label 'Approx. average window height', 'estimate', 'windows_avg_height' %></td>
+      <td><%= text_field 'estimate', 'windows_avg_height', :class => 'number', :size => 4 %> <%= measurement_unit_name(:long_name, :mini) %></td>
+    </tr>
+    <tr>
+      <td><%= label 'Lights', 'estimate', 'windows_product_id' %></td>
+      <td><%= select_product_categories('estimate', 'windows_product_id', @light_choices) %></td>
+    </tr>
+<% end -%>
+<% if @estimate.garage_doors? -%>
+    <tr>
+      <td colspan="2">
+        <h3>Garage doors</h3>
+      </td>
+    </tr>
+    <tr>
+      <td><%= label 'Number of garage doors', 'estimate', 'garage_doors_qty' %></td>
+      <td><%= text_field 'estimate', 'garage_doors_qty', :class => 'number', :size => 4 %></td>
+    </tr>
+    <tr>
+      <td><%= label 'Light Style', 'estimate', 'garage_doors_product_id' %></td>
+      <td><%= select_product_categories('estimate', 'garage_doors_product_id', @light_choices) %></td>
+    </tr>
+<% end -%>
+<% if @estimate.wreaths? -%>
+    <tr>
+      <td colspan="2">
+        <h3>Wreaths</h3>
+      </td>
+    </tr>
+    <tr>
+      <td><%= label 'Number of wreaths required', 'estimate', 'wreaths_qty' %></td>
+      <td><%= text_field  'estimate', 'wreaths_qty', :class => 'number', :size => 4 %></td>
+    </tr>
+    <tr>
+      <td><%= label 'Wreaths to use', 'estimate', 'wreaths_product_id' %></td>
+      <td><%= select_product_categories('estimate', 'wreaths_product_id', @wreaths_choices) %></td>
+    </tr>
+<% end -%>
+<% if @estimate.garlands? -%>
+    <tr>
+      <td colspan="2">
+        <h3>Garlands</h3>
+      </td>
+    </tr>
+<% if @estimate.fences_and_gates? -%>
+    <tr>
+      <td colspan="2" align="center">
+        <em>We will light your fences and gates as well.</em>
+      </td>
+    </tr>
+<% end -%>
+    <tr>
+      <td><%= label 'Length', 'estimate', 'garlands_length' %></td>
+      <td><%= text_field  'estimate', 'garlands_length', :class => 'number', :size => 4 %> <%= measurement_unit_name(:long_name, :maxi) %></td>
+    </tr>
+    <tr>
+      <td><%= label 'Type of garland', 'estimate', 'garlands_product_id' %></td>
+      <td><%= select_product_categories('estimate', 'garlands_product_id', @garlands_choices) %></td>
+    </tr>
+<% end -%>
+<% if @estimate.inflatables? -%>
+    <tr>
+      <td colspan="2">
+        <h3>Inflatables</h3>
+      </td>
+    </tr>
+    <tr>
+      <td><%= label 'Number of inflatables required', 'estimate', 'inflatables_qty' %></td>
+      <td><%= text_field  'estimate', 'inflatables_qty', :class => 'number', :size => 4 %></td>
+    </tr>
+    <tr>
+      <td><%= label 'Inflatable', 'estimate', 'inflatables_product_id' %></td>
+      <td><%= select_product_categories('estimate', 'inflatables_product_id', @inflatables_choices) %>
+      </td>
+    </tr>
+<% end -%>
+<% if @estimate.ropelight_sculptures? -%>
+    <tr>
+      <td colspan="2">
+        <h3>Ropelight Sculptures</h3>
+      </td>
+    </tr>
+    <tr>
+      <td><%= label 'Number of ropelight sculptures required', 'estimate', 'ropelight_sculptures_qty' %></td>
+      <td><%= text_field  'estimate', 'ropelight_sculptures_qty', :class => 'number', :size => 4 %></td>
+    </tr>
+    <tr>
+      <td><%= label 'Type of sculpture', 'estimate', 'ropelight_sculptures_product_id' %></td>
+      <td><%= select_product_categories('estimate', 'ropelight_sculptures_product_id', @light_sculptures_choices) %></td>
+    </tr>
+<% end -%>
+<% if @estimate.trees? -%>
+    <tr>
+      <td colspan="2">
+        <h3>Trees</h3>
+      </td>
+    </tr>
+    <tr>
+      <td><%= label 'Number of trees', 'estimate', 'trees_qty' %></td>
+      <td><%= text_field 'estimate', 'trees_qty', :class => 'number', :size => 4 %></td>
+    </tr>
+    <tr>
+      <td><%= label 'Size of trees', 'estimate', 'trees_size' %></td>
+      <td><%= select 'estimate', 'trees_size', @tree_size_choices %></td>
+    </tr>
+    <tr>
+      <td><%= label 'Lights', 'estimate', 'trees_product_id' %></td>
+      <td><%= select_product_categories('estimate', 'trees_product_id', @tree_light_choices) %></td>
+    </tr>
+    <tr>
+      <td><%= label 'Style of tree lighting', 'estimate', 'trees_wrap_style' %></td>
+      <td>
+        <table border="0" cellspacing="2" cellpadding="0" width="100%">
+          <col width="120"/><col width="288"/>
+          <tr valign="middle">
+            <td><label><%= radio_button 'estimate', 'trees_wrap_style', 'wrap' %> Wrap Style (5&times; more expensive)</label></td>
+            <td><%= image_tag 'tree_wrap.jpg', :size => '288x216', :class => 'framed', :alt => 'A tree decorated using the wrap style - more expensive' %></td>
+          </tr>
+          <tr valign="middle">
+            <td><label><%= radio_button 'estimate', 'trees_wrap_style', 'swoop' %> Swoop Style</label></td>
+            <td><%= image_tag 'tree_swoop.jpg', :size => '288x407', :class => 'framed', :alt => 'A tree decorated using the swoop style - less expensive' %></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+<% end -%>
+<% if @estimate.bushes? -%>
+    <tr>
+      <td colspan="2">
+        <h3>Bushes</h3>
+      </td>
+    </tr>
+    <tr>
+      <td><%= label 'Number of bushes', 'estimate', 'bushes_qty' %></td>
+      <td><%= text_field 'estimate', 'bushes_qty', :class => 'number', :size => 4 %></td>
+    </tr>
+    <tr>
+      <td><%= label 'Size of bushes', 'estimate', 'bushes_size' %></td>
+      <td><%= select 'estimate', 'bushes_size', @bush_size_choices %></td>
+    </tr>
+    <tr>
+      <td><%= label 'Lights', 'estimate', 'bushes_product_id' %></td>
+      <td><%= select_product_categories('estimate', 'bushes_product_id', @light_choices) %></td>
+    </tr>
+<% end -%>
+<% if @estimate.animate? -%>
+    <tr>
+      <td colspan="2">
+        <h3>Animate my display</h3>
+      </td>
+    </tr>
+    <tr>
+      <td><%= label 'Product', 'estimate', 'animate_product_id' %></td>
+      <td><%= select_product_categories('estimate', 'animate_product_id', @animate_choices) %></td>
+    </tr>
+<% end -%>
+  </tbody>
+</table>

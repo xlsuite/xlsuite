@@ -1,0 +1,37 @@
+<b>Advanced Search Result(s): <%= @num_of_results %> item(s) found</b><br/><br/>
+
+<table id="searchResults">
+  <tr class="header">
+    <% for h in @headers -%>
+      <% if h.downcase == "contact"%>
+        <th class="header" width="20%"><%= h %></th>
+      <% else %>
+        <th class="header"><%= h %></th>
+      <% end %>
+    <% end -%>
+  </tr>
+  <% bground_bool = false %>
+  <% for search_result in @search_results %>
+    <tr <%= "class=\"bground\"" if bground_bool %>>
+      <% for i in 0..@headers.size-1 -%>
+        <% if @headers[i].downcase == "main identifier" -%>
+          <td><%= get_link_to_search_result(search_result.last) rescue "n/a" %></td>
+        <% elsif search_result[i].class.name == "Time" %>
+          <td><%= search_result[i] == Time.at(0) ? "n/a" : search_result[i].strftime("%m-%d-%Y") %></td>        
+        <% elsif @headers[i].downcase =="contact"%>
+          <% if search_result[i].class.name == "Party" || search_result[i].respond_to?("party")%>
+            <%= fill_in_contacts_column(search_result[i]) %>
+          <% else %>
+            <td>n/a</td>
+          <% end -%>
+        <% else -%>
+          <td><%= search_result[i].blank? ? "n/a" : search_result[i] %></td>
+        <% end -%>
+      <% end -%>
+    </tr>
+    <%bground_bool = !bground_bool %>
+  <% end -%>    
+  <tr><td colspan="<%= @headers.size %>">
+    <%= paginator_on(@page) %>
+  </td></tr>
+</table>

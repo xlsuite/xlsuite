@@ -1,0 +1,21 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+no_data:
+  id: 1
+  account_id: 1
+  party_id: 1000001 #bob's
+  updated_at: <%= Time.now.to_formatted_s(:db) %>
+  created_at: <%= Time.now.to_formatted_s(:db) %>
+  
+bia_contacts:
+  id: 2
+  account_id: 1
+  party_id: 1000001 #bob's
+  updated_at: <%= Time.now.to_formatted_s(:db) %>
+  created_at: <%= Time.now.to_formatted_s(:db) %>
+  
+card_scanner:
+  id: 3
+  account_id: 1
+  party_id: 1000001 #bob's
+  updated_at: <%= Time.now.to_formatted_s(:db) %>
+  created_at: <%= Time.now.to_formatted_s(:db) %>  

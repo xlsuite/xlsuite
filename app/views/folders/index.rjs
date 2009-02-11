@@ -1,0 +1,508 @@
+javascript_include_tag "xl_suite/extjs/RowExpander.js"
+javascript_include_tag "xl_suite/extjs/PageSizePlugin.js"
+
+limit = params[:limit] || 50
+foldersUrl = formatted_folders_path(:format => :json).to_json
+
+after_render = %Q`
+    ds.load({params: {start: 0, limit: #{limit}, scope: "mine" }});    
+`
+
+page << create_tab_using_ajax_response("Files", after_render) do
+%Q`
+    
+    function alertNoFileSelected() {
+      Ext.Msg.alert('No File Selected', 'Please select one or more files to perform that action.');
+    }
+    
+    Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
+    
+    var westPanel = xl.westPanel;
+    
+    westPanel.remove('westPanel-folders');
+    
+    westPanel.insert(0, {
+      id: 'westPanel-folders',
+      title: 'Directory',
+      html: '<input id="file_tree_panel_unzip_checkbox" type="hidden" value=0></input><input id="file_tree_panel_tag_list_field" type="hidden" value=""></input><div id="west-content"><div id="treepanel"></div></div>'
+    });
+    
+    westPanel.expand();
+    
+    westPanel.doLayout();
+    
+    var directoryAccordion = westPanel.findById("westPanel-folders");
+    directoryAccordion.expand();
+    
+  // window with uploadpanel
+    var win = new Ext.Window({
+         width:180
+    ,minWidth:165
+        ,id:'winid'
+        ,height:220
+    ,minHeight:200
+//    ,stateful:false
+        ,layout:'fit'
+        ,border:false
+        ,closable:false
+        ,title:'UploadPanel'
+    ,iconCls:'icon-upload'
+    ,items:[{
+        xtype:'uploadpanel'
+       ,buttonsAt:'tbar'
+       ,id:'uppanel'
+       ,url:'filetree.php'
+       ,path:'root'
+       ,maxFileSize:1048576
+//       ,enableProgress:false
+//       ,singleUpload:true
+    }]
+    });
+//    win.show.defer(500, win);
+    
+    var assetDropCallback = function(options, success, response) {
+      response = Ext.decode(response.responseText);
+      if(response.success){
+        xl.runningGrids.each(function(pair){
+          var grid = pair.value;
+          var dataStore = grid.getStore();
+          if (dataStore.proxy.conn.url.match(new RegExp('folders', "i"))) {
+            dataStore.reload();
+          }
+        });
+      }
+      else{
+        Ext.Msg.alert("Error moving assets", response.errors);
+      } 
+    };
+    
+    var treepanel = new Ext.ux.FileTreePanel({
+       height:400
+      ,autoWidth:true
+      ,id:'ftp'
+      ,title:'FileTreePanel'
+      ,renderTo:'treepanel'
+      ,url: #{filetree_folders_path.to_json}
+      ,rootPath:'root'
+      ,rootId: "folder_0"
+      ,rootText: "Root"
+      ,topMenu:true
+      ,autoScroll:true
+      ,enableProgress:false
+      ,enableOverwrite:false
+      ,enableOpen:false
+      ,ddGroup: 'TreeDD'
+      ,listeners: {
+        click: function(node, event){
+          xl.runningGrids.each(function(pair){
+            var grid = pair.value;
+            var ds = grid.getStore();
+            if (ds.proxy.conn.url.match(new RegExp('folders', "i"))) {
+              ds.baseParams['ids'] = node.id.gsub("folder_", "");
+              ds.reload({params:{start: ds.lastOptions.params.start, limit: ds.lastOptions.params.limit}});
+            }
+          });
+          var new_asset_link = $('new_asset_header_link');
+          new_asset_link.replace(#{link_to_function("New File&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('assets_new___FOLDER_ID__', #{new_asset_path(:folder_id => "__FOLDERID__").to_json})", :id => "new_asset_header_link").to_json}.gsub("__FOLDERID__", node.id.gsub("folder_", "")));
+        }, 
+        newdir: function(obj, node, response){
+          node.id = response.new_id;
+        },
+        beforenodedrop: function(e){
+          if(!e.dropNode){
+            var ids = [];
+            e.data.selections.each(function(n){
+              ids.push(n.data['id'].split("_").last());
+            });
+            var options = {
+              url: this.renameUrl || this.url,
+              method: this.method,
+              scope: this,
+              callback: assetDropCallback,
+              params: {
+                cmd: 'asset_move',
+                folder_id: e.target.id.split("_").last(),
+                asset_ids: ids.join(",")
+              }
+            };
+            Ext.Ajax.request(options);
+            return true;
+          }
+        },
+        "delete": function(obj, path, parentNode){
+          obj.fireEvent('click', parentNode, obj);
+        },
+        nodenameclick: function(obj, node){
+          var folderId = node.id.split('_').last();
+          xl.openNewTabPanel("folders_edit_" + folderId, #{edit_folder_path(:id => "__ID__").to_json}.gsub("__ID__", folderId));
+        }
+      }
+      ,singleUpload:true
+    });
+    
+    xl.fileTreePanel = treepanel;
+    
+    // create file record
+    var FileRecord = new Ext.data.Record.create([
+      {id: 'id', name: 'id', mapping: 'id'},
+      {id: 'real_id', name: 'real_id', mapping: 'real_id'},
+      {id: 'label', name: 'label', mapping: 'label'},
+      {id: 'type', name: 'type', mapping: 'type'},
+      {id: 'folder', name: 'folder', mapping: 'folder'},
+      {name: 'size', mapping: 'size'},
+      {id: 'path', name: 'path', mapping: 'path'},
+      {id: 'z_path', name: 'z_path', mapping: 'z_path'},
+      {id: 'absolute_path', name: 'absolute_path', mapping: 'absolute_path'},
+      {name: 'notes', mapping: 'notes'},
+      {name: 'tags', mapping: 'tags'},
+      {name: 'created_at', mapping: 'created_at'},
+      {name: 'updated_at', mapping: 'updated_at'},
+      {name: 'url', mapping: 'url'}      
+    ]);
+
+    // data reader to parse the json response
+    var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, FileRecord);
+
+    // set up connection of the data
+    var connection = new Ext.data.Connection({url: #{foldersUrl}, method: 'get'});
+    var proxy = new Ext.data.HttpProxy(connection);
+    
+    var statusStore = new Ext.data.SimpleStore({
+      fields: ['display', 'value'],
+      data: [['All Files', 'all'], ['My Files', 'mine']]
+    });
+    
+    var fileSelection = xl.widget.FormField({
+        displayField: 'display', 
+        valueField: 'value',
+        fieldLabel: 'Status',
+        value: 'mine', 
+        hiddenName: 'scope', 
+        type: 'combobox', 
+        store: statusStore, 
+        editable : false,
+        triggerAction: 'all',
+        mode: 'local'
+    });
+    
+    fileSelection.on('select', function(el, newValue, oldValue){
+      ds.baseParams['scope'] = newValue.data.value;
+      ds.reload({params: {start: 0, limit: ds.lastOptions.params.limit}});
+    });
+    
+    // set up the data store and then send request to the server
+    var ds = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+    
+    // set up the ext grid object
+    var xg = Ext.grid;
+
+    // create row expander of the grid object
+    var expander = new xg.RowExpander({ contains: ["notes", "tags", "updated_at", "created_at", "real_id", "absolute_path", "z_path"],
+      tpl : new Ext.Template(
+        '<table><tr><td>',
+        '<img src="{absolute_path}"/></td><td>',
+        '<div>{notes}</div>',
+        '<div>Tags: {tags}</div>',
+        '<div>Updated at: {updated_at}</div>',
+        '<div>Created at: {created_at}</div>',
+        '<div>Absolute download path: {absolute_path}</div>',
+        '<div>Asset URL liquid tag: {% asset_url file_path:"{z_path}" size:"full" %}</div></td></tr></table>'
+      )
+    });
+
+    // define paging toolbar that is going to be appended to the footer of the grid panel
+    var paging = new Ext.PagingToolbar({
+      store: ds,
+      pageSize: #{limit},
+      displayInfo: true,
+      displayMsg: 'Displaying {0} to {1} of {2}',
+      emptyMsg: "No record to display",
+      cls: "paging-toolbar-bottom",
+      plugins: [new Ext.ux.PageSizePlugin]
+    });
+  
+    #{create_grid_tbar_filter_field}
+    
+    #{create_grid_tbar_clear_button}
+    
+    var editRenderer = function(value, cell, record) {
+    
+      cell.focus(); 
+      cell.select();
+      return value;
+    };
+    
+    // create GridPanel object
+    var grid = new Ext.grid.EditorGridPanel({
+      store: ds,
+      cm: new xg.ColumnModel([ expander,
+          {header: "Label", width: 250, sortable: true, dataIndex: 'label'},
+          {header: "Type", width: 125, sortable: true, dataIndex: 'type'},
+          {header: "Size", width: 75, sortable: true, dataIndex: 'size'},
+          {header: "Folder", width: 100, sortable: true, dataIndex: 'folder'},
+          {id: 'file-manager-path', header: "Path", width: 140, sortable: true, dataIndex: 'path', editor: 
+            new Ext.form.TextField({
+              listeners: {
+                'focus': function(me){
+                  me.selectText();
+                } 
+              }
+            })
+          },
+          {header: "Updated at", width: 100, sortable: true, dataIndex: 'updated_at'}
+        ]),
+      viewConfig: {
+        forceFit: false
+      },
+      plugins: expander,
+      autoScroll: true,
+      autoWidth: true,
+      autoExpandColumn: 'file-manager-path',
+      height: #{get_default_grid_height(nil)},
+      tbar: [
+        fileSelection, 
+        "Filter: ", 
+        filterField, 
+        clearButton
+      ],
+      bbar: [paging],
+      footer: true,
+      iconCls: 'icon-grid',
+      renderTo: document.body,
+      enableDragDrop: true,
+      sm: new Ext.grid.RowSelectionModel(),
+      ddGroup: 'TreeDD',
+      loadMask: true,
+      clicksToEdit: 1
+    });    
+    
+    newPanel.add(grid);
+    xl.runningGrids.set("assets", grid);
+    newPanel.on("destroy", function(){
+      xl.runningGrids.unset("assets");
+      xl.westPanel.remove('westPanel-folders');
+      xl.fileTreePanel = null;
+    });
+
+    grid.getTopToolbar().addClass("top-toolbar");
+    grid.getBottomToolbar().addClass("bottom-toolbar");
+    
+    var selectAllAction = new Ext.Action({
+      text: "Select all",
+      iconCls: "display_none"
+    });
+
+    var clearAllAction = new Ext.Action({
+      text: "Clear all",
+      iconCls: "display_none",
+      disabled: true
+    });
+
+    var createFeedAction = new Ext.Action({
+      text: "Create feed",
+      iconCls: "display_none",
+      disabled: true
+    });
+    
+    var downloadAction = new Ext.Action({
+      text: "Download",
+      iconCls: "display_none",
+      disabled: true
+    });    
+
+    var sendAttachmentAction = new Ext.Action({
+      text: "Send attachment(s)",
+      iconCls: "display_none",
+      disabled: true
+    });    
+
+    var sendSecureLinkAction = new Ext.Action({
+      text: "Send secure link",
+      iconCls: "display_none",
+      disabled: true
+    });    
+
+    var uploadAction = new Ext.Action({
+      text: "Upload",
+      iconCls: "display_none"
+    });    
+
+    var deleteAction = new Ext.Action({
+      text: "Delete",
+      iconCls: "display_none",
+      disabled: true
+    });    
+    
+    var tagsSelectionStore = new Ext.data.SimpleStore({
+      fields: ['display', 'value'],
+      data: #{current_account.assets.tags.map{|e| [e.name, e.name]}.to_json}
+    });
+  
+    var tagsSelectionField = new Ext.form.ComboBox({
+      name: "tag_list",
+      displayField: 'display',
+      valueField: 'value',
+      fieldLabel: 'Tag',
+      triggerAction: 'all',
+      mode: 'local',
+      allowBlank: false,
+      store: tagsSelectionStore
+    });
+  
+    var tagsSelectionFormPanel = new Ext.form.FormPanel({
+      items: [tagsSelectionField]
+    });
+  
+    var tagWithWindow = new Ext.Window({
+      title: "Please select a tag",
+      resizable: false,
+      width: 300,
+      height: 95,
+      items: [tagsSelectionFormPanel],
+      buttons:[
+          {
+            text: "Submit",
+            handler: function() {
+                var parameters = {};
+                parameters["ids"] = getSelectedIdsString(grid.getSelectionModel().getSelections());
+                tagsSelectionFormPanel.getForm().doAction("submit",
+                  {
+                    url: #{tagged_collection_assets_path.to_json},
+                    method: "POST",
+                    params: parameters
+                  }
+                );
+                if(tagsSelectionFormPanel.getForm().isValid()) {
+                  grid.enable();
+                  tagWithWindow.hide();
+                  tagWithWindow.close();
+                }
+              }
+          },
+          {
+            text: 'Close',
+            handler: function() { grid.enable(); tagWithWindow.hide(); tagWithWindow.close(); }
+          }
+        ]
+    });
+  
+    var tagWithAction = new Ext.Action({
+      text: "Tag",
+      iconCls: "display_none",
+      handler: function() {
+        var records = grid.getSelectionModel().getSelections();
+        if(records.length < 1){
+          alertNoFileSelected();
+          return false;
+        }
+        grid.disable();
+        tagWithWindow.show();
+      }
+    });
+    
+    var selectionMenu =  new Ext.menu.Menu({
+      items: [selectAllAction, clearAllAction]
+    });
+    selectionMenu.addSeparator();
+    selectionMenu.add(createFeedAction, downloadAction, sendAttachmentAction, sendSecureLinkAction, tagWithAction, uploadAction);
+    selectionMenu.addSeparator();
+    selectionMenu.add(deleteAction);
+    
+    grid.getTopToolbar().add({ id: 'selection-menu', text: "Actions", menu: selectionMenu });    
+
+    var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
+    extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('assets_new_nil', #{new_asset_path.to_json})", :id => "new_asset_header_link").to_json});
+
+    var expandAllAction = new Ext.Action({
+      text: "Expand all",
+      disabled: true
+    });    
+
+    var collapseAllAction = new Ext.Action({
+      text: "Collapse all",
+      disabled: true
+    });
+    
+    //SET HANDLERS
+        
+    selectAllAction.setHandler(function(e) {
+      grid.getSelectionModel().selectAll();
+      e.disable();
+    });
+    
+    clearAllAction.setHandler(function(e) {
+      grid.getSelectionModel().clearSelections();
+      e.disable();
+    });
+    
+    uploadAction.setHandler(function(e){
+      folder_id = ds.lastOptions.params.ids;
+      if(typeof(folder_id) == "undefined")
+        path = #{new_asset_path.to_json};
+      else
+        path = #{new_asset_path(:folder_id => "__FOLDER_ID__").to_json}.gsub("__FOLDER_ID__", folder_id);
+      
+      new Ajax.Request(path, {
+        method: 'get'
+      });
+    });
+    
+    
+    function getSelectedIdsString(records){ 
+      var ids = new Array();
+      records.each( function(e) {
+        ids.push(e.data.id.split('_').last());
+      });
+      return ids.toString();
+    }
+    
+    deleteAction.setHandler(function(e) {
+      var records = grid.getSelectionModel().getSelections();
+      
+      Ext.Msg.confirm("", "Delete selected files permanently?", function(btn){
+        if ( btn.match(new RegExp("yes","i")) ) {
+          var params = {};
+          grid.disable();
+          params['ids'] = getSelectedIdsString(records);
+          new Ajax.Request(#{destroy_collection_assets_path.to_json}, {
+            method: 'post',
+            parameters: params,
+            onSuccess: function(transport){
+              grid.enable();
+            }
+          });
+        }
+      });
+    });
+    
+    grid.getSelectionModel().on("selectionchange", function(){
+      records = grid.getSelectionModel().getSelections();
+      var ids = new Array();
+      records.each( function(e) {
+        ids.push(e.data.id);
+      });
+      selectedIds = ids;
+  
+      if(ids.length>0){
+        clearAllAction.enable();
+        deleteAction.enable();
+      }
+      else
+        deleteAction.disable();
+    });
+    
+    var baseUrl = #{edit_asset_path(:id => "__ID__").to_json};
+    
+    grid.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
+      var record = ds.getAt(rowIndex);
+      var id = record.id.split("_").last();
+    
+      switch(columnIndex){
+        default:
+          xl.openNewTabPanel('assets_edit_'+id, baseUrl.sub("__ID__", id));
+      }
+    });
+    
+    grid.getTopToolbar().add(expandAllAction, collapseAllAction);
+`
+end

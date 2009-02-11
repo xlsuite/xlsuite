@@ -1,0 +1,27 @@
+/* Last Edit JStubbs 2007-11-07 */
+
+/*header*/
+
+div.mail_user_compose {
+	display: block;
+	height: 45px;
+	padding-top: 18px;
+}
+
+div.mail_user_compose a {
+	padding-left: 18px;
+	background: url(/images/icons/email_edit.png) no-repeat left top;
+	margin-left: 36px;
+	
+}
+
+/*table*/
+
+#emails_list {width: 90%; margin: 0 auto;}
+#emails_list td { padding: 4px;}
+
+
+/*footer*/
+
+.mail_footer {border-top: 1px solid #9a9a9a; margin-top: 1em;}
+.mail_footer #paginator {float: right; margin-right: 36px;}

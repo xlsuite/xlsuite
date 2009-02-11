@@ -1,0 +1,6 @@
+<div id="footer">
+  <%= link_to(image_tag("poweredBy.png", :class => "left", :alt => "Powered by XLsuite.com"), "http://xlsuite.com/") %>
+  <div class="options">
+    <%= link_to("Help", forum_categories_path) %>|<%= current_user? ? link_to("Logout", logout_url) : link_to("Login", new_session_url) %>
+  </div>
+</div>

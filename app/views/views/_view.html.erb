@@ -1,0 +1,10 @@
+<div class='galleryItem' id='<%= dom_id(view) %>'>
+  <div class='galleryThumb'>
+    <%= link_to(image_tag(thumb_picture_url(:id => view.picture),:alt => view.name),
+        picture_url(:id => view.picture.id), :title => view.name, :caption => view.description) %>
+  </div>
+  <div class="galleryActions">
+    <%= link_to "Edit", edit_view_path(@listing, view) %> |
+    <%= link_to_remote "Delete", :url => view_path(@listing, view), :method => :delete, :confirm => "Are you sure?" %>
+  </div>
+</div>

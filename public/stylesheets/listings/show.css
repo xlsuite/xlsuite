@@ -1,0 +1,45 @@
+/*jstubbs edit:2008-11-06 - fixed small image hover, border + input
+twitchiness*/
+
+h2.listingHeader {font-size: 1em; font-weight: bold;}
+h3.listingHeader {font-size: 1em;}
+
+table.lp {width: 60%; float: left;}
+table.lp tr.spacer {height: 1em;}
+table.lp th.leftColumn {width: 40%;}
+table.lp th.rightColumn {width: 60%;}
+table.lp td, table.lp th {padding: .5em 0; border: none; vertical-align: top;}
+
+/*image gallery*/
+.propImages {
+ width: 35%; float: right;
+}
+.propImages ul.imagegallery li { display: inline; margin}
+       .propImages a.main {display: block; border: 4px solid #008EB0;
+padding: 2px; height: 188px; width: 240px; padding: 4px;}
+       .propImages a.main:hover {border: 4px solid #CDC9C9;}
+       .propImages a.main img {height: 188px; width: 240px;}
+.propImages ul.imagegallery li {display:block; float: left; margin: 2px;}
+.propImages ul.imagegallery li a { border: 1px solid  #008EB0;
+padding: 1px; height: 78px; width: 100px; display: block;}
+.propImages ul.imagegallery li a:hover { border: 1px solid #EEE9E9;}
+
+#upload {margin-top: 10px; width: 140px;}
+#upload input:hover {padding: 1px;}
+
+
+#upload .swfuploadbtn {  }
+#x_upload_queue li { display: list-item; position: relative;
+list-item-type: none; height: 2em; background: #EEE9E9; padding: .4em;
+margin: .4em 0; overflow: hidden; }
+#x_upload_queue li.active { background: #EEE999; }
+#x_upload_queue li.complete { text-align: center; }
+#x_upload_queue .pctwrap { position: absolute; left: .4em; bottom: 4px; }
+#x_upload_queue .percent, #x_upload_queue .cancel { position:
+absolute; margin-right: .5em; }
+#x_upload_queue .percent { width: 4em; right: -3.5em; text-align:
+right; bottom: -.3em; }
+#x_upload_queue .cancel { right: 0; bottom: 2px; }
+#x_upload_queue .pbar { display: block; width: 200px; height: 6px;
+margin-top: 2px; background-color: #ccc; background-image:
+url(/images/progressbar.png); background-position: -200px; }

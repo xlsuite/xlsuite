@@ -1,0 +1,5 @@
+<tr>
+  <td><%= link_to(h(domain.name), edit_domain_path(domain)) %></td>
+  <td><%=h domain.role %></td>
+  <td><%= domain.price.format(:html, :with_currency) %></td>
+</tr>

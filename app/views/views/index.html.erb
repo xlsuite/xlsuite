@@ -1,0 +1,44 @@
+<% content_for(:js) do -%>
+<%= javascript_include_tag 'multifile' %>
+<% end -%>
+<h1 style='font-size: 14px; font-weight: bold; padding: 5px;'>Listings - <%= @listing.address.line1 %> Views</h1>
+<div style='margin-left: 20px;'>
+  <%= link_to "Back to Listing", edit_listing_path(@listing) %> | 
+  <%= link_to_function "Import Local Pictures", "new Effect.Parallel([new Effect.DropOut('pictures', {sync: true}),new Effect.Appear('add', {sync: true})],{duration: 0.3})" %> | 
+  <%= link_to_function "Import from URL","new Effect.Parallel([new Effect.DropOut('pictures', {sync: true}),new Effect.Appear('import', {sync: true})],{duration: 0.3})" %>
+</div>
+<div id='import' style='display: none;'>
+  <h2>Import Remote URL's</h2>
+  <% form_for :view, :url => import_views_path, :html => {:method => :post} do |f| %>
+  <dl>
+    <dt>Remote URL's:</dt>
+    <dd><%= text_area :view, :remote_urls, :size => "60x5" %></dd>
+  </dl>
+   <div id="bottom-actions" class="form-actions bottom-actions">
+    <%= submit_tag "Import" %> or <%= link_to "Cancel", views_path(@listing) %>
+  </div>
+  <% end %>
+</div>
+<div id='add' style='display: none;'>
+  <h2>Import Local Files</h2>
+  <% form_for :view, :url => views_path(@listing), :html => {:multipart => true} do |f| %>
+  <dl>
+    <dt>Local File:</dt>
+    <dd><input type='file' id='first_file_element' /></dd>
+  </dl>
+    <!-- This is where the output will appear -->
+    <div id="files_list"></div>
+   <div id="bottom-actions" class="form-actions bottom-actions">
+    <%= submit_tag "Upload" %> or <%= link_to_function "Cancel","new Effect.Parallel([new Effect.DropOut('add', {sync: true}),new Effect.Appear('pictures', {sync: true})],{duration: 0.3})" %>
+  </div>
+  <% end -%>
+</div>
+<br/>
+<div id='pictures'>
+<% if @listing.pictures.size == 0 %>
+  <p style='font-weight: bold; margin: 20px;'>There are no pictures for this listing. Use the 
+    navigation links above to add some.</p>
+<% else %>
+<%= render :partial => @listing.views %>
+<% end %>
+</div>

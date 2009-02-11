@@ -1,0 +1,37 @@
+<div id="tags-panel-content">
+  <% inline_form_for(:party, @party, :url => @party.new_record? ? parties_path : party_path(@party), :html => {:id => "secondary_tags_#{dom_id(@party)}", :method => @party.new_record? ? :post : :put, :class => dom_class(@party)}) do |f| %>
+    <% inline_fields_for(:party, @party) do |f| %>
+    <table width="98%" border="0" style="padding: 10px; ">
+      <tr>
+        <td>
+          <%= f.tags_field :tag_list, :id => typed_dom_id(@party, :tag_list, :field), :style=>"width: 100%" %>
+          <%= throbber(typed_dom_id(@party, :tag_list, :indicator)) %>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <ul id="<%= typed_dom_id(@party, :tag_cloud) %>" class="tag_cloud">
+          <%= render :partial => "tags/tag", :collection => @common_tags, :spacer_template => "shared/list_comma",
+                :locals => {:apply_to => [typed_dom_id(@party, :tag_list, :field)],
+                  :after_update => %Q(
+                    function() {
+                      var params = {};
+                      params["party[tag_list]"] = $F("#{typed_dom_id(@party, :tag_list, :field)}");
+                      Element.show("#{typed_dom_id(@party, :tag_list, :indicator)}");
+                      new Ajax.Request("#{party_path(@party)}", {
+                        method: 'put',
+                        onComplete: function() { Element.hide("#{typed_dom_id(@party, :tag_list, :indicator)}"); },
+                        submit: "#{dom_id(@party)}", parameters: params
+                      });
+                    }
+                  )
+                }
+            %>
+          </ul>
+        </td>
+      </tr>
+    </table>
+    <% end %>
+  <% end %>
+</div>
+<%= javascript_tag %Q!new XlSuite.FormHandler("#{'secondary_tags_'+dom_id(@party)}", {now:true})! %>

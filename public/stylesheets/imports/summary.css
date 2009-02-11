@@ -1,0 +1,5 @@
+#importSummary {}
+
+#importSummary table {width: 100%; margin: 1em 0;}
+#importSummary table th { height: 30px; background: url(../../images/table_headerBg.png) repeat-x; border-right: 1px solid #fff; padding: 0 6px; font-weight: bold; color: #fff; } 
+#importSummary table td {padding: 6px;}

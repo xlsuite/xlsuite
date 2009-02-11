@@ -1,0 +1,118 @@
+afteredit_function = %Q`
+  function(oldValue, decodedResponse, plainResponse){
+    xl.updateStatusBar(decodedResponse.flash);
+  }
+`
+
+page << create_tab_using_ajax_response("Contact Request | #{truncate(@contact_request.subject, 15)}") do
+out = []
+out << %Q`
+  var viewPartyAction = new Ext.Action({
+    text: 'View ' + #{@contact_request.name.to_json},
+    iconCls: 'display_none',
+    handler: function(){
+`
+if @contact_request.party
+out << %Q`
+      xl.openNewTabPanel('parties_edit_#{@contact_request.party_id}',#{edit_party_path(@contact_request.party).to_json});
+`
+else
+out << %Q`
+      Ext.Msg.alert("This contact request does not have a party associated with it.");
+`
+end
+out << %Q`
+    }
+  });
+  
+  var replyAction = new Ext.Action({
+    text: "Reply",
+    iconCls: 'display_none',
+    handler: function(){
+      var party_email = #{(@contact_request.party && @contact_request.party.main_email) ? @contact_request.party.main_email.email_address.to_json : false}
+      var subject = #{(@contact_request.subject.gsub("#", "%23") rescue "Contact Request").to_json}
+      if(!party_email){
+        Ext.Msg.alert("Cannot send email", "This contact request does not have a valid email address");
+        return false;
+      }
+      
+    xl.openNewTabPanel('emails_new_nil',#{sandbox_new_emails_path(:email_tos => "__EMAIL__", 
+        :subject => "__SUBJECT__").to_json}.sub("__EMAIL__", party_email).sub("__SUBJECT__", "RE: " + subject));
+    }
+  });
+  
+  var markAsCompletedButton = new Ext.Button({
+    text: "Mark as Completed",
+    iconCls: 'display_none',
+    handler: function(){
+      var params = {};
+      params['contact_request[completed]'] = true;
+      Ext.Ajax.request({
+        url: #{contact_request_path(:id => @contact_request.id).to_json},
+        method: 'PUT',
+        params: params,
+        success: function(){
+          #{refresh_grid_datastore_of("contact_requests")}
+          markAsCompletedButton.hide();
+          markAsIncompleteButton.show();
+        }
+      });
+    },
+    hidden: #{@contact_request.completed? ? true : false}
+  });
+  
+  var markAsIncompleteButton = new Ext.Button({
+    text: "Mark as Incomplete",
+    iconCls: 'display_none',
+    handler: function(){
+      var params = {};
+      params['contact_request[completed]'] = false;
+      Ext.Ajax.request({
+        url: #{contact_request_path(:id => @contact_request.id).to_json},
+        method: 'PUT',
+        params: params,
+        success: function(){
+          #{refresh_grid_datastore_of("contact_requests")}
+          markAsCompletedButton.show();
+          markAsIncompleteButton.hide();
+        }
+      });
+    },
+    hidden: #{@contact_request.completed? ? false : true}
+  });
+  
+  var gridTopToolbar = new Ext.Toolbar({
+    cls: "top-toolbar",
+    items: [
+      {
+        text: "Actions", 
+        iconCls: 'display_none',
+        menu: new Ext.menu.Menu({
+          items: [replyAction, viewPartyAction]
+        })
+      }
+    ]
+  });
+      
+  var form = {url: #{contact_request_path(@contact_request).to_json}, object: 'contact_request'};
+  
+  wrapperPanel = new Ext.Panel({
+    autoScroll: true, 
+    tbar: gridTopToolbar,
+    items: [
+      markAsCompletedButton,
+      markAsIncompleteButton,
+      {html: #{render(:partial => "show").to_json} },
+      {html: "Tags:"},
+      #{render_tags_text_area("contact_request[tag_list]", @contact_request, {:fieldLabel => "Tags", :after_edit => afteredit_function})},
+      #{render_tags_selection("contact_request[tag_list]", @contact_request, current_account.contact_requests.tags, false)},
+      {html: "Created at: "+#{@contact_request.created_at.strftime("%d/%m/%Y").to_json}+"<br />Updated at: "+#{@contact_request.updated_at.strftime("%d/%m/%Y").to_json}+"<br />"}
+    ]
+  });
+  
+  newPanel.add(wrapperPanel);
+  
+`
+out.join("\n")
+end
+

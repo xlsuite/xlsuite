@@ -1,0 +1,13 @@
+<li id="<%= dom_id(domain) %>">
+  <%= link_to(h(domain.name), "http://#{domain.name}/") %>
+  <span><%= domain.domain_subscription.status %></span>
+  <%= link_to_remote("Remove", :method => :delete, :url => account_domain_path(@acct, domain), :icon => :delete,
+          :loading => visual_effect(:appear, "#{dom_id(domain)}_throbber", :duration => 0.33),
+          :confirm => "Delete #{domain.name}\n\nAre you sure ?") %>
+  <% unless domain.activated_at %>
+    <%= link_to_remote("Bypass", :method => :put, :url => bypass_domain_path(:id => domain.id, :account_id => @acct.id),
+            :loading => visual_effect(:appear, "#{dom_id(domain)}_throbber", :duration => 0.33),
+            :confirm => "Bypassing #{domain.name}\n\nAre you sure ?") %>
+  <% end %>
+  <%= throbber(dom_id(domain) + "_throbber") %>
+</li>

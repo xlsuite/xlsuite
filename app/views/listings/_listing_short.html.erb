@@ -1,0 +1,76 @@
+<div class="propListingWrap <%= cycle('', 'bg') %>">
+  <h2 class="listingHeader">
+    <%= link_to(render_listing_address_area_city_and_zip(listing_short), listing_path(listing_short)) %>
+  </h2>  
+  <h3 class="listingHeader">
+    <%= render_listing_size_style_and_price(listing_short) %>
+  </h3>
+    <table class="lp">
+        <tr class="spacer">
+          <th class="leftColumn"></th>
+          <th class="rightColumn"/>
+        </tr>
+        <tr>
+          <td class="bold"><%= check_box_tag "listing_ids[]", listing_short.id %>&nbsp;MLS Number</td>
+          <td><%= link_to(h(listing_short.mls_no), edit_listing_path(listing_short)) %></td>
+        </tr>
+        <tr>
+          <td class="bold">List Date</td>
+          <td><%= h(listing_short.list_date) %></td>
+        </tr>
+        <tr>
+          <td class="bold">Last Transaction</td>
+          <td><%= h(listing_short.last_transaction) %></td>
+        </tr>
+        <tr>
+          <td class="bold">Status</td>
+          <td><%= h(listing_short.status) %></td>
+        </tr>
+        <tr>
+          <td class="bold">Contact</td>
+          <td>
+            <% if current_user? && current_user.can?(:edit_listings) %>
+              <%= link_to h(listing_short.contact_email), "mailto:#{h(listing_short.contact_email)}" %>
+            <% else %>
+              <%= link_to h(@account_owner.main_email.email_address), "mailto:#{h(@account_owner.main_email.email_address)}" %>
+            <% end %>
+          </td>
+        </tr>
+        <tr>
+          <td class="bold">Dwelling Type</td>
+          <td><%= h(listing_short.dwelling_type) %></td>
+        </tr>
+        <tr>
+          <td class="bold">Dwelling Class</td>
+          <td><%= h(listing_short.dwelling_class) %></td>
+        </tr>
+        <tr>
+          <td class="bold">Title of Land</td>
+          <td><%= h(listing_short.title_of_land) %></td>
+        </tr>
+        <tr>
+          <td class="bold">Bedrooms/Bathrooms</td>
+          <td><%= render_listing_column(listing_short.bedrooms, listing_short.bathrooms) %></td>
+        </tr>
+        <tr>
+          <td class="bold">Year Built</td>
+          <td><%= h(listing_short.year_built) %></td>
+        </tr>
+        <tr>
+          <td class="bold">Images</td>
+          <td><%= h(listing_short.num_of_images) %></td>
+        </tr>
+        <tr>
+          <td class="bold">Description</td>
+          <td><%= h(listing_short.description) %></td>
+        </tr>
+        <tr>
+          <td class="bold">Tags</td>
+          <td><%= h(listing_short.tag_list) %></td>
+        </tr> 
+    </table>
+  <div class="propImages">
+    <%= render :partial => "thumbnails", :locals => {:listing => listing_short} %>
+  </div>
+  <br class="clear" />
+</div>

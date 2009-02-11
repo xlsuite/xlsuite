@@ -1,0 +1,67 @@
+page << %Q`
+  var editStepPath = #{edit_step_path(:id => "__ID__").to_json};
+  
+  var modelStore = new Ext.data.SimpleStore({
+    fields: ['display', 'value'],
+    data: [['Party']]
+  });
+  
+  var selectObjectCheckboxField = new Ext.form.ComboBox({
+    fieldLabel: "Object",
+    labelSeparator: " ",
+    displayField: 'display',
+    name: "step[model_class_name]",
+    store: modelStore,
+    value: 'Party', 
+    editable : true,
+    triggerAction: 'all',
+    mode: 'local'
+  });
+  
+  var selectObjectFormPanel = new Ext.form.FormPanel({
+    items: [selectObjectCheckboxField]
+  });
+
+  var selectObjectWindow = new Ext.Window({
+    title: "Please select an object type",
+    resizable: false,
+    width: 300,
+    height: 92,
+    items: [selectObjectFormPanel],
+    buttons:[
+        {
+          text: "OK",
+          handler: function() {
+              selectObjectFormPanel.el.mask();
+              selectObjectFormPanel.getForm().doAction("submit",
+                {
+                  url: #{steps_path.to_json},
+                  method: "POST",
+                  success: function(form, action){
+                    selectObjectFormPanel.el.unmask();
+                    response = action.result;
+                    $("status-bar-notifications").innerHTML = response.flash;
+                    selectObjectWindow.hide();
+                    selectObjectWindow.close();
+                    #{refresh_grid_datastore_of("step")};
+                    xl.openNewTabPanel('steps_edit_'+response.id, editStepPath.sub("__ID__", response.id));
+                  }, 
+                  failure: function(form, action){
+                    selectObjectFormPanel.el.unmask();
+                    response = action.result;
+                    Ext.Msg.alert("Saving failed", response.errors);
+                    $("status-bar-notifications").innerHTML = response.flash;
+                  }
+                }
+              );
+            }
+        },
+        {
+          text: 'Cancel',
+          handler: function() { selectObjectWindow.hide(); selectObjectWindow.close(); }
+        }
+      ]
+  });
+  
+  selectObjectWindow.show();
+`

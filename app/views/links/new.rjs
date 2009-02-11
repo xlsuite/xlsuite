@@ -1,0 +1,72 @@
+page << create_tab_using_ajax_response("New Links") do
+%Q`
+  
+  #{generate_save_close_cancel_toolbar(@link, links_path, links_path(:commit_type => "close"), {:page_to_open_after_new => edit_link_path(:id => "__ID__")})}
+
+  var activeAt = new Ext.form.DateField({
+                    fieldLabel: 'Activation at',
+                    name: 'link[active_at]',
+                    format: 'm/d/Y',
+                    width: 155,
+                    allowBlank: true,
+                    value: #{to_extjs_date_field_value(@link.active_at.to_time).to_json}
+                  });
+                  
+  var inactiveAt = new Ext.form.DateField({
+                    fieldLabel: 'Deactivation at',
+                    name: 'link[inactive_at]',
+                    format: 'm/d/Y',
+                    width: 155,
+                    allowBlank: true
+                  });
+
+  var formPanel = new Ext.form.FormPanel({
+    autoScroll: true,
+    tbar: tbarbbarButtons,
+    bbar: tbarbbarButtons,
+    labelAlign: 'left',
+    items: [            
+              {
+                html: '<div class="notices" id="#{dom_id(@link)}_errorMessages"/>'
+              },
+              new Ext.form.TextField({
+                width: 350,
+                fieldLabel: 'Title',
+                name: 'link[title]'
+              }),
+              new Ext.form.TextField({
+                width: 350,
+                fieldLabel: 'URL',
+                name: 'link[url]'
+              }),
+              new Ext.form.TextArea({
+                fieldLabel: "Description",
+                width: 350,
+                name: "link[description]"
+              }),
+              {
+                layout: 'form',
+                items: [ 
+                  #{render_tags_text_area("link[tag_list]", @link, {:fieldLabel => "Tags"})},
+                  #{render_tags_selection("link[tag_list]", @link, current_account.links.tags, true, {:style => 'margin-left:110px'})}
+                ]
+              },
+              {
+                layout: 'table',
+                columns: 2,
+                style: 'margin-top: 20px',
+                items: [{layout: 'form', items: [activeAt]}, {layout: 'form', items: [inactiveAt], style: 'margin-left:10px'}]
+              },
+              new Ext.form.Checkbox({
+                fieldLabel: 'Approved',
+                inputValue: 1,
+                value: 1,
+                checked: true,
+                name: 'link[approved]'
+              })
+            ]
+        });
+
+  newPanel.add(formPanel);
+`
+end

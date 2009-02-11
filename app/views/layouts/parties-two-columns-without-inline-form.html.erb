@@ -1,0 +1,58 @@
+<% content_for(:css) do -%>
+<%= javascript_include_tag 'tag_cloud' -%>
+<% end -%>
+<%= render :partial => "shared/doctype" %>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <%= render :partial => "shared/head" %>
+</head>
+<body>
+  <div id="contentCenter" class="column">
+    <%= render :partial => "shared/notifications" %>
+    <div id="spannedColumns">
+      <!-- Center Console -->
+      <!--<div id="mainTabbedNav" class="tabNav">
+         Tabs 
+        <ul id="mainTabs">
+         <% if @party.new_record? then -%>
+             <%= tab "<span>New Contact</span>", new_party_path %>
+         <% else -%>
+             <%= tab "<span>General</span>", general_party_path(@party) %>
+             <%= tab "<span>Profile</span>", profile_party_path(@party) %>
+             <%= tab "<span>Tags</span>", tags_party_path(@party) %>
+             <%= tab "<span>Comments</span>", comments_party_path(@party) %>
+             <%= tab "<span>Security</span>", security_party_path(@party) %>
+             <%= tab "<span>Staff</span>", staff_party_path(@party) %>
+             <%= tab "<span>Testimonials</span>", testimonials_party_path(@party) %>
+             <%= tab "<span>Email Accounts</span>", email_accounts_party_path(@party) %>
+         <% end -%>
+       </ul>
+      </div>-->
+     <div class="mainContent"> 
+     <!-- Navigate through records -->
+     <div id="mainBrowseRecords" style="display:none">
+       <ul>
+         <li>
+           <%= link_to(icon_tag(:resultset_first), :id => "mainFirstRecord") %>
+         </li>
+         <li>
+           <%= link_to(icon_tag(:resultset_previous), :id => "mainPreviousRecord") %>
+         </li>
+         <li>
+           <%= link_to(icon_tag(:resultset_next), :id => "mainNextRecord") %>
+         </li>
+         <li>
+           <%= link_to(icon_tag(:resultset_last), :id => "mainLastRecord") %>
+         </li>
+       </ul>
+     </div>
+     <!-- Begin Content Area -->
+     <div id="mainContentArea" style="display:none;"></div>
+       <!-- Begin Center Left Content -->
+       <%= yield %>
+     </div>
+    </div>
+    <!-- End Content Area -->
+  </div>  
+</body>
+</html>

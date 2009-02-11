@@ -1,0 +1,7 @@
+<tr>   
+  <td><%= link_to_mass_email(mass_email_list) %></td>
+  <td><%= mass_email_list.tos.to_formatted_s %></td>
+  <td><%= mass_email_status(mass_email_list) %></td>
+  <td><%= mass_email_list.sender.party.name.to_s %></td>
+  <td><%= email_datetime_format(mass_email_list.updated_at) %></td>  
+</tr>

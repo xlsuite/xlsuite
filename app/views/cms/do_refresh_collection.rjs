@@ -1,0 +1,6 @@
+%w(layouts pages snippets).each do |type|
+  if instance_variable_get("@#{type}_replaced".to_sym)
+    page << refresh_grid_datastore_of(type)
+    page << unmask_grid_datastore_of(type)
+  end
+end

@@ -1,0 +1,14 @@
+<div class="ipage assets_pages">
+	<div class="actions"> <%= link_to("Add a file", new_asset_path, :icon => :image_add) %> </div>
+  <% form_tag(assets_path, :method => :get, :id => "assets-search") do %>
+  <label for="q">Search:</label>
+  <%= text_field_tag :q, params[:q], :id => :q, :class=> "text" %>
+  <label for="scope">Scope:</label>
+  <%= select_tag :scope, options_for_select([["My files only", ""], ["All files", "all"]], params[:scope]), :id => :scope %> <%= submit_tag "Search", :name => nil, :class=> "button" %> <%= link_to "Clear", assets_path %>
+  <% end -%>
+  <ul id="assets">
+    <%= render :partial => @assets %>
+  </ul>
+  <div class="actions"> <%= link_to("Add a file", new_asset_path, :icon => :image_add) %> </div>
+  <div> <%= paginator_on(@page) %> </div>
+</div>

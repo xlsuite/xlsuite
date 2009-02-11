@@ -1,0 +1,68 @@
+Cleaner:
+  interval: <%= 8.hours %>
+  scheduled_at: <%= 10.minutes.from_now %>
+  system: true
+
+RetsMetadataUpdator:
+  interval: <%= 12.hours %>
+  scheduled_at: <%= 10.minutes.from_now %>
+  system: true
+
+MailSender:
+  interval: <%= 33.seconds %>
+  scheduled_at: <%= 2.minutes.from_now %>
+  system: true
+
+SessionCleaner:
+  interval: <%= 63.minutes %>
+  scheduled_at: <%= 17.minutes.from_now %>
+  system: true
+
+FeedsUpdator:
+  interval: <%= 4.hours %>
+  scheduled_at: <%= 11.minutes.from_now %>
+  system: true
+
+CartsCleaner:
+  interval: <%= 33.minutes %>
+  scheduled_at: <%= 13.minutes.from_now %>
+  system: true
+  
+ContactsImport:
+  interval: <%= 31.minutes %>
+  scheduled_at: <%= 15.minutes.from_now %>
+  system: true
+
+ListingsCleaner:
+  interval: <%= 5.hours %>
+  scheduled_at: <%= 19.minutes.from_now %>
+  system: true
+
+RentalsImportFuture:
+  interval: <%= 23.hours %>
+  scheduled_at: <%= 31.minutes.from_now %>
+  system: false
+  account_id: 125
+  owner_id: <%= Account.find(125).owner.id %>
+  args: 
+    :root: http://vancouver.en.craigslist.ca/apa/
+
+StepRunnerFuture:
+  interval: <%= 5.minutes %>
+  scheduled_at: <%= 2.minutes.from_now %>
+  system: true
+  
+ExpiredConfirmationAccountsCleanerFuture:
+  interval: <%= 10.minutes %>
+  scheduled_at: <%= 1.minutes.from_now %>
+  system: true
+  
+ExpiredAccountsCleanerFuture:
+  interval: <%= 15.minutes %>
+  scheduled_at: <%= 2.minutes.from_now %>
+  system: true
+  
+RenewSubscriptionFuture:
+  interval: <%= 10.minutes %>
+  scheduled_at: <%= 1.minutes.from_now %>
+  system: true

@@ -1,0 +1,4 @@
+
+
+page.replace_html 'group_details', :partial => "form" 
+page.hide 'close_group_details_indicator'

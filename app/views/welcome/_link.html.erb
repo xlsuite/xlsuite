@@ -1,0 +1,12 @@
+<tr>
+  <td align="center">
+    <%= if link.picture then link_to(image_tag(picture_url(:id => link.picture), :class => 'framed',
+          :size => link.picture.max_width_geometry(280), :alt => link.title), link.address) else '&nbsp;' end %>
+  </td>
+  <td>&nbsp;</td>
+  <td>
+    <h3><%= h(link.title) %></h3>
+    <%= textilize(link.description) unless link.description.blank? %>
+    <%= link_to("Visit #{link.title}", link.address) %>
+  </td>
+</tr>

@@ -1,0 +1,9 @@
+<div class="parties_footer">
+<% if @party.new_record? then -%>
+  <p><%= submit_tag("Save", :class => "button") %></p>
+<% end -%>
+  <p class="recordStatus">Record created by <span id="createdBy_name"><%= (link_to_party(@party.created_by, :text => @party.created_by.name) rescue "Unknown") %></span> on <span class="createdBy_date"><%= current_user.format_utc_date(@party.created_at || Time.now) %></span>, at <span id="createdBy_timestamp"><%= current_user.format_utc_time(@party.created_at || Time.now) %></span>.</p>
+  <p class="recordStatus">This page was last modified by <span id="modifiedBy_name"><%= (link_to_party(@party.updated_by, :text => @party.updated_by.name) rescue "Unknown") %></span> on <span id="modifiedBy_date"><%= current_user.format_utc_date(@party.updated_at || Time.now) %></span>, at <span id="modifiedBy_timestamp"><%= current_user.format_utc_time(@party.updated_at || Time.now) %></span>.</p>
+</div>
+
+<div style="display:none"><%= hidden_field_tag :elsewhere, nil, :style => "display:none" %></div>

@@ -1,0 +1,2 @@
+page.replace_html "status-bar-notifications", "#{e(render_plain_flash_messages)}"
+page.hide 'quick_entry_save_throbber'

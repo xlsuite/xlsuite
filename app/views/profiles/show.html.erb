@@ -1,0 +1,79 @@
+<%= cached_javascript_include_tag "prototype.js"%>
+
+<div id="publicProfile_view">
+  <div class="view_photo">
+    <img src="<%= @party.avatar ? download_asset_path(:id => @party.avatar, :size => :square) : image_path("Mr-Smith.jpg") %>" width="70" height="108" alt="<%=h @party.name %>"/>
+  </div>
+  <div class="view_section view_details">
+    <h3>Details</h3>
+    <ul>
+      <li><span class="label">User Name:</span><%= @party.forum_alias.blank? ? " -- " : @party.forum_alias %></li>
+
+      <!-- The rest of these list items display depending on which fields the user filled in on the sign up page -->
+      <% unless @party.full_name.blank? %><li><span class="label">Name:</span><%= @party.full_name %><!-- concatenate "first name" and "last name" --></li><% end-%>
+      <% unless @party.company_name.blank? %><li><span class="label">Company:</span><%= @party.company_name %></li><% end-%>
+			<% unless @party.links.empty?%>
+        <li><span class="label">Websites: </span>&nbsp;&nbsp;<%= link_to(@party.links.last.url, @party.links.last.url, nil) %></li>
+      <% end -%>
+      <% unless @party.phones.empty? %>
+        <% @party.phones.each do |phone|%>
+          <li><span class="label"><%= phone.name.capitalize + " Number:"%></span><%= phone.number %></li>
+        <% end -%>
+      <% end -%>
+      <% unless @party.addresses.empty? %>
+        <% @party.addresses.each do |address| %>
+          <li><span class="label"><%= address.name.capitalize + " Address:"%></span></li>
+          <ul>
+            <li><span class="label">Line 1:</span><%=address.line1%></li>
+            <li><span class="label">Line 2:</span><%=address.line2%></li>
+            <li><span class="label">City:</span><%=address.city%></li>
+            <li><span class="label">Province/State:</span><%=address.state%></li>
+            <li><span class="label">Postal/Zip Code:</span><%=address.zip%></li>
+          </ul>
+        <% end -%>
+      <% end -%>
+    </ul>
+  </div>
+  <div class="user_posts">
+    <table>
+      <%= render :partial => "post", :collection => @party.recent_posts(5) %>
+    </table>  
+  </div>
+  <div class="view_section optional_descs">
+    <!-- these are the textareas (if any) that the user chose on the sign up page) -->
+    <% @party.info[:title].each_pair do |key, value|%>
+      <% unless key.downcase == "0" || value.blank? || @party.info[:body][key].blank?%>
+        <div class="optional_desc">
+          <h3><%= value.capitalize %></h3>
+          <p><%= @party.info[:body][key] %></p>
+        </div>
+      <% end -%>
+    <% end rescue nil-%>
+  </div>
+  <div class="view_section view_feeds">
+    <div class="feed_titles">
+      <%= throbber("feeds_request_throbber")%>
+      <ul>
+        <% @party.feeds.each do |feed|%>
+          <li>
+            <%= link_to_remote(feed.label, :url => "/profiles/#{@party.id}/show_feed?feed=#{feed.id}", :method => :get, 
+            				:before => "$('feeds_request_throbber').show()",
+                    :complete => "$('feeds_request_throbber').hide()" ) %>
+          </li>
+        <% end -%>
+      </ul>
+    </div>
+    <div class="feed_display_contents"><!-- displays the content(s) of the feed, depending on what's been selected - by default Feed 01 shows -->
+      <div id="feed_content" class="feed content">
+        <%= render :partial => "feed_content", :locals => {:feed => @party.feeds.first} unless @party.feeds.empty?%>
+      </div>
+      <!-- we should do an AJAX call when changing between feeds, if possible, rather than a toggle of display:none to display:block to avoid long load times -->
+    </div>
+  </div>
+
+</div>
+
+<%= link_to "Edit", edit_profile_path(@party)%>
+<%= link_to "Profiles Index", profiles_path%>
+<%= link_to "Forums", forum_categories_path%>
+<%= link_to "Log out", "/sessions/destroy" if current_user?%>

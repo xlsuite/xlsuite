@@ -1,0 +1,11 @@
+<h2 class="mail_header">Edit Template</h2>
+<div class="template_edit">
+<% form_for :_template, @_template, :url => template_path(@_template), :html => {:method => :put} do |f| %>
+  <%= submit_tag "Save" %>
+  <%= link_to "Back", templates_path %>
+  <%= render :partial => 'form', :locals => {:f => f}%>
+  <%= submit_tag "Save" %>
+  <%= link_to "Back", templates_path %>
+<% end %>
+<%= hidden_field_tag "template_target_field", "_template_body" %>
+</div>

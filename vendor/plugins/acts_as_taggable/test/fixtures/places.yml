@@ -1,0 +1,11 @@
+home:
+  id: 1
+  name: home
+
+work:
+  id: 2
+  name: work
+
+pub:
+  id: 3
+  name: pub

@@ -1,0 +1,4 @@
+<RETS ReplyCode="0" ReplyText="SUCCESS">
+<COUNT Records="4"/>
+<DELIMITER value="09" />
+<COLUMNS>	First	Second	Third	</COL

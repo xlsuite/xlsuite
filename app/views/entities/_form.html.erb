@@ -1,0 +1,62 @@
+<% unless @entity.new_record? %>
+<span id="<%= typed_dom_id(@entity, :extra_fields_controller) %>" style="text-align: center">
+  <span id="optionsToggle" style="text-align: center">
+    <%= link_to("Show&nbsp;/&nbsp;Add Additional Fields", "#", :id => "show_add_field") %>
+    <%= throbber("optionsToggle_throbber") %>
+  </span>
+</span>
+<span id="contactOptions" class="row" style="display:none; text-align: center;">
+  <select id="contactOptions_values">
+    <option value="">Show/Add&hellip;</option>
+    <option value="address" url="<%= @new_address_url %>" target="<%= typed_dom_id(@entity, :addresses_group) %>" newname="<%= dom_id(AddressContactRoute.new) %>">New address</option>
+    <option value="phone" url="<%= @new_phone_url %>" target="<%= typed_dom_id(@entity, :routes_group) %>" newname="<%= dom_id(PhoneContactRoute.new) %>">New phone</option>
+    <option value="email" url="<%= @new_email_url %>" target="<%= typed_dom_id(@entity, :routes_group) %>" newname="<%= dom_id(EmailContactRoute.new) %>">New e-mail address</option>
+    <option value="link" url="<%= @new_link_url %>" target="<%= typed_dom_id(@entity, :routes_group) %>" newname="<%= dom_id(LinkContactRoute.new) %>">New link</option>
+    <option><%= "&ndash;&nbsp;"*12 %></option>
+  </select>
+  <%= link_to("Cancel", "#", :id => "show_add_field_cancel") %>
+</span>
+
+<div class="entity_id">
+  <fieldset>
+    <p>
+      <label>Internal:</label>
+      <input class="disabled text" value="N/A" disabled="" />
+    </p>
+  </fieldset>
+</div>
+<% end %>
+
+<div class='entity_desc'>
+  <p>
+    <label>Name:</label>
+    <%= f.text_field :name, :use_default_value => false %>
+  </p>
+  <p>
+    <label>Classification:</label>
+    <%= f.text_field :classification, :use_default_value => false %>
+  </p>
+  <p>
+    <label>Description:</label>
+    <%= f.text_area :description, :use_default_value => false %>
+  </p>
+</div>
+
+<div id="<%= typed_dom_id(@entity, :routes_group) %>"  class="fldi contactAdress">
+  <div id="generalContactRoutes"> <%= render :partial => "parties/contact_route", :collection => @entity.non_address_contact_routes, :locals => {:show_editor => @entity.new_record?, :f => f} %> </div>
+</div>
+<div id="<%= typed_dom_id(@entity, :addresses_group) %>"  class="fldi contactInfos"> <%= render :partial => @entity.addresses, :locals => {:show_editor => @entity.new_record?} %> </div>
+
+
+<div class='entity_tags'>
+  Tags:
+  <%= f.tags_field :tag_list, :use_default_value => false %>
+  <ul class="taglist">
+    <%= render :partial => "tags/tag", :collection => @common_tags[0..19], :spacer_template => "shared/list_comma",
+      :locals => {:apply_to => [typed_dom_id(@entity, :tag_list, :field)], :after_update => entity_tag_after_update} %>
+  </ul>
+</div>
+
+<div id="<%= typed_dom_id(@entity, :authorizations) %>" class='product_permissions'>
+ <%= authorization_fields_for :entity %>
+</div>

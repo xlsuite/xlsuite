@@ -1,0 +1,2 @@
+page << update_notices_using_ajax_response
+page << close_destroyed_party_related_tabs

@@ -1,0 +1,54 @@
+<% @page_title = search_posts_title -%>
+
+<h1>
+<% if params[:q].blank? -%>
+  <%= @page_title %>
+<% else -%>
+  Searching for '<%= h params[:q] %>'
+<% end -%>
+</h1>
+<p class="subtitle">
+  <%= pluralize(@posts.size,"post") %> found
+</p>
+
+<%= render :partial => "shared/pager", :object => @page %>
+
+<table border="0" cellspacing="0" cellpadding="0" class="posts wide">
+<% for post in @posts do %>
+<% unless post == @posts.first %>
+<tr class="spacer">
+  <td colspan="2">&nbsp;</td>
+</tr>
+<% end %>
+<tr class="post hentry" id="<%= post.dom_id %>">
+  <td class="author vcard">
+    <div class="date">
+      <abbr class="updated" title="<%= post.created_at.xmlschema %>">
+      <% if post.created_at > Time.now.utc-24.hours%>
+      <%= time_ago_in_words(post.created_at).sub(/about /, '') %> ago
+      <% else %>
+      <%= post.created_at.strftime("%b %e, %Y")%>
+      <% end %>
+      </abbr>
+    </div>
+    <% if post.user %>
+      <span class="fn"><%= truncate(h(post.user.name), 15) %></span>
+      <span class="posts"><%= pluralize post.user.posts_count, 'post' %></span>
+    <% else %>
+      <span class="fn">Author Deleted</span>
+    <% end %>
+  </td>
+  <td class="body entry-content">
+    <p class="topic">
+      Topic: <%= link_to h(post.forum.name), forum_category_forum_path(post.forum_category_id, post.forum_id) %> / 
+      <%= link_to h(post.topic.title), forum_category_forum_topic_path(post.forum_category_id, post.forum_id, post.topic_id) %>
+    </p>
+    
+    <%= post.rendered_body %>
+  </td>
+</tr>
+
+<% end %>
+</table>
+
+<%= render :partial => "shared/pager", :object => @page %>

@@ -1,0 +1,10 @@
+<h1>Submit a Contact Request</h1>
+<% labelled_form_for(:contact_request, @contact_request, :url => contact_requests_path) do |f| %>
+  <%= f.text_field :name %>
+  <%= f.text_field :email %>
+  <%= f.text_field :phone %>
+  <%= f.text_field :subject %>
+  <%= f.text_area :body %>
+  <%= submit_tag "Submit", :name => nil %>
+  <%= hidden_field_tag :return_to, "/" %>
+<% end %>

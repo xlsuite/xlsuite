@@ -1,0 +1,10 @@
+<div class="none">
+  <%= image_tag("no-images-loaded-yet.gif", :size => "256x200", :alt => "Not downloaded") %>
+  <div class="progress-wrapper">
+    <%= throbber listing.dom_id(:indicator), :style => "" %>
+    <%= progress_bar 0, :id => listing.dom_id(:progress), 
+        :progress_url => future_path(:id => retriever, :elapsed => "", :status => listing.dom_id(:status), :progress => listing.dom_id(:progress)),
+        :photos_url => url_for(:action => "refresh_photos", :id => retriever, :root => listing.dom_id(:gallery)) %>
+    <%= content_tag(:div, h(retriever.status), :class => "status", :id => listing.dom_id(:status)) %>
+  </div>
+</div>

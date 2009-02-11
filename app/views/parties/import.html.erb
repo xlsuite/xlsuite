@@ -1,0 +1,21 @@
+<% content_for(:js) do -%>
+<%= javascript_include_tag party_tags_lookup_url %>
+<% end -%>
+<% form_tag(import_load_parties_path, {:multipart => true}) do %>
+<fieldset>
+  <h2>Import Parties from CSV File</h2>
+  <p><label>CSV File:</label>
+    <%= file_field_tag :file, :size => 60 %></p>
+  <p><label>Format type:</label>
+    <%= select_tag :format_type, options_for_select(@format_type) %></p>
+  <p><label>Tag Imported Contacts:</label>
+    <%= text_field_tag :tag_list, @tag_list.join(' '), :size => 60 %>
+    <div id="tag_list_auto_complete" class="auto_complete"></div>
+    <%= javascript_tag %Q(
+var tag_list_auto_completer = new Autocompleter.Local('tag_list', 'tag_list_auto_complete', tags, {fullSearch: true, frequency: 0.01, minChars: 1, tokens: [' ', ',']});
+) %>
+    <div class="tag_cloud"><%= tag_group(:field_id => 'tag_list', :limit => 30, :target_class => :party) %>
+  </p>
+  <%= submit_tag 'Import' %>
+</fieldset>
+<% end -%>

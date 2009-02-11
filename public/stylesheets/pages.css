@@ -1,0 +1,33 @@
+/* ******* CONTACT INFO ******* */
+
+/* Top Area */
+
+     .contactWho                          {width: 270px; text-align: right; padding: 0px 10px 0px 0px;}
+     .contactWho fieldset div             {font-weight: normal;}
+     .contactPhoto                        {width: 100px; padding: 0px 10px 0px 10px;}
+     .contactAdress                       {width: 230px; text-align: left;}
+     .contactInfos                        {width: 200px; text-align: left;}
+     
+     
+     .deleteAddress                        {margin: 0px 0px 0px 20px;}
+     
+     .partyWrap                           {min-height: 200px;}
+     
+     #general                             {padding: 10px 0px 10px 0px;}
+
+/* ------- Tabs ------- */
+
+/* Notes - - - */
+
+/* Tags - - - */
+
+/* Network - - - */
+
+/* Security - - - */
+
+     #xl-security                         { padding: 5px 0px 0px 5px ; }
+     #xl-security div.fldi                { height: 230px;}
+     #xl-security .fldi fieldset p label  { width: 250px; display: block; }
+     
+     #pages_filter { margin: 0.5em 0; }
+     #pages { margin-top: 1em; }

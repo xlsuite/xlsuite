@@ -1,0 +1,20 @@
+<% content_tag :fieldset, :id => "filter_line_#{filter_line_index}" do %>
+  <%= select_tag("filter_line[#{filter_line_index}][field]", filter_field_selections(filter_line.field))%>
+  <%= select_tag("filter_line[#{filter_line_index}][operator]", filter_operator_selections(filter_line.operator))%>
+  <%= text_field_tag("filter_line[#{filter_line_index}][value]", filter_line.value)%>
+  Exclude <%= check_box_tag "filter_line[#{filter_line_index}][exclude]", "1", (filter_line.exclude), :class => 'box', 
+							:onclick => "checkboxAction(#{filter_line_index});"%>
+  <% if filter_line_index > 1%>
+    <%= link_to_function "Remove line", "removeFilterLine('#{filter_line_index}')" %>
+  <%end-%>
+<%end-%>
+
+<script>
+  function checkboxAction(index) {
+    if ($('filter_line[' + index + '][exclude]').checked == false) {
+      $('filter_line[' + index + '][exclude]').value = '0';
+    }
+    else
+      $('filter_line[' + index + '][exclude]').value = '1';
+  }
+</script>

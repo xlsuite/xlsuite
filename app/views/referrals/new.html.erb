@@ -1,0 +1,43 @@
+<div id="newReferralForm">
+<h2>Referring: <%=h @referral.title %></h2>
+<% form_for :referral, :url => referrals_path do |f| %>
+  <%= error_messages_for(:referral, :email) %>
+  <fieldset id="x_you">
+    <h3>About you&hellip;</h3>
+<% if current_user? %>
+    <p><label for="from_email">From:</label><%= select_tag "referral[from][email]", options_for_select(@email_addresses, @referral.from.email), :id => "from_email" %></p>
+<% else -%>
+    <p><label for="from_name">Your Name:</label><%= text_field_tag "referral[from][name]", @referral.from.name, :id => "from_name" %></p>
+    <p><label for="from_email">Your E-Mail:</label><%= text_field_tag "referral[from][email]", @referral.from.email, :id => "from_email" %></p>
+<% end -%>
+  </fieldset>
+  <fieldset style="display:block; clear:both" id="x_your_friends">
+    <h3>Your friends</h3>
+    <p><label for="friend_name">Friend's Name</label>
+    <%= text_field_tag "referral[friends][][name]", @first_friend.name, :id => "friend_name" %></p>
+    <p><label for="friend_email">Friend's E-Mail</label>
+    <%= text_field_tag "referral[friends][][email]", @first_friend.email, :id => "friend_email" %></p>
+    <p style="text-align:right">
+      <%= link_to "Add another", "#", :id => "x_add_another_friend" %>
+    </p>
+    <ul id="friends">
+      <%= render :partial => "friend", :collection => @other_friends %>
+    </ul>
+  </fieldset>
+  <fieldset id="x_the_mail">
+    <h3>The mail</h3>
+    <p><label for="referral_subject">Subject:</label><%= f.text_field :subject %></p>
+    <p><label for="referral_body">Body:</label><%= f.text_area :body, :size => "40x4" %></p>
+  </fieldset>
+  <%= f.hidden_field :title %>
+  <%= f.hidden_field :referral_url %>
+  <%= f.hidden_field :return_to %>
+  <%= f.hidden_field :reference, :value => @referral.reference ? dom_id(@referral.reference) : nil %>
+  <p>
+    <%= submit_tag "Send" %>
+    <%= link_to "Cancel", session[:return_to] %>
+  </p>
+<% end %>
+</div>
+
+<%= javascript_include_tag "referrals/new" %>

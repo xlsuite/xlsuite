@@ -1,0 +1,8 @@
+page << update_notices_using_ajax_response(:on_root => true)
+# close the current new email tab
+
+page << close_tab_panel("emails_sandbox_new_nil")
+# open outbox
+page << send_default_get_ajax_request('/admin/emails/sandbox?mailbox=outbox')
+page << "xl.email.refreshMailboxes();"
+page << "xl.closeTabPanel('recipients_index_#{@email.id}');"

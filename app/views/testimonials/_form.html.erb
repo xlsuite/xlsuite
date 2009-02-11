@@ -1,0 +1,11 @@
+<% labelled_fields_for(:party, @party) do |f| -%>
+  <%= f.text_field :first_name %>
+  <%= f.text_field :last_name %>
+<% end -%>
+<% labelled_fields_for(:email, @email_address) do |f| -%>
+  <%= f.text_field :address, :required => true, :label => "E-Mail" %>
+<% end -%>
+<% labelled_fields_for(:testimonial, @testimonial) do |f| -%>
+  <%= f.text_area :body %>
+<% end -%>
+<%= submit_tag "Save" %>

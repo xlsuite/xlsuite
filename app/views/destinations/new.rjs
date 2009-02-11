@@ -1,0 +1,15 @@
+prepend = %Q!
+var new_destination_state_auto_completer = new Autocompleter.Local(
+  'new_destination_state_field',
+  'new_destination_state_auto_complete',
+  #{AddressContactRoute::STATES.map(&:first).to_json},
+  {
+    ignoreCase: true, partialChars: 1, frequency: 0.1
+  }
+);!
+
+page << create_tab_using_ajax_response("New Destination", prepend) do
+%Q`
+newPanel.add({ autoScroll: true, html: #{render(:partial => 'new').to_json} });
+`
+end

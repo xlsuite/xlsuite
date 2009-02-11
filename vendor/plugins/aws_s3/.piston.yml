@@ -1,0 +1,8 @@
+--- 
+format: 1
+handler: 
+  piston:remote-revision: 177
+  piston:root: svn://rubyforge.org/var/svn/amazon/s3/trunk
+  piston:uuid: 23b2c31b-6a20-0410-8244-e31d46b4d01f
+lock: false
+repository_url: svn://rubyforge.org/var/svn/amazon/s3/trunk

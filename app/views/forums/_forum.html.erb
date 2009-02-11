@@ -1,0 +1,43 @@
+          <tr class="<%= cycle("", "thread_bg", :name => "forum_background_class") %>">
+            <td class="subHeader01">
+              <%= link_to(icon_tag("feed"), formatted_forum_posts_url(forum.forum_category, forum, :atom), :rel => "alternate", :type => "application/atom+xml", :class => 'left') %>
+              <%= link_to clean_html(forum.name), forum_category_forum_path(forum.forum_category.id, forum.id), :class => 'topicLink', :onclick => "$('#{forum.dom_id}').toggle(); return false;" %>
+<% when_user_can?(:admin_forum) do -%>
+              <%= link_to(image_tag("icons/pencil_go.png"), edit_forum_category_forum_url(forum.forum_category.id, forum.id), :class => 'edit') %>
+              <%= link_to(image_tag("icons/delete.png"), forum_category_forum_path(forum.forum_category.id, forum.id), :method => :delete, :class => 'edit', :confirm => "Are you sure you want to delete #{forum.name} permanently?") %>
+<% end -%>
+              <p class="topicDescription"><%= clean_html(forum.description) %></p>
+            </td>
+            <td class="subHeader02"><%= forum.topics_count %></td>
+            <td class="subHeader03"><%= forum.posts_count %></td>
+            <td class="timestamp">
+              <% last_post_in_topic = forum.posts.last %>
+              <% unless last_post_in_topic.blank? -%>
+                <%= last_post_in_topic.created_at.strftime("%Y-%m-%d") %><br/>by
+                <%= render_forum_name(last_post_in_topic.user) %>
+              <% end -%>
+            </td>
+          </tr>
+
+          <!-- Topics of a forum starts here -->
+          <tr id="<%= forum.dom_id %>" style="display: none;">
+            <td colspan="4" class="cellFold">
+              <%= '<p class="topicDescription">No topic found</p>' if forum.topics.blank? %> 
+              <table class="post">
+                <tr colspan="4">
+                  <td class="addNew">
+                    <%= link_to("+Add New Topic", new_forum_category_forum_topic_path(forum.forum_category, forum), 
+                        :onclick => "$('newTopic').down('.threadSubject').down('.title').innerHTML = #{forum.name.inspect};
+                        $('newTopic').down('form').action = #{forum_category_forum_topics_path(forum.forum_category.id, forum.id).inspect};
+                        $('newTopic').toggle();
+                        $('topic_title').focus();
+                        return false;") if forum.writeable_by?(current_user? ? current_user : nil) %>
+                  </td>
+                </tr>
+                <%= render :partial => "topics/topic", :collection => forum.topics.find(:all, :include => :replied_by_user, :order => 'sticky desc, replied_at desc') %>
+                <% reset_cycle("topic_background_class") %>
+                <tr class="innerTableFooter"><td colspan="4"><!--padding--></td></tr>
+              </table>
+            </td>
+          </tr>
+          

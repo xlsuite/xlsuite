@@ -1,0 +1,12 @@
+<tr>
+  <td><%= link_to_payment(payment) %></td>
+  <td><%= h(payment.method_name) %></td>
+  <td><%= h(payment.reason) %></td>
+  <td>
+    <span class="editable" id="payment_<%= payment.id %>"><%= h(payment.status) %></span>
+    <%= javascript_tag(%Q(new Ajax.InPlaceEditor('payment_#{payment.id}',
+            '#{url_for(:controller => 'admin/payments', :action => :change_status, :id => payment)}',
+            {highlightendcolor: '#000000', highlightcolor: '#A80000'}))) if current_user.can?(:edit_payment) %>
+  </td>
+  <td><%= payment.amount.format(:html, :with_currency) %></td>
+</tr>

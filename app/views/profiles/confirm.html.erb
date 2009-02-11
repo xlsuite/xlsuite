@@ -1,0 +1,6 @@
+
+<% form_for(:party, @party, :url => authorize_profile_path(@party), :html => {:method => :put}) do |f| %>
+  <%= render :partial => "form", :locals => {:f => f}%>
+<%= submit_tag "Confirm", :class => "button" %>
+<% end -%>
+

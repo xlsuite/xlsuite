@@ -1,0 +1,8 @@
+--- 
+format: 1
+handler: 
+  commit: 5cf932344a4482a0cfbda57e9f69ebe64e70a261
+  branch: HEAD
+lock: false
+repository_url: git://github.com/rails/rails.git
+repository_class: Piston::Git::Repository

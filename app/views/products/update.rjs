@@ -1,0 +1,6 @@
+if @updated
+  page << refresh_grid_datastore_of("Product") if params[:product][:name]
+  page.replace_html(typed_dom_id(@product, :timestamps), render_object_timestamps(@product))
+end
+
+page << update_inside_panel_notifications("products_edit_#{@product.id}")

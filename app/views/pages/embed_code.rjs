@@ -1,0 +1,21 @@
+page << create_tab_using_ajax_response("Embed Code | #{truncate(@page.title, 10)}") do
+%Q`
+  var embedCodeTextArea = new Ext.form.TextArea({
+    value: #{@embed_code.to_json},
+    readOnly: true,
+    width: "99%",
+    height: 200,
+    listeners: {
+      'focus': function(component){
+        component.getEl().dom.select();
+      }
+    }
+  });
+  
+  var wrapperPanel = new Ext.Panel({
+    items: [{html: "Click the following text area to select all"},embedCodeTextArea]
+  });
+  
+  newPanel.add(wrapperPanel);
+`
+end

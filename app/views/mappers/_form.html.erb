@@ -1,0 +1,10 @@
+  <% fields_for :mapper do |m| %>
+    <p>
+      <label>Name:</label>
+      <%= m.text_field :name %>
+    </p>
+    <p>
+      <label>Description:</label>
+      <%= m.text_field :description %>
+    </p>
+  <% end %>

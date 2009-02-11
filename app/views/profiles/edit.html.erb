@@ -1,0 +1,6 @@
+<% @edit = true%>
+<% form_for(:party, @party, :url => profile_path(@party), :html => {:method => :put}) do |f| %>
+  <%= render :partial => "form", :locals => {:f => f}%>
+<%= submit_tag "Save", :class => "button" %>&nbsp;&nbsp;<%= link_to "Cancel", profile_path(@party)%>
+<% end -%>
+

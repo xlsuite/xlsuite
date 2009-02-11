@@ -1,0 +1,6 @@
+page << update_notices_using_ajax_response
+if @commentable
+page << refresh_grid_datastore_with_key("comments_#{@commentable.class.name}_#{@commentable.id}")
+else
+page << refresh_grid_datastore_with_key("comments_index")
+end

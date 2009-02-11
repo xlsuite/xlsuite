@@ -1,0 +1,77 @@
+sit_bath:
+  id: 1
+  tag_id: 1
+  taggable_id: 1
+  taggable_type: Thing
+
+sit_desk:
+  id: 2
+  tag_id: 1
+  taggable_id: 4
+  taggable_type: Thing
+
+sit_bar:
+  id: 3
+  tag_id: 1
+  taggable_id: 8
+  taggable_type: Thing
+
+sit_home:
+  id: 4
+  tag_id: 1
+  taggable_id: 1
+  taggable_type: Place
+
+sit_work:
+  id: 5
+  tag_id: 1
+  taggable_id: 2
+  taggable_type: Place
+
+eat_sushi:
+  id: 6
+  tag_id: 3
+  taggable_id: 3
+  taggable_type: Thing
+
+eat_chips:
+  id: 7
+  tag_id: 3
+  taggable_id: 9
+  taggable_type: Thing
+
+lay_chips:
+  id: 8
+  tag_id: 4
+  taggable_id: 9
+  taggable_type: Thing
+
+lay_pub:
+  id: 9
+  tag_id: 4
+  taggable_id: 3
+  taggable_type: Place
+
+drink_pub:
+  id: 10
+  tag_id: 2
+  taggable_id: 3
+  taggable_type: Place
+
+sit_pub:
+  id: 11
+  tag_id: 1
+  taggable_id: 3
+  taggable_type: Place
+
+eat_bar:
+  id: 12
+  tag_id: 3
+  taggable_id: 8
+  taggable_type: Thing
+
+drink_bar:
+  id: 13
+  tag_id: 2
+  taggable_id: 8
+  taggable_type: Thing

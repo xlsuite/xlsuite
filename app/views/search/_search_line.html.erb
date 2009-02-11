@@ -1,0 +1,12 @@
+      <fieldset class="searchSubPanelForm">
+        <%= text_field_tag "search_line[#{search_line_index}][subject_name]", (search_line[:subject_name] rescue ""), :class => "advancedSearch_text", :id => "search_line_subject_name#{search_line_index}" %>
+        <div class="auto_complete" style="display:none;" id="search_line<%= search_line_index %>_auto_complete"></div>
+        <%= javascript_tag "new Autocompleter.Local(\"search_line_subject_name#{search_line_index}\", \"search_line#{search_line_index}_auto_complete\", #{advanced_search_auto_complete_list}, {})" %>
+        <%= select_tag "search_line[#{search_line_index}][subject_option]", 
+          options_for_select(["Starts with", "Ends with", "Contains", "Equals"], (search_line[:subject_option] rescue "Starts with")), :class => "searchOptions_select" %>
+        <%= text_field_tag "search_line[#{search_line_index}][subject_value]", (search_line[:subject_value] rescue ""), :class => "advancedSearch_text" %>
+        <span class="exclude">
+          <%= image_tag "icons/exclude.png", :class => 'exclude_label' %>
+          <%= check_box_tag "search_line[#{search_line_index}][subject_exclude]", "1", (search_line[:subject_exclude] rescue false), :class => 'box' %>
+        </span>
+      </fieldset>

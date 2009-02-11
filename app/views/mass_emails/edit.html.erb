@@ -1,0 +1,17 @@
+<h2><%=h @email.formatted_subject %></h2>
+<% form_tag(mass_email_url(@email), :multipart => true, :onsubmit => "return false", :method => :put, :id => dom_id(@email)) do %>
+  <p>
+    <%= link_to "Send", "#", :class => "submit send" %>
+    <%= link_to "Save", "#", :class => "submit save" %>
+    <%= link_to "Discard", mass_email_path(@email), :method => :delete %>
+    <%= link_to "Cancel", mass_emails_path %>
+  </p>
+  <%= render :partial => "menu" %>
+  <%= render :partial => 'form' %>
+  <p>
+    <%= link_to "Send", "#", :class => "submit send" %>
+    <%= link_to "Save", "#", :class => "submit save" %>
+    <%= link_to "Discard", mass_email_path(@email), :method => :delete %>
+    <%= link_to "Cancel", mass_emails_path %>
+  </p>
+<% end %>

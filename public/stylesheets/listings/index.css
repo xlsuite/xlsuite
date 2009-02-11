@@ -1,0 +1,96 @@
+
+/*RETS Listing pages*/
+
+/* Created: 2007-07-30
+Update: 2007-08-05
+Author: james@xlsuite.com */
+
+.smaller {font-size: .85em;}
+
+.HRmargin1 {
+	margin-right: 1em;
+}
+
+div.bg {background: #F5F5DC}
+ 
+#topPanel {display: block; height: 30px; font-size: .85em;}
+#topPanel li {display: inline;}
+#topPanel li.hAlignR {margin-left: 10em;}
+#topPanel label {margin-right: 1em;}
+
+.listview input.text {padding-bottom: 3px;}
+.listview input.check {margin-right: 3px;}
+.listview select.exPad {padding-bottom: 2px;}
+.listview select option {padding: 0 3px;}
+	.listview select option.btop {border-top: 1px dotted #666;}
+
+h2.listingHeader {font-size: 1em; font-weight: bold;}
+h3.listingHeader {font-size: 1em;}
+
+table.fullWidth {width:100%;}
+
+tr.tableHeader, div.tableHeader {
+  background:transparent url(../../images/table_headerBg.png) repeat-x scroll 0%;
+  height:30px;
+  color: #fafafa;
+  font-weight: bold;
+}
+
+div.tableheader {
+  background:transparent url(../img/table_headerBg.png) repeat-x scroll 0%;
+  height:30px;
+  color: #fafafa;
+  font-weight: bold;
+  display: block;
+  width: 100%;
+  }
+  
+ .tableheader h2 {
+ font-weight: bold;
+ font-size: 1em;
+ margin-left: 5px;
+ float:left;
+ margin-top: 5px;
+ }
+ 
+ #listings_searchOptions {float: right; margin-right: 1em; margin-top: 5px;}
+ #listings_searchOptions li {
+ display: inline;
+ float: left;
+ margin: 0 1em;
+ }
+ 
+  #listings_searchOptions li a {color: #fff; font-weight: normal;}
+
+.tableheader th {padding: 3px 3px 3px 5px; font-weight: bold; border: 1px solid #fff;}
+td {padding: 3px; border-right: 1px solid #fff;}
+
+td.submit input.button {width: 40px; padding: 2px; float:right;}
+td.submit input.button:hover {cursor: pointer;}
+
+table.lp {width: 60%; float: left;}
+table.lp tr.spacer {height: 1em;}
+table.lp th.leftColumn {width: 40%;}
+table.lp th.rightColumn {width: 60%;}
+table.lp td, table.lp th {padding: .5em 0; border: none; vertical-align: top;}
+
+table.se_small {width: 70%; float: left;}
+table.se_small td select {width: 200px;}
+table.se_small td input.text {width: 200px;}
+
+table.imp {width: 80%; float: left;}
+
+input.int_small {width: 40px !important;}
+input.med {width: 120px !important;}
+select.operator_med {width: 120px !important;}
+
+/*image gallery*/
+.propImages {
+  width: 35%; float: right;
+}
+.propImages ul.imagegallery li { display: inline; }
+	.propImages a.main {display: block; border: 4px solid #008EB0; padding: 2px; height: 188px; width: 240px; padding: 4px;}
+	.propImages a.main:hover {border: 4px solid #CDC9C9;}
+	.propImages a.main img {height: 188px; width: 240px;}
+.propImages ul.imagegallery li a { border: 3px solid  #008EB0; padding: 1px; height: 78px; width: 100px; display: inline;}
+.propImages ul.imagegallery li a:hover { border: 3px solid #EEE9E9;}

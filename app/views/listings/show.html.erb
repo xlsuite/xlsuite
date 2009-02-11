@@ -1,0 +1,104 @@
+<%= cached_javascript_include_tag "prototype.js"%>
+
+<div class="propListingWrap <%= cycle('', 'bg') %>">
+  <h2 class="listingHeader">
+    <%= render_listing_address_area_city_and_zip(@listing) %>
+  </h2>  
+  <h3 class="listingHeader">
+    <%= render_listing_size_style_and_price(@listing) %>
+  </h3>
+  <%= content_tag(:div, @listing.open_house_text, :class => "listing-open-house") unless @listing.open_house_text.blank? %>
+  <div class='listing-options'>
+    <%= link_to("Google Map", gmap_url(@listing.gmap_query)) %>
+    <%= link_to("Send to a friend", send_to_friend_link(@listing, "http://#{current_domain}", "#{current_domain}/admin/listings/#{@listing.id}")) %>
+    <% if current_user? && current_user.can?(:edit_listings) && !@listing.contact_email.blank?%>
+      <%= link_to("Contact", send_to_contact_link(@listing, "http://#{current_domain}", "#{current_domain}/admin/listings/#{@listing.id}", "#{h(@listing.contact_email)}")) %>
+    <% else %>
+      <% name = @account_owner.full_name.blank? ? "Account Owner" : @account_owner.full_name %>
+      <%= link_to("Contact", send_to_contact_link(@listing, "http://#{current_domain}", "#{current_domain}/admin/listings/#{@listing.id}", "#{h(@account_owner.main_email.email_address)}")) %>
+    <% end %>
+    <%= add_remove_listings(@listing, current_user, current_user?) %>
+  </div>
+  <%= content_tag(:div, nil, :id => "remove_#{dom_id(@listing)}_message") %>
+  <%= content_tag(:div, nil, :id => "add_#{dom_id(@listing)}_message") %>
+  <%= content_tag(:div, @listing.extras, :class => "listing-extras") unless @listing.extras.blank? %>
+  <table class="lp">
+    <tr class="spacer">
+      <th class="leftColumn"></th>
+      <th class="rightColumn"/>
+    </tr>
+    <tr>
+      <td class="bold">MLS Number</td>
+      <td><%= h(@listing.mls_no) %></td>
+    </tr>
+<% if current_user? %>
+    <tr>
+      <td class="bold">List Date</td>
+      <td><%= h(@listing.list_date) %></td>
+    </tr>
+    <tr>
+      <td class="bold">Last Transaction</td>
+      <td><%= h(@listing.last_transaction) %></td>
+    </tr>
+<% end %>
+    <tr>
+      <td class="bold">Status</td>
+      <td><%= h(@listing.status) %></td>
+    </tr>
+    <tr>
+      <td class="bold">Dwelling Type</td>
+      <td><%= h(@listing.dwelling_type) %></td>
+    </tr>
+    <tr>
+      <td class="bold">Dwelling Class</td>
+      <td><%= h(@listing.dwelling_class) %></td>
+    </tr>
+    <tr>
+      <td class="bold">Title of Land</td>
+      <td><%= h(@listing.title_of_land) %></td>
+    </tr>
+    <tr>
+      <td class="bold">Bedrooms/Bathrooms</td>
+      <td><%= render_listing_column(@listing.bedrooms, @listing.bathrooms) %></td>
+    </tr>
+    <tr>
+      <td class="bold">Year Built</td>
+      <td><%= h(@listing.year_built) %></td>
+    </tr>
+    <tr>
+      <td class="bold">Images</td>
+      <td><%= h(@listing.num_of_images) %></td>
+    </tr>
+    <tr>
+      <td class="bold">Description</td>
+      <td><%= h(@listing.description) %></td>
+    </tr>
+<% unless @listing.broker.blank? %>    
+    <tr>
+      <td class="bold">Listing provided by</td>
+      <td><%= h(@listing.broker)%><%= image_tag "reciprocity_small.gif" %></td>
+    </tr>
+<% end -%>
+<% unless @listing.extras.blank? %>
+    <tr>
+      <td class="bold">Extras</td>
+      <td><%= @listing.extras %></td>
+    </tr>
+<% end %>
+<% if current_user? %>
+    <tr>
+      <td class="bold">Tags</td>
+      <td><%= h(@listing.tag_list) %></td>
+    </tr>
+<% end -%>
+  </table>
+  <div class="propImages">
+<% if current_user? && current_user.can?(:edit_listings) && !@_frontend%>
+    <%= render :partial => "thumbnails", :locals => {:listing => @listing} %>
+    <%= render :partial => "upload" %>
+<% else %>
+    <%= render_listing_thumbnails(@listing, "http://#{current_domain.name}") %>
+<% end -%>
+  </div>
+  <br class="clear" />
+</div>

@@ -1,0 +1,19 @@
+<tr id='<%=dom_id(label)+"_row"%>'>
+  <td style="width:30%" id='<%=dom_id(label)%>'>
+    <%= link_to_remote label.name, {:url => '/admin/emails/sandbox', :method => :get, :with => "'mailbox=#{label.name}'"} %>
+  </td>
+  <td style="width:50%">
+    <div id="<%=dom_id(label)%>_rename">
+      <%= link_to_function "Rename", "toggleEmailLabelRename('#{dom_id(label)}')" %>
+    </div>
+    <div id="<%=dom_id(label)%>_rename_form" style="display:none">
+      <% form_tag email_labels_path, {:method => :post} do %>
+        <%= link_to_function "Rename: ", "toggleEmailLabelRename('#{dom_id(label)}')" %> <%= text_field_tag "email_label[name]", nil%>
+      <%= submit_to_remote 'save', 'Save', {:url => email_label_path(label), :method => :put}%>
+    <% end -%>
+    </div>
+  </td>
+  <td style="width:20%">
+    <%= link_to_remote "Destroy", :method => :delete, :url => email_label_path(label), :confirm => "Are you sure?"%>
+  </td>
+</tr>

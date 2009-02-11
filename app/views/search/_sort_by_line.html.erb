@@ -1,0 +1,14 @@
+      <fieldset class="searchSubPanelForm">
+        <span><%= sort_by_line_index %>:&nbsp;</span>
+        <%= text_field_tag "sort_by[#{sort_by_line_index}][order_name]", (sort_by_line[:order_name] rescue ""), :class => 'advancedSearch_order', :id => "sort_by_order_name#{sort_by_line_index}" %>
+        <div class="auto_complete" style="display:none" id="sort_by_order_name<%= sort_by_line_index %>_auto_complete"></div>
+        <%= javascript_tag "new Autocompleter.Local(\"sort_by_order_name#{sort_by_line_index}\", \"sort_by_order_name#{sort_by_line_index}_auto_complete\", #{advanced_search_auto_complete_list}, {})" %>
+        <span class="sort">Sort order:</span>
+        <% order_mode = (sort_by_line[:order_mode] rescue "ASC") %>
+        <%= hidden_field_tag "sort_by[#{sort_by_line_index}][order_mode]", order_mode, :id => "sort_by_order_mode#{sort_by_line_index}"%>
+        <% if order_mode =~ /asc/i %>
+        <%= link_to_function image_tag('icons/shape_align_bottom.png', :class => 'sortOrder', :id => "order_mode_sort_by_icon#{sort_by_line_index}"), "toggleSortByOrderMode(#{sort_by_line_index})" %>
+        <% elsif order_mode =~ /desc/i %>
+        <%= link_to_function image_tag('icons/shape_align_top.png', :class => 'sortOrder', :id => "order_mode_sort_by_icon#{sort_by_line_index}"), "toggleSortByOrderMode(#{sort_by_line_index})" %>
+        <% end %>
+      </fieldset>

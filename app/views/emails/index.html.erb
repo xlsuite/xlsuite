@@ -1,0 +1,14 @@
+<h2 class="mail_header"><%= params[:folder].capitalize || "Inbox" %></h2>
+<div class="mail_user_compose">
+	<%= link_to "Compose Mail", new_email_path %>
+</div>
+<table id="emails_list">
+  <thead>
+  </thead>
+  <tbody>
+    <%= render :partial => "email", :collection => @emails %>
+  </tbody>
+</table>
+<div class="mail_footer">
+ <%= paginator_on(@page) %>
+</div>

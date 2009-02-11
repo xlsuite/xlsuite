@@ -1,0 +1,38 @@
+<% form_tag contact_requests_path do %>
+<p>
+ <label>First Name</label>
+ <%= text_field_tag "party[first_name]", "", :size => '30', :class=> "text" %>
+</p>
+<p>
+<label>Last Name</label>
+<%= text_field_tag "party[last_name]", "", :size => '30', :class=> "text" %>
+</p>
+<p>
+<label>Company Name</label>
+<%= text_field_tag "party[company_name]", "", :size => '30', :class=> "text" %>
+</p>
+<p>
+<label>E-Mail</label>
+<%= text_field_tag "email_address[main][email_address]", "", :size => '30', :class=> "text" %>
+<p>We will never rent, sell or barter your E-Mail address with any third party, ever.</p>
+</p>
+<p>
+<label>Phone</label>
+<%= text_field_tag "phone[main][number]", "", :size => '30', :class=> "text" %>
+</p>
+<p>
+<label>Best time of day to call</label>
+<%= text_field_tag "contact_request[time_to_call]", "", :size => '30', :class=> "text" %>
+</p>
+<p>
+<label>Regarding</label>
+<%= text_field_tag "contact_request[subject]", "", :class=> "text" %> 
+
+<%= text_area_tag "contact_request[body]", "", :rows => 6, :cols => 85, :class=> "text", :style => 'margin: 1em auto' %>
+</p>
+<%= submit_tag 'Send', :class=> "text"  %>
+<% end -%>
+
+<p>If you would like to speak to a <em>real person</em> please call us at 
+  1.800.281.4966 and we'll be happy to answer any questions you may
+  have.</p>

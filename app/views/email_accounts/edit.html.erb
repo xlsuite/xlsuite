@@ -1,0 +1,11 @@
+<div id='email-accounts-panel-content'>
+  <div class="error-messages">
+    <%= error_messages_for :email_account %>
+  </div>
+  <h1>Editing e-mail account</h1>
+  <% form_for :email_account, :url => party_email_account_path(:party_id => @party, :id => @email_account), :html => {:method => :put} do |f| %>
+    <%= render :partial => 'form', :locals => {:f => f} %>
+    <%= submit_tag "Update", :class => 'button' %>
+    <%= link_to "Cancel", party_email_accounts_path(@party), :class => 'link_button' %>
+  <% end %>
+</div>

@@ -1,0 +1,27 @@
+<%
+  if email_contact_route.routable && !email_contact_route.routable.new_record? then
+    if email_contact_route.new_record? then
+      save_url = party_emails_path(email_contact_route.routable)
+    else
+      update_url = party_email_path(email_contact_route.routable, email_contact_route)
+    end
+  end
+-%>
+<% inline_fields_for(:email_address, email_contact_route, :url => update_url, :indexed => true) do |f| -%>
+<% contact_route_tag(email_contact_route, :show_editor => @force_editor) do %>
+  <fieldset>
+    <%= link_to_function(icon_tag(:email, :class => "CR_img"), "parent.xl.openNewTabPanel('emails_new_nil', ('#{sandbox_new_emails_path(:email_tos => email_contact_route.address)}'))") %>
+    <%= f.text_field_with_auto_complete :name, :values => email_contact_route.choices %>
+    <%= f.text_field :email_address, :blank_prefix => typed_dom_id(email_contact_route, :name, :field) %>
+    <%= content_tag(:div, "", :class => "auto_complete validation", :id => typed_dom_id(email_contact_route, :email_address, :messages), :style => "display:none") %>
+    <%= javascript_tag %Q(
+new Ajax.Validator(
+    "#{typed_dom_id(email_contact_route, :email_address, :field)}",
+    "#{typed_dom_id(email_contact_route, :email_address, :messages)}",
+    "#{email_contact_route.new_record? ? validate_emails_path : validate_email_path(email_contact_route)}",
+    {method:'get', paramName: 'email[email_address]', frequency: 0.2, minChars: 6});
+) %>
+  </fieldset>
+  <%= f.save_or_cancel_links(save_url, %w(name address), :inline => true) unless @force_editor %>
+<% end %>
+<% end %>

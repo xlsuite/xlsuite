@@ -1,0 +1,206 @@
+edit_perms:
+  id: 9012
+  name: edit_perms
+
+edit_party:
+  id: 9013
+  name: edit_party
+  
+edit_account:
+  id: 9014
+  name: edit_account
+
+edit_pages:
+  id: 9015
+  name: edit_pages
+
+edit_attachments:
+  id: 9016
+  name: edit_attachments
+  
+edit_candidate:
+  id: 9017
+  name: edit_candidate
+  
+edit_catalog:
+  id: 9018
+  name: edit_catalog
+
+edit_configuration:
+  id: 9019
+  name: edit_configuration
+
+edit_contact_request:
+  id: 9020
+  name: edit_contact_request
+
+edit_contents:
+  id: 9021
+  name: edit_contents
+
+edit_customer:
+  id: 9022
+  name: edit_customer
+
+edit_email_accounts:
+  id: 9023
+  name: edit_email_accounts
+
+edit_estimate:
+  id: 9024
+  name: edit_estimate
+
+edit_feeds:
+  id: 9025
+  name: edit_feeds
+
+edit_installer:
+  id: 9026
+  name: edit_installer
+
+edit_link:
+  id: 9027
+  name: edit_link
+
+edit_mailings:
+  id: 9028
+  name: edit_mailings
+
+edit_own_account:
+  id: 9029
+  name: edit_own_account
+
+edit_own_attachments:
+  id: 9030
+  name: edit_own_attachments
+
+edit_own_estimates:
+  id: 9031
+  name: edit_own_estimates
+
+edit_own_quotes:
+  id: 9032
+  name: edit_own_quotes
+
+edit_own_schedule:
+  id: 9033
+  name: edit_own_schedule
+
+edit_party:
+  id: 9034
+  name: edit_party
+
+edit_payment:
+  id: 9035
+  name: edit_payment
+
+edit_quote:
+  id: 9036
+  name: edit_quote
+
+edit_schedule:
+  id: 9037
+  name: edit_schedule
+
+edit_staff:
+  id: 9038
+  name: edit_staff
+
+edit_supplier:
+  id: 9039
+  name: edit_supplier
+
+edit_team:
+  id: 9040
+  name: edit_team
+
+edit_todo:
+  id: 9041
+  name: edit_todo
+
+flush_estimates:
+  id: 9042
+  name: flush_estimates
+
+randomize_password:
+  id: 9043
+  name: randomize_password
+
+view_candidate:
+  id: 9044
+  name: view_candidate
+
+view_catalog:
+  id: 9045
+  name: view_catalog
+
+view_contact_request:
+  id: 9046
+  name: view_contact_request
+
+view_customer:
+  id: 9047
+  name: view_customer
+
+view_estimate:
+  id: 9048
+  name: view_estimate
+
+view_installer:
+  id: 9049
+  name: view_installer
+
+view_invoice:
+  id: 9050
+  name: view_invoice
+
+view_own_quotes:
+  id: 9051
+  name: view_own_quotes
+
+view_own_schedule:
+  id: 9052
+  name: view_own_schedule
+
+view_party:
+  id: 9053
+  name: view_party
+
+view_payment:
+  id: 9054
+  name: view_payment
+
+view_quote:
+  id: 9055
+  name: view_quote
+
+view_schedule:
+  id: 9056
+  name: view_schedule
+
+view_staff:
+  id: 9057
+  name: view_staff
+
+view_supplier:
+  id: 9058
+  name: view_supplier
+
+view_team:
+  id: 9059
+  name: view_team
+
+view_todos:
+  id: 9060
+  name: view_todos
+  
+view_cms:
+  id: 9061
+  name: view_cms
+  
+edit_cms:
+  id: 9062
+  name: edit_cms
+edit_listings:
+  id: 9063
+  name: edit_listings

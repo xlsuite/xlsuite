@@ -1,0 +1,14 @@
+<h2 class="mail_header">New Email</h2>
+<div class="mail_body">
+  <% form_tag(emails_path, :multipart => true, :onsubmit => "return false;", :id => 'email_form') do %>
+   <div class="mail_user_options">
+     <span class="links">
+       <%= link_to "Send", "#", :class => "submit send " %>
+       <%= link_to "Save", "#", :class => "submit save" %>
+       <%= link_to "Discard", emails_path %>
+     </span>
+   </div>
+   <%= render :partial => "form" %>
+ <% end %>
+ <br class="clear"/>
+</div>

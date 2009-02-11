@@ -1,0 +1,18 @@
+<% @account_templates.each_with_index do |account_template, index| %>
+  <tr>
+    <td align="center"><%= radio_button_tag "acct[account_template_id]", account_template.id, (index==0) %></td>
+    <td class="title"><a target="_blank" href="<%= account_template.demo_url %>"><%= account_template.name %></a></td>
+    <td><%= account_template.industry ? account_template.industry.name : "None" %></td>
+    <td><%= account_template.main_theme ? account_template.main_theme.name : "None" %></td>
+    <td><span class="btn-slide">Rating X/X</span></td>
+    <td>Comments #</td>
+    <td><%= account_template.trunk_account.owner.display_name %></td>
+    <td><%= account_template.setup_fee %></td>
+    <td><%= account_template.subscription_fee %>&nbsp;/&nbsp;month</td>
+  </tr>
+  <tr>
+    <td colspan="10"><div class="details">
+      <%= account_template.description.blank? ? "No Description" : account_template.description%></div>
+    </td>
+  </tr>
+<% end %>

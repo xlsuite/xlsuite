@@ -1,0 +1,8 @@
+<% inline_remote_form_for :product, @product, :url => product_path(@product), :html => {:method => :put, :id => (dom_id(@product) + "_display_info")} do |f| %>
+  <%= render :partial => "display_info", :locals => {:f => f} %>
+<% end %>
+<%= javascript_tag %Q`
+  new XlSuite.FormHandler("#{dom_id(@product)}_display_info", {now:true});
+  
+  new XlSuite.AuthorizationHandler(#{typed_dom_id(@product, :authorizations).to_json}, #{product_path(@product).to_json}, {now:true});
+` %>

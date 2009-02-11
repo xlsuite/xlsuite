@@ -1,0 +1,15 @@
+html, body, #center, iframe { font-family: Helvetica; font-size: 12px; }
+
+div#quickEntryPanel, div#mailPanel_searchFormPanel { padding: 12px; }
+
+div.xl-mailMessage-message { padding: 12px; }
+div.xl-mailMessage-message h1 { font-size: 36px; }
+div.xl-mailMessage-message h3 { font-size: 14px; font-weight: bold; }
+
+iframe#layout-center-list-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  padding: 0;
+  margin: 0;
+}

@@ -1,0 +1,31 @@
+= XlSuite::AutoScope
+
+Automatically create scoped access methods on your ActiveRecord models.
+
+== Examples
+Declare your scopes within your ActiveRecord::Base subclasses.
+
+ class Contact < ActiveRecord::Base
+   auto_scope \
+       :old => {:find => {:conditions => ["born_on < ?", 30.years.ago]}},
+       :young => {:find => {:conditions => ["born_on > ?", 1.year.ago]}}
+ end
+
+ class Testimonial < ActiveRecord::Base
+   auto_scope \
+       :approved => {
+           :find => {:conditions => ["approved_at < ?", proc {Time.now}]},
+           :create => {:approved_at => proc {Time.now}}},
+       :unapproved => {
+           :find => {:conditions => "approved_at IS NULL"},
+           :create => {:approved_at => nil}}
+ end
+
+These declarations give you access to the following scoped methods:
+ Testimonial.approved.count
+ Testimonial.unapproved.create!(params[:testimonial])
+ @young_contacts = Contact.young
+ @contacts = Contact.old.find(:all, :conditions => ["name LIKE ?", params[:name]])
+
+= Running the unit tests
+ Please see RUNNING_UNIT_TESTS for details.

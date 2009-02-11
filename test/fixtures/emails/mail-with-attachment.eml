@@ -1,0 +1,44 @@
+Return-Path: <fbeausoleil@ftml.net>
+Received: from mx3.internal (mx3.internal [10.202.2.202])
+	 by imap6m.internal (Cyrus v2.3.7-fmsvn9412) with LMTPA;
+	 Wed, 20 Sep 2006 10:07:51 -0400
+X-Sieve: CMU Sieve 2.3
+X-Spam-score: 0.5
+X-Spam-hits: BAYES_00, INFO_TLD
+X-Resolved-to: fbeausoleil@ftml.net
+X-Delivered-to: francois@teksol.info
+X-Mail-from: fbeausoleil@ftml.net
+Received: from relais.videotron.ca (relais.videotron.ca [24.201.245.36])
+	by mx3.messagingengine.com (Postfix) with ESMTP id C12B393F6C
+	for <francois@teksol.info>; Wed, 20 Sep 2006 10:07:47 -0400 (EDT)
+Received: from [127.0.0.1] ([24.203.85.107]) by VL-MO-MR001.ip.videotron.ca
+ (Sun Java System Messaging Server 6.2-2.05 (built Apr 28 2005))
+ with ESMTP id <0J5W007AL9WX2J40@VL-MO-MR001.ip.videotron.ca> for
+ francois@teksol.info; Wed, 20 Sep 2006 10:07:46 -0400 (EDT)
+Date: Wed, 20 Sep 2006 10:08:20 -0400
+From: =?ISO-8859-1?Q?Fran=E7ois_Beausoleil?= <fbeausoleil@ftml.net>
+Subject: mail with attachment
+To: francois@teksol.info
+Message-id: <45114B54.4010109@ftml.net>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_NNd/LMY1JGVjl/JA1abbgA)"
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+
+This is a multi-part message in MIME format.
+
+--Boundary_(ID_NNd/LMY1JGVjl/JA1abbgA)
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7BIT
+
+small attachment
+
+--Boundary_(ID_NNd/LMY1JGVjl/JA1abbgA)
+Content-type: text/plain; CHARSET=ISO-8859-1; name=teksol-signature.txt
+Content-transfer-encoding: 8BIT
+Content-disposition: inline; filename=teksol-signature.txt
+
+François Beausoleil
+Solutions Technologiques Internationales
+Téléphone:  (819) 566-5997    Courriel:  francois@teksol.info
+
+--Boundary_(ID_NNd/LMY1JGVjl/JA1abbgA)--

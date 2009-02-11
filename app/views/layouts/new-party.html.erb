@@ -1,0 +1,16 @@
+<% content_for(:css) do -%>
+  <%= javascript_include_tag 'tag_cloud' -%>
+<% end -%>
+
+<%= render :partial => "shared/doctype" %>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <%= render :partial => "shared/head" %>
+  </head>
+  <body>
+      <%= render :partial => "shared/notifications" %>
+          <% inline_form_for(:party, @party, :url => @party.new_record? ? parties_path : party_path(@party), :html => {:method => @party.new_record? ? :post : :put, :class => dom_class(@party)}) do |f| %>
+            <%= yield %>
+          <% end -%> 
+  </body>
+</html>

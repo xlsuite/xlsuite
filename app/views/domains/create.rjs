@@ -1,0 +1,11 @@
+if @domain.errors.empty? then
+  page.replace_html "domains", :partial => "accounts/domain", :collection => @domain.account.sorted_domains
+  page.insert_html :bottom, "domains", :partial => "accounts/new_domain"
+  page.visual_effect :highlight, dom_id(@domain)
+  page << "$('domain_name').value = ''"
+else
+  page.hide "#{dom_id(Domain.new)}_throbber"
+  page.alert @domain.errors.full_messages.join("\n")
+end
+
+page << "Form.Element.select('domain_name')"

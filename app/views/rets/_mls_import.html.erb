@@ -1,0 +1,20 @@
+  <tr>
+    <td class="mlsImportLabels">
+      <label>MLS Number(s)</label><br />
+      <label>Tag on Import</label><br />
+      <label>Send Link to Recipient</label><br />      
+      <!-- add new 'send link to Recipient' line -->
+      <%= link_to_function "Add Recipient", "addRecipientToMlsImportLine(this, 1)" %>
+      <%= hidden_field_tag "num_of_recipients", 1 %>
+    </td>
+    <td>
+      <%= hidden_field_tag "searches[#{count}][line][1][field]", @mls_number_field.value %>
+      <%= hidden_field_tag "searches[#{count}][line][1][operator]", "eq" %>
+      <%= hidden_field_tag "searches[#{count}][line][1][to]", "" %>
+      <%= text_field_tag "searches[#{count}][line][1][from]", "", :class => "inline text", :size => 30 %><br />
+
+      <%= text_field_tag "searches[#{count}][search][tag_list]", "", :class => "inline text", :size => 50 %><br />
+      
+      <%= render :partial => "mls_import_recipient", :locals => {:count => count, :recipient_count => 1} %>
+    </td>           
+  </tr>

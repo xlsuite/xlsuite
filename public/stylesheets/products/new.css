@@ -1,0 +1,77 @@
+.product_edit {font-size: 10px;}
+.product_edit input, #product_edit textarea, #product_edit select {font-size: 10px;} /*type size*/
+.product_edit div#messages {margin: .5em 0;}
+.product_edit label {font-weight: bold;}
+
+.product_edit .inline.show {padding: 1px;}
+.product_edit .block.show {padding: 0px; float: left; height: 98px; width: 206px; overflow: auto;}
+.product_edit .block.show p {}
+
+.product_new {font-size: 10px;}
+.product_new input, #product_new textarea, #product_new select {font-size: 10px;} /*type size*/
+.product_new div#messages {margin: .5em 0;}
+.product_new label {font-weight: bold;}
+
+.product_id {width:292px; height: 140px; margin: 4px; float: left;}
+	.product_id fieldset {border: 1px solid #ddd; padding-bottom: 1em;}
+	.product_id legend {font-weight: bold; margin-left: 1em;}
+	.product_id label {width: 30%; float: left; text-align: right; margin-right: 4px;}
+	.product_id input {float: left; width: 120px;}
+	 .product_id input.disabled {margin-left: 1px; width: 118px;}
+	.product_id p {line-height: 2em; display: block; clear: both;}
+
+.product_desc {width:292px; padding-top: 8px; height: 132px; margin: 4px; float: left; position: relative;}
+	.product_desc label{width: 25%; float: left; text-align: right; margin-right: 4px;}
+	.product_desc input{width: 206px;}
+	.product_desc textarea{width: 206px; margin-left: 1px; height: 98px;}
+	.product_desc p {line-height: 2em; display: block; clear: both;}
+	.product_desc img.throbber {position: absolute; top: 60px; left: 40px;}
+
+.product_metrics {width:292px; height: 132px; padding-top: 8px; margin: 4px; float: left; position: relative;}
+	.product_metrics label {width: 25%; float: left; text-align: right; margin-right: 4px;}
+	.product_metrics input {width: 78px;}
+	.product_metrics span.pseudo {padding: 2px 8px;}
+	.product_metrics p {line-height: 2em; display: block; clear: both;}
+	.product_metrics .product_img {width: 100px; height: 100px; margin-left: 180px; background: #eee; display: block;}
+	.product_metrics .img.throbber {}
+	
+.product_id img.throbber, .product_metrics img.throbber {padding-left: 3px;}
+
+.product_categoryControl {width: 592px; height: 200px; margin: 4px; margin-top: 50px; float: left; position: relative; font-size:10px;}
+ .product_categoryControl div.wraps {height: 200px; width: 240px; display: block; float:left;}
+	.product_categoryControl select {float:left; width: 240px; overflow: auto;}
+	.product_categoryControl .actions {float: left; width: 108px; text-align: center; padding-top: 3em;}
+	.product_categoryControl .actions a {display: block; width: 100%; margin-bottom: .6em;}
+    .product_categoryControl img.throbber {position: absolute; top:120px; left: 284px;}
+	
+.product_tags {width: 292px; height: 200px; float: left; margin: 4px; margin-top: 50px; position: relative;  font-size:10px;}
+ 	.product_tags textarea {width: 288px; height: 64px; margin-bottom: 8px; padding: 2px; overflow: auto; }
+	.product_tags ul.taglist {width: 288px; height: 64px; margin: 0; padding: 2px; overflow: auto; clear: both; border: 1px solid #ddd; margin-left: 1px;}
+	.product_tags ul.taglist li {float: left; margin: 0 2px;}
+	.product_tags ul.taglist li a {}
+	.product_tags img.throbber {position: absolute; right: 0px; top: 0px;}
+	
+.product_permissions div {width: 292px; margin: 4px; height: 200px;float: left; position: relative;  font-size:10px;}
+	.product_permissions div img.throbber {position: absolute; top: 4px; left: 20px;}
+	.product_permissions span.label {display:block; width: 292px; height:14px; text-align: center; margin-bottom:-20px;}
+	.product_permissions span.label span {text-transform:uppercase; font-weight: bold;}
+	.product_permissions ul.multiple_select {margin: 1em auto;}
+
+.product_copy {width: 292px; height:200px; margin: 4px; float: left; position: relative;  font-size:10px;}
+	.product_copy a {text-align:right; margin-left: 1em;}
+	.product_copy textarea {overflow: auto; height: 142px; width: 288px; }
+	.product_copy img.throbber {position: absolute; right:0; top: 0;}
+
+.product_flags {clear:both; width:692px; margin: 4px; padding: 6px;  font-size:10px;}
+	.product_flags p{margin: 0 8px; width: 130px; padding-right: 16px; float: left; display: block;}
+	.product_flags p img.throbber {margin-bottom: -4px;}
+	
+.product-form-buttons {clear: both;}
+	
+/*product - edit */
+
+
+
+
+.product_footer {display: block; width: 900px; clear: both; padding: 1em 0; font-size: x-small; margin: 0 auto; text-align: center;}
+.product_footer p.record-status span.created-by-date, .product_footer p.record-status span.modified-by-date {background: #BCDBF6;}

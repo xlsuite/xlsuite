@@ -1,0 +1,5 @@
+<div class="ipage">
+  <% remote_form_for(:layout, :url => layouts_path) do |f| %>
+  <%= render :partial => "form", :locals => {:form => f} %>
+  <% end %>
+</div>

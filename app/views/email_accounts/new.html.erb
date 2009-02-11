@@ -1,0 +1,6 @@
+<h1>New e-mail account</h1>
+<% form_for :email_account, :url => party_email_accounts_path(@party) do |f| %>
+  <%= render :partial => 'form', :locals => {:f => f} %>
+  <%= submit_tag "Create", :class => 'button' %>
+  <%= link_to "Cancel", email_accounts_party_path(@party), :class => 'link_button' %>
+<% end %>

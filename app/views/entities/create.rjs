@@ -1,0 +1,11 @@
+if @created
+  # update notices
+  page << update_notices_using_ajax_response(:on_root => true)
+  # close the current new entity tab
+  page << close_tab_panel("entities_new_nil")
+  # open a new edit tab with the saved entity
+  page << send_default_get_ajax_request(edit_entity_path(@entity))
+  page << refresh_grid_datastore_of("entity")
+else
+  page << update_inside_panel_notifications("entities_new_nil")
+end

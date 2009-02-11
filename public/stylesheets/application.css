@@ -1,0 +1,98 @@
+/* Stylesheet for XLsuite demonstration
+
+Author: james@weputuplights.com
+Created: 2007-02-20
+
+*/
+
+/* Hide breacrumb icons */
+#breadCrumbs .icon { display: none; }
+img.throbber.inline { display: inline; float: left; }
+form .line-based label { display:block; }
+
+#generalContentFooter a { text-decoration: none }
+#generalContentFooter a:hover { text-decoration: underline; }
+#generalContentFooter .icon { display: none }
+
+#testimonials .actions { text-align: right; float: right; }
+#testimonials .actions a { margin: 0 .5em; }
+#testimonials .approved .actions,
+  #testimonials .rejected .actions { display:none;}
+#testimonials li:hover .actions { display: block; }
+#testimonials li { margin: 1em 0; padding: .2em; clear: both; background: transparent; }
+#testimonials h4 { font-size: 7pt; font-style: italic; }
+#testimonials hr { margin: 1em 8em 0; border-bottom: 1px solid #ccc; }
+#testimonials img.throbber { float: right; }
+
+#testimonials.single { font-size: 120%; }
+#testimonials.single h3 { font-size: 200%; margin: 0 0 1em; }
+#testimonials.single h4 { font-size: 120%; margin: 1em 0 0; }
+#testimonials.single hr { display:none; }
+#testimonials.single p { margin: 1em 0; }
+
+.party #testimonials h3 { display:none; }
+.party #testimonials li.approved { background: #f3fff3; }
+.party #testimonials li.rejected { background: #fff3f3; }
+
+#hasReferred .icon { display:none; }
+
+
+/* auto_complete */
+
+.auto_complete { background: #efefef; z-index: 1000; border-bottom: 1px solid #999;}
+.auto_complete ul { list-style: none; }
+.auto_complete ul li { width: 100%; padding: 2px 0px; display: block; font-size: x-small; text-indent: 2px;}
+.auto_complete ul li.selected {background: #eee8aa; color: #333; cursor: pointer;}
+
+/*______________________________*/
+
+
+#contact_requests li { background: transparent; }
+#contact_requests .from:before { content: "From: "; }
+#contact_requests .from { display: block; }
+#contact_requests .when, #contact_requests .actions { display: block; }
+#contact_requests .when { float: right; text-align: right; }
+#contact_requests li:hover { background: #f3f3f3; }
+
+#effective_permissions, .multiple_select {
+  border: 1px solid #aaa;
+  height: 12em;
+  width: 20em;
+  padding: 2px;
+  margin: 1em;
+  overflow: auto;
+}
+
+form .line-based .multiple_select input,
+form .line-based .multiple_select label,
+.multiple_select input,
+.multiple_select label { display: inline; margin: .2em; }
+
+.multiple_select, .multiple_select ul {
+  list-style-type: none;
+}
+
+.multiple_select_checkbox {
+  background: #fff;
+}
+
+.multiple_select ul { margin-left: 2em; }
+.multiple_select ul ul { margin-left: 2em; }
+.multiple_select ul ul ul { margin-left: 2em; }
+
+.alt {
+  background: #eef;
+}
+
+
+/* Notifications - messages, warnings */
+
+#notifications { position: absolute; width: 148.8%; height: 16px; margin-left: 6px; padding: 3px 3px 3px 22px; border: 1px solid #ddd; }
+ul.notices {}
+li.notice {display: inline; float: left; margin: 0px 3px;}
+li.notice p {color: red}
+
+
+.gmap { margin: 0.8em 0; }
+#listingSearchLines p.help { font-size: 90%; border-bottom: none; }
+td.bold p.help { font-weight: normal; }

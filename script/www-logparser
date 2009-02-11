@@ -1,0 +1,213 @@
+#!/usr/bin/env ruby
+require "rubygems"
+require "activesupport"
+require "date"
+require "time"
+require "uri"
+require "fastercsv"
+
+ENV["TZ"] = "UTC"
+
+ACCESS_LOG_REGEXP = %r{^([0-9a-fA-F]+|-)\s(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s\[(([0-3][0-9])/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/(\d{4})):((\d{2}):(\d{2}):(\d{2}))\s\+0{4}\]\s([^\s]+)\s"(GET|POST|HEAD|PUT|DELETE)\s(.+?)\sHTTP/\d\.\d"\s(\d{3})\s(\d+|-)\s"(-|(?:https?|ftp)://[^"]+)"\s"(-|[^"]+)"\s(\d+)$}
+HITS    = "hits"
+ASSETS  = "assets"
+FAVICON = "favicon"
+MISC    = "misc"
+OTHER   = "other"
+ADMIN   = "admin"
+
+# Groups:
+#  0. Full match
+#  1. Session ID
+#  2. Requestor's IP
+#  3. Date of request (UTC)
+#  4. Day of request (01-31)
+#  5. Month of request (Jan, Feb, etc.)
+#  6. Year of request (4 digits)
+#  7. Time of request (UTC)
+#  8. Hour of request
+#  9. Minute of request
+# 10. Second of request
+# 11. Request domain (Host header)
+# 12. Request method (HEAD|GET|POST|PUT|DELETE)
+# 13. URL (with query parameters)
+# 14. Response code
+# 15. Response length (Content-Length header, in bytes, possibly "-")
+# 16. Referrer (possibly "-")
+# 17. User-Agent (possibly "-")
+# 18. Response duration (time it took to answer the request)
+
+def usage
+  puts <<-EOF
+USAGE:  script/www-logger [--start DATE] [--end DATE] [--verbose | -v] [--domain | -D DOMAIN_OR_REGEXP]
+
+Where:
+    --verbose     Report validation errors
+    --domain      Include only this domain.  May be a regular expression (which is identified by //)
+                  May be repeated one or more times
+    --start       Include hits starting on this date, midnight UTC
+    --end         Stop if a hit occurs after midnight UTC this date
+  EOF
+end
+
+options = {:domains => []}
+verbose = false
+ARGV.each_with_index do |arg, index|
+  case arg
+  when /^--(start|end)$/
+    options[$1.to_sym] = Time.parse(ARGV[index+1])
+  when /^(--verbose|-v)$/
+    verbose = true
+  when /^(--domain|-D)$/
+    if ARGV[index+1].include?("/") then
+      options[:domains] << Regexp.new(ARGV[index+1][1..-2])
+    else
+      options[:domains] << ARGV[index+1]
+    end
+  when /^(--help|-h)$/
+    usage
+    exit
+  end
+end
+
+if options[:domains].empty? then
+  matcher = Object.new
+  class << matcher
+    def any?
+      true
+    end
+  end
+  options[:domains] = matcher
+end
+
+valid_time_range = if options[:start] && options[:end] then
+  (options[:start] .. options[:end])
+elsif options[:end] then
+  (Time.utc(0) .. options[:end])
+elsif options[:start] then
+  (options[:start] .. Time.local(2030, 12, 31, 23, 59, 59))
+else
+  (Time.utc(0) .. Time.local(2030, 12, 31, 23, 59, 59))
+end
+
+lineno = 0
+report = Hash.new {|h, k| h[k] = Hash.new {|h0, k0| h0[k0] = 0}}
+
+total_hits = 0
+FCSV do |out|
+  out << %w(Domain Hits Assets Admin Favicon Misc Other Non-Assets %\ Total)
+
+  last_timestamp = last_valid_timestamp = nil
+
+  while line = STDIN.gets
+    lineno += 1
+    match = line.match(ACCESS_LOG_REGEXP)
+    unless match then
+      $stderr.puts "#{lineno}: missed REGEXP (#{line})" if verbose
+      next
+    end
+
+    domain = match[11].sub(/^www[.]/, "")
+    next unless options[:domains].any? {|d| d === domain}
+
+    uri = nil
+    begin
+      url = "http://"
+      url += domain.gsub("_", "-")
+      url += "/" unless match[13][0, 1] == "/"
+      url += match[13]
+      # Fix incorrectly encoded URIs:  many pages don't encode the vertical bar (|) as %7C, as they should
+      url.gsub!("|", "%7C")
+      uri = URI.parse(url)
+    rescue URI::InvalidURIError
+      if url[/"/] then
+        # We make a best effort to parse the thing -- remove everything after the first quote
+        url = url.split(/\\?"/, 2).first
+        begin
+          uri = URI.parse(url)
+        rescue URI::InvalidURIError
+          # We made a good effort, fail for real
+          $stderr.puts "#{lineno}: invalid URI (#{url})" if verbose
+          next
+        end
+      else
+        next
+      end
+    end
+
+    last_timestamp = timestamp = Time.parse(match[3] + " " + match[7])
+    if lineno % 1000 == 0 then
+      if valid_time_range.include?(timestamp) then
+        STDERR.print "."
+      else
+        STDERR.print "<"
+      end
+      STDERR.flush
+    end
+
+    break if timestamp > valid_time_range.last
+    next unless valid_time_range.include?(timestamp)
+
+    last_valid_timestamp = timestamp
+
+    total_hits += 1
+    report[uri.host][HITS]      += 1
+    case uri.path
+    when /^\/z\//, /\d+\/download$/
+      report[uri.host][ASSETS]  += 1 
+    when /^\/favicon.ico$/
+      report[uri.host][FAVICON] += 1 
+    when /^\/admin\//
+      report[uri.host][ADMIN]   += 1 
+    when /(?:^\/(?:stylesheets|javascripts|robots\.txt))|(?:(?:css|js)$)/
+      report[uri.host][MISC]    += 1 
+    else
+      report[uri.host][OTHER]   += 1
+    end
+  end
+
+  total_hits = total_hits.to_f
+  report.each do |domain, data|
+    non_assets = data[ADMIN] + data[FAVICON] + data[MISC] + data[OTHER]
+    out << [domain, data[HITS], data[ASSETS], data[ADMIN], data[FAVICON], data[MISC], data[OTHER], non_assets, "%.5f" % [data[HITS] / total_hits]]
+  end
+end
+
+STDERR.puts
+
+require "erb"
+
+topdomains = report.sort_by {|domain, data| data[HITS]}.reverse[0, 10]
+week = (Date.today - 1).strftime("%B %e, %Y")
+template = <<EOF
+<table class="data">
+  <caption>Traffic per hosted domain on <a href="http://xlsuite.com/">XLsuite.com</a> &mdash; Week ending <%= week %></caption>
+  <thead>
+    <tr>
+      <th rowspan="2">Position</th>
+      <th rowspan="2">Domain</th>
+      <th colspan="2">Hits</th>
+      <th rowspan="2">Percentage of<br>total traffic</th>
+    </tr>
+    <tr>
+      <th>Pages</th>
+      <th>Assets</th>
+    </tr>
+  </thead>
+  <tbody>
+<% topdomains.each_with_index do |(domain, data), index| %>
+    <tr>
+      <td class="ordinal"><%= index + 1 %></td>
+      <td><a href="http://<%= domain %>/"><%= domain %></a></td>
+      <td class="number"><%= data[HITS] %></td>
+      <td class="number"><%= data[ASSETS] %></td>
+      <td class="percentage"><%= "%.2f%%" % [data[HITS] / total_hits * 100.0] %></td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<p>NOTE: The pages column above includes hits on the administration interface.</p>
+EOF
+
+STDERR.puts ERB.new(template, 0, "<>").result

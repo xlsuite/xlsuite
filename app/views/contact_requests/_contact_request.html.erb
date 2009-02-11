@@ -1,0 +1,12 @@
+<% content_tag(:li, :id => dom_id(contact_request)) do %>
+  <span class="from"><%= link_to_party(contact_request.party) %></span>
+  <span class="subject"><%= link_to_contact_request(contact_request) %></span>
+  <span class="when" title="<%= contact_request.created_at.to_s(:db) %>"><%= time_ago_in_words(contact_request.created_at) %></span>
+  <span class="actions">
+    <%= link_to_remote("Complete", :icon => :lightning,
+        :method => :put, :url => complete_contact_request_path(contact_request),
+        :loading => visual_effect(:appear, typed_dom_id(contact_request, :indicator))) \
+        if !contact_request.completed? && current_user? && current_user.can?(:edit_contact_requests) %>
+    <%= throbber(typed_dom_id(contact_request, :indicator)) %>
+  </span>
+<% end %>

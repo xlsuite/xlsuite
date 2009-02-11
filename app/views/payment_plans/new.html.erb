@@ -1,0 +1,6 @@
+<h2>Create New Payment Plan</h2>
+<% form_for :payment_plan, :url => payment_plans_path do |f| %>
+  <%= render :partial => "form", :locals => {:f => f} %>
+  <%= submit_tag 'Create' %>
+  <%= link_to 'Cancel', payment_plans_path %>
+<% end %>

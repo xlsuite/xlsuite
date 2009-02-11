@@ -1,0 +1,1 @@
+page << "xl.createTab('#{@_request_uri}')"

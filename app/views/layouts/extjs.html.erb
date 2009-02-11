@@ -1,0 +1,38 @@
+<%= render :partial => "shared/doctype" %>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="shortcut icon" href="<%= render_favicon_url %>" type="image/x-icon" />
+  <%= render :partial => "shared/extjs_head" %>
+  <%#= open_last_incoming_request_tab %>
+  
+</head>
+<body>
+  <div id="north" align="center">
+    <%= render :partial => "shared/header_row" %>
+  </div>
+
+  <!--DIVS FOR WEST PANEL!-->
+  <div id="mailPanel" class="panel-container"></div>
+  <div id="myHistoryPanel" class="panel-container"></div>
+  <div id="myEmailLabelsPanel" class="panel-container"></div>
+  <div id="myFeedsPanel" class="panel-container"></div>
+  <div id="quickEntryPanel" class="panel-container-with-yscroll">
+    <%= render :partial => "quick_entries/form"%>
+  </div>
+  <div id="mySavedSearchesPanel" class="panel-container-with-yscroll">
+    <%= render :partial => "search/saved_searches"%>
+  </div>
+  
+  <!--DIVS FOR EAST PANEL!-->
+  <div id="recordMessagesPanel" class="panel-container"></div>
+  <div id="recordFilesPanel" class="panel-container"></div>
+  <div id="recordPaymentsPanel" class="panel-container"></div>
+  
+  <div id="contact-list-ids" value=""></div>
+  <div id="current-displayed-iframe-source" value=""></div>
+
+  <div id="layout-center"></div>
+  
+  <div id="updaterDump"></div>
+</body>
+</html>

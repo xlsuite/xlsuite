@@ -1,0 +1,36 @@
+h1 { font-size: 250%; font-weight: bold; }
+h2 { font-size: 200%; font-weight: bold; }
+h3 { font-size: 167%; font-weight: bold; float: right; }
+h4 { font-size: 133%; font-weight: bold; float: right; clear: right; }
+h5 { font-size: 125%; font-weight: bold; margin-bottom: 1em; }
+
+.query { font-size: 50%; color: #ccc; }
+.query:hover { color: #333; }
+
+.listing { position: relative; clear: both; padding-top: 3em; }
+.results > .listing:first-child { padding-top: 0; }
+.details { float: left; margin-right: -260px; }
+.details .raw { position: absolute; top: .5em; left: .5em; width: 50em; height: 20em;
+      overflow: auto; background: #f6f6f6; border: 1px solid #8abb46; padding: .2em; }
+
+.details dt { float: left; width: 15em; clear: left; font-weight: bold; }
+.details dd { margin-left: 15em; width: 25em; text-align: justify; }
+.details dd p { line-height: 1.2; margin: 1em 0; }
+.details dd p:first-child { margin-top: 0; }
+.details dd.close { position: absolute; top: .2em; right: 0; }
+
+.gallery { float: right; clear: right; }
+.gallery .none a.fetch-photos { text-align: center; }
+.gallery .none a.fetch-photos span { display: block; }
+.gallery .none .progress_bar { margin: 0 auto; width: 240px; border: 1px solid #eee; padding: 2px; background: white; }
+.gallery .none .progress_bar > div { background: #8abb46; color: white; padding: 2px; text-align: center; }
+.gallery .none .progress-wrapper { position: relative; }
+.gallery .none .progress-wrapper .status { text-align: center; }
+.gallery .none .throbber { position: absolute; right: 10px; top: 4px; }
+
+.gallery .main img { display: block; margin: 0 auto; padding: 4px; border: 2px solid #8abb46; width: 240px; }
+.gallery .thumbnails { width: 256px; padding-top: .5em; }
+.gallery .thumbnails > div { float: left; margin: 2px; border: 1px solid transparent; padding: 1px; }
+.gallery .thumbnails > div.selected { border-color: red; }
+.gallery .thumbnails > div:hover { border: 2px solid blue; padding: 0; }
+.gallery .thumbnails > div img { display: block; margin: 0 auto; cursor: pointer; width: 75px; height: 75px; }

@@ -1,0 +1,2 @@
+<%= collection_multiple_select(:party, :denied_permission_ids, @available_permissions,
+    :id, :to_formatted_s, :selected_items => @party.denied_permissions) %>

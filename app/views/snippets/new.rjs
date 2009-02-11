@@ -1,0 +1,16 @@
+after_render = %Q`
+  newPanel.on('resize', function(comp)
+  {
+    bodyEditor.syncSize();
+  });
+`
+
+page << create_tab_using_ajax_response("Snippets | New", after_render) do
+%Q`
+  #{generate_save_close_cancel_toolbar(@snippet, snippets_path, snippets_path(:commit_type => "close"), {:page_to_open_after_new => edit_snippet_path(:id => "__ID__")})}
+
+  #{generate_form_panel}
+
+  newPanel.add(formPanel);
+`
+end

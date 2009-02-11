@@ -1,0 +1,39 @@
+johns_invoice:
+  id:               1661
+  payment_term_id: 1
+  invoice_to_id:      52 # John
+  invoice_to_type:    Party
+  account_id:       1
+  created_at:       2005-10-23
+  equipment_fee_cents:    7500
+  equipment_fee_currency:    CAD
+  transport_fee_cents:    7500
+  transport_fee_currency: CAD
+  number:             20051022
+  notes:            Thank you for your money!
+  date:             2005-10-23
+  pst_rate:         0
+  fst_rate:         0
+  created_at: <%= Time.now.to_formatted_s(:db) %>
+  updated_at: <%= Time.now.to_formatted_s(:db) %>
+  pst_name: pst_name
+  fst_name: fst_name
+  phone_number: 123456
+
+peters_invoice:
+  id:               1662
+  payment_term_id: 1
+  invoice_to_id:      53 # Peter
+  invoice_to_type:    Party
+  account_id:       1
+  created_at:       2005-10-23
+  number:             20051023
+  notes:            Thank you for your money!
+  date:             2005-10-23
+  pst_rate:         0
+  fst_rate:         0
+  created_at: <%= Time.now.to_formatted_s(:db) %>
+  updated_at: <%= Time.now.to_formatted_s(:db) %>
+  pst_name: pst_name
+  fst_name: fst_name
+  phone_number: 123456

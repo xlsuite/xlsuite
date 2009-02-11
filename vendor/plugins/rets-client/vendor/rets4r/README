@@ -1,0 +1,36 @@
+= RETS4R
+
+RETS4R provides a native Ruby interface to the RETS (Real Estate
+Transaction Standard). It currently is built for the 1.5 specification,
+but support for 1.7 and 2.0 are planned. It does not currently implement
+all of the specification, but the most commonly used portions.
+Specifically, there is no support for Update transactions.
+
+While this is the only "native" Ruby RETS library currently available
+(to my knowledge), there is another client written in C++ with Ruby
+bindings available from the Center for Realtor¨ Technology
+(http://www.crt.realtors.org/projects/rets/librets/).
+
+== Requirements
+
+* Ruby 1.8.4 
+* XML::Parser (Optional. If not present, REXML will be used.)
+
+== License
+
+Please see the LICENSE file.
+
+== Acknowledgments
+
+This project was made possible by the Contra Costa Association of
+Realtors¨ (http://www.ccartoday.com).
+
+== Getting Started
+
+Take a look at the examples directory. You'll find it more helpful than
+the unit tests because the unit tests work off of local files and mock
+objects, rather than making real transaction calls.
+
+Due to the nature of this library, it is HIGHLY recommended that you
+have at least a basic understanding of the RETS protocol. The official
+RETS website is http://www.rets.org.

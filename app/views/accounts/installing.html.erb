@@ -1,0 +1,113 @@
+<% content_for :js do %>
+  <script src="/javascripts/jquery/jquery-latest.js"></script>
+  <script src="/javascripts/jquery/jqueryprogressbar.js"></script>
+  <script type="text/javascript" src="http://ui.jquery.com/testing/ui/ui.core.js"></script>
+
+  <script type="text/javascript">
+    var getFutureIdsTimerId = 0;
+    var getFuturesStatusId = 0;
+    var errored = 0; 
+    var MAX_RETRY = 2;
+    var CONN_FAIL_MSG = "Proper connection to the server could not be established. <a href='#' onclick='resume();return false;'>Resume</a>";
+    
+    var updateProgressBar = function(value, text){
+      $("#progressbar").reportprogress(value); 
+      document.getElementById("progressText").innerHTML = "<h2>"+text+"</h2>";
+    };
+    
+    var resume = function(){
+      document.getElementById("errorMessage").innerHTML = "";
+      getFuturesIds();
+    };
+    
+    var getFuturesIds = function(){
+      $('#throbber').show();
+      updateProgressBar(0, "Connecting...");
+      $.ajax({
+        type:"GET", 
+        dataType: 'json',
+        url: <%= async_get_future_as_json_future_path(@account_template_future).to_json %>,
+        success: function(json){
+          if(json.isCompleted){
+            updateProgressBar(0, "Starting...");
+            clearInterval(getFutureIdsTimerId);
+            setTimeout(function(){getFuturesStatusId = setInterval(function(){getFuturesStatus(json.results.future_ids.join());}, 1000);}, 1000);
+          }
+        },
+        error: function(json){
+          if (errored >= MAX_RETRY ) {
+            document.getElementById("errorMessage").innerHTML = CONN_FAIL_MSG;
+            $('#throbber').hide();
+            clearInterval(getFutureIdsTimerId);
+            errored = 0;
+          }
+          else {
+            errored = errored + 1;
+          }
+        }
+      });
+    };
+    
+    var getFuturesStatus = function(ids){
+      $.ajax({
+        type:"GET",
+        dataType: 'json',
+        url: <%= async_get_futures_as_json_futures_path.to_json %>,
+        data: "ids="+ids,
+        success: function(json){
+          if (json.isCompleted) {
+            updateProgressBar(100, "Finished");
+            document.getElementById("errorMessage").innerHTML = "Your account is ready, please wait while we redirect you to the Admin panel...";
+            clearInterval(getFuturesStatusId);
+            setTimeout("window.location = 'http://<%= current_domain.name %>/admin'", 4000);
+          }
+          else {
+            var text = "0%"
+            if(json.progress)
+              text = Math.round(json.progress).toString() + "%";
+            updateProgressBar(json.progress, "Querying...");
+          }
+        },
+        error: function(json){
+          if (errored >= MAX_RETRY) {
+            document.getElementById("errorMessage").innerHTML = CONN_FAIL_MSG;
+            $('#throbber').hide();
+            clearInterval(getFuturesStatusId);            
+            document.getElementById("progressText").innerHTML = "";
+            errored = 0;
+          }
+          else {
+            errored = errored + 1;
+          }
+        }
+      });
+    };
+  
+    $(document).ready(function(){  
+      $("#progressbar").reportprogress(0);
+      getFutureIdsTimerId = setInterval(getFuturesIds, 1000);
+    });
+    
+  </script>
+<% end %>
+
+<% content_for :css do %>
+  <%= cached_stylesheet_link_tag "accounts/confirm.css" %>
+<% end %>
+
+<div align="center">
+  <div id="content">
+   
+    <div id="left">
+      <h1><%= @parent_domain.name %></h1>
+    </div>
+   
+    <div id="right">
+      <h2>Account Installation</h2>
+      <div id="errorMessage"></div>
+      <div id="progressText"></div>
+	  <div id="progressbar"></div>
+	  <div id="throbber" style="display:none"><img src="/images/register-signup/loader.gif" /></div>
+    </div>
+  </div>
+</div>

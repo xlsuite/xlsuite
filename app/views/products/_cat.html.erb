@@ -1,0 +1,4 @@
+<%= options = {:indent => indent, :value => cat.id, :class => "indent#{indent}"}
+    options[:selected] = 'selected' if cat.id == (selected.id rescue nil)
+    content_tag('option', h(cat.name(!recurse)), options) %>
+<%= render :partial => 'cat', :collection => cat.children.find(:all, :order => 'name'), :locals => {:indent => indent+1, :recurse => recurse, :selected => (selected rescue nil)} if recurse -%>

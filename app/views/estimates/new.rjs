@@ -1,0 +1,102 @@
+page << create_tab_using_ajax_response("New Estimate") do
+%Q`
+  var prefix = "new";
+  
+  #{create_DateField}
+  #{create_InvoiceToButton}
+
+  var estimateLineType = "";
+
+  var statusStore = new Ext.data.SimpleStore({
+    fields: ['value'],
+    data: [#{edit_estimate_status_selections}]
+  });
+
+
+  var wrapperPanel = new Ext.Panel({
+    autoScroll: true,
+    id: prefix + '.layout.formPanel',
+    width: '100%',
+    layout: 'table',
+    layoutConfig: {
+      columns: 3
+    },
+    items: [
+    {
+      html: '<h2 class="page_header">New Estimate</h2>',
+      colspan: 3
+    },
+    {
+      html: #{render_inside_panel_notifications_container.to_json},
+      colspan: 3
+    },
+    {
+      layout: 'form',
+      layoutConfig: { columns: 1 },
+      labelAlign: "top",
+      items: [
+      DateField, 
+      {
+        style: 'padding-top: 15px;',
+        html: 'Invoice to: #{content_tag :div, @estimate.invoice_to ? @estimate.invoice_to.display_name : "", :id => "new_estimate_invoice_to"}'
+      },
+      InvoiceToButton, 
+      HiddenInvoiceToIdField,
+      HiddenInvoiceToTypeField,
+      { style: 'padding-top: 15px;' },
+      xl.widget.FormField({ 
+        displayField: 'value', 
+        valueField: 'value',
+        fieldLabel: 'Status',
+        name: 'estimate[status]', 
+        type: 'combobox', 
+        store: statusStore, 
+        editable : false,
+        triggerAction: 'all',
+        mode: 'local',
+        value: "Unfulfilled"
+      })]
+    },
+    {
+      html: #{render(:partial => 'new').to_json}
+    }
+
+    ]
+  });
+  
+  var generateTotalsToolbar = function() {
+    var toolbar = new Ext.Toolbar({
+      autoWidth: true,
+      items: [{
+        text: "<div class='subtotal totals'>SubTotal: <span id='#{typed_dom_id(@estimate, :subtotal)}'>#{@estimate.subtotal_amount}</span></div>"
+      },{
+        text: "<div class='total totals'>Total: <span id='#{typed_dom_id(@estimate, :total)}'>#{@estimate.total_amount}</span></div>"
+      }]  // end items
+    });
+    return toolbar;
+  }; 
+  
+  
+  var formPanel = new Ext.FormPanel({
+    items: [
+      wrapperPanel
+    ],
+    buttons: [{
+        text: 'Submit',
+        handler: function(me, event){
+            formPanel.getForm().doAction('submit',
+              {url: #{estimates_path.to_json}})
+          }
+      },{
+        text: "Cancel",
+        handler: function(me, event){
+            xl.closeTabPanel('estimates_new_nil')
+          }
+      }]
+  });
+  
+  newPanel.add(formPanel);
+  
+ 
+`
+end

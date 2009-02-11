@@ -1,0 +1,39 @@
+<% content_for(:js) do -%>
+  <%= javascript_include_tag "xl_suite/extjs/PageSizePlugin.js" %>
+<% end -%>
+
+
+<%= error_messages_for 'filter' %>
+<p>
+  Name: <%= text_field_tag "filter[name]", @filter.name%>
+</p>
+<p>
+  Description: <%= text_area_tag "filter[description]", @filter.description%>
+</p>
+
+<br class="clear" />
+
+<% if @filter.filter_lines.blank?
+		@filter.filter_lines << FilterLine.new %>
+<% end %>
+<% label = @filter.email_label.blank? ? nil : @filter.email_label.id%>
+  <div class="subPanelSection">
+    <div class="subPanelHeader">
+      <%= hidden_field_tag :num_of_filter_line, @filter.filter_lines.length %>
+      <%= link_to_function "Add Filter line", "addFilterLine()" %>
+    </div>
+    <div id="filter_line_fieldsets">
+      <% i = 0%>
+      <% for line in @filter.filter_lines %>
+      <% i += 1 %>
+      <%= render :partial => '/filters/filter_line', :object => line, :locals => {:filter_line_index => i} %>
+      <% end %>
+    </div>  
+  </div>
+ <p>Put into label: <%= select_tag("filter[email_label_id]", email_labels_selections(label), {:onchange=>"showNewLabelForm(this)", :id=>"label_selections"})%></p>
+
+<div id="new_label_form" style="display:none">
+  <%= text_field_tag("email_label[name]", nil) %>
+  <%= submit_to_remote 'new_filter', 'Create New Label', {:url => email_labels_path, :method => :post}%>
+</div>
+<br class="clear" />

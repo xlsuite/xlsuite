@@ -1,0 +1,12 @@
+<% if current_user? && current_user.can?(:edit_party) then -%>
+  <% form_tag(testimonials_path, :method => :get) do %>
+    <p>
+      <label for="filter">Filter:</label>
+      <%= select_tag(:filter, options_for_select(%w(approved unapproved rejected all).map(&:titleize), @filter.to_s.titleize || "Approved")) %>
+      <%= submit_tag "Filter", :name => nil %>
+    </p>
+  <% end -%>
+<% end -%>
+<ol id="testimonials">
+  <%= render :partial => @testimonials %>
+</ol>

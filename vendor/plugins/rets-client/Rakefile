@@ -1,0 +1,15 @@
+require "rubygems" rescue nil
+require "spec/rake/spectask"
+
+task :default => :examples
+
+Spec::Rake::SpecTask.new :examples do |t|
+  t.libs << File.expand_path("lib")
+  t.libs << File.expand_path("examples")
+  t.libs << File.expand_path("vendor/rets4r/lib")
+  t.pattern = "examples/*_spec.rb"
+  t.spec_opts = %w(--colour --format progress --format html:examples.html
+      --format failing_examples:previous_failures.txt
+      --example previous_failures.txt
+      --loadby mtime --reverse)
+end

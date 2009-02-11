@@ -1,0 +1,9 @@
+<% id = @future.id %>
+<h2>Processing <%= @future.class.name.underscore.gsub('future', '').humanize.capitalize %></h2>
+<br />
+<p>
+  Status: <span id="status_for_future_<%=id%>"><%= h(@future.status.humanize) %></span>&nbsp;&nbsp;&nbsp;
+  <span id="progress_for_future_<%=id%>"><%=@future.progress%></span>%
+  <%= throbber("throbber_for_future_#{id}") %>
+</p>
+<p>Elapsed time: <span id="elapsed_for_future_<%=id%>"><%= h(@future.started_at ? time_ago_in_words(@future.started_at, true) : "0 seconds") %></span></p>

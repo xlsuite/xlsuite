@@ -1,0 +1,11 @@
+<%= javascript_tag %Q(#{
+@extras.map do |field|
+  value = if field =~ /_\d+_(\w+)$/ then
+            @item.send($1)
+          else
+            @item.send(field) rescue @item.estimate.send(field)
+          end
+"$('#{field}').innerHTML = '#{format_value(value)}';"
+end.join("\n")
+}) unless @extras.empty? -%>
+<%= format_value(@value) %>

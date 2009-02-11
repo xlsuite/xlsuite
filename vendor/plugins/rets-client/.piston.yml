@@ -1,0 +1,8 @@
+--- 
+format: 1
+handler: 
+  piston:remote-revision: 13332
+  piston:uuid: bacab573-a924-0410-b505-ece3e248c36b
+lock: 
+repository_url: https://svn.xlsuite.org/internal/rets-client/trunk
+repository_class: Piston::Svn::Repository

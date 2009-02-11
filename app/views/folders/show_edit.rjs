@@ -1,0 +1,1 @@
+page.insert_html :after, 'insert_edit_folder_form', :partial => "edit"

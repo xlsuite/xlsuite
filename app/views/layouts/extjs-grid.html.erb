@@ -1,0 +1,12 @@
+<!--this layout is for pages with only an extjs grid as the content!-->
+<%= render :partial => "shared/doctype" %>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <%= render :partial => "shared/head" %>
+    <%= render_using_extjs_layout %>
+    <%= disable_iframe_scrolling %>
+  </head>
+  <body>
+    <%= yield %>      
+  </body>
+</html>

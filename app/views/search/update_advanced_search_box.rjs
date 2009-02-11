@@ -1,0 +1,23 @@
+page.hide("searchConsole")
+page['num_of_search_line'].value = @search_lines.size
+page['num_of_sort_by_line'].value = @sort_lines.size
+page.replace_html 'search_line_fieldsets', ""
+page.replace_html 'sort_by_line_fieldsets', ""
+search_line_option = ["Starts with", "Ends with", "Contains", "Equals"]
+for i in 1..@search_lines.size
+  page.insert_html :bottom, 'search_line_fieldsets', :partial => '/search/search_line', :locals => {:search_line_index => i}
+  page["search_line_subject_name#{i}"].value = @search_lines[i-1].subject_name
+  page["search_line[#{i}][subject_option]"].selectedIndex = search_line_option.index(@search_lines[i-1].subject_option)
+  page["search_line[#{i}][subject_value]"].value = @search_lines[i-1].subject_value
+  page["search_line[#{i}][subject_exclude]"].checked = "true" unless @search_lines[i-1].subject_exclude.blank?
+end
+for i in 1..@sort_lines.size
+  page.insert_html :bottom, 'sort_by_line_fieldsets', :partial => '/search/sort_by_line', :locals => {:sort_by_line_index => i}
+  page["sort_by_order_name#{i}"].value = @sort_lines[i-1].order_name
+  # the default order mode is "ASC"
+  page << "toggleSortByOrderMode(#{i})" if @sort_lines[i-1].order_mode != "ASC"   
+end
+page['saved_search_name'].value = @saved_search.name
+page['saved_search_description'].value = @saved_search.description
+page.show("searchConsole")
+page.show("saved_advanced_search_dialog")

@@ -1,0 +1,9 @@
+.feeds {width:100%; font-size: 11px;}
+.feeds td { padding: 4px; }
+.feeds th { border-right: 1px solid #fff; padding-left: 4px; }
+.feeds th.lastHeader { border-right: none; }
+.feeds thead.tableheader { padding: 6px; background:#8BA075 }
+.feeds thead.tableheader th {font: 11px Verdana, sans-serif; font-weight: bold;  padding: 4px; color: #fff;}
+.feeds tr.bg { background: #F5F5DC; }
+.feeds tr.bg td { border-right: 1px solid #fff; }
+.feeds td a {display:inline;}

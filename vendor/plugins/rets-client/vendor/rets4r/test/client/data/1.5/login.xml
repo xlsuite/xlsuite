@@ -1,0 +1,16 @@
+<RETS ReplyCode="0" ReplyText="Login Request">
+<RETS-RESPONSE>
+MemberName=Spiffy Realtor
+User=srealtor,1,11,11111
+Broker=1,2
+MetadataVersion=1.1.1
+MinMetadataVersion=1.0.0
+TimeoutSeconds=1200
+Action=/rets/ActionURL
+GetMetadata=/rets/GetMetadata
+GetObject=/rets/GetObject
+Login=/rets/Login
+Logout=/rets/Logout
+Search=/rets/Search
+</RETS-RESPONSE>
+</RETS>

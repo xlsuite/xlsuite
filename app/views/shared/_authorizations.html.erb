@@ -1,0 +1,12 @@
+<% content_tag(:div, :class => @class_name) do %>
+  <span class="label">These groups can <span>read</span> this <%= @object_type %>:</span>
+  <%= throbber(typed_dom_id(@object, :reader_ids, :indicator), :class => "authorization_throbber") %><br/>
+  <%= collection_multiple_select(@object_type, :reader_ids, @available_groups,
+      :id, :to_s, :selected_items => @object ? @object.readers : nil)  %>
+<% end -%>
+<% content_tag(:div, :class => @class_name) do %>
+  <span class="label">These groups can <span>edit</span> this <%= @object_type %>:</span>
+  <%= throbber(typed_dom_id(@object, :writer_ids, :indicator), :class => "authorization_throbber") %><br/>
+  <%= collection_multiple_select(@object_type, :writer_ids, @available_groups,
+      :id, :to_s, :selected_items => @object ? @object.writers : nil) %>
+<% end -%>

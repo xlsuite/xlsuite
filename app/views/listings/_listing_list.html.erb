@@ -1,0 +1,14 @@
+<tr class="<%= cycle('', 'bg') %>">
+  <td>
+    <%= check_box_tag "listing_ids[]", listing_list.id %>
+    <%= link_to_function(h(listing_list.mls_no), "parent.xl.createTab('#{edit_listing_path(listing_list)}')") %>
+  </td>
+  <% title = listing_list.tag_list.blank? ? "" : h(listing_list.tag_list) %>
+  <td><%= link_to_function(h(listing_list.address ? listing_list.address.line1 : ""), "parent.xl.createTab('#{listing_path(listing_list)}')", :title => "Tags: " + title) %></td>
+  <td><%= listing_list.area %></td>
+  <td><%= listing_list.city %></td>
+  <td><%= listing_list.style %></td>
+  <td><%= render_listing_column(listing_list.bedrooms, listing_list.bathrooms) %></td>
+  <td><%= listing_list.size %></td>
+  <td><%= render_listing_price(listing_list.price) %></td>
+</tr>

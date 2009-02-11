@@ -1,0 +1,5 @@
+<ul>
+  <%= @objects.map do |o|
+    content_tag(:li, highlight(h(o.to_s), @q), :id => o.dom_id)
+  end.join("\n") %>
+</ul>

@@ -1,0 +1,13 @@
+<h2>Site Import</h2>
+<form id="siteImportForm" action="<%=site_imports_path%>" method="POST" class="listCombinedView" onsubmit="$('siteImportForm').request({ method: 'post', onFailure: xl.logXHRFailure }); return false;">
+  <p><label>Site root to import from</label>:<br/>
+  <%= text_field :site, :root, :size => 80 %></p>
+  <label>Only import pages whose fullslug matches this: </label>
+  <%= text_field :site, :slug_match %></p>
+  <p><label>Site's Title</label>:<br/>
+  <%= text_field :site, :title %></p>
+  <p><label>Domain Patterns to apply</label>:<br/>
+  <%= text_area :site, :domain_patterns, :size => "60x2" %></p>
+
+  <p><%= submit_tag "Go" %></p>
+</form>

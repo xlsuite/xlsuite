@@ -1,0 +1,32 @@
+<% folder_id = @folder.blank? ? (@asset.folder.blank? ? nil : @asset.folder.id) : @folder.id %>
+
+<% labelled_fields_for(:asset, @asset) do |f| %>
+  <%= f.select(:folder_id, folder_selections, :selected => folder_id, :label => "Uploading to this folder") %>
+  <%= f.file_field :uploaded_data, :label => @asset.new_record? ? "File" : "Replace file with", :size => 80, :class=> "text" %>
+  <div>
+    <%= f.check_box :zip_file, :label => "Unzip after uploading" %>
+  </div>
+  <div id="assets_edit_options">
+  	<%= f.text_field :title, :class=> "text" %>
+	<%= f.text_area :description, :rows => 5 %>
+  </div>
+  <div id="assets_edit_tags">
+  	<div class="auto_completer">
+          <%= f.text_area_with_auto_complete :tag_list, :url => auto_complete_tag_assets_path, :rows => 3, :label => "Tag List (applies to unzipped files as well)" %>
+     <%= tag_cloud(@asset, @common_tags, :apply_to => "asset_tag_list") %>
+   </div>
+  </div>
+
+  <div class="assets_groupBox clear">
+  <span class="label">These groups can view this asset:</span><br/>
+  <%= collection_multiple_select(:asset, :reader_ids, @available_groups,
+      :id, :to_s, :selected_items => f.object ? f.object.readers : nil)  %>
+  </div>
+
+  <div class="assets_groupBox">
+  <span class="label">These groups can edit this asset:</span><br/>
+  <%= collection_multiple_select(:asset, :writer_ids, @available_groups,
+      :id, :to_s, :selected_items => f.object ? f.object.writers : nil)  %>
+  </div>
+ <br class="clear" />
+<% end -%>

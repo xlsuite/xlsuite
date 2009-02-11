@@ -1,0 +1,43 @@
+== 1.1.0 / 2007-10-12
+
+* Paginator now mixes in Enumerable (supporting inject, etc, on pages)
+* Page now mixes in Enumerable (supporting inject, etc, on items)
+
+== 1.0.9 / 2007-02-17
+
+* Modified Pager#number_of_pages to support mathn's monkeypatching of Fixnum#/
+  * Thanks, Paul King!
+
+== 1.0.8 / 2006-11-02
+
+* Added <tt>Page#first_item_number</tt> and <tt>Page#last_item_number</tt>
+  * Thanks, Quannon Au!
+
+== 1.0.6 / 2006-11-02
+
+* Added each_with_index to Paginator and Page classes
+
+== 1.0.5 / 2006-10-27
+
+* Fix to Rakefile (addresses #6304)
+
+== 1.0.4 / 2006-10-27
+
+* Documentation fix
+
+== 1.0.3 / 2006-10-26
+
+* Documentation fix
+
+== 1.0.2 / 2006-10-25
+
+* If the block passed during Paginator has an arity of 1, the number
+  of items per page will not be yielded to the block.
+
+== 1.0.1 / 2006-10-24
+
+* Made Paginator#page more accepting, and set it to default to 1
+
+== 1.0.0 / 2006-10-23
+
+* Initial release

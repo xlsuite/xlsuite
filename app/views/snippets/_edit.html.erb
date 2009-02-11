@@ -1,0 +1,5 @@
+<div class="ipage">
+  <% remote_form_for(:snippet, @snippet, :url => snippet_path(@snippet), :html => {:method => :put}) do |f| %>
+  <%= render :partial => "form" %>
+  <% end -%>
+</div>

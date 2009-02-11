@@ -1,0 +1,42 @@
+<% if list_record_emails.class != ContactRequest %>
+<% email = list_record_emails %>
+<% unread = false %>
+<% unread = unread || email.tos.reject{ |to| (to.party_id == current_user.id && !to.read_at?)}.blank? unless email.tos.blank?%>
+<% unread = unread || email.ccs.reject{ |cc| (cc.party_id == current_user.id && !cc.read_at?)}.blank? unless email.ccs.blank?%>
+<% unread = unread || email.bccs.reject{ |bcc| (bcc.party_id == current_user.id && !bcc.read_at?)}.blank? unless email.bccs.blank?%>
+<% sender_name = (email.sender && !email.sender.name.blank?) ? email.sender.name : "Anonymous" %>
+
+<div class="<%= cycle('mail-column', 'mail-column-bg', :name => 'record_mail_column_bg_switch') %>"
+  a onclick="emailOnClick(<%=email.id%>, '<%=email.mailbox%>'); return false;" href="#">
+  <li>
+  <% if unread %><b><% else %><span class="accordion-read-emails"><%end-%>
+  <%= truncate(h((email.subject.blank? ? "(no subject)" : email.subject )), 50)%>
+  <% if unread %></b><% else %></span><%end-%>
+  <% time = email.received_at ? email.received_at : email.sent_at %>
+  <% time_to_print = time.yday == Time.now.yday ? time.strftime("%a, %I:%M%p") : time.strftime("%Y-%m-%d ") %>
+  <% sender = email.sender.party_id==current_user ? "Me" : sender_name %>
+  <% recipients = ""
+     recipients << " To: " + email.tos.to_formatted_s  unless email.tos.blank?
+     recipients << " CC: " + email.ccs.to_formatted_s  unless email.ccs.blank? %>
+  <li><%= recipients + "From " + sender + " on " + time_to_print.to_s %>
+</div> 
+
+<% else %>
+<% contact_request = list_record_emails %>
+<% unread = !contact_request.completed? %>
+<% sender_name = contact_request.name? ? contact_request.name : (contact_request.party ? contact_request.party.name.to_s : "Anonymous") %>
+
+<div class="<%= cycle('mail-column', 'mail-column-bg', :name => 'record_mail_column_bg_switch') %>"
+  a onclick="xl.openNewTabPanel('contact_requests_show_<%=contact_request.id%>', '<%=contact_request_path(:id => contact_request.id) %>')" href="#">
+  <li>
+    <% if unread %><b><% else %><span class="accordion-read-emails"><%end-%>
+    <%= truncate(h((contact_request.subject.blank? ? "(no subject)" : contact_request.subject )), 50)%>
+    <% if unread %></b><% else %></span><%end-%>
+  </li>
+    <% time = contact_request.created_at %>
+    <% time_to_print = time.yday == Time.now.yday ? time.strftime("%a, %I:%M%p") : time.strftime("%Y-%m-%d ") %>
+  <li>
+    <%= "<u>Contact Request</u> From " + sender_name + " on " + time_to_print.to_s %>
+  </li>
+</div>
+<% end -%>

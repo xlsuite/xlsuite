@@ -1,0 +1,10 @@
+page << refresh_grid_datastore_of("contact_requests")
+page << update_notices_using_ajax_response(:on_root => true)
+
+@destroyed_parties_id.each do |id|
+  page << "xl.closeTabs('parties_edit_#{id}');"
+end
+
+@destroyed_items_id.each do |id|
+  page << "xl.closeTabs('contact_requests_show_#{id}');"
+end

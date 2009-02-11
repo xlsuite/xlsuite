@@ -1,0 +1,55 @@
+#!/usr/bin/env ruby
+
+require "rubygems"
+require "yaml"
+require "open4"
+include Open4
+
+TIMEOUT = 20
+REPETITIONS = 5
+CONCURRENCIES = [1, 2, 4, 8]
+
+class Array
+  def search(regexp)
+    grep(regexp).to_s
+  end
+end
+
+SERVERS = {
+  "EY Prod." => "http://xlsuite.ey.teksol.info/"
+}
+
+REPORT = []
+SERVERS.each_pair do |name, url|
+  CONCURRENCIES.each do |concurrency|
+    $stderr.print "#{name} / #{concurrency}:\t"
+    REPETITIONS.times do |rep|
+      pid, stdin, stdout, stderr = popen4("ab", "-t", TIMEOUT.to_s, "-c", concurrency.to_s, url)
+      _, cmdstatus = Process.waitpid2(pid)
+      hash = {"name" => name, "concurrency" => concurrency, "rawout" => stdout.read, "rawerr" => stderr.read, "rep" => rep}
+      REPORT << hash
+      if cmdstatus.success? then
+        output = hash["rawout"].split("\n")
+        hash["time"] = output.search(/Time taken for tests/i).split(":").last.split(" ").first.to_f
+        hash["complete"] = output.search(/Complete requests/i).split(":").last.to_i
+        hash["failed"] = output.search(/Failed requests/i).split(":").last.to_i
+        hash["req/sec"] = output.search(/Requests per second/i).split(":").last.split(" ").first.to_f
+        hash["50%"] = output.search(/50%/i).strip.split(/\s+/).last.to_i
+        hash["75%"] = output.search(/75%/i).strip.split(/\s+/).last.to_i
+        hash["100%"] = output.search(/100%/i).strip.split(/\s+/)[1].to_i
+        $stderr.printf("%.1f\t", hash["req/sec"])
+      else
+        hash["time"] = hash["complete"] = hash["failed"] = hash["req/sec"] = hash["50%"] = hash["75%"] = hash["100%"] = "FAILED"
+        $stderr.print "FAILED\t"
+      end
+    end
+
+    $stderr.puts
+  end
+end
+
+File.open("report.yml", "wb") {|f| f.write REPORT.to_yaml}
+puts ["name", "concurrency", "rep", "time", "complete", "failed", "req/sec", "50%", "75%", "100%"].join(",")
+REPORT.each do |row|
+  puts [row["name"], row["concurrency"], row["rep"], row["time"], row["complete"], row["failed"], row["req/sec"], row["50%"], row["75%"], row["100%"]].join(",")
+end

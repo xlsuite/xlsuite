@@ -1,0 +1,11 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+book_test_one_author:
+  id: 1
+  classification: Author
+  book_id: 1
+  party_id: 1
+book_test_one_translator:
+  id: 2
+  classification: Translator
+  book_id: 1
+  party_id: 1

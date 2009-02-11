@@ -1,0 +1,13 @@
+#lib-bar {
+    position:absolute;
+    top:0;
+    right:10px;
+    z-index:100;
+    visibility:hidden;
+}
+#lib-bar-inner {
+    padding:4px;
+}
+#lib-bar * {
+    font-size:11px;
+}

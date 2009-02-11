@@ -1,0 +1,819 @@
+underbarLinks = link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('listings_new_nil', #{new_listing_path.to_json})")
+filenameRegExp = '/\.(\w+)$/';
+
+page << create_tab_using_ajax_response("Edit Publishing | #{@book.name}") do
+%Q`
+/***************
+ ** FUNCTIONS **
+ ***************/
+ 
+ var openDuplicateWindow = function(button, event) {
+   var numDuplicatesTextField = new Ext.form.TextField({
+     value: '1',
+     width: 40
+   });
+
+   var window = new Ext.Window({
+     autoHeight: true,
+     width: 175,
+     constrain: true,
+     resizable: false,
+
+     defaults: { style: 'padding: 0px;' },
+
+     items: [
+       {
+         layout: 'column',
+         items: [{
+           html: '<span>Make&nbsp;&nbsp;</span>'
+         },{
+           items: [numDuplicatesTextField]
+         },{
+           html: '<span>&nbsp;&nbsp;duplicate(s)</span>'
+         }]
+       } // end Panel
+     ],
+
+     defaultButton: 1,
+     buttons: [
+       {
+         text: 'Cancel',
+         handler: function() {
+           window.hide();  // This causes that nice animation
+           window.close(); // This destroys it
+         }
+       },
+       {
+         text: 'Duplicate',
+         handler: function(me, event) {
+           var params = {};
+           params['n'] = numDuplicatesTextField.getRawValue();
+
+           // Make the request to update the data db-side, and the response
+           // is the confirmation
+           Ext.Ajax.request({
+             url: #{duplicate_book_path(@book).to_json},
+             method: 'post',
+             parameters: params,
+             success: function(transport) {
+               response = Ext.util.JSON.decode(transport.responseText);
+
+               // Only proceed if it's an Array of ids
+               if (response instanceof Array) {
+                 var editUrl = #{edit_book_path(:id => "__ID__").to_json}
+                 response.each(function(id) {
+                   xl.openNewTabPanel('book_edit_' + id, editUrl.sub('__ID__', id));
+                 }); // end response.each
+
+                 window.hide();
+                 window.close();
+               } // end response instanceof Array
+             } // end onSuccess
+           }); // end Ajax.Request
+         } // end handler
+       } // end Add Button
+     ]
+   });
+
+   window.setPagePosition(event.getXY()[0] + 1, event.getXY()[1] + 1);
+   window.show(event.getTarget().id);
+ };
+ 
+var humanize = function(s, capitalize) {
+  var capitalize = capitalize || true;
+  var words = s.split('_');
+  if (capitalize) words = words.invoke('capitalize');
+  return words.join(' ');
+};
+
+ var doAsyncAddRelation = function(partyId, relationName, onSuccess) {
+   var params = {};
+   params['relation[party_id]'] = partyId;
+   params['relation_name'] = relationName;
+   xl.log(params);
+   xl.log(params['relation_name']);
+   xl.log(relationName);
+   
+   Ext.Ajax.request({
+     url: #{async_add_relation_book_path(@book).to_json},
+     params: params,
+     method: 'post',
+     success: onSuccess
+   });
+ };
+ 
+ var generateFilterToolbar = function(store, property, emptyText) {
+   var filterField = new Ext.form.TextField({
+     emptyText: emptyText || 'Type to filter',
+     validationDelay: 5,
+     validator: function(value) {
+       xl.log('Filtering by: ' + value);
+       if (value != '')
+         store.filter(property, value, true, false);
+       else
+         store.clearFilter(false);
+       return true;
+     }, // end validator
+     listeners: {
+       'specialkey': function(field, event) {
+         if (event.getKey() == Ext.EventObject.ENTER) {
+           if (field.getRawValue() == '') {
+             store.clearFilter(false);
+           } // end if
+         } // end if
+       } // end function
+     } // end listeners
+   }); // end filterField
+   
+   var clearButton = new Ext.Button({
+     text: 'Clear',
+     handler: function(button, event) {
+       filterField.setRawValue('');
+       store.clearFilter(false);
+     } // end handler
+   }); // end clearButton
+   
+   return new Ext.Toolbar([filterField, clearButton]);
+ };
+ 
+ var openContactWindow = function(displayStore, relationName, event) {
+   var companiesSR = xl.widget.SimpleJSONStore({
+     url: #{async_get_company_names_books_path.to_json},
+     fields: ['company_name'],
+     doLoad: true,
+     onLoad: function(store, records, options) {
+       var allCompaniesRecord = new companiesSR.record({ company_name: '<b>All Companies</b>' });
+       store.insert(0, [allCompaniesRecord]);
+     }
+   });
+   
+   var companiesGridPanel = new Ext.grid.GridPanel({
+     tbar: generateFilterToolbar(companiesSR.store, 'company_name', 'Type to filter Companies'),
+     
+     store: companiesSR.store,
+     cm: new Ext.grid.ColumnModel([
+       { header: 'Companies', id: 'company_name', dataIndex: 'company_name' }
+     ]),
+     
+     autoExpandColumn: 'company_name',
+     loadMask: true,
+     height: 300,
+     width: 200,
+     
+     listeners: {
+       rowclick: function(gridPanel, rowIndex, event) {
+         var record = gridPanel.getStore().getAt(rowIndex);
+         partiesStore.load({params: { company_name: record.get('company_name') }});
+       }
+     }
+   });
+   
+   var partiesStore = xl.widget.SimpleJSONStore({
+     url: #{async_get_party_names_for_company_name_books_path.to_json},
+     fields: ['party_name', 'id']
+   }).store;
+   
+   var partiesGridPanel = new Ext.grid.GridPanel({
+     tbar: generateFilterToolbar(partiesStore, 'party_name', 'Type to filter Parties'),
+     store: partiesStore,
+     cm: new Ext.grid.ColumnModel([
+       { header: 'Parties', id: 'party_name', dataIndex: 'party_name' }
+     ]),
+     
+     autoExpandColumn: 'party_name',
+     width: 200,
+     height: 300,
+     loadMask: true
+   });
+
+   var errorPanel = new Ext.Panel({
+     html: '',
+     colspan: 2
+   });
+
+   var window = new Ext.Window({
+     autoHeight: true,
+     width: 419,
+     
+     resizable: false,
+     constrain: true,
+     
+     defaults: { style: 'padding: 0px;' },
+     layout: 'table',
+     layoutConfig: { columns: 2 },
+     
+     items: [
+       /*{
+         colspan: 2,
+         html: '<p>Choose a contact to enter it. Optionally, sort contacts by company; If the contact does not exist, you will be prompted for further information to create the contact</p><br />'
+       },*/
+       companiesGridPanel,
+       partiesGridPanel,
+       errorPanel
+     ],
+
+     defaultButton: 2,
+     buttons: [
+       {
+         text: 'Close',
+         handler: function() {
+           window.hide();  // This causes that nice animation
+           window.close(); // This destroys it
+         }
+       },{
+         text: 'Refresh',
+         handler: function() {
+           companiesSR.store.reload();
+           partiesStore.removeAll();
+         }
+       },{
+         text: 'Add',
+         handler: function() {
+           var record = partiesGridPanel.getSelectionModel().getSelected();
+           
+           doAsyncAddRelation(record.get('id'), relationName, function(xhr, options) {
+             displayStore.reload();
+           });
+           
+           window.hide(); window.close();
+         } // end handler
+       } // end Add Button
+     ]
+   });
+
+   window.setPagePosition(event.getXY()[0] + 1, event.getXY()[1] + 1);
+   window.show(event.getTarget().id);
+  };
+ 
+var generateStoreForField = function(fieldName) {
+  var field = gStoreMatrix[fieldName];
+  var store = null;
+  
+  if (field) {
+    store = xl.widget.SimpleJSONStore({
+      array: field.collection,
+      fields: field.fields,
+      doLoad: true
+    }).store;
+  } else {
+    store = xl.widget.SimpleJSONStore({
+      array: [], fields: ['name'], doLoad: true
+    }).store;
+  }
+  
+  return store;
+};
+
+var generateRelationGridPanel = function(config) {
+  config.showLabel = config.showLabel == null || config.showLabel;
+  
+  var gridPanel = new Ext.grid.GridPanel({
+    width: config.width || 130,
+    height: config.height || 80,
+  
+    store: xl.widget.SimpleJSONStore({
+      url: #{async_get_relation_book_path(@book).to_json},
+      fields: ['id', 'name', 'company_name'], doLoad: true,
+      baseParams: {relation_name: config.relationName}
+    }).store,
+    
+    cm: new Ext.grid.ColumnModel([
+      {
+        header: '',
+        menuDisabled: true,
+        resizable: false,
+        dataIndex: 'id',
+        id: 'column',
+        renderer: config.renderer || function(value, cell, record) {
+          var tpl = new Ext.XTemplate(
+         		'<p>',
+              '{company_name}<br />&nbsp;&nbsp;{name}',
+            '</p>'
+         	);
+          return tpl.apply(record.data);
+        } // renderer
+      }
+    ]),
+    
+    autoExpandColumn: 'column',
+    tbar: [
+      {
+        iconCls: 'icon_userAdd',
+        text: 'Add ' + humanize(config.relationName),
+        handler: function(button, event) {
+          openContactWindow(gridPanel.getStore(), config.relationName, event);
+        }
+      }
+    ]
+  });
+  
+  var layoutPanels = [];
+  if (config.showLabel) {
+    layoutPanels.push(new Ext.Panel({
+      layout: 'fit',
+      width: (config.labelWidth || 75) + 5,
+      html: humanize(config.relationName) + ':&nbsp;',
+      style: 'text-align: right;'
+    }));
+  }
+  layoutPanels.push(gridPanel);
+  
+  var layoutPanel = new Ext.Panel({
+    layout: 'column',
+    layoutConfig: { columns: layoutPanels.length },
+    
+    items: layoutPanels
+  });
+  
+  return layoutPanel;
+}
+
+var generateCostPanel = function(config) {
+  var panel = new Ext.Panel({
+    title: humanize(config.object),
+    autoWidth: true,
+    autoHeight: true,
+    defaults: { height: 30 }
+  });
+  
+  if (config.cost && config.hours) {
+    var chPanel = new Ext.Panel({
+      layout: 'column', layoutConfig: { columns: 4 },
+      style: 'margin-top: 10px; margin-left: 10px;',
+      defaults: { layout: 'form' },
+      
+      items: [
+        xl.widget.InlineActiveField({ form: gUpdateForm, field: { value: config.hours, name: config.object + '_hours', noFieldLabel: true, width: 45 } }),
+        { html: '&nbsp;hours at&nbsp;', width: 60 },
+        xl.widget.InlineActiveField({ form: gUpdateForm, field: { value: config.cost, name: config.object + '_cost', noFieldLabel: true, width: 50 } }),
+        { html: '&nbsp;per hour', width: 70 }
+      ]
+    });
+    panel.add(chPanel);
+  } else if (config.cost) {
+    var cPanel = new Ext.Panel({
+      layout: 'column', layoutConfig: { colummns: 2 },
+      style: 'margin-top: 10px; margin-left: 10px;',
+      
+      items: [
+        { html: 'Costs&nbsp;', width: 40 },
+        xl.widget.InlineActiveField({ form: gUpdateForm, field: { value: config.cost, name: config.object + '_cost', noFieldLabel: true, width: config.fieldWidth || 50 } })
+      ]
+    });
+    panel.add(cPanel);
+  }
+  
+  if (config.extra) panel.add(config.extra);
+  
+  return panel;
+};
+
+/*************
+ ** OBJECTS **
+ *************/
+var gStoreMatrix = {
+  language: {
+    fields: ['name'],
+    collection: [
+      {name: 'Hebrew'},
+      {name: 'English'},
+      {name: 'Hebrew-English'},
+      {name: 'Russian'},
+      {name: 'French'},
+      {name: 'Spanish'}
+    ]
+  },
+  genre: {
+    fields: ['name'],
+    collection: [
+      {name: 'Children'},
+      {name: 'Liturgy'},
+      {name: 'CHS'},
+      {name: 'Chasidus'}
+    ]
+  },
+  yesNoField: {
+    fields: ['value'],
+    collection: [
+      {value: 'Yes'},
+      {value: 'No'}
+    ]
+  },
+  size: {
+    fields: ['size'],
+    collection: [
+      {size: '4.75x7'},
+      {size: '5.5x8.5'},
+      {size: '6x9'},
+      {size: '7x10'},
+      {size: '8.5x11'},
+      {size: '9x12'}
+    ]
+  }
+};
+
+var formDefaults = { layout: 'form', labelAlign: 'right', labelWidth: 75 };
+var gUpdateForm = { url: #{update_book_path(@book).to_json}, object: 'book', style: 'padding: 5px;' };
+
+/************
+ ** LAYOUT **
+ ************/
+var upperPanel = new Ext.Panel({
+  height: 215,
+  layout: 'table',
+  layoutConfig: { columns: 4 },
+  defaults: formDefaults,
+  style: 'margin-bottom: 10px; border-bottom: 1px solid #CCC;',
+  
+	items: [
+	  {
+	    layout: 'fit',
+	    width: 150,
+	    height: 200,
+	    style: 'border-right: 2px dashed white;',
+	    rowspan: 2,
+	    
+	    items: [{ html: '<div style="width: 150px; height: 200px; background-color: #EEE;">&nbsp;</div>'}],
+	    bbar: [{text: 'Upload Cover'}]
+	  },{
+	    layout: 'fit',
+	    width: 150,
+	    height: 200,
+	    rowspan: 2,
+	    
+	    items: [{ html: '<div style="width: 150px; height: 200px; background-color: #EEE;">&nbsp;</div>'}],
+	    bbar: [{text: 'Upload Back'}]
+	  },{
+	    items: [
+	      xl.widget.InlineActiveField({ form: gUpdateForm, field: {value: #{@book.name.to_json}, name: 'name', fieldLabel: 'Name', width: 150} }),
+	      xl.widget.InlineActiveField({ form: gUpdateForm, field: {value: #{@book.isbn.to_json}, name: 'isbn', fieldLabel: 'ISBN', width: 150} }),
+        xl.widget.InlineActiveField({ form: gUpdateForm, field: {
+	        width: 150,
+	        type: 'combobox',
+	        displayField: 'name',
+	        store: generateStoreForField('genre'),
+	        triggerAction: 'all',
+	        value: #{@book.genre.to_json}, name: 'genre', fieldLabel: 'Genre'
+	      } }),
+        generateRelationGridPanel({
+          relationName: 'authors',
+          width: 150
+        }),{
+	        style: 'margin-bottom: 5px',
+	        html: ''
+	      }
+	    ]
+	  },{
+	    labelWidth: 120,
+	    
+	    items: [
+	      xl.widget.InlineActiveField({ form: gUpdateForm, field: { value: #{@book.name_hebrew.to_json}, name: 'name_hebrew', fieldLabel: 'Hebrew Name', width: 150} }),
+	      xl.widget.InlineActiveField({ form: gUpdateForm, field: { value: #{@book.working_title.to_json}, name: 'working_title', fieldLabel: 'Working Title', width: 150} }),
+	      xl.widget.InlineActiveField({ form: gUpdateForm, field: {
+	        width: 150,
+	        type: 'combobox',
+	        displayField: 'name',
+	        store: generateStoreForField('language'),
+	        triggerAction: 'all',
+	        editable: false,
+	        value: #{@book.language.to_json}, name: 'language', fieldLabel: 'Language'
+        } }),
+	      generateRelationGridPanel({
+	        relationName: 'project_managers',
+	        labelWidth: 120,
+	        width: 150
+	      }),{
+	        style: 'margin-bottom: 5px',
+	        html: ''
+	      }
+	    ]
+	  }, // end Row 1, Column 4
+	  { // Row 2, Column 1
+	    colspan: 2,
+	    items: [
+	      xl.widget.InlineActiveField({ form: gUpdateForm, field: {xtype: 'textarea', value: #{@book.notes.to_json}, name: 'notes', fieldLabel: 'Notes', width: 424, height: 40} })
+	    ]
+	  }
+	]
+});
+
+var contributorsFieldSet = new Ext.Panel({
+  title: 'Contributors',
+  autoHeight: true,
+  autoScroll: true,
+  width: 150,
+  style: 'margin-right: 10px;',
+  
+  items: [
+    generateRelationGridPanel({
+      relationName: 'editors',
+      width: 150,
+      showLabel: false
+    }),
+    generateRelationGridPanel({
+      relationName: 'proofers',
+      width: 150,
+      showLabel: false
+    }),
+    generateRelationGridPanel({
+      relationName: 'indexers',
+      width: 150,
+      showLabel: false
+    }),
+    generateRelationGridPanel({
+      relationName: 'binders',
+      width: 150,
+      showLabel: false
+    })
+  ]
+});
+
+var textPrepFieldSet = new Ext.Panel({
+  title: 'Text Preparation',
+  autoHeight: true,
+  autoScroll: true,
+  width: 160,
+  style: 'margin-right: 10px;',
+  
+  items: [
+    generateRelationGridPanel({
+      relationName: 'text_prep_ocrs',
+      showLabel: false,
+      width: 160
+    }),
+    generateRelationGridPanel({
+      relationName: 'text_prep_typists',
+      showLabel: false,
+      width: 160
+    }),
+    generateRelationGridPanel({
+      relationName: 'text_prep_nikuds',
+      showLabel: false,
+      width: 160
+    }),
+    generateRelationGridPanel({
+      relationName: 'translators',
+      showLabel: false,
+      width: 160
+    })
+  ]
+});
+
+var pocFieldSet = new Ext.Panel({
+  title: 'Points of Contact',
+  autoHeight: true,
+  autoScroll: true,
+  width: 160,
+  border: true, bodyBorder: true,
+  style: 'margin-right: 20px;',
+  
+  items: [
+    generateRelationGridPanel({
+      relationName: 'manuscript_contacts',
+      showLabel: false,
+      width: 160
+    }),
+    generateRelationGridPanel({
+      relationName: 'accountants',
+      showLabel: false,
+      width: 160
+    }),
+    generateRelationGridPanel({
+      relationName: 'sponsors',
+      showLabel: false,
+      width: 160
+    }),
+    generateRelationGridPanel({
+      relationName: 'fundraising_managers',
+      showLabel: false,
+      width: 160
+    })
+  ]
+});
+
+var tabPanel = new Ext.TabPanel({
+  tabPosition: 'bottom',
+  defaults: { cls: 'border2pxLightGreen', autoScroll: true },
+  activeTab: 0,
+  width: 350,
+  height: 350,
+  bodyBorder: false,
+  autoScroll: true,
+  
+  items: [
+    {
+      title: 'Costs',
+      layout: 'accordion',
+      
+      items: [
+        generateCostPanel({
+          object: 'manuscript',
+          cost: #{@book.manuscript_cost.to_s.to_json},
+          hours: #{@book.manuscript_hours.to_s.to_json},
+          extra: new Ext.Panel({
+            layout: 'column', layoutConfig: {columns: 2},
+            style: 'margin-left: 10px',
+            
+            items: [
+              { html: 'Cost per page:&nbsp;', width: 100 },
+              xl.widget.InlineActiveField({ form: gUpdateForm, field: {value: #{@book.manuscript_cost_per_page.to_s.to_json}, name: 'manuscript_cost_per_page', noFieldLabel: true, width: 75} })
+            ]
+          })
+        }),
+        generateCostPanel({
+          object: 'printing',
+          fieldWidth: 75,
+          cost: #{@book.printing_cost.to_s.to_json}
+        }),
+        generateCostPanel({
+          object: 'design',
+          cost: #{@book.design_cost.to_s.to_json},
+          hours: #{@book.design_hours.to_s.to_json}
+        }),
+        generateCostPanel({
+          object: 'typeset',
+          cost: #{@book.typeset_cost.to_s.to_json},
+          hours: #{@book.typeset_hours.to_s.to_json}
+        }),
+        generateCostPanel({
+          object: 'text_prep',
+          cost: #{@book.text_prep_cost.to_s.to_json},
+          hours: #{@book.text_prep_hours.to_s.to_json}
+        }),
+        generateCostPanel({
+          object: 'editing',
+          cost: #{@book.editing_cost.to_s.to_json},
+          hours: #{@book.editing_hours.to_s.to_json}
+        }),
+        generateCostPanel({
+          object: 'proofing',
+          cost: #{@book.proofing_cost.to_s.to_json},
+          hours: #{@book.proofing_hours.to_s.to_json}
+        }),
+        generateCostPanel({
+          object: 'indexing',
+          cost: #{@book.indexing_cost.to_s.to_json},
+          hours: #{@book.indexing_hours.to_s.to_json}
+        }),
+        generateCostPanel({
+          object: 'misc',
+          cost: #{@book.misc_cost.to_s.to_json},
+          extra: new Ext.Panel({
+            layout: 'column', layoutConfig: { columns: 2 },
+            style: 'margin-left: 10px',
+            
+            items: [
+              { html: 'Is Paid?&nbsp;'},
+              xl.widget.InlineActiveField({ form: gUpdateForm, field: {
+      	        width: 150,
+      	        type: 'combobox',
+      	        displayField: 'value',
+      	        store: generateStoreForField('yesNoField'),
+      	        triggerAction: 'all',
+      	        editable: false,
+      	        value: #{@book.is_paid.to_json}, name: 'is_paid', noFieldLabel: true
+      	      } })
+      	    ]
+          }) // end extra.Panel
+        }) // end generateCostPanel (misc)
+      ]
+    },{
+      title: 'Physical',
+      layout: 'form',
+      labelAlign: 'right',
+      
+      items: [
+        xl.widget.InlineActiveField({ form: gUpdateForm, field: {
+          value: #{@book.page_count.to_s.to_json},
+          name: 'page_count',
+          fieldLabel: 'Page Count'
+        } }),
+        xl.widget.InlineActiveField({ form: gUpdateForm, field: {
+          value: #{@book.paper_weight_lbs.to_s.to_json},
+          name: 'paper_weight_lbs',
+          fieldLabel: 'Paper Weight',
+          width: 50
+        } }),
+        {
+          layout: 'column', layoutConfig: { columns: 2 },
+          height: 30,
+          autoWidth: true,
+          
+          items: [
+            { html: 'in GSM =&nbsp;', width: 100 , style: 'text-align: right;'},
+            { html: '###', width: 100}
+          ]
+        },
+        xl.widget.InlineActiveField({ form: gUpdateForm, field: {
+          width: 100,
+          type: 'combobox',
+          displayField: 'size',
+          store: generateStoreForField('size'),
+          triggerAction: 'all',
+          value: #{@book.size.to_json},
+          name: 'size',
+          fieldLabel: 'Size'
+        } }),
+        xl.widget.InlineActiveField({ form: gUpdateForm, field: {
+          value: #{@book.binding.to_json},
+          name: 'binding',
+          fieldLabel: 'Binding'
+        } }),
+        xl.widget.InlineActiveField({ form: gUpdateForm, field: {
+          value: #{@book.cover.to_json},
+          name: 'cover',
+          fieldLabel: 'Cover'
+        } }),
+        xl.widget.InlineActiveField({ form: gUpdateForm, field: {
+          value: #{@book.cover_laminate.to_json},
+          name: 'cover_laminate',
+          fieldLabel: 'Cover Laminate'
+        } }),
+        xl.widget.InlineActiveField({ form: gUpdateForm, field: {
+          value: #{@book.quantity.to_s.to_json},
+          name: 'quantity',
+          fieldLabel: 'Quantity'
+        } })
+      ]
+    },{
+      title: 'CIP',
+      layout: 'form',
+      labelAlign: 'right',
+      
+      // 'cip_filed', 'cip_title_page_completed', 'cip_copyright_page_completed', 'cip_series_page_completed', 'cip_toc_completed', 'cip_preface_completed', 'cip_sample_chapters_completed']
+      items: [
+        xl.widget.InlineActiveField({ form: gUpdateForm, field: {
+	        width: 50,
+	        type: 'combobox',
+	        displayField: 'value',
+	        store: generateStoreForField('yesNoField'),
+	        triggerAction: 'all',
+	        value: #{@book.copyright.to_json}, name: 'copyright', fieldLabel: 'Copyright'
+	      } }),
+	      xl.widget.InlineActiveField({ form: gUpdateForm, field: {
+	        width: 50,
+	        type: 'combobox',
+	        displayField: 'value',
+	        store: generateStoreForField('yesNoField'),
+	        triggerAction: 'all',
+	        editable: false,
+	        value: #{@book.cip_filed.to_json}, name: 'cip_filed', fieldLabel: 'CIP Filed?',
+	        labelSeparator: ''
+	      } }),
+	      xl.widget.InlineActiveField({ form: gUpdateForm, field: {
+	        width: 50,
+	        type: 'combobox',
+	        displayField: 'value',
+	        store: generateStoreForField('yesNoField'),
+	        triggerAction: 'all',
+	        editable: false,
+	        value: #{@book.cip_title_page_completed.to_json}, name: 'copyright', fieldLabel: 'Title Page Completed?',
+	        labelSeparator: ''
+	      } })
+	    ]
+    },
+    {
+      title: 'Attachments',
+      
+      items: [
+        {
+          title: 'Documents', html: '<br />'
+        },{
+          title: 'Images', html: ''
+        }
+      ]
+    },{
+      title: 'Break-Even'
+    }
+  ]
+});
+
+var layoutPanel = new Ext.Panel({
+	layout: 'ux.rowfit',
+	defaults: { width: '100%' },
+	items: [
+	  upperPanel,
+	  {
+	    layout: 'column',
+	    layoutConfig: { columns: 4 },
+	    items: [ contributorsFieldSet, textPrepFieldSet, pocFieldSet, tabPanel ]
+	  }
+	],
+	style: 'padding: 10px'
+});
+
+newPanel.add(layoutPanel);
+
+newPanel.getTopToolbar().add(
+  {
+    text: 'Duplicate',
+    handler: openDuplicateWindow
+  },
+  {
+    text: 'Product Association'
+    // if no product associated (@book.product.nil?), iconCls
+    // should be 'warning' or something
+  }
+);
+`
+end

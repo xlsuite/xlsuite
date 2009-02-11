@@ -1,0 +1,43 @@
+    <tr class="<%= cycle("", "thread_bg", :name => "category_background_class") %>">
+      <td>
+        <%= link_to(icon_tag("feed"), formatted_forum_category_posts_url(forum_category, :atom), :rel => "alternate", :type => "application/atom+xml", :class => 'left') %>
+        <%= link_to clean_html(forum_category.name), forum_category_path(forum_category.id), :onclick => "$('#{forum_category.dom_id}').toggle(); return false;", :class => "topicLink" %>
+<% when_user_can?(:admin_forum) do -%>
+        <%= link_to(image_tag("icons/pencil_go.png"), edit_forum_category_path(forum_category.id), :class => 'edit') %>
+        <%= link_to(image_tag("icons/delete.png"), forum_category_path(forum_category.id), :method => :delete, :class => 'edit', :confirm => "Are you sure you want to delete #{forum_category.name} permanently?") %>
+<% end -%>
+        <p class="topicDescription"><%= clean_html(forum_category.description) %></p>
+      </td>
+      <td><%= forum_category.topics.count %></td>
+      <td><%= forum_category.posts.count %></td>
+      <td>
+        <% last_post = forum_category.posts.last %>
+        <% unless last_post.blank? -%>
+          <%= last_post.created_at.strftime("%Y-%m-%d") %><br/>by
+          <%= render_forum_name(last_post.user) %>
+        <% end -%>
+      </td>
+    </tr>
+
+    <!-- Forums of a category starts here -->
+    <tr id="<%= forum_category.dom_id %>" style="display: none;">
+      <td colspan="4" class="cellFold">
+        <%= content_tag(:p, "No forum found", :class => "topicDescription") if forum_category.forums.blank? %> 
+        <table class="thread">
+          <tr colspan="4">
+            <td class="addNew">
+<% when_user_can?(:admin_forum) do -%>
+              <%= link_to("+Add New Forum", new_forum_category_forum_path(forum_category),
+                  :onclick => "$('newForum').toggle();
+                      $('newForum').down('.threadSubject').down('.title').innerHTML = #{forum_category.name.inspect};
+                      $('newForum').down('form').action = #{forum_category_forums_path(forum_category.id).inspect};
+                      $('forum_name').focus();
+                      return false;") %>
+<% end -%>
+            </td>
+          </tr>
+          <%= render :partial => "forums/forum", :collection => forum_category.forums.readable_by(current_user? ? current_user : nil) %>
+          <% reset_cycle("forum_background_class") %>
+        </table>
+      </td>
+    </tr>    

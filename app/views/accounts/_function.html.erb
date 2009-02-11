@@ -1,0 +1,13 @@
+<dt class="<%= "selected" if @acct.selected_modules.include?(function.name) %>" id="<%= dom_id(function) %>"><%=h function.nice_name %></dt>
+<dd class="<%= "selected" if @acct.selected_modules.include?(function.name) %>" id="<%= typed_dom_id(function, :body) %>">
+  <%= render_domain_thumbnail(function) %>
+  <label>
+    <%= check_box_tag "acct[selected_modules][]", function.name %>
+    Add this module
+  </label>
+  <div class="description">
+    <%= textilize(function.description) unless function.description.blank? %>
+  </div>
+  <p class="cost">Cost: <span class="price<%= " free" if function.price.zero? %>"><%= function.price.format(:html, :with_currency) %></span></p>
+  <%= render :partial => "rating" %>
+</dd>

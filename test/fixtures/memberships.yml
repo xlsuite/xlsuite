@@ -1,0 +1,15 @@
+admin:
+  party_id: 1000000 # bob
+  group_id: 1 # Staff Members
+
+bob:
+  party_id: 1000001 # bob
+  group_id: 1 # Staff Members
+
+mary:
+  party_id: 51 # mary
+  group_id: 1 # Staff Members
+  
+longbob:
+  party_id: 1000003 # longbob
+  group_id: 2 # Billing

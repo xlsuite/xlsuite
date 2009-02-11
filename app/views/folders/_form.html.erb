@@ -1,0 +1,34 @@
+<% labelled_fields_for(:folder, @folder) do |f| %>
+  <%= select_tag( "parent_id", options_for_select(folder_selections, (params[:selection_id] || params[:id]).to_i) ) %>
+      
+  <%= f.text_field :name %></p>
+  <div class="auto_completer">
+    <%= f.text_area_with_auto_complete :tag_list, :url => auto_complete_tag_folders_path, :rows => 3 %>
+    <%= tag_cloud(@folder, @common_folder_tags, :apply_to => "folder_tag_list") %>
+  </div>
+  <%= f.text_area :description, :rows => 5 %>
+  
+  <br />
+  
+  <div class="groupBoxLeft">
+    <span class="label">These groups can view this folder:</span><br/>
+    <%= collection_multiple_select(:folder, :reader_ids, @available_groups,
+        :id, :to_s, :selected_items => f.object ? f.object.readers : nil)  %>
+  </div>
+
+  <div class="groupBoxRight">
+    <span class="label">These groups can edit this folder:</span><br/>
+    <%= collection_multiple_select(:folder, :writer_ids, @available_groups,
+        :id, :to_s, :selected_items => f.object ? f.object.writers : nil)  %>
+  </div>
+  
+  <br />
+  <p><%= f.check_box :private, :label => "Private folder?(Note: This takes precedence over the permissions assigned above.)" %></p>
+  <br />
+  <p><%= f.check_box :inherit, :label => "Inherit attributes from parent" %></p>
+  <br />
+  <p><%= f.check_box :pass_on_attr, :label => "Pass on attributes to children" %></p>    
+  
+  <%= hidden_field_tag :tab_to_close, "folders_new_#{params[:id]}"%>
+<% end -%>
+ 

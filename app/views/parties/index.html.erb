@@ -1,0 +1,15 @@
+<% content_for(:js) do %>
+  <%= javascript_include_tag "xl_suite/extjs/RowExpander.js" %>
+  <%= javascript_include_tag "xl_suite/extjs/PageSizePlugin.js" %>
+  <%= javascript_include_ui %>
+  <script type="text/javascript">
+    // Initialize a state manager
+    Ext.onReady(function() { Ext.state.Manager.setProvider(new Ext.state.CookieProvider()); });
+  </script>
+<% end -%>
+
+<form id='list-selection-menu-form' action="" method="post">
+  <%= hidden_field_tag "ids", "", :id => 'list-selection-menu-ids' %>
+  <%= hidden_field_tag "tag_list", "", :id => 'list-selection-menu-tag_list' %>
+  <%= hidden_field_tag "group_id", "", :id => 'list-selection-menu-group_id' %>
+</form>

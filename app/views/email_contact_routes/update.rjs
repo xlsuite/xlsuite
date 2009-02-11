@@ -1,0 +1,8 @@
+%w(name address).each do |attribute|
+  value = @email_address.send(attribute)
+  element_name = typed_dom_id(@email_address, attribute.gsub("formatted_", ""), :show)
+  method = value.blank? ? "addClassName" : "removeClassName"
+
+  page.replace_html element_name, value
+  page << %Q($("#{element_name}").#{method}("blank");)
+end

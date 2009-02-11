@@ -1,0 +1,32 @@
+<tr>
+  <td>
+   <label>To: </label>
+  </td>
+  <td class="email_to">
+    <%= select_tag "email_tos_selection", send_to_options, :onchange => "displaySecondSelection()" %>
+    <div id="collection_of_groups" style="display:none">
+      <%= select_tag "group_selection", 
+        options_for_select( ([ ["Select a group", ""] ] + @groups.map{|e| [e.name, e.name]}), "" ), 
+        :onchange => "addGroupToTosField()" 
+      %>
+    </div>
+    <div id="collection_of_tags" style="display:none">
+      <%= select_tag "tag_selection", 
+        options_for_select( ([ ["Select a tag", ""] ] + @tags.map{|e| [e.name, e.name]}), "" ), 
+        :onchange => "addTagToTosField()" 
+      %>
+    </div>
+    <div id="collection_of_all_tags" style="display:none">
+      <%= select_tag "all_tag_selection", 
+        options_for_select( ([ ["Select a tag", ""] ] + @all_tags.map{|e| [e.name, e.name]}), "" ), 
+        :onchange => "addAccountOwnerToTosField()" 
+      %>
+    </div>
+    <div id="collection_of_searches" style="display:none">
+      <%= select_tag "search_selection", 
+        options_for_select( ([ ["Select a search", ""] ] + @searches.map{|e| [e.name, e.name]}), "" ), 
+        :onchange => "addSearchToTosField()" 
+     %>
+    </div>
+  </td>
+</tr>

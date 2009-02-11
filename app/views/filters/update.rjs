@@ -1,0 +1,25 @@
+
+page << %Q`
+parent.xl.runningGrids.each(function(pair){
+  grid = pair.value;
+  if(pair.key == "filtersTestGrid")
+    grid.getStore().proxy.conn.url = '#{test_data_filters_path}';
+    grid.getStore().proxy.conn.method = 'get';
+    $('edit_filter_form').getInputs('checkbox').each(function(e){
+      if(e.value == '0')
+      {
+        e.checked = true;
+      }
+    }); 
+    grid.getStore().baseParams = $('edit_filter_form').serialize(true);
+    $('edit_filter_form').getInputs('checkbox').each(function(e){
+      if(e.value == '0')
+      {
+        e.value == '1';
+        e.checked = false;
+      }
+    });
+    grid.getStore().reload();
+    $('email_list').show();
+});
+`

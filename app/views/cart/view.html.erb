@@ -1,0 +1,15 @@
+<h1>Your Shopping Cart</h1>
+<p>To remove a product from your cart, change it's quantity to zero.</p>
+<h2>Items currently in your cart</h2>
+<%= render :partial => 'shared/cart', :object => @cart, :locals => {:editable => true, :public => true} %>
+<% form_tag do %>
+  <%= submit_tag 'Buy now' %>
+<% end -%>
+
+<h2 id="shipping">Update shipping information</h2>
+<% form_tag :action => :update_shipping do %>
+  <p><label>Shipping to: <select name="country"><%= options_for_select([['Canada', 'canada'], ['United States', 'usa']], @cart.country) %></select></label><br/>
+  We're sorry, but we ship only to Canada and United States</p>
+  <p><label>Shipping method: <select name="method"><%= options_for_select [['Ground', 'ground'], ['Air', 'air']], @cart.shipping_method %></select></label></p>
+  <%= submit_tag 'Update' %>
+<% end -%>

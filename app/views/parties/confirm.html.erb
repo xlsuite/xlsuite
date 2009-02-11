@@ -1,0 +1,35 @@
+<div id="reg_confirmationForm">
+  <p>Please fill in this form to complete your registration</p>
+  <p>(<span class="colour">*</span>) denotes a required field</p>
+  <% form_for(:party, @party, :url => authorize_party_path(@party), :html => {:method => :put}) do |f| %>
+  <% if @show_code then -%>
+    <%= content_tag(:label, "Confirmation Code:", :for => "code") %><br/>
+    <%= text_field_tag(:code, nil) %>
+  <% else -%>
+    <%= hidden_field_tag(:code, @code) -%>
+  <% end -%>
+    <%= error_messages_for(:party) %>
+    
+    <%= hidden_field_tag(:signed_up, @subscribed_path) -%>
+    <%= hidden_field_tag(:gids, @group_ids) -%>
+    <p>
+      <label><span class="colour">*</span>Password: </label>
+      <%= f.password_field :password, :class => "text required", :value => nil %>
+    </p>
+    <p>
+      <label><span class="colour">*</span>Confirm password: </label>
+      <%= f.password_field :password_confirmation, :class => "text required", :value => nil %>
+    </p>
+    <p>
+      <label>First name: </label>
+      <%= f.text_field :first_name, :class => "text" %>
+    </p>
+    <p>
+      <label>Last name: </label>
+      <%= f.text_field :last_name, :class => "text" %>
+    </p>
+    <p>
+      <%= submit_tag "Confirm", :class => "button" %>
+    </p>
+  <% end %>
+</div>

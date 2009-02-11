@@ -1,0 +1,3 @@
+page.insert_html :before, 'insert_new_file_form', "<a onclick=\"Windows.close('new_file_window'); return false;\" href=\"#\">Cancel</a></span>"
+page.insert_html :after, 'insert_new_file_form', :partial => "new"
+page.insert_html :bottom, 'new_file_action', "<a onclick=\"Windows.close('new_file_window'); return false;\" href=\"#\">Cancel</a></span>"

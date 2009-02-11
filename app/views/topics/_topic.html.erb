@@ -1,0 +1,31 @@
+                <tr class="<%= cycle("", "thread_bg", :name => "topic_background_class") %>">
+                  <td class="subHeader01">
+                    <%= link_to(icon_tag("feed"), formatted_topic_posts_url(topic.forum_category, topic.forum, topic, :atom), :class => 'left') %>
+                    <%= '<span class="forumSticky">Sticky:</span>' if topic.sticky? %>
+                    <%= link_to clean_html(topic.title), forum_category_forum_topic_url(topic.forum_category, topic.forum, topic), :class => 'topicLink' %>
+                    <%= image_tag "icons/lock.png", :class => "left" if topic.locked? %>
+<% if current_user? && topic.editable_by?(current_user) then -%>
+                    <%= link_to(image_tag("icons/pencil_go.png"), edit_forum_category_forum_topic_url(topic.forum_category, topic.forum, topic), :class => 'edit') %>
+                    <%= link_to(image_tag("icons/delete.png"), forum_category_forum_topic_url(topic.forum_category, topic.forum, topic), :method => :delete, :class => 'edit', :confirm => "Are you sure you want to delete #{topic.title} permanently?") %>
+<% end -%>
+                    <p class="thread_firstLine">
+                      <%= link_to truncate(clean_html(strip_tags(topic.posts.last.body))), forum_category_forum_topic_url(topic.forum_category, topic.forum, topic) %>
+                      <%= link_to "more", forum_category_forum_topic_url(topic.forum_category, topic.forum, topic) %>
+                      <%= link_to("Reply", new_forum_category_forum_topic_post_path(topic.forum_category, topic.forum, topic), 
+                          :onclick => "$('newReply').down('.userPostHeading').down('.bold').innerHTML = #{topic.title.inspect};
+                          $('newReply').down('form').action = #{forum_category_forum_topic_posts_path(:forum_category_id => topic.forum_category, :forum_id => topic.forum, :topic_id => topic).inspect};
+                          $('newReply').toggle();
+                          $('post_body').focus();
+                          return false;") if topic.forum.writeable_by?(current_user? ? current_user : nil) %>                      
+                    </p>
+                  </td>
+                  <td class="subHeader02">-</td>
+                  <td class="subHeader03"><%= topic.posts_count %></td>
+                  <td class="timestamp">
+                    <% last_post_in_thread = topic.posts.last %>
+                    <% unless last_post_in_thread.blank? -%>
+                      <%= last_post_in_thread.created_at.strftime("%Y-%m-%d") %><br/>by
+                      <%= render_forum_name(last_post_in_thread.user) %>
+                    <% end -%>
+                  </td>
+                </tr>

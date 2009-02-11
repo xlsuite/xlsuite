@@ -1,0 +1,8 @@
+if @created
+  page << update_notices_using_ajax_response(:on_root => true)
+  page << close_tab_panel("estimates_new_nil")
+  page << "xl.openNewTabPanel('estimates_edit_#{@estimate.id}', #{edit_estimate_path(@estimate).to_json})"
+  page << refresh_grid_datastore_of("estimate")
+else
+  page << update_inside_panel_notifications("estimates_new_nil")
+end

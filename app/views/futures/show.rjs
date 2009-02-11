@@ -1,0 +1,8 @@
+page.replace_html(@status, h(@future.status.humanize)) if @status
+page.replace_html(@elapsed, h(@future.started_at ? time_ago_in_words(@future.started_at, true) : "0 seconds")) if @elapsed
+page.replace_html(@progress, :partial => "shared/bar", :object => @future.progress) if @progress
+
+page.replace_html "x_future_error", :partial => "error", :collection => @errors
+
+# Redirect if completed
+page.redirect_to(@future.return_to) if @future.completed? && !@future.return_to.blank?

@@ -1,0 +1,179 @@
+limit = params[:limit] || 50
+workflows_url_json = formatted_workflows_path(:format => :json).to_json
+
+after_render = %Q`
+  ds.load({params: {start: 0, limit: #{limit} }});
+`
+
+page << create_tab_using_ajax_response("Workflows", after_render) do
+%Q`
+  var selectedIds = null;
+
+  // create workflow record
+  var WorkflowRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'title', mapping: 'title'},
+    {name: 'description', mapping: 'description'},
+    {name: 'created_by_name', mapping: 'created_by_name'},
+    {name: 'updated_by_name', mapping: 'updated_by_name'}
+  ]);
+
+  // data reader to parse the json response
+  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, WorkflowRecord);
+
+  // set up connection of the data
+  var connection = new Ext.data.Connection({url: #{workflows_url_json}, method: 'get'});
+  var proxy = new Ext.data.HttpProxy(connection);
+
+  // set up the data store and then send request to the server
+  var ds = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+
+  // set up the ext grid object
+  var xg = Ext.grid;
+
+  // define paging toolbar that is going to be appended to the footer of the grid panel
+  var paging = new Ext.PagingToolbar({
+    store: ds,
+    pageSize: #{limit},
+    displayInfo: true,
+    displayMsg: 'Displaying {0} to {1} of {2}',
+    emptyMsg: "No record to display",
+    cls: "bottom-toolbar paging-toolbar-bottom",
+    plugins: [new Ext.ux.PageSizePlugin]
+  });
+  
+  #{create_grid_tbar_filter_field}
+  
+  #{create_grid_tbar_clear_button}
+
+  var gridTopToolbar = new Ext.Toolbar({
+    cls: "top-toolbar",
+    items: [{text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+  });
+
+  // create GridPanel object
+  var grid = new Ext.grid.GridPanel({
+    store: ds,
+    cm: new xg.ColumnModel([
+        {header: "ID", width: 100, sortable: false, dataIndex: 'id'},
+        {header: "Title", width: 150, sortable: true, dataIndex: 'title'},
+        {header: "Description", sortable: true, dataIndex: 'description'},
+        {header: "Created by", sortable: true, dataIndex: 'created_by_name'},
+        {header: "Updated by", sortable: true, dataIndex: 'updated_by_name'}
+      ]),
+    viewConfig: {
+      forceFit: true
+    },
+    autoScroll: true,
+    autoWidth: true,
+    height: #{get_default_grid_height(nil)},
+    tbar: gridTopToolbar,
+    bbar: paging,
+    footer: true,
+    loadMask: true,
+    iconCls: 'icon-grid'
+  });
+
+  newPanel.add(grid);
+  xl.runningGrids.set("workflows", grid);
+  newPanel.on("destroy", function(){
+    xl.runningGrids.unset("workflows");
+  });
+
+  // add extra links to the header
+  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
+  extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('workflows_new_nil', #{new_workflow_path.to_json})").to_json});
+
+  var editWorkflowUrl = #{edit_workflow_path(:id => "__ID__").to_json};
+  // set double click action on grid cells
+  grid.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
+    var record = ds.getAt(rowIndex);
+    var id = record.data.id;
+
+    xl.openNewTabPanel(('workflows_edit_'+id), editWorkflowUrl.sub("__ID__", id));
+  });
+
+  var selectAllAction = new Ext.Action({
+    text: "Select all",
+    iconCls: "display_none"
+  });
+
+  var clearAllAction = new Ext.Action({
+    text: "Clear all",
+    iconCls: "display_none",
+    disabled: true
+  });
+
+  var deleteAction = new Ext.Action({
+    text: "Delete",
+    iconCls: "display_none",
+    disabled: true
+  });
+
+  var expandAllAction = new Ext.Action({
+    text: "Expand all",
+    disabled: true
+  });
+
+  var collapseAllAction = new Ext.Action({
+    text: "Collapse all",
+    disabled: true
+  });
+
+  var selectionMenu =  new Ext.menu.Menu({
+    items: [selectAllAction, clearAllAction]
+  });
+  selectionMenu.addSeparator();
+  selectionMenu.add(deleteAction);
+
+  xl.viewport.render();
+  grid.getTopToolbar().add({ text: "Actions", menu: selectionMenu });
+
+  clearAllAction.setHandler(function(e) {
+    grid.getSelectionModel().clearSelections();
+    selectedIds = [];
+    e.disable();
+  });
+
+  selectAllAction.setHandler(function(e) {
+    grid.getSelectionModel().selectAll();
+    e.disable();
+  });
+
+  deleteAction.setHandler(function(e) {
+    Ext.Msg.confirm("", "Delete selected workflows permanently?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        params['ids'] = selectedIds.toString();
+        Ext.Ajax.request({
+              url: #{destroy_collection_workflows_path.to_json},
+              params: params,
+              method: "DELETE",
+              success: function(transport, options){
+                grid.getStore().reload();
+                response = Ext.util.JSON.decode(transport.responseText);
+                xl.updateStatusBar(response.flash);
+              }
+            });
+      }
+    });
+  });
+
+  grid.getSelectionModel().on("selectionchange", function(){
+    records = grid.getSelectionModel().getSelections();
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    selectedIds = ids;
+
+    if(ids.length>0){
+      selectionMenu.items.each(function(e) {e.enable();});
+    }
+    else{
+      selectionMenu.items.each(function(e) {e.disable();});
+      selectAllAction.enable();
+    }
+  });
+`
+end

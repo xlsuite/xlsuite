@@ -1,0 +1,6 @@
+development:
+  login_url: http://my.rets.server.com/login
+  user_agent: MY-SHINY-CLIENT/1.0
+  username: user
+  password: pass
+  rets_version: 1.7

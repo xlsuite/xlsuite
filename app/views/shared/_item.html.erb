@@ -1,0 +1,33 @@
+      <tr id="item<%= item.id %>">
+<% if editable and !public then -%>
+        <td id="i<%= item.id %>" class="drop-target">
+          <%= link_to_remote(image_tag('icons/basket_edit.png', :alt => 'Edit', :size => '16x16'), {:update => "cart-edit-section", :url => {:action => :edit_item, :id => item.id}, :complete => visual_effect(:blind_down, 'cart-edit-section')}, {:title => 'Edit this item'}) %>
+          <span class="drag-source" id="i<%= item.id %>"><%= image_tag('icons/basket_move.png', :alt => 'Move', :size => '16x16') %></span>
+          <%= link_to_remote(image_tag('icons/basket_delete.png', :alt => 'Delete', :size => '16x16'), {:url => {:action => :delete_item, :id => item.id}, :complete => visual_effect(:fade, "item#{item.id}")}, {:title => 'Delete this item'}) %>
+        </td>
+<% end -%>
+<% if item.comment? -%>
+        <td colspan="5" class="comment"><%= h(item.description) %></td>
+<% elsif item.manhours? -%>
+        <td>&nbsp;</td>
+        <td><%= h(item.description) %></td>
+        <td class="number quantity"><%= sprintf('%.2f', item.quantity) %></td>
+        <td class="money"><%= item.unit_price.format %></td>
+        <td class="money"><%= item.extension_price.format %></td>
+<% else -%>
+        <td class="product"><%= item.no %></td>
+        <td class="description"><%= link_to item.description, product_details_url(:product_no => item.product.no) %></td>
+        <td class="number quantity">
+<% if editable and public then -%>
+          <% form_tag(:controller => 'cart', :action => 'update', :product_no => item.no) do %>
+            <%= text_field_tag 'quantity', item.quantity.to_i, :class => 'number', :size => 4 %>
+            <%= submit_tag 'Update' %>
+          <% end -%>
+<% else -%>
+          <%= item.quantity.to_i %>
+<% end -%>
+        </td>
+        <td class="money"><%= item.unit_price.format %></td>
+        <td class="money"><%= item.extension_price.format %></td>
+<% end -%>
+      </tr>

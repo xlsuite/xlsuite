@@ -1,0 +1,418 @@
+limit = params[:limit] || 50
+
+after_render = %Q`
+  ds.load({params: {start: 0, limit: #{limit} }});
+`
+
+page << create_tab_using_ajax_response("ContactRequests | Index", after_render) do
+%Q`
+
+  function alertNoContactRequestsSelected() {
+    Ext.Msg.alert('No Contact Requests Selected', 'Please select one or more contact requests to perform that action.');
+  }
+
+  var selectedIds = null;
+  
+  var contactRequestPath = #{contact_request_path("__ID__").to_json};
+  
+  var statusStore = new Ext.data.SimpleStore({
+    fields: ['display', 'value'],
+    data: [['All not spam', 'all'], ['Completed', 'completed'], ['Incomplete', 'incomplete'], ['Spam', 'spam']]
+  });
+  
+  var statusSelection = xl.widget.FormField({
+      displayField: 'display', 
+      valueField: 'value',
+      hiddenName: 'status',
+      fieldLabel: 'Status',
+      value: 'all', 
+      type: 'combobox', 
+      store: statusStore, 
+      editable : false,
+      triggerAction: 'all',
+      mode: 'local'
+  });
+  
+  var ContactRequestRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'name', mapping: 'name'}, 
+    {name: 'created_at', mapping: 'created_at'}, 
+    {name: 'updated_at', mapping: 'updated_at'}, 
+    {name: 'completed_at', mapping: 'completed_at'},
+    {name: 'completed', mapping: 'completed'},
+    {name: 'subject', mapping: 'subject'},
+    {name: 'party_id', mapping: 'party_id'},
+    {name: 'party_email', mapping: 'party_email'}
+  ]);
+  // data reader to parse the json response
+  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, ContactRequestRecord);
+  
+  // set up connection of the data
+  var connection = new Ext.data.Connection({url: #{formatted_contact_requests_path(:format => :json).to_json}, method: 'get'});
+  var proxy = new Ext.data.HttpProxy(connection);
+
+  // set up the data store and then send request to the server
+  var ds = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+  
+    // define paging toolbar that is going to be appended to the footer of the grid panel
+  var paging = new Ext.PagingToolbar({
+    store: ds,
+    pageSize: #{limit},
+    displayInfo: true,
+    displayMsg: 'Displaying {0} to {1} of {2}',
+    emptyMsg: "No record to display",
+    cls: "bottom-toolbar paging-toolbar-bottom",
+    plugins: [new Ext.ux.PageSizePlugin]
+  });
+  
+  statusSelection.on('select', function(el, newValue, oldValue){
+    ds.baseParams['status'] = newValue.data.value;
+    ds.reload({params: {start: 0, limit: ds.lastOptions.params.limit}});
+    if(newValue.data.value == "spam"){
+      markAsHamAction.enable();
+      markAsSpamAction.disable();
+    }
+    else{
+      markAsHamAction.disable();
+      markAsSpamAction.enable();
+    }
+  });
+  
+  #{create_grid_tbar_filter_field}
+  
+  #{create_grid_tbar_clear_button}
+  
+  var gridTopToolbar = new Ext.Toolbar({
+    cls: "top-toolbar",
+    items: [{text: "Status:"}, statusSelection, {text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+  });
+  
+  var completedCheckColumn = new Ext.grid.CheckColumn({
+    id: 'completed', 
+    header: "Completed",
+    dataIndex: 'completed',
+    width: 60
+  });
+  
+  var updateContactRequestPath = #{contact_request_path(:id => "__ID__").to_json};
+
+  completedCheckColumn.addListener("click", function(element, event, record){
+    var params = {};
+    var method = null;
+    params["contact_request[completed]"] = record.get('completed');
+    objectId = record.get('id');
+    method = "PUT";
+    Ext.Ajax.request({
+      url: updateContactRequestPath.sub("__ID__", objectId),
+      params: params,
+      method: method,
+      success: function(transport, options){
+        response = Ext.util.JSON.decode(transport.responseText);
+        record.set('id', response.id);
+        record.set('name', response.name);
+        record.set('created_at', response.created_at);
+        record.set('updated_at', response.updated_at);
+        record.set('completed_at', response.completed_at);
+        record.set('completed', response.completed);
+        if(response.flash && response.flash.include("Error:"))
+          event.grid.getView().getCell(event.row, event.column).highlight({startcolor: "FF5721"});
+        else
+          event.grid.getView().getCell(event.row, event.column).highlight();
+      }
+    });
+  });
+  
+  var completedAtRenderer = function(value, cell, record) {
+    if(value == false)
+      return "";
+    else
+      return value;
+  };
+  
+  var grid = new Ext.grid.EditorGridPanel({
+      store: ds,
+      cm: new Ext.grid.ColumnModel([
+          {id: "subject", header: "Subject", width: 70, sortable: true, dataIndex: 'subject'},
+          {id: "name", width: 110, header: "Name", sortable: true, dataIndex: 'name'},
+          {id: "email", width: 130, header: "Email", sortable: true, dataIndex: 'party_email'},
+          {id: "created_at", width: 75, header: "Created At", sortable: true, dataIndex: 'created_at'},
+          {id: "completed_at", width: 75, header: "Completed At", sortable: true, dataIndex: 'completed_at', renderer: completedAtRenderer},
+          completedCheckColumn
+        ]),
+      autoScroll: true,
+      autoExpandColumn: 'subject',
+      autoExpandMin: 150,
+      autoWidth: true,
+      height: #{get_default_grid_height(nil)},
+      clicksToEdit:1,
+      tbar: gridTopToolbar, 
+      bbar: paging,
+      loadMask: true,
+      selModel: new Ext.grid.RowSelectionModel,
+      plugins: completedCheckColumn
+  });
+  
+  var selectAllAction = new Ext.Action({
+    text: "Select all",
+    iconCls: "display_none"
+  });
+
+  var clearAllAction = new Ext.Action({
+    text: "Clear all",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var replyAction = new Ext.Action({
+    text: "Reply",
+    iconCls: "display_none",
+    disabled: true
+  });
+    
+  function getSelectedIdsString(records){ 
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    return ids.toString()
+  }
+  
+  var tagsSelectionStore = new Ext.data.SimpleStore({
+    fields: ['display', 'value'],
+    data: #{current_account.contact_requests.tags.map{|e| [e.name, e.name]}.to_json}
+  });
+
+  var tagsSelectionField = new Ext.form.ComboBox({
+    name: "tag_list",
+    displayField: 'display',
+    valueField: 'value',
+    fieldLabel: 'Tag',
+    triggerAction: 'all',
+    mode: 'local',
+    allowBlank: false,
+    store: tagsSelectionStore
+  });
+
+  var tagsSelectionFormPanel = new Ext.form.FormPanel({
+    items: [tagsSelectionField]
+  });
+
+  var tagWithWindow = new Ext.Window({
+    title: "Please select a tag",
+    resizable: false,
+    width: 300,
+    height: 95,
+    items: [tagsSelectionFormPanel],
+    buttons:[
+        {
+          text: "Submit",
+          handler: function() {
+              var parameters = {};
+              parameters["ids"] = getSelectedIdsString(grid.getSelectionModel().getSelections());
+              tagsSelectionFormPanel.getForm().doAction("submit",
+                {
+                  url: #{tagged_collection_contact_requests_path.to_json},
+                  method: "POST",
+                  params: parameters
+                }
+              )
+              if(tagsSelectionFormPanel.getForm().isValid()) {
+                grid.enable();
+                tagWithWindow.hide();
+                tagWithWindow.close();
+              }
+            }
+        },
+        {
+          text: 'Close',
+          handler: function() { grid.enable(); tagWithWindow.hide(); tagWithWindow.close(); }
+        }
+      ]
+  });
+
+  var tagWithAction = new Ext.Action({
+    text: "Tag",
+    iconCls: "display_none",
+    handler: function() {
+      var records = grid.getSelectionModel().getSelections();
+      if(records.length < 1){
+        alertNoContactRequestsSelected();
+        return false;
+      }
+      grid.disable();
+      tagWithWindow.show();
+    }
+  });
+  
+  var deletePartyCheckboxField = new Ext.form.Checkbox({
+    fieldLabel: "Delete parties as well?",
+    labelSeparator: " ",
+    name: "destroy_party"
+  });
+  
+  var deleteFormPanel = new Ext.form.FormPanel({
+    labelWidth: 150,
+    items: [deletePartyCheckboxField]
+  });
+
+  var deleteWindow = new Ext.Window({
+    title: "Delete contact requests",
+    resizable: false,
+    width: 300,
+    height: 92,
+    items: [deleteFormPanel],
+    buttons:[
+        {
+          text: "OK",
+          handler: function() {
+              var params = {};
+              params['ids'] = selectedIds.toString();
+              deleteFormPanel.getForm().doAction("submit",
+                {
+                  url: #{destroy_collection_contact_requests_path().to_json},
+                  method: "POST",
+                  params: params
+                }
+              )
+              if(deleteFormPanel.getForm().isValid()) {
+                grid.enable();
+                deleteWindow.hide();
+                deleteWindow.close();
+              }
+            }
+        },
+        {
+          text: 'Cancel',
+          handler: function() { grid.enable(); deleteWindow.hide(); deleteWindow.close(); }
+        }
+      ]
+  });
+
+  var deleteAction = new Ext.Action({
+    text: "Delete",
+    iconCls: "display_none",
+    disabled: true,
+    handler: function() {
+      grid.disable();
+      deleteWindow.show();
+    }
+  });
+  
+  var markAsHamAction = new Ext.Action({
+    text: "Mark as Not Spam",
+    iconCls: "display_none",
+    disabled: true,
+    handler: function() {
+      Ext.Msg.confirm("", "Mark selected contact request(s) as not spam?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        params['ids'] = selectedIds.toString();
+        new Ajax.Request(#{mark_as_ham_contact_requests_path.to_json}, {
+          method: 'post',
+          parameters: params
+        });
+      }
+    });
+    }
+  });
+  
+  var markAsSpamAction = new Ext.Action({
+    text: "Mark as Spam",
+    iconCls: "display_none",
+    disabled: false,
+    handler: function() {
+      Ext.Msg.confirm("", "Mark selected contact request(s) as spam?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        params['ids'] = selectedIds.toString();
+        new Ajax.Request(#{mark_as_spam_contact_requests_path.to_json}, {
+          method: 'post',
+          parameters: params
+        });
+      }
+    });
+    }
+  });
+  
+  var selectionMenu =  new Ext.menu.Menu({
+    items: [selectAllAction, clearAllAction, markAsHamAction, markAsSpamAction, replyAction, tagWithAction]
+  });
+  selectionMenu.addSeparator();
+  selectionMenu.add(deleteAction);
+  
+  clearAllAction.setHandler(function(e) {
+    grid.getSelectionModel().clearSelections();
+    selectedIds = [];
+    e.disable();
+  });
+
+  selectAllAction.setHandler(function(e) {
+    grid.getSelectionModel().selectAll();
+    e.disable();
+  });
+
+  replyAction.setHandler(function(e) {
+    var party_email = ds.getById(selectedIds.first()).data.party_email;
+    var subject = ds.getById(selectedIds.first()).data.subject;
+    
+    if(subject)
+      subject = subject.sub("#", "%23");
+    else
+      subject = "Contact Request"
+    
+    if(typeof(party_email) == "undefined"){
+      Ext.Msg.alert("Cannot send email", "This contact request does not have a valid email address");
+      return false;
+    }
+    xl.openNewTabPanel('emails_new_nil',#{sandbox_new_emails_path(:email_tos => "__EMAIL__", 
+        :subject => "__SUBJECT__").to_json}.sub("__EMAIL__", party_email).sub("__SUBJECT__", "RE: " + subject));
+  });
+    
+  newPanel.add(grid);
+  xl.runningGrids.set("contact_request", grid);
+  newPanel.on("destroy", function(){
+    xl.runningGrids.unset("contact_request");
+  });
+  
+  var showContactRequestUrl = #{contact_request_path(:id => "__ID__").to_json};
+  grid.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
+    var record = ds.getAt(rowIndex);
+    var id = record.data.id;
+    switch(columnIndex){
+      case grid.getColumnModel().getIndexById("completed"):
+        break;
+      default:
+        xl.openNewTabPanel('contact_requests_show_'+id, showContactRequestUrl.sub("__ID__", id));
+        break;
+    }
+  });
+
+  xl.viewport.render();
+  
+  grid.getTopToolbar().add({ text: "Actions", menu: selectionMenu });
+  
+  grid.getSelectionModel().on("selectionchange", function(){
+    records = grid.getSelectionModel().getSelections();
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    selectedIds = ids;
+
+    if(ids.length>0){
+      clearAllAction.enable();
+      deleteAction.enable();
+    }
+    else{
+      deleteAction.disable();
+      selectAllAction.enable();
+    }
+    if(ids.length == 1)
+      replyAction.enable();
+    else
+      replyAction.disable();
+    
+  });
+`
+end
+

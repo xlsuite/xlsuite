@@ -1,0 +1,35 @@
+<% labelled_fields_for(:feed, @feed) do |f| %>
+<div id="form-errors">
+  <%= error_messages_for :feed %>
+</div>
+
+<fieldset class="feed-edit">
+ <div class="feed_edit_options">
+  <%= f.text_field :label, :size => 60, :class=> "text" %>
+  <%= f.text_field :url, :size => 60, :class=> "text" %>
+  <%= f.text_area :description %>
+ </div>
+ <div class="feed_edit_tags clear">
+  <%= f.text_area_with_auto_complete(:tag_list, :url => auto_complete_tag_feeds_path) %>
+ </div>
+ <div class="feed_edit_tagCl">
+  <%= tag_cloud(@feed, @common_tags, :apply_to => :feed_tag_list) %>
+ </div>
+ <div class="feed_chk clear block"><%= check_box_tag "party[feed_id]", @feed.id, current_user.feeds.include?(@feed)%> Show in My Feeds</div>
+</fieldset>
+
+<% if !@feed.new_record? %>
+<fieldset>
+  <h4>Status</h4>
+  <p>
+  <% if @feed.last_errored_at then %>
+    Won't try updating until: <%= time_ago_in_words(@feed.refreshed_at, Time.now.utc) %> (<%= @feed.refreshed_at.to_s(:iso) %>)<br/>
+    Last errored at: <%= @feed.last_errored_at.to_s(:iso) %><br/>
+    Error message: <%=h @feed.error_message %><br/>
+    <pre><%=h @feed.backtrace %></pre>
+  <% else -%>
+    Last refreshed at: <%= @feed.refreshed_at.to_s(:iso) %>
+  <% end -%></p>
+</fieldset>
+<% end %>
+<% end -%>

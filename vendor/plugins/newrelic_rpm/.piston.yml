@@ -1,0 +1,8 @@
+--- 
+format: 1
+handler: 
+  piston:remote-revision: 50
+  piston:uuid: 35f87567-2141-461e-91b7-2d677a58cf52
+lock: 
+repository_url: http://newrelic.rubyforge.org/svn/newrelic_rpm/
+repository_class: Piston::Svn::Repository

@@ -1,0 +1,2 @@
+page.replace_html :effective_permissions, :partial => "parties/permission", :collection => @party.effective_permissions
+page.visual_effect :highlight, :effective_permissions

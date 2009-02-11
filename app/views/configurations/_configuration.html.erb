@@ -1,0 +1,34 @@
+    <% bg_class = cycle("", "bg") %>
+    <tr class="<%= bg_class %>">
+      <td><%= h configuration.group_name %></td>
+      <td>
+        <label for="config_<%= configuration.id %>_value"><strong><%= h configuration.name %>&nbsp;:</strong></label>
+        <%= @config = configuration; case configuration[:type].to_s
+            when 'StringConfiguration'
+              text_field 'config[]', 'value', :class => "text string_configuration"
+            when 'FloatConfiguration'
+              text_field 'config[]', 'value', :class => "text float_configuration"
+            when 'IntegerConfiguration'
+              text_field 'config[]', 'value', :class => "text integer_configuration"
+            when 'BooleanConfiguration'
+              check_box 'config[]', 'value', :class => "text boolean_configuration"
+            when 'ProductConfiguration'
+              select_tag("config[#{@config.id}][value]", 
+                  options_for_select(@products, @config.value.nil? ? nil : @config.value.id), 
+                  :id => "config_#{@config.id}_value")
+            when 'PartyConfiguration'
+              select_tag("config[#{@config.id}][value]", 
+                  options_from_collection_for_select(@parties, :id, :display_name, @config.value.nil? ? nil : @config.value.id), 
+                  :id => "config_#{@config.id}_value")
+            when 'ProductCategoryConfiguration'
+              select_tag "config[#{@config.id}][value]", 
+                  render(:partial => 'admin/product_catalog/products/cat', :collection => @product_categories, :locals => {:indent => 0, :recurse => true, :selected => @config.value}),
+                  :id => "config_#{@config.id}_value"
+            else
+              raise "Unmappable configuration type: '#{configuration[:type]}'"
+            end
+        %>
+      </td>
+      <td><%= h configuration.description %></td>
+    </tr>
+    

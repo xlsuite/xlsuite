@@ -1,0 +1,17 @@
+<h2><%= h(@group.name) %></h2>
+
+<h3>Members</h3>
+<ul id="members">
+  <%= render :partial => "member", :collection => @group.children %>
+  <%= render :partial => "member", :collection => @group.parties %>
+</ul>
+
+<h3>Permissions</h3>
+<ul id="permissions">
+  <%= render :partial => @group.permissions %>
+</ul>
+
+<p>
+  <%= link_to("Back", groups_path, :icon => "group") %>
+  <%= link_to("Edit", edit_group_path(@group), :icon => "group_edit") %>
+</p>

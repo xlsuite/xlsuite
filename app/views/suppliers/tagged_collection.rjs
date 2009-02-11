@@ -1,0 +1,1 @@
+page << update_notices_using_ajax_response(:on_root => true)

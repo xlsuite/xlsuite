@@ -1,0 +1,28 @@
+#assets img { padding: 2px; border: 1px solid #8abb46; }
+#assets { list-style: none; }
+#assets > li { position: relative; float: left; width: 14em; margin: 1em; overflow: hidden; }
+#assets > li a.view { display: block; margin: 0; text-align: center; }
+#assets > li a.view img { display: inline; }
+
+#assets > li dl { position: absolute; left: .5em; top: 1em; padding: .25em; width: 90%; height: 100%; overflow: auto; background: white; border: 1px solid #8abb46; z-index: 500; }
+#assets > li dt { font-weight: bold; display: block; margin: 0; }
+#assets > li dd { margin: .1em 0 0 1em; display: block; }
+#assets > li:hover dl { display: block; }
+
+#assets { margin-top: 2em; border-top: 1px solid #aaa;}
+#assets a.edit, #assets a.delete , #assets a.details
+    { position:absolute; right: 0; display: none; }
+#assets a.details { top: 0; }
+#assets a.edit { top: 1.5em; }
+#assets a.delete { top: 3em; }
+#assets li:hover a.edit, #assets li:hover a.delete , #assets li:hover a.details { display: block; }
+#assets a.edit img, #assets a.delete img , #assets a.details img { border:none; }
+
+#assets-search {margin: 1em 0;}
+#assets-search label, #assets-search input, #assets-search select { display: inline; }
+#assets-search label[for=q] { }
+#q { width: 20em; }
+#scope { width: 12em; }
+
+.actions {clear: both;}
+.actions a { display: block; }

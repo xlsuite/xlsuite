@@ -1,0 +1,8 @@
+
+<%= cached_javascript_include_tag "application.js"%>
+
+<%= stylesheet_link_tag 'listings/index' %>
+<h1>Creating New Listing</h1>
+<% form_for :listing, @listing, :url => listings_path, :html => {:multipart => true} do |f| %>
+  <%= render :partial => 'form', :locals => {:f => f} %>
+<% end %>

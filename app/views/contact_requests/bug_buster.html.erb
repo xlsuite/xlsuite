@@ -1,0 +1,26 @@
+
+<div class="wrap">
+
+
+
+<form method="post" action="/admin/contact_requests/bugs" id="bugReport" enctype="multipart/form-data">
+ <p class="roomy">Please complete the form below to report a bug:</p>
+  <fieldset>
+    <p>
+     <label for="bug_subject">Subject:</label>
+      <%= text_field_tag "bug[subject]", "", :class => "text" %>
+    </p>
+    <p>   
+     <label for="bug_body">Description:</label><br />
+     <%= text_area_tag "bug[body]" %>
+  	</p>
+    <p>
+      <label for="bug_file">Attachment (screenshot / other, limited to 2 MB):</label><br/>
+      <%= file_field_tag "attachment[uploaded_data]" %>
+    </p>
+  	<p>
+     <%= submit_tag "Submit", :class => "submit button", :name => nil %>
+    </p>
+  </fieldset>
+</form>
+</div>

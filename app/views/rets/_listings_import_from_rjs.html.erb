@@ -1,0 +1,29 @@
+<%#= render :partial => "listings_menu" %>
+
+<form id="listingsImportForm" action="<%=do_listings_import_rets_path%>" method="POST" class="listCombinedView" onsubmit="$('listingsImportForm').request({ method: 'post', onFailure: xl.logXHRFailure }); return false;">
+  <div class="tableHeader">
+    <h2>Search Listings</h2>
+    <ul id="listings_searchOptions">
+      <!-- adds new MLS# line -->
+      <li class="small">
+        <%= link_to_function "New MLS# Line", "addNewMlsImportLine(#{@mls_number_field.value}, #{@address_field.value})" %>
+      </li>
+      <li><%= submit_tag "Submit", :class => "button submit" %></li>
+      <li class="small"><%= link_to_function "Cancel", "xl.closeTabPanel('rets_listings_import_nil')" %></li>
+    </ul>
+  </div>
+  
+  <br class="clear" />
+
+  <table id="mls_import_table" class="imp">
+    <tr class="tableHeader">
+      <th scope="col" width="30%"></th>
+      <th scope="col" width="70%"></th>  
+    </tr>
+    <%= hidden_field_tag "search[resource]", @search[:resource] %>
+    <%= hidden_field_tag "search[class]", @search[:class] %>
+    <%= render :partial => "mls_import", :locals => {:count => 1} %>
+  </table>
+</form>
+
+<%= hidden_field_tag "num_of_mls_import_lines", 1 %>

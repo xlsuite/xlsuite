@@ -1,0 +1,1 @@
+page.call "displayOverwriteConfirmationBox(\"#{@saved_search.name} already exists!\")"

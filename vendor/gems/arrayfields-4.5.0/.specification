@@ -1,0 +1,70 @@
+--- !ruby/object:Gem::Specification 
+name: arrayfields
+version: !ruby/object:Gem::Version 
+  version: 4.5.0
+platform: ruby
+authors: 
+- Ara T. Howard
+autorequire: arrayfields
+bindir: bin
+cert_chain: 
+date: 2007-09-18 00:00:00 -04:00
+default_executable: 
+dependencies: []
+
+description: 
+email: ara.t.howard@noaa.gov
+executables: []
+
+extensions: []
+
+extra_rdoc_files: []
+
+files: 
+- a.rb
+- arrayfields-4.5.0.gem
+- gemspec.rb
+- gen_readme.rb
+- install.rb
+- lib
+- lib/arrayfields-4.5.0.rb
+- lib/arrayfields.rb
+- README
+- README.tmpl
+- sample
+- sample/a.rb
+- sample/b.rb
+- sample/c.rb
+- sample/d.rb
+- sample/e.rb
+- test
+- test/arrayfields.rb
+- test/memtest.rb
+has_rdoc: false
+homepage: http://codeforpeople.com/lib/ruby/arrayfields/
+post_install_message: 
+rdoc_options: []
+
+require_paths: 
+- lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">"
+    - !ruby/object:Gem::Version 
+      version: 0.0.0
+  version: 
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+requirements: []
+
+rubyforge_project: 
+rubygems_version: 1.2.0
+signing_key: 
+specification_version: 1
+summary: arrayfields
+test_files: 
+- test/arrayfields.rb

@@ -1,0 +1,60 @@
+<% @item = eitem -%>
+<%= form_remote_tag(:url => {:action => :save_item, :id => @item},
+                    :loading => visual_effect(:blind_up, 'cart-edit-section'),
+                    :update => 'cart') %>
+<table class="form" border="0" cellspacing="2" cellpadding="0">
+<% if @item.comment? -%>
+  <col/>
+  <tr>
+    <td><%= label 'Description', :item, :description %></td>
+  </tr>
+  <tr>
+    <td><%= text_field :item, :description, :size => 40 %></td>
+  </tr>
+<% elsif @item.manhours? -%>
+  <col/><col/><col/>
+  <tr>
+    <td><%= label 'Description', :item, :description %></td>
+    <td><%= label 'Quantity', :item, :quantity %></td>
+    <td><%= label 'Unit Price', :item, :unit_price %></td>
+  </tr>
+  <tr>
+    <td><%= text_field :item, :description, :size => 30 %></td>
+    <td><%= text_field :item, :quantity, :size => 4, :class => 'number' %></td>
+    <td><%= text_field :item, :unit_price, :size => 5, :value => format_money(@item.unit_price), :class => 'money' %></td>
+  </tr>
+<% else -%>
+  <col/><col/><col/>
+  <tr>
+    <td><%= label 'Product No', :item, :product_no %></td>
+    <td><%= label 'Quantity', :item, :quantity %></td>
+    <td><%= label 'Unit Price', :item, :unit_price %></td>
+  </tr>
+  <tr>
+    <td>
+      <%= hidden_field :item, :product_id %>
+      <%= text_field :product, :product_no, :size => 40, :value => @product_no %>
+      <div class="auto_complete" id="product_product_no_auto_complete"/>
+      <script type="text/javascript">
+        new Ajax.Autocompleter('product_product_no', 'product_product_no_auto_complete',
+              '<%= url_for(:action => :auto_complete_for_product_product_no) %>',
+              {afterUpdateElement: function(element, selectedElement) {
+                  $('item_product_id').value = selectedElement.id.substring(1);
+                  $('item_unit_price').value = selectedElement.getAttribute('price');}});</script>
+    </td>
+    <td><%= text_field :item, :quantity, :size => 4, :class => 'number' %></td>
+    <td><%= text_field :item, :unit_price, :size => 5, :value => format_money(@item.unit_price), :class => 'money'%></td>
+  </tr>
+<% end -%>
+  <tr>
+    <td colspan="<%= @item.comment? ? 1 : 3 %>" align="center">
+      <div style="text-align:center">
+        <%= hidden_field_tag 'parent_id', @item.parent.id %>
+        <%= hidden_field :item, :line_type %>
+        <%= submit_tag 'Save' %>
+        <%= link_to_function 'Cancel', visual_effect(:blind_up, 'cart-edit-section') %>
+      </div>
+    </td>
+  </tr>
+</table>
+<% end -%>

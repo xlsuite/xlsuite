@@ -1,0 +1,6 @@
+page << update_notices_using_ajax_response
+page << "xl.runningGrids.each(function(pair){"
+page << "var grid = pair.value;"
+page << "var dataStore = grid.getStore();"
+page << "if (dataStore.proxy.conn.url.match(new RegExp('folders', 'i'))) {"
+page << "dataStore.reload();}});"

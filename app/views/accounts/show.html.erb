@@ -1,0 +1,14 @@
+<h1 class="compact">Domain List for <%= @account.title %></h1>
+<table class="list" width="100%" cellspacing="0" cellpadding="0">
+  <col/>
+  <thead>
+    <tr>
+      <th>Domain name</th>
+      <th>Created at</th>
+      <th>Updated at</th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= render :partial => '/domains/domain', :collection => @domains %>
+  </tbody>
+</table>

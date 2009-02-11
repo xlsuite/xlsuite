@@ -1,0 +1,15 @@
+<div class = "thumbs">
+  <%= check_box_tag "assets[]", list_thumb.id %>
+  <% if list_thumb.writeable_by?(@current_user)%>
+    <%= link_to list_thumb.filename, "#", :onclick => 'toggleEditFileView('+list_thumb.id.to_s+')' %>
+  <% else %>
+    <%= link_to list_thumb.filename, "#", :onclick => 'alert("You can\'t edit this file")' %>
+  <% end -%><br />
+  <% if list_thumb.content_type =~ /^image/%>
+    <img src="<%= download_asset_path(:id => list_thumb, :size => "square") %>" width="75" height="75" alt="<%=h list_thumb.title %>"/>
+  <% elsif list_thumb.content_type =~ /^(text)|(msword)$/%>
+    <%= image_tag "icons/text_thumb.jpg", :size => "75x75" -%>
+  <% else %>
+    --No image--
+  <% end -%>
+</div>

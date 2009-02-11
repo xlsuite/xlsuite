@@ -1,0 +1,16 @@
+<ul>
+<% for s in current_user.searches -%>
+  <div id='<%= "saved_search#{s.id}" %>' class="<%= cycle('mail-column', 'mail-column-bg', :name => 'saved_searches_column_bg_switch') %>">
+    <li>
+      <div class="fldi savedSearchTitle"><%= link_to_function h(s.name), change_centre_iframe_src(url_for({:controller => 'search', :action => 'perform_advanced_search', :id => s.id})) %></div>
+      <div class="fldi saved-searches-icons"><%= link_to_remote(icon_tag(:pencil, :class => "sortOrder"), :url => {:controller => 'search', :action => 'show_saved_search', :id => s.id},
+            :loading => "Element.show('savedSearchEdit#{s.id}_throbber')", :loaded => "Element.hide('savedSearchEdit#{s.id}_throbber')", :class => "right") %>
+      <%= throbber("savedSearchEdit#{s.id}_throbber", :class=>"throbber_savedSearch_edit") %>
+      <%= link_to_remote(icon_tag(:delete, :class => "sortOrder"), :url => {:controller => 'search', :action => 'remove_saved_search', :id => s.id},
+            :confirm => "Are you sure you want to delete \"#{s.name}\"?", 
+            :loading => "Element.show('savedSearchDelete#{s.id}_throbber')", :loaded => "Element.hide('savedSearchDelete#{s.id}_throbber')", :class => "right") %>
+      <%= throbber("savedSearchDelete#{s.id}_throbber", :class=>"throbber_savedSearch_delete") %></div>
+    </li>
+  </div>
+<% end -%>
+</ul>

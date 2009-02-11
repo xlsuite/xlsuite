@@ -1,0 +1,89 @@
+--- !ruby/object:Gem::Specification 
+name: scrapi
+version: !ruby/object:Gem::Version 
+  version: 1.2.0
+platform: ruby
+authors: 
+- Assaf Arkin
+autorequire: scrapi.rb
+bindir: bin
+cert_chain: 
+date: 2006-08-27 00:00:00 -04:00
+default_executable: 
+dependencies: 
+- !ruby/object:Gem::Dependency 
+  name: tidy
+  type: :runtime
+  version_requirement: 
+  version_requirements: !ruby/object:Gem::Requirement 
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        version: 1.1.0
+    version: 
+description: scrAPI is an HTML scraping toolkit for Ruby. It uses CSS selectors to write easy, maintainable scraping rules to select, extract and store data from HTML content.
+email: assaf.arkin@gmail.com
+executables: []
+
+extensions: []
+
+extra_rdoc_files: 
+- README
+files: 
+- test/node_ext_test.rb
+- test/scraper_test.rb
+- test/mock_net_http.rb
+- test/selector_test.rb
+- test/reader_test.rb
+- lib/scrapi.rb
+- lib/scraper
+- lib/tidy
+- lib/html
+- lib/scraper/reader.rb
+- lib/scraper/base.rb
+- lib/scraper/microformats.rb
+- lib/tidy/libtidy.so
+- lib/tidy/libtidy.dll
+- lib/html/node_ext.rb
+- lib/html/selector.rb
+- lib/html/node.rb
+- lib/html/version.rb
+- lib/html/tokenizer.rb
+- lib/html/document.rb
+- lib/html/htmlparser.rb
+- README
+- CHANGELOG
+- Rakefile
+- MIT-LICENSE
+has_rdoc: true
+homepage: http://blog.labnotes.org/category/scrapi/
+post_install_message: 
+rdoc_options: 
+- --main
+- README
+- --title
+- scrAPI toolkit for Ruby
+- --line-numbers
+require_paths: 
+- lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">"
+    - !ruby/object:Gem::Version 
+      version: 0.0.0
+  version: 
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+requirements: 
+- Tidy
+rubyforge_project: scrapi
+rubygems_version: 1.2.0
+signing_key: 
+specification_version: 1
+summary: scrAPI toolkit for Ruby. Uses CSS selectors to write easy, maintainable HTML scraping rules.
+test_files: []
+

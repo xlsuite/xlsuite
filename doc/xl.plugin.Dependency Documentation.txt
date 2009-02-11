@@ -1,0 +1,74 @@
+### Dependency Plugin ###
+
+   Creates a binding between one main object and receivers. The most common usage is to perform actions based on the certain event of the main object being fired. Each  performable action is discrete and retains the following properties:
+
+ - (String) on: The event on which to perform this action
+
+ - (Protoype.Hash) receivers: A Hash with the value set to the actual on which to act
+                              and the key set to a string by which to refer to the object
+                              later on in the test
+
+ - (Function) test: A test to decide on which receiver to act. This function must accept
+                    the main object since this is often what is tested to choose the
+		      receiver. This function must return the string by which the receiver
+                    can be found in the receivers Hash, or false if the test fails
+
+ - (Function/String) pass: This function is applied to the receiver returned when the
+                           test returns positively. If a function is supplied, the
+                           receiver, then the main object is passed. In lieu of a
+                           function, a string may be used for brevity:
+                             * Allowed strings -- 'show', 'hide' -- call the corresponding
+                               functions on the receiver
+
+ - (Function/String) fail: This function is applied to the receivers NOT returned
+                           when the test returns positively. If test returns false,
+                           the fail function is applied to all receivers. Whether a
+                           function or string is used, it behaves like the pass property
+
+ - (Function) applyBefore: Optional. A function to apply to all receivers during
+                           initialization before the event listeners are set. If it
+                           returns false, the creation of the Dependency is cancelled
+                           immediately. Any other value, including null, continues.
+                           
+# Example #
+Notes:
+ - toAddressField, etc. refer to the form fields to hide or show
+
+var toDependency = new xl.plugin.Dependency({
+      actions: [{
+        on: 'select',
+        applyBefore: function(o) { o.hide(); },
+        receivers: new Hash({
+          'a': toAddressesField, 'g': toGroupComboBox,
+          's': toSavedSearchComboBox, 't': toTagComboBox
+        }),
+        test: function(my) {
+          switch(my.getRawValue()) {
+            case 'Address(es) listed':
+              return 'a';
+            case 'Group':
+              return 'g';
+            case 'Saved Search':
+              return 's';
+            case 'Tag':
+              return 't';
+            default:
+              return false;
+          }; // end switch
+        },
+        pass: 'show',
+        fail: 'hide'
+      }]
+    });
+
+var toComboBox = new Ext.form.ComboBox({
+      store: xl.generateMemoryArrayStore(
+        [
+          [0, 'Address(es) listed'], [1, 'Group'], [2, 'Saved Search'], [3, 'Tag']
+        ],
+        0, [{name: 'text', mapping: 1}], true
+      ),
+      ...
+      plugins: [toDependency],
+      ...
+    });

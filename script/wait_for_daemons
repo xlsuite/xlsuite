@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+require "timeout"
+include Timeout
+
+RAILS_ROOT = File.dirname(__FILE__) + "/.."
+LOG_ROOT = File.join(RAILS_ROOT, "log")
+PID_PATTERN = File.join(LOG_ROOT, "futures*.pid")
+
+max_time = (ARGV.first || "60").to_i
+puts "Waiting up to #{max_time} seconds for future daemons to die"
+begin
+  timeout(max_time) do
+    loop do
+      files = Dir[PID_PATTERN]
+      if files.empty? then
+        puts "No log/futures*.pid files left -- safe to return"
+        exit(0)
+      end
+
+      pids = []
+      files.each do |file|
+        pids << File.open(file, "rb") {|f| f.read.chomp}
+      end
+
+      cmd = "ps -p #{pids.join(",")} -o pid | tail -n -#{pids.size}"
+      processes = `#{cmd}`.split
+      unless $?.success? then
+        puts "Could not get process status information on #{pids.join(" ")}"
+        exit(1)
+      end
+
+      exit(0) if processes.empty?
+
+      puts "#{Time.now.utc}: Waiting for process(es) #{pids.join(", ")} to die..."
+      sleep 7
+    end
+  end
+rescue Timeout::Error
+  puts "!!! Daemons did not stop within #{max_time} seconds !!!"
+  exit(1)
+end

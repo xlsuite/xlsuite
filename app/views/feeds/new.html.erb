@@ -1,0 +1,8 @@
+
+  <div class="ipage">
+   <% form_tag(feeds_url) do %>
+   	 <p class="save_actions"><%= submit_tag "Create", :class=>"button" %> or <%= link_to "Cancel", feeds_path %></span>
+     <%= render :partial => 'form' %>
+     <p class="save_actions"><%= submit_tag "Create", :class=>"button" %> or <%= link_to "Cancel", feeds_path %></span>
+   <% end -%>
+  </div>

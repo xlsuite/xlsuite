@@ -1,0 +1,8 @@
+--- 
+format: 1
+handler: 
+  piston:remote-revision: 9250
+  piston:uuid: 5ecf4fe2-1ee6-0310-87b1-e25e094e27de
+lock: 
+repository_url: http://dev.rubyonrails.org/svn/rails/plugins/acts_as_list/
+repository_class: Piston::Svn::Repository

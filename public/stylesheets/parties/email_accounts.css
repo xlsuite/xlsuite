@@ -1,0 +1,6 @@
+#email_accounts_list {width:100%;}
+#email_accounts_list td { padding: 4px; }
+#email_accounts_list th { border-right: 1px solid #fff; padding-left: 4px; }
+#email_accounts_list th.lastHeader { border-right: none; }
+tr.tableHeader { height: 30px; padding: 6px; background: url(../../images/table_headerBg.png) repeat-x; }
+tr.tableHeader th, tr.tableHeader th a {font: 11px Verdana, sans-serif; font-weight: bold;  padding: 4px; color: #fff;}

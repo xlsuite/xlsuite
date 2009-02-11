@@ -1,0 +1,2 @@
+
+page.toggle("writer_update_throbber#{@asset.id}")

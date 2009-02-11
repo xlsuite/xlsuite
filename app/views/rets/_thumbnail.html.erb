@@ -1,0 +1,4 @@
+<% content_tag(:div, :class => selected ? "selected" : nil) do %>
+  <img src="<%= download_asset_url(:id => thumbnail, :size => size) %>" alt="no description"
+    fullsize="<%= download_asset_url(:id => thumbnail, :size => fullsize) %>"/>
+<% end -%>

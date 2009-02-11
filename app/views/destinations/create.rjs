@@ -1,0 +1,7 @@
+if @created
+  page << update_notices_using_ajax_response(:on_root => true)
+  page << close_tab_panel("destinations_new_nil")
+  page << refresh_grid_datastore_of("destination")
+else
+  page << update_inside_panel_notifications("destinations_new_nil")
+end

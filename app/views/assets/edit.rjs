@@ -1,0 +1,165 @@
+folder_id = @asset.folder ? @asset.folder.id : ""
+
+page << create_tab_using_ajax_response("Edit Asset") do
+%Q`
+
+  #{generate_save_close_cancel_toolbar(@asset, asset_path(@asset), asset_path(:id => @asset.id, :commit_type => "close"), {:maskPanel => "wrapperPanel"})}
+
+  var foldersStore = new Ext.data.SimpleStore({
+    fields: ['display','value'],
+    data: #{folder_selections.to_json}
+  });
+
+  var foldersSelection = xl.widget.FormField({
+      displayField: 'display', 
+      valueField: 'value',
+      fieldLabel: 'Folder',
+      name: 'domain', 
+      type: 'combobox', 
+      store: foldersStore, 
+      editable : false,
+      triggerAction: 'all',
+      mode: 'local',
+      hiddenName: 'asset[folder_id]',
+      value: #{folder_id.to_json}
+  });
+
+  var formPanel = new Ext.form.FormPanel({
+    autoScroll: true,
+    tbar: tbarbbarButtons,
+    fileUpload:true,
+    labelAlign: 'left',
+    items: [
+              {
+                html: "<div id=#{dom_id(@asset)}_errorMessages></div>"
+              },
+              foldersSelection,              
+              new Ext.form.TextField({
+                width: 350,
+                fieldLabel: 'Replace File',
+                name: 'asset[uploaded_data]',
+                inputType: 'file'
+              }),
+              new Ext.form.Checkbox({
+                fieldLabel: 'Unzip on upload',
+                inputValue: 1,
+                name: 'asset[zip_file]'
+              }),
+              new Ext.form.Checkbox({
+                fieldLabel: 'Private?',
+                inputValue: 1,
+                name: 'asset[private]',
+                checked: #{@asset.private}
+              }),
+              new Ext.form.TextField({
+                width: 350,
+                fieldLabel: 'Title',
+                name: 'asset[title]',
+                value: #{@asset.title.to_json}
+              }),
+              new Ext.form.TextArea({
+                fieldLabel: "Description",
+                width: 350,
+                name: "asset[description]",
+                value: #{@asset.description.to_json}
+              }),
+              {
+                layout: 'form',
+                items: [
+                  #{render_tags_text_area("asset[tag_list]", @asset, {:fieldLabel => "Tags"}, true)},
+                  #{render_tags_selection("asset[tag_list]", @asset, current_account.assets.tags, true, {:style => 'margin-left:110px'})}
+                ]
+              },
+              new Ext.form.Hidden({
+                value: "ajax",
+                name: "ajax"
+              }),
+              new Ext.form.Hidden({
+                value: "put",
+                name: "_method"
+              })
+            ]
+        });
+  
+  //--------------------------------PICTURES PANEL------------------------------//
+  
+  var picturePanelStore = new Ext.data.JsonStore({
+    url: #{images_asset_path(:id => @asset.id, :size => "mini").to_json},
+    root: "collection",
+    fields: ["filename", "url", "id"]
+  });
+
+  picturePanelStore.load();
+
+  var picturePanelTemplate = new Ext.XTemplate(
+    '<tpl for=".">',
+      '<div class="picture-thumb-wrap">',
+        '<div class="picture-thumb"><img src="{url}" title="{filename}"/></div>',
+        '<div class="picture-thumb-filename">{filename}</div>',
+      '</div>',
+    '</tpl>'
+  );
+
+  var picturePanel = new Ext.Panel({
+    title: "PICTURES",
+    items: [new Ext.DataView({
+      store: picturePanelStore,
+      tpl: picturePanelTemplate,
+      overClass: 'x-view-over',
+      itemSelector: 'div.picture-thumb-wrap',
+      emptyText: "No pictures to display"
+    })]
+  });
+
+  var imageViewerResult = xl.widget.ImageViewer({
+    objectId: #{@asset.id},
+    objectType: 'asset',
+    
+    imagesUrl: #{images_asset_path(@asset).to_json}
+  });
+  
+  var picturePanel = imageViewerResult[0];
+  var picturePanelStore = imageViewerResult[1];
+
+  var attachImageButton = new Ext.Button({
+      text: 'Attach image(s)',
+      handler: function(button, event) {
+        xl.widget.OpenImagePicker({
+          showFrom: button.getId(),
+          objectId: #{@asset.id},
+          objectType: 'asset',
+          
+          thisObjectImagesUrl: #{images_asset_path(@asset).to_json},
+          allImagesUrl: #{formatted_image_picker_assets_path(:format => :json).to_json},
+          
+          uploadUrl: #{upload_image_asset_path(:id => @asset.id).to_json},
+          
+          afterUpdate: function(xhr, options, record, allImagesStore, thisObjectImagesStore) {
+            picturePanelStore.reload()
+          }  
+        });
+      }
+  });
+  
+  var picturesPanel = new Ext.Panel({
+    items: [attachImageButton, picturePanel]
+  });
+  
+  var wrapperPanel = new Ext.TabPanel({
+    activeTab: 0,
+    deferredRender: false,
+    tabPosition: "bottom",
+    items: [
+      {title: "Edit", autoScroll: true, height: '100%', items: [formPanel]},
+      {title: "Pictures", autoScroll: true, items: [picturesPanel]}
+    ]
+  });
+  
+  xl.assetPanels.set("assets_edit_#{@asset.id}", wrapperPanel);
+  newPanel.on("destroy", function(){
+    xl.assetPanels.unset("assets_edit_#{@asset.id}");
+  });
+  
+  newPanel.add(wrapperPanel);
+`
+end

@@ -1,0 +1,13 @@
+<p>POST data to this URL to create an estimate.  Your request must be authorized with a <code>key</code> parameter.</p>
+<pre><code>POST /api/estimates<strong>?key=01234567890123456789012345678901</strong> HTTP/1.1
+Host: xlsuite.com
+Accept: application/xml
+Content-Type: application/xml
+Content-Length: 109
+
+&lt;estimate&gt;
+  &lt;name&gt;
+    &lt;first-name&gt;John&lt;/first-name&gt;
+    &lt;last-name&gt;Smith&lt;/last-name&gt;
+  &lt;/name&gt;
+&lt;/estimate&gt;</code></pre>

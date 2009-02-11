@@ -1,0 +1,17 @@
+page << create_tab_using_ajax_response("Entity | New") do
+%Q`
+  var wrapperPanel = new Ext.Panel({
+    cls: 'IAmAPanelWithBorderLayoutContainer',
+    region: 'center',
+    autoScroll: true
+  });
+  
+  var formPanel = new Ext.Panel({
+    region: 'center',
+    html: #{render(:partial => "new").to_json}
+  });
+  wrapperPanel.add(formPanel);
+  
+  newPanel.add(wrapperPanel);
+`
+end

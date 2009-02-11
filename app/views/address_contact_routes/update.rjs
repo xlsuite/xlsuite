@@ -1,0 +1,8 @@
+%w(name line1 line2 line3 city state country zip).each do |attribute|
+  value = @address.send(attribute)
+  element_name = typed_dom_id(@address, attribute.gsub("formatted_", ""), :show)
+  method = value.blank? ? "addClassName" : "removeClassName"
+
+  page.replace_html element_name, value
+  page << %Q($("#{element_name}").#{method}("blank");)
+end

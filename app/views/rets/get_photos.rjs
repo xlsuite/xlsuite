@@ -1,0 +1,4 @@
+page["listing_#{@id}_progress"].setAttribute("progress_url", future_path(:id => @future, :elapsed => "", :status => "listing_#{@id}_status", :progress => "listing_#{@id}_progress"))
+page["listing_#{@id}_progress"].setAttribute("photos_url",
+    url_for(:action => "refresh_photos", :id => @future, :root => "listing_#{@id}_gallery"))
+page["listing_#{@id}_status"].innerHTML = h(@future.status)

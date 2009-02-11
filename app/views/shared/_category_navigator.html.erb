@@ -1,0 +1,7 @@
+<ul class="navigator">
+<% last = @parent_categories.pop -%>
+<%= render  :partial => 'shared/navigator_item', :collection => @parent_categories,
+            :spacer_template => 'shared/navigator_spacer' %>
+<%= render :partial => 'shared/navigator_spacer' %>
+<%= h last.name %>
+</ul>

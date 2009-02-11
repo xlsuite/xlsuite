@@ -1,0 +1,18 @@
+<div class="ipage">
+  <% form_tag configurations_path do %>
+  <table id="configurationsTable" cellpadding="0" cellspacing="0" border="0">
+    <thead>
+      <tr class="tableHeader">
+        <th width="15%">Group Name</th>
+        <th width="30%"><abbr title="Configuration">Config</abbr>. Name</th>
+        <th width="55%">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= render :partial => 'configuration', :collection => @configurations %>
+    </tbody>
+  </table>
+  <br  />
+  <%= submit_tag "Save", :class => "button" %>
+  <% end %>
+</div>

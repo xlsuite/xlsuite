@@ -1,0 +1,13 @@
+From: <%= link_to_function(@contact_request.name, @contact_request.party ? "xl.openNewTabPanel('parties_edit_#{@contact_request.party_id}',#{edit_party_path(@contact_request.party).to_json});" : "")%> 
+<% subject = @contact_request.subject.gsub("#", "%23") rescue "Contact Request" %>
+<% party_email = (@contact_request.party && @contact_request.party.main_email) ? @contact_request.party.main_email.email_address.to_json : false %>
+<% if party_email %>
+<br />
+Reply to: <%= link_to_function(@contact_request.party.main_email.email_address, "xl.openNewTabPanel('emails_new_nil',#{sandbox_new_emails_path(:email_tos => party_email, :subject => 'RE: ' + subject).to_json});") %>
+<% end -%>
+<br /><br />
+Subject: <%= @contact_request.subject %>
+<br /><br />
+Body:<br />
+<%= text_area_tag("contact_request_body", @contact_request.body, :cols=>"100", :rows=>"20") %>
+<br /><br />

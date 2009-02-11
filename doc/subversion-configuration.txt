@@ -1,0 +1,31 @@
+Add the following to your Subversion configuration file:
+
+  Windows
+  =======
+  C:\Documents and Settings\<username>\Application Data\Subversion\config
+
+  Linux
+  =====
+  ~/.subversion/config
+
+[auto-props]
+*.sh = svn:mime-type=text/plain;svn:executable;svn:eol-style=LF
+*.txt = svn:mime-type=text/plain;svn:eol-style=native
+*.html = svn:mime-type=text/html;svn:eol-style=native
+*.rhtml = svn:mime-type=text/plain;svn:eol-style=native
+*.rxml = svn:mime-type=text/plain;svn:eol-style=native
+*.rjs = svn:mime-type=text/plain;svn:eol-style=native
+*.js = svn:mime-type=text/plain;svn:eol-style=native
+*.xhtml = svn:mime-type=text/xhtml+xml;svn:eol-style=native
+*.dtd = svn:mime-type=text/xml;svn:eol-style=native
+*.css = svn:mime-type=text/css;svn:eol-style=native
+*.rb = svn:mime-type=text/plain;svn:eol-style=native
+*.rbw = svn:mime-type=text/plain;svn:eol-style=native
+*.yml = svn:mime-type=text/plain;svn:eol-style=native
+*.yaml = svn:mime-type=text/plain;svn:eol-style=native
+*.sample = svn:mime-type=text/plain;svn:eol-style=native
+*.xml = svn:mime-type=text/xml;svn:eol-style=native
+*.bat = svn:mime-type=text/plain;svn:eol-style=native
+*.jpg = svn:mime-type=image/jpeg
+*.gif = svn:mime-type=image/gif
+*.png = svn:mime-type=image/png

@@ -1,0 +1,32 @@
+      <div id="searchBar" class="menuItem_search">
+        <%= form_remote_tag({:url => {:controller => 'search', :action => "perform_quick_search"}, :method => :get}) %>  
+          <%= link_to_function "Search:", "Element.toggle('searchConsole')", :class => "searchBarLabel" %>
+          <%= text_field_tag :search_text, @search_text, :id => "search", :class => "text" %>
+          <%= submit_tag("Go", {:class=>"button"})%>
+        </form>
+      </div>
+
+      <!-- Report generator subpanel -->
+      <div id="searchConsole" style="display:none;" class="searchSubPanel">
+        <%= form_remote_tag({:url => reports_path}) %>  
+          <div class="subPanelSection">
+            <div class="subPanelHeader">
+              <span>Advanced Search:</span>
+              <%= link_to_function "Add 'Search' line", "addNewReportLine()", :class => 'right' %>
+            </div>
+            <div class="report-selection-model">
+            <%= select_tag "report[model]", 
+              options_for_select([["Contact", "Party"], ["Product", "Product"]], "Contact"), :id => "report_model",
+              :onchange => "reportModelChange()"
+            %>
+            </div>
+            <div id="report-line-fieldsets">
+              <%= render :partial => "reports/report_line", :locals => {:line_index => 1} %>
+            </div>  
+          </div>
+          <div class="subPanelSection">
+            <%= submit_tag( "Search", {:class=>"button"}) %>
+            <%= link_to_function("Clear", "clearAllReportLines()") %>
+          </div>
+        </form>
+      </div>

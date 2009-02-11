@@ -1,0 +1,33 @@
+      <fieldset class="searchSubPanelForm">
+        <%= text_field_tag "report[lines][#{line_index}][field]", "", :class => "advancedSearch_text", :id => "report_lines_#{line_index}_field" %>
+        <div class="auto_complete" style="display:none;" id="report_lines_<%= line_index %>_field_auto_complete"></div>
+        <%= javascript_tag %Q~
+            new Ajax.Autocompleter("report_lines_#{line_index}_field", "report_lines_#{line_index}_field_auto_complete", "#{field_auto_complete_reports_path}", 
+              { 
+                paramName:"q",
+                method:"get",
+                callback: function(inputField, qString){        
+                  return (qString + "&model="+$("report_model").options[$("report_model").selectedIndex].value)
+                } 
+              })
+            ~ 
+        %>
+        <%= select_tag "report[lines][#{line_index}][operator]", 
+          options_for_select([["Starts with", "ReportStartsWithLine"], ["Ends with", "ReportEndsWithLine"], 
+            ["Contains", "ReportContainsLine"], ["Equals", "ReportEqualsLine"], ["Display only", "ReportDisplayOnlyLine"], 
+            ["Greater than", "ReportGreaterThanLine"], ["Less than", "ReportLessThanLine"]], "ReportContainsLine"), 
+            :class => "searchOptions_select", :id => "report_lines_#{line_index}_operator" %>
+        <%= text_field_tag "report[lines][#{line_index}][value]", "", 
+          :class => "advancedSearch_text", :id => "report_lines_#{line_index}_value" %>
+        <span class="display">
+          <%= check_box_tag "report[lines][#{line_index}][display]", "1", true, :class => 'box', :id => "report_lines_#{line_index}_display" %>
+        </span>
+        <span class="exclude">
+          <%= image_tag "icons/exclude.png", :class => 'exclude_label' %>
+          <%= check_box_tag "report[lines][#{line_index}][excluded]", "1", false, :class => 'box', :id => "report_lines_#{line_index}_excluded" %>
+        </span>
+        <span class="sort">
+          <%= hidden_field_tag "report[lines][#{line_index}][order]", "none", :id => "report_lines_#{line_index}_order"%>
+          <%= link_to_function image_tag('icons/none.png', :class => 'sortOrder', :id => "report_lines_#{line_index}_order_icon"), "changeReportLineOrderMode(#{line_index})" %>
+        </span>
+      </fieldset>

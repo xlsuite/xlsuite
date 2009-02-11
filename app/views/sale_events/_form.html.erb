@@ -1,0 +1,62 @@
+<% unless @sale_event.new_record? %>
+<div class="sale_event_id">
+  <fieldset>
+    <p>
+      <label>Internal:</label>
+      <input class="disabled text" value="N/A" disabled="" />
+    </p>
+  </fieldset>
+</div>
+<% end %>
+
+<label>Name</label>
+<%= f.text_field :name, :use_default_value => false %>
+
+<div>
+  <label>Start Date</label>
+  <%= content_tag :div, "", :id => typed_dom_id(@sale_event, :starts_at_date_field) %>
+  <%= throbber(typed_dom_id(@sale_event, :starts_at, :indicator)) %>
+</div>
+
+<div> 
+  <label>End Date</label>
+  <%= content_tag :div, "", :id => typed_dom_id(@sale_event, :ends_at_date_field) %>
+  <%= throbber(typed_dom_id(@sale_event, :ends_at, :indicator)) %>
+</div>
+
+<label>Avg. Discount</label>
+<%= @sale_event.average_discount %>
+
+<label>Avg. Margin</label>
+<%= @sale_event.average_margin %>
+
+<label>Total Sales</label>
+<%= @sale_event.total_sales %>
+
+<label>Total Profit</label>
+<%= @sale_event.total_profit %>
+
+<label>Description</label>
+<%= f.text_area :description, :use_default_value => false %>
+
+<div class='sale_event_tags'>
+  <label>Tags:</label>
+  <%= f.tags_field :tag_list, :use_default_value => false %>
+  <ul class="taglist">
+    <%= render :partial => "tags/tag", :collection => @common_tags[0..19], :spacer_template => "shared/list_comma",
+      :locals => {:apply_to => [typed_dom_id(@sale_event, :tag_list, :field)], :after_update => sale_event_tag_after_update} %>
+  </ul>
+</div>
+
+<div id="<%= typed_dom_id(@sale_event, :authorizations) %>" class='sale_event_permissions'>
+ <%= authorization_fields_for :sale_event %>
+</div>
+
+<label>Web Copy</label>
+<%= link_to_function "Create/Update Snippet" %>
+<%= link_to_function "View" %>
+<%= f.text_area :web_copy, :use_default_value => false %>
+
+<label>Use DB Data</label>
+<%= f.check_box :use_db_data, :onclick => sale_event_checkbox_js(:use_db_data) %>
+<%= throbber(typed_dom_id(@sale_event, :use_db_data, :indicator)) %>

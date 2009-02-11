@@ -1,0 +1,13 @@
+<tr class="<%= cycle("", "bg", :name => "list_background_class") %>"> 
+  <td><%= check_box_tag "folders[]", list.id %></td>
+  <td>
+    <%= link_to_function list.name, "multiFolder(this, #{list.id})" %>
+    <% if list.writeable_by?(current_user)%>
+      <%= link_to( "[edit]", nil, :onClick => "generateEditFolderWindow(#{list.id}); return false;")%>
+      <%= link_to( "[delete]", folder_path(list), :confirm => 'Are you sure?', :method => :delete) %>
+    <% end -%>
+  </td>
+  <td>folder</td>
+  <td><%= number_to_human_size(list.total_size) %></td> 
+  <td><%= list.path %></td>  
+</tr>

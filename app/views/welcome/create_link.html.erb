@@ -1,0 +1,37 @@
+<%= error_messages_for(:link) %>
+<%= javascript_tag(visual_effect(:appear, 'errorExplanation')) %>
+
+<%= form_table({}, {:multipart => true}) %>
+
+<%= form_text_field 'Title', :link, :title, :size => 80 %>
+<%= form_text_field 'Address (URL)', :link, :address, :size => 80 %>
+<% unless @link.address.blank? -%>
+<tr>
+  <td>&nbsp;</td>
+  <td><%= link_to @link.title, @link.address, :icon => 'link_go' %></td>
+</tr>
+<% end -%>
+<%= form_text_field "Reciprocal Address (URL)", :link, :reciprocal_address, :size => 80 %>
+<%= form_text_area 'Description', :link, :description, :cols => 80, :rows => 8 %>
+<% if @link.picture -%>
+<tr>
+  <td>Current picture:</td>
+  <td><%= image_tag(picture_url(:id => @link.picture), :width => 200, :class => 'framed standalone') %></td>
+</tr>
+<% end -%>
+<%= form_file_field 'Replace picture', :link, :picture, :size => 60 %>
+<tr>
+  <td colspan="2" style="font-size: 110%; font-style: italic;">
+    Logo will be resized to a maximum width of 280 pixels on the public
+    <%= link_to 'links', :controller => '/welcome', :action => :links %> page.
+    For best quality, resize locally and post the resized logo here.
+  </td>
+</tr>
+
+<tr>
+  <td colspan="2" align="center">
+    <%= submit_tag 'Add' %>
+    <%= link_to 'Back to home', home_url, :icon => 'link' %>
+  </td>
+</tr>
+<%= form_close %>

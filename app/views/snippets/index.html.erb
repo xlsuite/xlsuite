@@ -1,0 +1,15 @@
+<div class="ipage">
+  <p><%= link_to_function("New snippet", "parent.xl.createTab(#{new_snippet_path.to_json})") %></p>
+  <table>
+    <thead>
+      <tr>
+        <th style="padding-right: 10px">Title</th>
+        <th style="padding-right: 10px">Domain Patterns</th>
+        <th style="padding-right: 10px">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= render :partial => @snippets %>
+    </tbody>
+  </table>
+</div>

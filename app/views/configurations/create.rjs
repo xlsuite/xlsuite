@@ -1,0 +1,8 @@
+page << update_notices_using_ajax_response(:on_root => true)
+page.replace_html "new_configuration_errorMessages", @configuration.errors.full_messages.blank? ? "" : error_messages_for(:configuration)
+
+if @created
+  page << refresh_grid_datastore_of("configurations")
+  page << "xl.openNewTabPanel('configurations_edit_#{@configuration.id}', #{edit_configuration_path(@configuration).to_json});" unless @close
+  page << "xl.closeTabs('configurations_new_#{@old_configuration.id}');"
+end

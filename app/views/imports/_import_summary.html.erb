@@ -1,0 +1,35 @@
+<div id="importSummary#{import_summary.id}">
+
+<div>
+  <b><%= h(import_summary.filename) %>,&nbsp;</b>
+  <% if import_summary.import_errors.blank? && !import_summary.imported_lines.blank? %>
+    <%= import_summary.imported_lines.reject {|e| !e}.size %> entries uploaded,&nbsp;
+    <span class="green">no errors on importing</span>
+  <% elsif import_summary.import_errors.blank? && import_summary.imported_lines.blank? %>
+    no import has been performed
+  <% elsif !import_summary.import_errors.blank? %>
+    <span class="red"><%= import_summary.imported_lines.size %> errors reported,&nbsp;</span>
+    <% if import_summary.force %>
+    <span>force import was set, <%= import_summary.imported_lines.reject {|e| !e}.size %> entries uploaded</span>
+    <% else %>
+    <span>force import was not set, no items uploaded</span>
+    <% end %>
+  <% end %>
+</div>
+
+<% unless import_summary.import_errors.blank? then -%>
+  <table>
+    <thead>
+      <tr>
+        <th width="5%">Row #</th>
+        <th width="75%">Row content</th>
+        <th class="red">Error message</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= render_import_errors(import_summary) %>
+    <tbody>
+  </table>
+<% end -%>
+
+</div>

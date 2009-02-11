@@ -1,0 +1,14 @@
+# if complete success, refresh selection list, display success message
+# else if taken, display overwrite box
+# else if other stuffs, display failure messages only
+
+if @failure_messages.blank?
+  # refresh selection list
+  page.replace_html "defaultMapperSelection", options_for_select([["None", 0]] + @mappers.map {|e| [e.name, e.id]}, 0)
+  page.replace_html "notices", flash_messages
+elsif @taken
+  page.replace_html "notices", ""
+  page.call "displayOverwriteMapperConfirmationBox", "Mapping template with name #{@mapper.name} already exists", @mapper.id
+else
+  page.replace_html "notices", flash_messages
+end

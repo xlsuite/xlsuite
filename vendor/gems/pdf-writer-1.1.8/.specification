@@ -1,0 +1,151 @@
+--- !ruby/object:Gem::Specification 
+name: pdf-writer
+version: !ruby/object:Gem::Version 
+  version: 1.1.8
+platform: ruby
+authors: 
+- Austin Ziegler
+autorequire: pdf/writer
+bindir: bin
+cert_chain: 
+date: 2008-03-16 00:00:00 -04:00
+default_executable: techbook
+dependencies: 
+- !ruby/object:Gem::Dependency 
+  name: color
+  type: :runtime
+  version_requirement: 
+  version_requirements: !ruby/object:Gem::Requirement 
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        version: 1.4.0
+    version: 
+- !ruby/object:Gem::Dependency 
+  name: transaction-simple
+  type: :runtime
+  version_requirement: 
+  version_requirements: !ruby/object:Gem::Requirement 
+    requirements: 
+    - - ~>
+      - !ruby/object:Gem::Version 
+        version: "1.3"
+    version: 
+description: This library provides the ability to create PDF documents using only native Ruby libraries. There are several demo programs available in the demo/ directory. The canonical documentation for PDF::Writer is "manual.pdf", which can be generated using bin/techbook (just "techbook" for RubyGem users) and the manual file "manual.pwd".
+email: austin@rubyforge.org
+executables: 
+- techbook
+extensions: []
+
+extra_rdoc_files: 
+- README
+- ChangeLog
+- LICENCE
+files: 
+- README
+- LICENCE
+- ChangeLog
+- bin/techbook
+- lib/pdf
+- lib/pdf/charts
+- lib/pdf/charts.rb
+- lib/pdf/math.rb
+- lib/pdf/quickref.rb
+- lib/pdf/simpletable.rb
+- lib/pdf/techbook.rb
+- lib/pdf/writer
+- lib/pdf/writer.rb
+- lib/pdf/charts/stddev.rb
+- lib/pdf/writer/arc4.rb
+- lib/pdf/writer/fontmetrics.rb
+- lib/pdf/writer/fonts
+- lib/pdf/writer/graphics
+- lib/pdf/writer/graphics.rb
+- lib/pdf/writer/lang
+- lib/pdf/writer/lang.rb
+- lib/pdf/writer/object
+- lib/pdf/writer/object.rb
+- lib/pdf/writer/ohash.rb
+- lib/pdf/writer/oreader.rb
+- lib/pdf/writer/state.rb
+- lib/pdf/writer/strokestyle.rb
+- lib/pdf/writer/fonts/Courier-Bold.afm
+- lib/pdf/writer/fonts/Courier-BoldOblique.afm
+- lib/pdf/writer/fonts/Courier-Oblique.afm
+- lib/pdf/writer/fonts/Courier.afm
+- lib/pdf/writer/fonts/Helvetica-Bold.afm
+- lib/pdf/writer/fonts/Helvetica-BoldOblique.afm
+- lib/pdf/writer/fonts/Helvetica-Oblique.afm
+- lib/pdf/writer/fonts/Helvetica.afm
+- lib/pdf/writer/fonts/MustRead.html
+- lib/pdf/writer/fonts/Symbol.afm
+- lib/pdf/writer/fonts/Times-Bold.afm
+- lib/pdf/writer/fonts/Times-BoldItalic.afm
+- lib/pdf/writer/fonts/Times-Italic.afm
+- lib/pdf/writer/fonts/Times-Roman.afm
+- lib/pdf/writer/fonts/ZapfDingbats.afm
+- lib/pdf/writer/graphics/imageinfo.rb
+- lib/pdf/writer/lang/en.rb
+- lib/pdf/writer/object/action.rb
+- lib/pdf/writer/object/annotation.rb
+- lib/pdf/writer/object/catalog.rb
+- lib/pdf/writer/object/contents.rb
+- lib/pdf/writer/object/destination.rb
+- lib/pdf/writer/object/encryption.rb
+- lib/pdf/writer/object/font.rb
+- lib/pdf/writer/object/fontdescriptor.rb
+- lib/pdf/writer/object/fontencoding.rb
+- lib/pdf/writer/object/image.rb
+- lib/pdf/writer/object/info.rb
+- lib/pdf/writer/object/outline.rb
+- lib/pdf/writer/object/outlines.rb
+- lib/pdf/writer/object/page.rb
+- lib/pdf/writer/object/pages.rb
+- lib/pdf/writer/object/procset.rb
+- lib/pdf/writer/object/viewerpreferences.rb
+- demo/chunkybacon.rb
+- demo/code.rb
+- demo/colornames.rb
+- demo/demo.rb
+- demo/gettysburg.rb
+- demo/hello.rb
+- demo/individual-i.rb
+- demo/pac.rb
+- demo/qr-language.rb
+- demo/qr-library.rb
+- images/bluesmoke.jpg
+- images/chunkybacon.jpg
+- images/chunkybacon.png
+- manual.pwd
+has_rdoc: true
+homepage: http://rubyforge.org/projects/ruby-pdf
+post_install_message: 
+rdoc_options: 
+- --title
+- PDF::Writer
+- --main
+- README
+- --line-numbers
+require_paths: 
+- lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">"
+    - !ruby/object:Gem::Version 
+      version: 0.0.0
+  version: 
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+requirements: []
+
+rubyforge_project: ruby-pdf
+rubygems_version: 1.2.0
+signing_key: 
+specification_version: 1
+summary: A pure Ruby PDF document creation library.
+test_files: []
+

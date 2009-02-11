@@ -1,0 +1,29 @@
+fast_payer:
+  id:   4560
+  name: fast-payer
+  account_id: 1
+
+mall:
+  id:   4561
+  name: mall
+  account_id: 1
+
+staff:
+  id: 4562
+  name: staff
+  account_id: 1
+
+customer:
+  id: 4563
+  name: customer
+  account_id: 1
+
+lead:
+  id: 4564
+  name: lead
+  account_id: 1
+
+outstanding:
+  id: 4565
+  name: outstanding
+  account_id: 1

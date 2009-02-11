@@ -1,0 +1,163 @@
+afteredit_function = %Q`
+  function(oldValue, decodedResponse, plainResponse){
+    $("#{dom_id(@link)}_errorMessages").innerHTML = decodedResponse.errors;
+    xl.updateStatusBar(decodedResponse.flash);
+    if(decodedResponse.success){
+      #{refresh_grid_datastore_of("link")};
+    }    
+  }
+`
+
+ext_fields_for(:link, @link) do |f|
+page << create_tab_using_ajax_response("Edit Link") do
+%Q`
+  var form = {url: #{link_path(@link).to_json}, object: 'link'};
+
+  var activeAt = xl.widget.InlineActiveField({ form: form, afteredit: #{afteredit_function}, field: {
+                    fieldLabel: 'Activation at',
+                    name: 'active_at',
+                    format: 'm/d/Y',
+                    width: 155,
+                    allowBlank: true,
+                    xtype: 'datefield',
+                    value: #{@link.active_at.blank? ? "''" : to_extjs_date_field_value(@link.active_at.to_time).to_json}
+                  }});
+                  
+  var inactiveAt = xl.widget.InlineActiveField({ form: form, afteredit: #{afteredit_function}, field: {
+                    fieldLabel: 'Deactivation at',
+                    name: 'inactive_at',
+                    format: 'm/d/Y',
+                    width: 155,
+                    allowBlank: true,
+                    xtype: 'datefield',
+                    value: #{@link.inactive_at.blank? ? "''" : to_extjs_date_field_value(@link.inactive_at.to_time).to_json}
+                  }});
+  
+  var mainPanel = new Ext.Panel({
+    layout: 'form',
+    items: [  {
+                html: '<div class="notices" id="#{dom_id(@link)}_errorMessages"/>'
+              },
+              xl.widget.InlineActiveField({ form: form, afteredit: #{afteredit_function}, field: {
+                width: 350,
+                fieldLabel: 'Title',
+                name: 'title',
+                allowBlank: false,
+                value: #{@link.title.to_json}
+              }}),
+              xl.widget.InlineActiveField({ form: form, afteredit: #{afteredit_function}, field: {
+                width: 350,
+                fieldLabel: 'URL',
+                name: 'url',
+                allowBlank: false,
+                value: #{@link.url.to_json}
+              }}),
+              xl.widget.InlineActiveField({ form: form, afteredit: #{afteredit_function}, field: {
+                width: 350,
+                fieldLabel: 'Description',
+                name: 'description',
+                value: #{@link.description.to_json},
+                xtype: 'textarea'
+              }}),
+              {
+                layout: 'form',
+                items: [ 
+                  #{render_tags_text_area("link[tag_list]", @link, {:fieldLabel => "Tags", :after_edit => afteredit_function})},
+                  #{render_tags_selection("link[tag_list]", @link, current_account.links.tags, false, {:style => 'margin-left:110px'})}
+                ]
+              },
+              {
+                layout: 'table',
+                columns: 2,
+                style: 'margin-top: 20px',
+                items: [{layout: 'form', items: [activeAt]}, {layout: 'form', items: [inactiveAt], style: 'margin-left:10px'}]
+              },
+              xl.widget.InlineActiveField({ form: form, afteredit: #{afteredit_function}, field: {
+                fieldLabel: 'Approved',
+                checked: #{@link.approved.to_json},
+                name: 'approved',
+                xtype: 'checkbox'
+              }})
+            ]
+  });
+
+  //--------------------------------PICTURES PANEL------------------------------//
+  
+  var picturePanelStore = new Ext.data.JsonStore({
+    url: #{images_link_path(:id => @link.id, :size => "mini").to_json},
+    root: "collection",
+    fields: ["filename", "url", "id"]
+  });
+
+  picturePanelStore.load();
+
+  var picturePanelTemplate = new Ext.XTemplate(
+    '<tpl for=".">',
+      '<div class="picture-thumb-wrap">',
+        '<div class="picture-thumb"><img src="{url}" title="{filename}"/></div>',
+        '<div class="picture-thumb-filename">{filename}</div>',
+      '</div>',
+    '</tpl>'
+  );
+
+  var picturePanel = new Ext.Panel({
+    title: "PICTURES",
+    items: [new Ext.DataView({
+      store: picturePanelStore,
+      tpl: picturePanelTemplate,
+      overClass: 'x-view-over',
+      itemSelector: 'div.picture-thumb-wrap',
+      emptyText: "No pictures to display"
+    })]
+  });
+
+  var imageViewerResult = xl.widget.ImageViewer({
+    objectId: #{@link.id},
+    objectType: 'link',
+    
+    imagesUrl: #{images_link_path(@link).to_json}
+  });
+  
+  var picturePanel = imageViewerResult[0];
+  var picturePanelStore = imageViewerResult[1];
+
+  var attachImageButton = new Ext.Button({
+      text: 'Attach image(s)',
+      handler: function(button, event) {
+        xl.widget.OpenImagePicker({
+          showFrom: button.getId(),
+          objectId: #{@link.id},
+          objectType: 'link',
+          
+          thisObjectImagesUrl: #{images_link_path(@link).to_json},
+          allImagesUrl: #{formatted_image_picker_assets_path(:format => :json).to_json},
+          
+          uploadUrl: #{upload_image_link_path(:id => @link.id).to_json},
+          
+          afterUpdate: function(xhr, options, record, allImagesStore, thisObjectImagesStore) {
+            picturePanelStore.reload()
+          }  
+        });
+      }
+  });
+  
+  var picturesPanel = new Ext.Panel({
+    items: [attachImageButton, picturePanel]
+  });
+
+
+  var wrapperPanel = new Ext.TabPanel({
+    activeTab: 0,
+    deferredRender: false,
+    tabPosition: "bottom",
+    items: [
+      {title: "Edit", autoScroll: true, items: [mainPanel]},
+      {title: "Pictures", autoScroll: true, items: [picturesPanel]}
+    ]
+  });
+
+  newPanel.add(wrapperPanel);
+`
+end
+
+end

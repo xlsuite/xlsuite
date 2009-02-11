@@ -1,0 +1,289 @@
+  <ul id="nav">
+    <% unless current_user? -%>
+      <li><%= link_to 'LOGIN', new_session_path %></li>
+    <% else -%>
+      <li>
+        <%= link_to_function 'CONTACTS', "", :class => 'mainline' %>
+        <ul>
+          <% if current_user.can?(:view_party, :edit_party, :edit_own_contacts_only, :view_own_contacts_only, :any => true) -%>
+          <li><%= link_to_function 'Contact List', "xl.openNewTabPanel('parties_index_nil', #{parties_path.to_json})" %></li>
+          <% end -%>
+          <% if current_user.can?(:view_contact_request, :edit_contact_requests, :edit_contact_request, :any => true) -%>
+          <li><%= link_to_function 'Contact Requests', "xl.openNewTabPanel('contact_requests_index_nil', #{contact_requests_path.to_json})" %></li>
+          <% end -%>
+          <li><%= link_to_function 'Profile Requests', "xl.openNewTabPanel('profile_requests_index_nil', #{profile_requests_path.to_json})" %></li>
+          <li>
+            <%= link_to_function 'Manage<span class="right">&raquo;</span>', "" %>
+            <ul>
+              <%= content_tag(:li, link_to_function("Roles", "xl.openNewTabPanel('roles_index_nil', #{roles_path.to_json})" )) if current_user.can?(:edit_roles) %>
+              <%= content_tag(:li, link_to_function('User Groups', "xl.openNewTabPanel('groups_index_nil', #{groups_path.to_json})")) %>
+            </ul>
+          </li>
+          <li style="display:none">
+            <%= link_to 'Snail Mail<span class="right">&raquo;</span>', page_under_construction_path, :class => 'drop' %>
+            <ul>
+              <li><%= link_to 'Envelopes', page_under_construction_path %></li>
+              <li><%= link_to 'Labels', page_under_construction_path %></li>
+            </ul>
+          </li>
+      
+          <li style="display:none">
+            <%= link_to 'Tracking', page_under_construction_path %>
+          </li>
+<% when_user_can?(:edit_imports, :allow_importing, {:any => true}) do %>
+          <li><%= link_to_function 'Import', change_centre_iframe_src(imports_path) %></li>
+<% end %>
+<% when_user_can?(:edit_party, :edit_own_contacts_only, {:any => true}) do %>
+          <li><%= link_to_function 'New', change_centre_iframe_src(new_party_path) %></li>
+<% end %>
+        </ul>
+      </li>
+
+      <li>
+        <%= link_to_function 'COMMUNICATE', "", :class => 'mainline' %>
+        <ul>
+          <li style="display:none"><%= link_to 'Chat', page_under_construction_path %></li>
+          <li style="display:none"><%= link_to 'Voice', page_under_construction_path %></li>
+          <li>
+            <%= link_to_function 'Publishing<span class="right">&raquo;</span>', "xl.openNewTabPanel('blogs_index_nil', #{blogs_path.to_json})", :class => 'drop' %>
+            <ul>
+              <li><%= link_to_function 'Blogs<span class="right">&raquo;</span>', "xl.openNewTabPanel('blogs_index_nil', #{blogs_path.to_json})" %>
+                <ul>
+                  <li><%= link_to_function 'New', "xl.openNewTabPanel('blogs_new_nil', #{new_blog_path.to_json})" %>
+                </ul>
+              </li>
+              <li>
+                <%= link_to_function 'Posts<span class="right">&raquo;</span>', "xl.openNewTabPanel('blog_posts_index_nil', #{blog_posts_path.to_json})" %>
+                <ul>
+                  <li><%= link_to_function 'New', "xl.openNewTabPanel('blog_posts_new_nil', #{new_blog_post_path.to_json})" %>
+                </ul>
+              </li>
+              <% if current_user.can?(:edit_comments) %>
+                <li><%= link_to_function 'Comments', "xl.openNewTabPanel('comments_index_nil', #{comments_path.to_json})" %></li>
+              <% end -%>
+              <% if current_user.can?(:view_link, :edit_link, :any => true) -%>
+                <li><%= link_to_function 'Links', "xl.openNewTabPanel('links_index_nil', #{links_path.to_json})" %></li>
+              <% end -%>
+              <%= content_tag(:li, link_to_function('Feeds', change_centre_iframe_src(feeds_path))) if current_user.can?(:edit_feeds) %>
+              <%= content_tag(:li, link_to_function("Testimonials", "xl.openNewTabPanel('testimonials_index_nil', #{testimonials_path.to_json})" )) %>
+              <li><%= link_to_function 'Forms', change_centre_iframe_src(page_under_construction_path), :class => "dead" %></li>
+              <li><%= link_to_function 'Ads', change_centre_iframe_src(page_under_construction_path), :class => "dead" %></li>
+              <li><%= link_to_function 'Polls', change_centre_iframe_src(page_under_construction_path), :class => "dead" %></li>
+              <li><%= link_to_function 'Archives', change_centre_iframe_src(page_under_construction_path), :class => "dead" %></li>
+            </ul>
+          </li>
+          <li><%= link_to_function 'Forums', change_centre_iframe_src(forum_categories_path) %></li>
+          <li>
+            <%= link_to_function 'Email<span class="right">&raquo;</span>', "", :class => 'drop' %>
+            <ul>
+              <li><%= link_to_function 'Inbox', "xl.openNewTabPanel('emails_inbox_nil', '#{sandbox_emails_path}?mailbox=inbox')" %></li>
+              <li><%= link_to_function 'Outbox', "xl.openNewTabPanel('emails_outbox_nil', '#{sandbox_emails_path}?mailbox=outbox')" %></li>
+              <li><%= link_to_function 'Sent', "xl.openNewTabPanel('emails_sent_nil', '#{sandbox_emails_path}?mailbox=sent')" %></li>
+              <li><%= link_to_function 'Drafts', "xl.openNewTabPanel('emails_draft_nil', '#{sandbox_emails_path}?mailbox=draft')" %></li>
+              <li><%= link_to_function 'Filters', change_centre_iframe_src(filters_path) %></li>
+              <li><%= link_to_remote 'Labels', {:url => email_labels_path, :method => :get} %></li>
+              <li><%= link_to_function 'New Email', "xl.openNewTabPanel('emails_new_nil', #{sandbox_new_emails_path.to_json})" %></li>
+            </ul>
+          </li>
+          <% if current_user.can?(:edit_templates) %>
+            <li>
+              <%= link_to_function 'Templates<span class="right">&raquo;</span>', "xl.openNewTabPanel('templates_index_nil', #{templates_path.to_json})", :class => 'drop' %>
+              <ul>
+                <li><%= link_to_function 'New', "xl.openNewTabPanel('templates_new_nil', #{new_template_path.to_json})"%></li>
+              </ul>
+            </li>
+          <% end -%>
+        </ul>
+      </li>
+
+      <li>
+        <%= link_to_function 'COMMERCE', "", :class => 'mainline' %>
+        <ul>
+<% when_user_can?(:edit_listings) do -%>          
+          <li><%= link_to_function 'Listings<span class="right">&raquo;</span>', "xl.openNewTabPanel('listings_index_nil', #{listings_path.to_json})" %>
+            <ul>
+              <% if current_account.rets_import_option %>
+              <li><%= link_to_function 'MLS Search', "xl.openNewTabPanel('listings_search_nil', #{listings_search_rets_path.to_json})" %></li>
+              <li><%= link_to_function 'Target # Import', "xl.openNewTabPanel('listings_import_nil', #{listings_import_rets_path.to_json})" %></li>
+              <% end -%>              
+              <li><%= link_to_function 'New', "xl.openNewTabPanel('listings_new_nil', #{new_listing_path.to_json})" %></li>
+            </ul>
+          </li>
+<% end %>
+<% when_user_can?(:edit_catalog) do -%>
+          <li><%= link_to_function 'Products<span class="right">&raquo;</span>', "xl.openNewTabPanel('products_index_nil', #{products_path.to_json})" %>
+            <ul>
+              <li><%= link_to_function 'New', "xl.openNewTabPanel('products_new_nil', #{new_product_path.to_json})" %></li>
+            </ul>
+          </li>
+          <li><%= link_to_function 'Categories<span class="right">&raquo;</span>', "xl.openNewTabPanel('product_categories_index_nil', #{product_categories_path.to_json})" %>
+						<!-- 3rd Level -->
+            <ul>
+              <li><%= link_to_function 'New', "xl.openNewTabPanel('product_categories_index_nil', '#{product_categories_path}?new=true')" %></li>
+            </ul>
+					</li>
+          <li style="display:none;"><%= link_to_function 'Sale Events<span class="right">&raquo;</span>', "xl.openNewTabPanel('sale_events_index_nil', #{sale_events_path.to_json})" %>
+            <ul>
+              <li><%= link_to_function 'New', "xl.openNewTabPanel('sale_events_new_nil', #{new_sale_event_path.to_json})" %></li>
+            </ul>
+          </li>
+          <li style="display:none;"><%= link_to_function 'Suppliers<span class="right">&raquo;</span>', "xl.openNewTabPanel('suppliers_index_nil', #{suppliers_path.to_json})" %>
+            <ul>
+              <li><%= link_to_function 'New', "xl.openNewTabPanel('suppliers_index_nil', '#{suppliers_path}?new=true')" %></li>
+            </ul>
+          </li>
+<% end -%>
+          <% if current_user.can?(:view_entities, :edit_entities, :any => true) -%>
+            <li style="display:none;"><%= link_to_function 'Entities<span class="right">&raquo;</span>', "xl.openNewTabPanel('entities_index_nil', #{entities_path.to_json})" %>
+              <ul>
+                <li><%= link_to_function 'New', "xl.openNewTabPanel('entities_new_nil', #{new_entity_path.to_json})" %></li>
+              </ul>
+            </li>
+          <% end -%>
+          <% if current_user.can?(:view_orders, :edit_orders, :any => true) -%>
+            <li><%= link_to_function 'Orders<span class="right">&raquo;</span>', "xl.openNewTabPanel('orders_index_nil', #{orders_path.to_json})" %>
+              <ul>
+                <li><%= link_to_function 'New', "xl.openNewTabPanel('orders_new_nil', #{new_order_path.to_json})" %></li>
+              </ul>
+            </li>
+          <% end -%>
+          <li style="display:none"><%= link_to 'Inventory', page_under_construction_path %></li>
+          <% if current_user.can?(:view_payment, :edit_payment, :any => true) -%>
+            <li><%= link_to_function 'Payments', "xl.openNewTabPanel('payments_index_nil', '#{payments_path}')" %></li>
+          <% end -%>
+          <% if current_user.can?(:view_invoice, :edit_invoice, :any => true) -%>
+            <li><%= link_to_function 'Invoices', change_centre_iframe_src(page_under_construction_path), :class => "dead" %></li>
+          <% end -%>
+          <% if current_user.can?(:view_estimates, :edit_estimates, :any => true) -%>
+            <li><%= link_to_function('Estimates<span class="right">&raquo;</span>', "xl.openNewTabPanel('estimates_index_nil', #{estimates_path.to_json})", :class => "dead") %>
+              <ul>
+                <li><%= link_to_function('New', "xl.openNewTabPanel('estimates_new_nil', #{new_estimate_path.to_json})", :class => "dead") %></li>
+              </ul>
+            </li>
+          <% end -%>
+          <li style="display:none;"><%= link_to_function 'Expenses', change_centre_iframe_src(page_under_construction_path), :class => "dead" %></li>
+          <% if current_user.can?(:view_catalog, :edit_catalog, :any => true) -%>
+            <li style="display:none;"><%= link_to_function 'Reports', change_centre_iframe_src(page_under_construction_path), :class => "dead" %></li>
+          <% end -%>
+          <li style="display:none"><%= link_to 'Graphs', page_under_construction_path %></li>
+          <% if current_user.can?(:edit_publishings) -%>
+            <li>
+              <%= link_to_function 'Book Run<span class="right">&raquo;</span>', "xl.openNewTabPanel('books_index_nil', #{books_path.to_json})", :class => "dead" %>
+              <ul><li><%= link_to_function 'Runs View', "xl.openNewTabPanel('books_publishings_view_nil', #{publishings_view_books_path.to_json})", :class => "dead" %></li></ul>
+            </li>
+          <% end -%>
+        </ul>
+      </li>
+
+      <li style="display:none">
+        <%= link_to_function 'PLANNER', "", :class => 'mainline' %>
+        <ul>
+          <% if current_user.can?(:view_schedule, :edit_schedule, :any => true) -%>
+            <li><%= link_to_function 'Calendar', change_centre_iframe_src(page_under_construction_path), :class => "dead" %></li>
+          <% end -%>
+          <li><%= link_to_function 'Projects', change_centre_iframe_src(page_under_construction_path), :class => "dead" %></li>
+          <li><%= link_to_function 'Task', change_centre_iframe_src(page_under_construction_path), :class => "dead" %></li>
+          <li style="display:none"><%= link_to 'Time Tracking', page_under_construction_path %></li>
+          <li style="display:none"><%= link_to 'Issues', page_under_construction_path %></li>
+          <li><%= link_to_function 'History', change_centre_iframe_src(page_under_construction_path), :class => "dead" %></li>
+        </ul>
+      </li>
+
+      <li>
+        <%= link_to_function 'RESOURCES', "", :class => 'mainline' %>
+        <ul>
+<% when_user_can?(:edit_layouts, :edit_pages, :any => true) do %>
+          <li>
+            <%= link_to_function('CMS<span class="right">&raquo;</span>', "") %>
+            <ul>
+              <%= content_tag(:li, link_to_function("Pages", "xl.openNewTabPanel('pages_index_nil', #{pages_path.to_json})" )) %>
+              <%= content_tag(:li, link_to_function("Snippets", "xl.openNewTabPanel('snippets_index_nil', #{snippets_path.to_json})" )) %>
+              <%= content_tag(:li, link_to_function("Layouts", "xl.openNewTabPanel('layouts_index_nil', #{layouts_path.to_json})" )) if current_user.can?(:edit_layouts) %>
+              <%= content_tag(:li, link_to_function("Redirects", "xl.openNewTabPanel('redirects_index_nil', #{redirects_path.to_json})" )) %>
+              <% if current_account.options.site_import? %>
+                <%= content_tag(:li, link_to_function('Site Import', "xl.openNewTabPanel('site_import_new_nil', #{new_site_import_path.to_json})")) if current_user.can?(:edit_pages) %>
+              <% end %>
+            </ul>
+          </li>
+<% end %>
+<% when_user_can?(:edit_files) do%>
+          <li><%= link_to_function 'Files', "xl.openNewTabPanel('folders_index_nil', #{folders_path.to_json})"%></li>
+<% end -%>
+<% when_user_can?(:edit_workflows) do %>
+          <li><%= link_to_function 'Action Handler<span class="right">&raquo;</span>', "xl.openNewTabPanel('workflows_index_nil', #{workflows_path.to_json})"%>
+            <ul>
+                <li><%= link_to_function 'New', "xl.openNewTabPanel('workflows_new_nil', #{new_workflow_path.to_json})" %>
+            </ul>
+          </li>
+<% end -%>
+          <li><%= link_to_function 'Tutorial', change_centre_iframe_src("http://xlsuite.com/blogs/training")%></li>
+          <li><%= link_to 'About XL', 'http://xlsuite.com/about' %></li>
+          <li><%= link_to 'Contact XL', 'http://xlsuite.com/contact' %></li>
+        </ul>
+      </li>
+
+      <li>
+        <%= link_to_function 'ADMIN', "", :class => 'mainline' %>
+        <ul>
+<% if current_superuser? then -%>
+          <li>
+            <%= link_to_function 'Site Admin<span class="right">&raquo;</span>', "xl.openNewTabPanel('accounts_index_nil', #{accounts_path.to_json})" %>
+            <ul>
+              <li><%= link_to_function 'Payment Plan', change_centre_iframe_src(page_under_construction_path), :class => "dead" %></li>
+            </ul>
+          </li>
+<% end -%>
+          <li>
+            <%= link_to_function 'My Info<span class="right">&raquo;</span>', "" %>
+            <ul>
+<% if current_user.can?(:edit_own_account) then -%>
+              <li><%= link_to_function 'My Contact', "xl.openNewTabPanel('parties_edit_#{current_user.id}',#{edit_party_path(current_user).to_json})" %></li>
+<% end -%>
+              <li><%= link_to_function 'My Profile', "xl.openNewTabPanel('profiles_edit_#{current_user.id}', #{edit_profile_path(current_user).to_json})" %></li>          
+            </ul>
+          </li>
+          <li><%= link_to_function('XL Services<span class="right">&raquo;</span>', "") %>
+            <ul>
+<% if self.current_user_is_master_account_owner? %>
+              <li><%= link_to_function("Pricing", "xl.openNewTabPanel('account_modules_index_nil', #{account_modules_path.to_json})") %></li>
+<% end %>
+              <li><%= link_to_function('My Suite<span class="right">&raquo;</span>', "") %>
+                <ul>
+<% if current_user.id == self.current_account.owner.id %>
+                  <li><%= link_to_function('Subscriptions', "xl.openNewTabPanel('account_module_subscriptions', #{account_module_subscriptions_path.to_json})") %></li>
+<% end %>
+                  <%= content_tag(:li, link_to_function('My Domains', change_centre_iframe_src(domains_path))) if current_superuser? || current_user.can?(:edit_domains) %>
+                </ul>
+              </li>
+              <li><%= link_to_function('Reseller<span class="right">&raquo;</span>', "") %>
+                <ul>
+                  <li><%= link_to_function("Suites", "xl.openNewTabPanel('suites_index_nil', #{suites_path.to_json})") %></li>                  
+<% if current_user.id == self.current_account.owner.id %>
+                  <li><%= link_to_function("Publish", "xl.openNewTabPanel('account_templates_new_nil', #{new_account_template_path.to_json})") %></li>
+<% end %>                  
+                </ul>
+              </li>
+            </ul>
+          </li>
+<% if current_user.can?(:edit_configuration) %>
+          <li><%= link_to_function("Configurations<span class='right'>&raquo;</span>", "xl.openNewTabPanel('configurations_index_nil', #{configurations_path.to_json})" ) %>
+            <ul>
+              <li><%= link_to_function("Payment", "xl.openNewTabPanel('payment_configurations_index_nil', #{payment_configurations_path.to_json})" ) %></li>
+            </ul>  
+          </li>
+<% end %>          
+          <%= content_tag(:li, link_to_function('Api Keys', "xl.openNewTabPanel('api_keys_index_nil', #{api_keys_path.to_json})")) if current_user.can?(:edit_api_keys) %>
+<% if current_user.can?(:edit_destinations) %>          
+          <li><%= link_to_remote('Shipping Fees<span class="right">&raquo;</span>', {:url => destinations_path, :method => :get}) %>
+            <ul>
+                <li><%= link_to_remote 'New', {:url => new_destination_path, :method => :get} %></li>
+            </ul>
+          </li>
+<% end -%>
+<% if current_user_is_account_owner? %>
+          <%= content_tag(:li, link_to_function("Categories", "xl.openNewTabPanel('categories_index_nil', #{categories_path.to_json})" )) %>
+<% end %>
+        </ul>
+      </li>
+    <% end -%>
+  </ul>

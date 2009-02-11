@@ -1,0 +1,43 @@
+<% listings_index_params = params.delete_if {|key,value| key == 'view'} %>
+<%= javascript_tag %Q[
+    function changeIndexViewMode(element) {
+      var selectedOptionValue = element.options[element.selectedIndex].value;
+      var listings_path = "";
+      if (selectedOptionValue == 'combined') {
+        listings_path = "#{old_listings_path(listings_index_params.merge(:view => 'short'))}";
+        window.location.pathname = listings_path.replace("&amp;", "&");
+      }
+      else if (selectedOptionValue == 'list') {
+        listings_path = "#{old_listings_path(listings_index_params)}";
+        window.location.pathname = listings_path.replace("&amp;", "&");
+      }
+    }
+  ]
+%>
+
+<ul id="topPanel">
+  <li><%= link_to("Listings Search", listings_search_rets_path, :class => "HRmargin1") if current_user.can?(:access_rets) %></li>
+  <li><%= link_to "Targeted MLS# Import", listings_import_rets_path, :class => "HRmargin1" if current_user.can?(:access_rets) %></li>
+  <li>
+    <label>QuickNav:<label>
+    <%= text_field_tag "quick_nav_listing", "", :class => "inline text" %>
+  </li>
+  <li>
+    <select id="indexMenuSelection">
+      <option value="head">Checked items:</option>
+      <option value="">Create RSS feed</option>
+      <option value="">Download images</option>
+      <option value="">Send images</option>
+      <option value="">Send secure links</option>
+      <option class="btop" value="delete" path="<%= destroy_collection_listings_path %>" window="listingIndexDelete" okLabel="Ok">Delete</option>
+    </select>
+  </li>
+  <li>
+    <select id="viewModeSelection" class="exPad" onchange="changeIndexViewMode(this)">
+      <option value="none">View:</option>
+      <option value="combined">Combined</option>
+      <option value="list">List</option>
+    </select>
+  </li>
+  <li><%= link_to "New Listing", new_listing_path, :class => "HRmargin1" %></li>
+</ul>

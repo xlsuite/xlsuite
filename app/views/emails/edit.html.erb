@@ -1,0 +1,17 @@
+<h2><%=h @email.subject.blank? ? "(no subject)" : @email.subject %></h2>
+<% form_tag email_path(@email), :multipart => true, :onsubmit => "return false;", :method => :put, :id => 'email_form' do %>
+  <p>
+    <%= link_to "Send", "#", :class => "submit send" %>
+    <%= link_to "Save", "#", :class => "submit save" %>
+    <%= link_to "Discard", email_path(@email), :method => :delete %>
+    <%= link_to "Cancel", emails_path %>
+  </p>
+  <%= render :partial => "menu" %>
+  <%= render :partial => 'form' %>
+  <p>
+    <%= link_to_function "Send", "$('email_form').action = '#{release_email_path(@email)}'; $('email_form').submit()" %>
+    <%= link_to_function "Save", "$('email_form').action = '#{email_path(@email)}'; $('email_form').submit()" %>
+    <%= link_to "Discard", email_path(@email), :method => :delete %>
+    <%= link_to "Cancel", emails_path %>
+  </p>
+<% end -%>

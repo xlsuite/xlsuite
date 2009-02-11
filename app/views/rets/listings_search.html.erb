@@ -1,0 +1,295 @@
+<% short_operator_selections = options_for_select([
+     ["Equals", "eq"], ["Starts with", "start"], ["Contains", "contain"]], "eq") %>
+<% complete_operator_selections = options_for_select([
+     ["Equals", "eq"], ["Starts with", "start"], ["Contains", "contain"],
+     ["Between", "between"], ["Greater than", "greater"], ["Less than", "less"]
+   ], "eq") %>
+
+<%= render :partial => "listings_menu" %>
+
+<% form_tag(do_listings_search_rets_path, {:method => :post, :class => "listCombinedView"}) do %>
+  <div class="tableHeader">
+  <h2>Search Listings</h2>
+  <ul id="listings_searchOptions">
+    <li class="small"><a href="">Save</a></li>
+    <li class="small"><%= link_to "Cancel", listings_path %></li>
+  </ul>
+  </div>
+  <br class="clear" />
+    
+  <table id="listingSearchHeader" class="se_small">
+    <tr>
+      <th scope="col" width="50%" align="left"></th>
+      <th scope="col" width="50%" align="right"></th>
+    </tr>
+    
+    <tr>
+      <td class="bold">Table</td>
+      <td>
+        <%= select_tag("search[resource]", options_for_select(@resources, @search[:resource]), :id => "search_resource") %><%= throbber(:search_resource_indicator) %>
+      </td>
+    </tr>
+    
+    <tr>
+      <td class="bold">Class</td>
+      <td>
+        <%= select_tag("search[class]", options_for_select(@classes, @search[:class]), :id => "search_class") %><%= throbber(:search_class_indicator) %>
+      </td>
+    </tr>
+    
+    <tr>
+      <td class="bold">Measurement System</td>
+      <td>
+        <select>
+          <option>Metric</option>
+          <option selected="selected">Imperial</option>
+        </select>
+      </td>
+    </tr>
+    
+    <tr>
+      <td class="bold">Search Results Limit</td>
+      <td>
+        <%= text_field_tag("search[limit]", @search[:limit], :size => 3, :class => "text int_small") %>
+        <%= hidden_field_tag "last_counter_of_search_lines", 15 %>
+      </td>
+    </tr>
+  </table>
+  <br class="clear" />
+
+  <table id="listingSearchLines" class="">
+    <tr class="tableheader">
+      <th scope="col" width="30%" align="left"></th>
+      <th scope="col" width="10%"></th>
+      <th scope="col" width="60%" align="right"></th>
+    </tr>
+    
+    <!-- MLS Number -->
+    <tr>
+      <td class="bold">
+        MLS Number
+        <%= hidden_field_tag "line[1][field]", @mls_number_field.value %>
+      </td>
+      <td>
+        <%= select_tag "line[1][operator]", complete_operator_selections, :onchange => "showLineToInputField(this)", :class => "operator_med" %>
+      </td>
+      <td>
+        <%= text_field_tag "line[1][from]", "", :class => "text" %>&nbsp;
+        <span style="display:none;">and:&nbsp;<%= text_field_tag "line[1][to]", "", :class => "inline text" %></span>
+      </td>
+    </tr>
+    
+    <!-- List Date -->
+    <tr>
+      <td class="bold">
+        List Date
+        <%= hidden_field_tag "line[2][field]", @list_date_field.value %>
+      </td>
+      <td>
+        <%= select_tag "line[2][operator]", complete_operator_selections, :onchange => "showLineToInputField(this)", :class => "operator_med" %>
+      </td>
+      <td>
+        <%= text_field_tag "line[2][from]", "", :class => "text" %>&nbsp;
+        <span style="display:none;">and:&nbsp;<%= text_field_tag "line[2][to]", "", :class => "inline text" %></span>
+      </td>
+    </tr>
+
+    
+    <tr>
+      <td class="bold">
+        Status
+        <%= hidden_field_tag "line[3][field]", @status_field.value %>
+        <%= hidden_field_tag "line[3][operator]", "eq" %>
+      </td>
+      <td colspan="2">
+        <%= select_tag("line[3][from]",
+            content_tag(:option, "*** Any Value", :value => ".ANY.") +
+            options_for_select(@status) +
+            content_tag(:option, "*** No value", :value => ".EMPTY.")) %>
+        <%= hidden_field_tag "line[3][to]", "" %>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="bold">
+        City
+        <%= hidden_field_tag "line[4][field]", @city_field.value %>
+        <%= hidden_field_tag "line[4][operator]", "eq" %>
+      </td>
+      <td colspan="2">
+        <%= select_tag("line[4][from]",
+            content_tag(:option, "*** Any Value", :value => ".ANY.") +
+            options_for_select(@cities) +
+            content_tag(:option, "*** No value", :value => ".EMPTY.")) %>
+        <%= hidden_field_tag "line[4][to]", "" %>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="bold">
+        Area
+        <%= hidden_field_tag "line[5][field]", @area_field.value %>
+        <%= hidden_field_tag "line[5][operator]", "eq" %>
+      </td>
+      <td colspan="2">
+        <%= select_tag("line[5][from]",
+            content_tag(:option, "*** Any Value", :value => ".ANY.") +
+            options_for_select(@areas) +
+            content_tag(:option, "*** No value", :value => ".EMPTY.")) %>
+        <%= hidden_field_tag "line[5][to]", "" %>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="bold">
+        Street Address
+        <%= hidden_field_tag "line[6][field]", @street_address_field.value %>
+      </td>
+      <td>
+        <%= select_tag "line[6][operator]", short_operator_selections, :class => "operator_med" %>
+      </td>
+      <td>
+        <%= text_field_tag "line[6][from]", "", :class => "text" %>
+        <%= hidden_field_tag "line[6][to]", "" %>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="bold">
+        Postal Code
+        <%= hidden_field_tag "line[7][field]", @postal_code_field.value %>
+      </td>
+      <td>
+        <%= select_tag "line[7][operator]", short_operator_selections, :class => "operator_med" %>
+      </td>
+      <td>
+        <%= text_field_tag "line[7][from]", "", :class => "text" %>
+        <%= hidden_field_tag "line[7][to]", "" %>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="bold">
+        List Price
+        <%= hidden_field_tag "line[8][field]", @list_price_field.value %>
+      </td>
+      <td>
+        <%= select_tag "line[8][operator]", complete_operator_selections, :onchange => "showLineToInputField(this)", :class => "operator_med" %>
+      </td>
+      <td>
+        <%= text_field_tag "line[8][from]", "", :class => "text" %>&nbsp;
+        <span style="display:none;">and:&nbsp;<%= text_field_tag "line[8][to]", "", :class => "inline text" %></span>
+      </td>
+    </tr>
+    
+    <tr>
+      <td class="bold">
+        Dwelling Style
+        <%= hidden_field_tag "line[9][field]", @dwelling_style_field.value %>
+        <%= hidden_field_tag "line[9][operator]", "eq" %>
+      </td>
+      <td colspan="2">
+        <%= select_tag("line[9][from]",
+            content_tag(:option, "*** Any Value", :value => ".ANY.") +
+            options_for_select(@dwelling_styles) +
+            content_tag(:option, "*** No value", :value => ".EMPTY.")) %>
+        <%= hidden_field_tag "line[9][to]", "" %>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="bold">
+        Dwelling Type
+        <%= hidden_field_tag "line[10][field]", @dwelling_type_field.value %>
+        <%= hidden_field_tag "line[10][operator]", "eq" %>
+      </td>
+      <td colspan="2">
+        <%= select_tag("line[10][from]",
+            content_tag(:option, "*** Any Value", :value => ".ANY.") +
+            options_for_select(@dwelling_types) +
+            content_tag(:option, "*** No value", :value => ".EMPTY.")) %>
+        <%= hidden_field_tag "line[10][to]", "" %>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="bold">
+        Dwelling Class
+        <%= hidden_field_tag "line[11][field]", @dwelling_class_field.value %>
+        <%= hidden_field_tag "line[11][operator]", "eq" %>
+      </td>
+      <td colspan="2">
+        <%= select_tag("line[11][from]",
+            content_tag(:option, "*** Any Value", :value => ".ANY.") +
+            options_for_select(@dwelling_classes) +
+            content_tag(:option, "*** No value", :value => ".EMPTY.")) %>
+        <%= hidden_field_tag "line[11][to]", "" %>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="bold">
+        Title of Land
+        <%= hidden_field_tag "line[12][field]", @title_of_land_field.value %>
+        <%= hidden_field_tag "line[12][operator]", "eq" %>
+      </td>
+      <td colspan="2">
+        <%= select_tag("line[12][from]",
+            content_tag(:option, "*** Any Value", :value => ".ANY.") +
+            options_for_select(@title_of_lands) +
+            content_tag(:option, "*** No value", :value => ".EMPTY.")) %>
+        <%= hidden_field_tag "line[12][to]", "" %>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="bold">
+        Bedrooms
+        <%= hidden_field_tag "line[13][field]", @bedrooms_field.value %>
+      </td>
+      <td>
+        <%= select_tag "line[13][operator]", complete_operator_selections, :onchange => "showLineToInputField(this)", :class => "operator_med" %>
+      </td>
+      <td>
+        <%= text_field_tag "line[13][from]", "", :class => "text" %>&nbsp;
+        <span style="display:none;">and:&nbsp;<%= text_field_tag "line[13][to]", "", :class => "inline text" %></span>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="bold">
+        Bathrooms
+        <%= hidden_field_tag "line[14][field]", @bathrooms_field.value %>
+      </td>
+      <td>
+        <%= select_tag "line[14][operator]", complete_operator_selections, :onchange => "showLineToInputField(this)", :class => "operator_med" %>
+      </td>
+      <td>
+        <%= text_field_tag "line[14][from]", "", :class => "text" %>&nbsp;
+        <span style="display:none;">and:&nbsp;<%= text_field_tag "line[14][to]", "", :class => "inline text" %></span>
+      </td>
+    </tr>
+
+    <tr>
+      <td colspan="3">
+        <%= link_to_remote "Add Search Parameter", 
+            {
+               :url => new_search_line_rets_path, :submit => "listingSearchHeader", 
+               :before => "$('addNewSearchLineLink_throbber').show()", :loaded => "$('addNewSearchLineLink_throbber').hide()" 
+            }, 
+            {:id => "addNewSearchLineLink"} %>
+        <%= throbber(:addNewSearchLineLink_throbber) %>
+      </td>
+    </tr>
+
+    <%= render :partial => "listings_search_new_line", :locals => {:index => 15} %>
+    
+    <tr id="listing_search_submit_button">
+      <td class="submit" colspan="3">
+        <%= submit_tag "submit", :class => "button inline" %>
+      </td>
+    </tr>
+
+  </table>
+  <br class="clear" />
+<% end %>

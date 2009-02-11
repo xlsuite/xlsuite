@@ -1,0 +1,37 @@
+<table class="forum">
+  <tbody>
+    <!-- Table header -->
+    <tr>
+      <th class="topicHeader">
+        Categories&nbsp;
+        <%= link_to(icon_tag("feed"), formatted_all_posts_url(:atom), :rel => "alternate", :type => "application/atom+xml") %>
+      </th>
+      <th class="threadHeader">Topics</th>
+      <th class="postHeader">Posts</th>
+      <th class="lastHeader">Last post</th>
+    </tr>
+        
+    <!-- Link to add new category-->
+    <tr class="topic" colspan="4">
+      <td class="addNew">
+        <%= link_to("+Add New Category", new_forum_category_path, 
+            :onclick => "$('newCategory').toggle();
+            $('newForum').down('form').action = #{forum_categories_path.inspect};
+            $('forum_category_name').focus();
+            return false;") if current_user.can?(:admin_forum) %>
+      </td>
+    </tr>
+    
+    <!-- List of Categories -->
+    <%= render :partial => "forum_category", :collection => @forum_categories %>
+    <% reset_cycle("category_background_class") %>
+    
+    <!-- Table footer -->
+    <tr><td class="tableFooter" colspan="4"></td></tr>
+  </tbody>
+</table>
+
+<%= render :partial => "new_forum_category" %>
+<%= render :partial => "forums/new_forum" %>
+<%= render :partial => "topics/new_forum_topic" %>
+<%= render :partial => "posts/new_forum_post" %>

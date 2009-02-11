@@ -1,0 +1,19 @@
+label { display: block; font-weight: bold; margin-top: .5em; }
+textarea {height: 8em; padding: 2px; }
+#asset_uploaded_data { width: 40em; }
+#asset_tag_list { height: 2.25em; }
+ul.tag_cloud { margin: 0; width: 40em; }
+.actions {margin: 0; padding: 0; border: none; }
+.auto_completer { position: relative; }
+.throbber { position: absolute; left: 5em; top: .1em; }
+
+#assets_edit_options {width: 292px; height: 120px; margin-right: 8px; float:left; clear: both;}
+	#assets_edit_options input, #assets_edit_options textarea {width: 98%;}
+
+#assets_edit_tags {width: 292px; height: 180px; float:left; margin-right: 8px;}
+	#assets_edit_tags textarea {width: 98%; height: 4em; overflow: auto; margin-bottom: .6em;} 
+	#assets_edit_tags ul.tag_cloud {width: 96.5%; height: 5.5em; overflow: auto; }
+	
+.assets_groupBox {width: 300px; float: left; height: 220px;}
+ .assets_groupBox span.label {font-weight: bold;}
+  .assets_groupBox ul.multiple_select li label {font-weight: normal !important;}

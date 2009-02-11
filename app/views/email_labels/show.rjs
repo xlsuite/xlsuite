@@ -1,0 +1,3 @@
+page.replace_html "myEmailLabelsPanel", "<div id='myEmailLabelsWrapper' style='height:100%; overflow-x:hidden; overflow-y:auto'><ul id='myEmailLabelsList'></ul></div>"
+page.replace_html "myEmailLabelsList", :partial => "list", :collection => @labels
+

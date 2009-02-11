@@ -1,0 +1,3 @@
+<div id="bottomPanel">
+  <%= link_to "Clean duplicate images", remove_duplicate_views_listings_path(params.reject {|key, value| key.to_s =~ /^controller|action$/}) %>
+</div>

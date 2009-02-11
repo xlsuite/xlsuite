@@ -1,0 +1,6 @@
+<% permission = permission_select -%>
+<% content_tag(:li) do %>
+  <%= check_box_tag "party[denied_permission_ids][]", permission.id, @party.groups.include?(group) && !@party.denied_permissions.include?(permission),
+      :id => "group_#{group.id}_denied_permission_ids_#{permission.id}", :class => "denial", :disabled => !@party.groups.include?(group) %>
+  <%= content_tag(:label, h(permission.to_formatted_s), :for => "group_#{group.id}_denied_permission_ids_#{permission.id}") %>
+<% end -%>

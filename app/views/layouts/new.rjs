@@ -1,0 +1,10 @@
+page << create_tab_using_ajax_response("Layouts | New") do
+%Q`
+
+  #{generate_save_close_cancel_toolbar(@layout, layouts_path, layouts_path(:commit_type => "close"), {:page_to_open_after_new => edit_layout_path(:id => "__ID__")})}
+
+  #{generate_form_panel}
+
+  newPanel.add(formPanel);
+`
+end

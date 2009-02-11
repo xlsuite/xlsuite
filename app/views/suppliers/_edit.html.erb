@@ -1,0 +1,10 @@
+<h2 class="page_header">Edit Supplier</h2>
+<div class="ipage">
+  <% inline_remote_form_for :supplier, @supplier, :url => supplier_path(@supplier), :html => {:method => :put, :id => (dom_id(@supplier) + "_form")} do |f| %>
+    <%= render_inside_panel_notifications_container %>
+    <%= render :partial => "form", :locals => {:f => f, :show_editor => false} %>
+  <% end %>
+  <div id="<%= typed_dom_id(@supplier, :timestamps) %>" class='supplier_footer clear'>
+    <%= render_object_timestamps(@supplier) %>
+  </div>
+</div>

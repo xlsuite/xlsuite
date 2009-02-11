@@ -1,0 +1,47 @@
+underbarLinks = link_to_function("New Listing&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('listings_new_nil', #{new_listing_path.to_json})")
+underbarLinks << link_to_function("Targeted MLS# Import&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('listings_import_nil', #{listings_import_rets_path.to_json})")
+
+after_render = %Q(
+$$("#listingSearchLines tr.address").each(Element.hide);
+$$("#listingSearchLines tr.gmap").each(Element.show);
+
+$('area_chooser_selection').observe("change", function() {
+  var option = $('area_chooser_selection').options[$('area_chooser_selection').selectedIndex];
+  if (option.innerHTML.match(/Google Map/)) {
+    $$("#listingSearchLines tr.address").each(Element.hide);
+    $$("#listingSearchLines tr.gmap").each(Element.show);
+  } else if (option.innerHTML.match(/Manual Address/)) {
+    $$("#listingSearchLines tr.address").each(Element.show);
+    $$("#listingSearchLines tr.gmap").each(Element.hide);
+  } else {
+    throw "Unknown option -- don't know what to do: " + option.innerHTML;
+  }
+});
+
+var map = new xl.GoogleMap("listing_search_map_canvas", {initialZoomLevel: 11});
+map.on("click", (function(overlay, point) {
+  if (point) this.appendMarker(point);
+  $("area_points").value = this.markersToPoints().map(function(point) {return [point.lat(), point.lng()]}).toJSON();
+}).bind(map));
+map.on("clearRegion", (function() {
+  $("area_points").value = "";
+}).bind(map));
+$("listing_search_map_canvas").googleMap = map;
+
+var tag_list_auto_complete = new Ajax.Autocompleter("tag_list", "tag_list_autocomplete", #{auto_complete_tag_listings_url.to_json},
+  { method: 'get',
+    paramName: 'q',
+    indicator: 'tag_list_throbber',
+    minChars: 1,
+    tokens: [',', ' ']});
+)
+
+page << create_tab_using_ajax_response("Listing Search", after_render) do
+%Q`
+  var panel = { autoScroll: true, html: #{render(:partial => 'listings_search_from_rjs').to_json} };
+  newPanel.add(panel);
+
+  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
+  extra_links_span.insertHtml('afterBegin', #{underbarLinks.to_json});
+`
+end

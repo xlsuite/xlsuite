@@ -1,0 +1,53 @@
+/* tabs for parties pages */
+
+    .tabNav {
+      float:left;
+      width: 100%;
+      background:#fff;
+      font-size:93%;
+      line-height:normal;
+	  border-bottom: 1px solid #c7c7c7;
+      }
+   	.tabNav ul {
+	  margin:0;
+	  padding: 0 10px 0 50px;
+	  list-style:none;
+      }
+    .tabNav li {
+      display:inline;
+      margin:0;
+      padding:0;
+      }
+    .tabNav a {
+      float:left;
+      background:url("../images/tableft.gif") no-repeat left top;
+      margin:0;
+      padding:0 0 0 4px;
+      text-decoration:none;
+      }
+      
+    .tabNav a span {
+      float:left;
+      display:block;
+      background:url("../images/tabright.gif") no-repeat right top;
+      padding:5px 15px 4px 6px;
+      color:#666;
+      }
+	  
+    .tabNav a:hover span {
+      color:#000;
+      }
+    .tabNav a:hover {
+      background-position:0% -42px;
+      }
+   	.tabNav a:hover span {
+      background-position:100% -42px;
+      }
+    .tabNav li#current a {
+      background-position:0% -42px;
+      }
+   	.tabNav li#current span {
+      background-position:100% -42px;
+      }
+	
+    /*this version: 2007-04-25 */

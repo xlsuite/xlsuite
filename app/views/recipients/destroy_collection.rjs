@@ -1,0 +1,4 @@
+page << refresh_grid_datastore_of("recipients")
+page << update_notices_using_ajax_response(:on_root => true)
+page << unmask_grid_with_key("recipients_emails_#{@email.id}")
+page << "Ext.get('total_recipients_#{@email.id}').update('#{@email.mass_recipients.size}');"

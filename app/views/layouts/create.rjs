@@ -1,0 +1,8 @@
+page << update_notices_using_ajax_response
+page.replace_html "errorMessages", @layout.errors.full_messages.blank? ? "" : error_messages_for(:layout)
+
+if @created
+  page << refresh_grid_datastore_of("layouts")
+  page << "xl.openNewTabPanel('layouts_edit_#{@layout.id}', #{edit_layout_path(@layout).to_json});" unless @close
+  page << "xl.closeTabs('layouts_new_nil');"
+end

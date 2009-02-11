@@ -1,0 +1,6 @@
+<% form_for(@domain, :html => {:multipart => true}) do |f| %>
+  <%= render :partial => "form" %>
+<% end -%>
+<% form_for(@domain, :html => {:method => :delete}) do |f| %>
+  <%= submit_tag "Destroy" %>
+<% end -%>

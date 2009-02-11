@@ -1,0 +1,4 @@
+*SVN*
+
+2007-04-04: Evgeniy Pirogov <epirogov@...> submitted a patch to make has_many
+            work correctly.  Thanks !

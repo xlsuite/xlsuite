@@ -1,0 +1,23 @@
+/*css for 'login' page */
+/*created 2007-07-05 by james@xlsuite.com */
+
+#sessions_new {
+width: 38%;
+margin: 0 auto;
+padding: 1em;
+border: 1px solid #ddd;
+}
+
+    #sessions_new h2 {
+    margin-bottom: 1.5em;
+    }
+
+    #sessions_new form label {
+    float: left;
+    margin-bottom: 1em;
+    }
+    
+    #sessions_new form input {
+    float: right;
+    }
+    

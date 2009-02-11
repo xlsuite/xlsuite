@@ -1,0 +1,9 @@
+<div id="notes-panel-content" class="commentsArea" style="padding: 10px;">
+  <% inline_form_for(:party, @party, :url => party_path(@party), :html => {:method => :put, :class => dom_class(@party), :id => "secondary_notes_#{dom_id(@party)}"}) do |f| %>  
+    <% inline_fields_for(:party, @party) do |f| %>
+      <%= f.text_area :notes, :wrap => true, :show_editor => (@force_editor), :style => "width: 100%;" %>
+    <% end -%>
+  <% end -%>
+</div>
+<%= javascript_tag %Q!new XlSuite.FormHandler("#{'secondary_notes_'+dom_id(@party)}", {now:true, defaultValue:"Insert notes here..."})! %>
+

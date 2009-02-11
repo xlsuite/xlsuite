@@ -1,0 +1,39 @@
+<div class="ipage">
+<div id="selectionMenuArea">
+  <select id="selectionMenu" onChange="executeSelectedAction(this)">
+    <option>Action for marked...</option>
+    <option disabled="">----------------</option>
+    <option id="selectionMenu_summaryOption" disabled="" value="summary">Summary</option>
+    <option id="selectionMenu_deleteOption" disabled="" value="delete">Delete</option>
+  </select>
+  <%= javascript_tag "changeSelectedIndexToZero('selectionMenu')" %>
+</div>
+
+<p class="small inline"><%= link_to "New Import", new_import_path %>&nbsp; | &nbsp;</p>
+<% if current_account.options.imports_scraper? %>
+  <p class="small inline"><%= link_to "Scrape", new_scrape_imports_path %>&nbsp; | &nbsp;</p>
+<% end -%>
+<p class="small inline"><%= link_to "Import Mappers", mappers_path %>&nbsp; | &nbsp;</p>
+<p class="small inline"><%= link_to "Import from Webmail", plaxo_parties_path %></p>
+
+<%= form_tag nil, :id => "importIndexForm" %>
+  <table id="importIndexTable">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Filename</th>
+        <th>Created</th>
+        <th>Modified</th>
+        <th>Modified by</th>
+        <th>State</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= render :partial => "import", :collection => @imports %>
+    </tbody>
+  </table>
+</form>
+
+<%= hidden_field_tag :num_of_checked_items, 0 %>
+<%= javascript_tag "uncheckAllCheckBoxes()" %>
+</div>

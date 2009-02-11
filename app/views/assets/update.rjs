@@ -1,0 +1,7 @@
+element_name = typed_dom_id(@asset, @attribute, :show)
+value = @asset.send(@attribute)
+value = textilize(value) if @attribute == "description"
+
+method = value.blank? ? "addClassName" : "removeClassName"
+page << %Q($("#{element_name}").#{method}("blank");)
+page.replace_html element_name, value

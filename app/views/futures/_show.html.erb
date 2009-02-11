@@ -1,0 +1,18 @@
+<% id = @future.id %>
+<%= hidden_field_tag :refresh_interval, @refresh_interval * 1000, :id => :refresh_interval %>
+<h2>Processing <%= @future.class.name.underscore.gsub('future', '').humanize.capitalize %></h2>
+<p>
+  Status: <%= content_tag(:span, h(@future.status.humanize), :id => @status) %>
+  <%= throbber("throbber") %>
+</p>
+
+<ul id="x_future_error" class="error">
+  <%= render :partial => "futures/error", :collection => @errors %>
+</ul>
+
+<p>
+  <%= progress_bar @future.progress, :id => @progress %>
+</p>
+<p>
+  Elapsed time: <%= content_tag(:span, h(@future.started_at ? time_ago_in_words(@future.started_at, true) : "0 seconds"), :id => @elapsed) %>
+</p>

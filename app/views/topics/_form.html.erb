@@ -1,0 +1,20 @@
+      <p class="inputArea">
+        <label for="thread_title">Title:</label><br />
+        <%= f.text_field :title, :class => "text thread_title" %>
+<% if current_user? && current_user.can?(:admin_forum) then -%>
+        <p class="inlineChecks">
+          <label><%= f.check_box :sticky %> Sticky</label>
+          <label><%= f.check_box :locked %> Locked</label>
+        </p>
+<% end -%>
+      </p>
+<script>
+  function checkIfTopicTitleIsBlank(){
+  if($('topic_title').value == "")
+  {
+    alert("Please enter a topic title");
+    return false;
+  }
+  return true;
+}
+</script>

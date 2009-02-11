@@ -1,0 +1,5 @@
+page << create_tab_using_ajax_response("Site Importer") do
+%Q`
+  newPanel.add({ autoScroll: true, html: #{render(:partial => 'new').to_json} });
+`
+end

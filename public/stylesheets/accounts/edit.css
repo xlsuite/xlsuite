@@ -1,0 +1,2 @@
+#domains li:hover { background: #f3f6f3; }
+#domains li#new_domain:hover { background: transparent; }

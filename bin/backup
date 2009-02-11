@@ -1,0 +1,3 @@
+#!/bin/sh
+cd /usr/local/www/xlsuite.com/current
+rake s3:backup:db RAILS_ENV=production

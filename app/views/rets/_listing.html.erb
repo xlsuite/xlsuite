@@ -1,0 +1,61 @@
+<%
+  listing, retriever = listing
+-%>
+<div id="<%= listing.dom_id %>" class="listing">
+<% inline_form_for(:listing, listing, :url => listing_path(listing), :method => :put) do |f| %>
+  <h3><%=hnbsp [listing.address.line1, listing.address.city].reject(&:blank?).join(", ") %></h3>
+  <h4><%= format_money listing.price %></h4>
+  <div class="details">
+    <dl>
+      <dt>MLS Number</dt>
+      <dd><em><%=hnbsp listing.raw("MLS Number") %></em></dd>
+
+      <dt>Area</dt>
+      <dd><%=hnbsp listing.raw("Area") %></dd>
+
+      <dt>City</dt>
+      <dd><%=hnbsp listing.raw("City") %></dd>
+
+      <dt>Dwelling Classification</dt>
+      <dd><%=hnbsp listing.raw("Type of Dwelling") %> / <%=hnbsp listing.raw("Dwelling Classification") %></dd>
+
+      <dt>Status</dt>
+      <dd><%=hnbsp listing.raw("Status") %> <%= content_tag(:span, listing.raw("Status Change Date")) unless listing.raw("Status Change Date").blank? %></dd>
+
+      <dt>List Date</dt>
+      <dd><%=hnbsp listing.raw("List Date") %></dd>
+
+      <dt>Last Transaction Date</dt>
+      <dd><%=hnbsp listing.raw("Last Trans Date") %></dd>
+
+      <dt>Number of images</dt>
+      <dd><%=hnbsp listing.raw("# Images") %></dd>
+
+      <dt>Description</dt>
+      <dd><%= f.text_area :description %></dd>
+
+      <dt>Tags</dt>
+      <dd><%= f.tags_field :tag_list %></dd>
+
+      <dt>Full Details</dt>
+      <dd>
+        <%= link_to "Click for raw results", "#", :class => "show_raw_results", :id => listing.dom_id(:show_raw) %>
+        <div id="<%= listing.dom_id(:raw_results) %>" style="display:none" class="raw">
+          <h5>Raw Property Details</h5>
+          <dl>
+            <%= listing.raw_property_data.sort.map do |field, value|
+                  content_tag(:dt, h(field)) + content_tag(:dd, value.blank? ? '&nbsp;' : h(value))
+                end.join("\n") %>
+            <dd class="close">
+              <%= link_to("Close raw details", "#", :class => "hide_raw_results", :id => listing.dom_id(:hide_raw)) %>
+            </dd>
+          </dl>
+        </div>
+      </dd>
+    </dl>
+  </div>
+  <div id="<%= listing.dom_id(:gallery) %>" class="gallery">
+    <%= listing_pictures(listing, retriever) -%>
+  </div>
+<% end -%>
+</div>

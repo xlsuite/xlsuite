@@ -1,0 +1,10 @@
+Ext JS - JavaScript Library
+Copyright (c) 2006-2008, Ext JS, LLC
+All rights reserved.
+licensing@extjs.com
+
+Pre-release code in the Ext repository is intended for development purposes only and will not
+always be stable. 
+
+Use of pre-release code is permitted with your application at your own risk under standard 
+Ext license terms. Public redistribution is prohibited.

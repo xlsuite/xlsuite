@@ -1,0 +1,16 @@
+<% content_for(:css) do -%>
+  <%= stylesheet_link_tag "forums" %>
+<% end -%>
+<%= render :partial => "shared/doctype" %>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <%= render :partial => "shared/head" %>
+</head>
+<body>
+	<div class="ipage">
+      <%= render :partial => "shared/notifications" %>
+      <%= yield %>  
+	</div>    
+  </div>
+</body>
+</html>

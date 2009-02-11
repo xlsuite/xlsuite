@@ -1,0 +1,42 @@
+    ul#groups li { width: 100%; padding: 4px 0px;}
+        ul#groups li a {padding-left: 4px;}
+
+.grps {width: 64%; border-bottom: 1px solid #ddd; float: left; }
+
+
+#group_details_wrapper { display: block; float: right; width: 36%; text-align: center; }
+#group_details_throbber { position: absolute; width: 16px; height: 16px; right: -32px; top: 86px; }
+
+p#new_group {width: 90%; border: 1px solid #ddd; padding: 4px 0px; margin: 0px auto; margin-bottom: 1em; position: relative; }
+    p#new_group a {margin: 0px 6px;}
+
+#group_details { text-align: center; }
+#group_details input[type=submit] { display: none; }
+#group_details p label {text-align: left; margin-right: 6px;}
+#group_details ul.multiple_select, #subpermission_sets ul.multiple_select {margin-left: 14px; width: 248px; text-align: left;}
+
+
+
+#permissions h2, #subgroups h2, #members h2, #new_group_section h2 {width: 254px; font-weight: bold; display: block; border-bottom: 1px solid #ddd; padding-bottom: 2px; text-align: left; margin-left: 14px; margin-top: 10px; }
+
+p.select_clear a { margin: 0px 6px; margin-bottom: 6px; }
+
+#close_group_details, #new_permission_set input.button { margin: 20px 0px; }
+#close_group_details_indicator {margin-left: 10px; margin-bottom: 16px;}
+
+#new_group_section h2 { margin-bottom: 1em; }
+#new_group_section p.select_clear, #new_group_section p label { margin-left: 14px }
+#new_group_section input.button { margin: 20px 116px; }
+
+#errorExplanation {}
+#errorExplanation p {margin-left: 14px; margin-bottom: 10px; }
+#errorExplanation h2 {font-weight: normal; border: 1px solid #ddd; color: red; padding: .5em;}
+#errorExplanation ul {list-style-type: disc; margin-left: 14px;}
+#errorExplanation ul li {margin-left: 14px; margin-bottom: 4px;}
+.fieldWithErrors {width: 244px; border: 1px solid red; padding: 4px; margin-left: 14px;}
+.fieldWithErrors input {}
+
+
+
+
+#group_details input[type=submit] { display: none; }

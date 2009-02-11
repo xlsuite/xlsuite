@@ -1,0 +1,15 @@
+History.txt
+Manifest.txt
+README.txt
+Rakefile
+about.yml
+init.rb
+lib/dom_id.rb
+test/database.yml
+test/test_dom_id.rb
+test/fixtures/people_thing.rb
+test/fixtures/people_things.yml
+test/fixtures/thing.rb
+test/fixtures/things.yml
+test/schema.rb
+test/test_helper.rb

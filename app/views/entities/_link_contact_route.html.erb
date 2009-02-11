@@ -1,0 +1,19 @@
+<%
+  if link_contact_route.routable && !link_contact_route.routable.new_record? then
+    if link_contact_route.new_record? then
+      save_url = create_link_entity_path(link_contact_route.routable)
+		else
+      update_url = party_link_path(link_contact_route.routable, link_contact_route)
+    end
+  end
+-%>
+<% inline_fields_for(:link, link_contact_route, :url => update_url, :indexed => true) do |field| -%>
+<% contact_route_tag(link_contact_route, :show_editor => @force_editor) do %>
+  <fieldset>
+      <%= link_to_function(icon_tag(:link), change_centre_iframe_src(link_contact_route.formatted_url), :id => typed_dom_id(link_contact_route, :anchor), :class => "CR_img", :tabindex => "-1") %>
+    <%= field.text_field_with_auto_complete :name, :values => link_contact_route.choices %>
+    <%= field.text_field :url, :blank_prefix => typed_dom_id(link_contact_route, :name, :field) %>
+  </fieldset>
+  <%= field.save_or_cancel_links(save_url, %w(name url), :inline => true) unless @force_editor %>
+<% end %>
+<% end %>

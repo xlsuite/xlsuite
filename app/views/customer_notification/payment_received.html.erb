@@ -1,0 +1,103 @@
+<p>Thank you for your recent order, we are confirming that we have received</p>
+
+<table>
+<tr>
+  <td><%= @payable_subject.class.name.humanize %></td>
+  <td>: <%= @payable_subject.number %></td>
+</tr>
+<tr>
+  <td><%= @payable_subject.class.name.humanize %> Date</td>
+  <td>: <%= @payable_subject.created_at.strftime('%Y-%m-%d') %></td>
+</tr>
+</table>
+
+<table>
+  <tr>
+    <td>Date & Time</td>
+    <td>: <%= @payment.updated_at.strftime('%Y-%m-%d %H:%M') %></td>
+  </tr>
+  <tr>
+    <td>Amount</td>
+    <td>: <%= @payment.amount.format(:with_currency) %></td>
+  </tr>
+  <tr>
+    <td>Status</td>
+    <td>: <%= @payment.state %></td>
+  </tr>
+</table>
+
+<% if @payable_subject.kind_of?(AccountModuleSubscription) %>
+
+<p><%= @payment.description %></p>
+
+<% else %>
+
+<p>The following items are included in the order:</p>
+
+<table>
+  <tr>
+    <td>#</td>
+    <td>Description</td>
+    <td>Quantity</td>
+    <td>Price</td>
+    <td>Extension</td>
+  </tr>
+<% @payable_subject.lines.each do |line| %>
+  <tr>
+    <td><%= line.product ? line.product.model : "" %></td>
+    <td><%= truncate(line.product ? line.product.name : "") %></td>
+    <td><%= line.quantity %></td>
+    <td><%= line.retail_price %></td>
+    <td><%= line.extension_price %></td>
+  </tr>
+<% end %>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>PST</td>
+    <td><%= @payable_subject.pst_amount.format(:with_currency) %></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>FST</td>
+    <td><%= @payable_subject.fst_amount.format(:with_currency) %></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>Total</td>
+    <td><%= @payable_subject.total_amount.format(:with_currency) %></td>
+  </tr>
+</table>
+
+<% if @needs_to_ship %>
+<p>We will be sending shippable items to you to this address:</p>
+<p><%= @payable_subject.ship_to %></p>
+<% end %>
+
+<% if @needs_to_download  %>
+<% if @confirmation_url%>
+<p>You may retrieve electronic products by confirming here: <a href='<%=@confirmation_url%>'><%=@confirmation_url%></a>
+<% else %>
+<p>You may retrieve electronic products by logging in here: <a href='<%=@download_page%>'><%=@download_page%></a>
+<p>Username: <%= @customer.main_email.email_address %></p>
+<p>
+  If you have forgotten your password, or need to reset it for any reason you may do so here:<br/>
+  <%= @reset_password_url %>
+</p>
+<% end %>
+<% end %>
+
+<% end %>
+
+<p>Thank you for your business !</p>
+
+<p>
+  This E-Mail was automatically sent.  If you received this E-mail in error,
+  please destroy it immediately.  We take your privacy very seriously.  We
+  do not sell, barter or otherwise exchange any of your information.
+</p>

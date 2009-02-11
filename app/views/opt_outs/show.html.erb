@@ -1,0 +1,19 @@
+{% render_snippet title:"opt_out_page_top" %}
+
+<% form_tag(opt_out_unsubscribe_url, :method => :post, :id => "opt_out_form") do %>
+  <%= hidden_field_tag "uuid", @recipient.uuid %>
+  <p>Please confirm you want to unsubscribe from the following lists: </p>
+  <table>
+  <% @recipient.unsubscribeable_groups.each do |group| %>
+    <tr><td><%= check_box_tag "groups", group.id, true%></td><td>Group "<%= group.name %>" </td></tr>
+  <% end %>
+  
+  <% @recipient.unsubscribeable_tags.each do |tag| %>
+    <tr><td><%= check_box_tag "tags", tag.name, true %></td><td>Tag "<%= tag.name %>" </td></tr>
+  <% end %>
+  
+  </table>
+  <p><%= submit_tag "Unsubscribe me" %></p>
+<% end %>
+
+{% render_snippet title:"opt_out_page_bottom" %}

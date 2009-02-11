@@ -1,0 +1,7 @@
+<div class="ipage">
+  <h2>Edit Group</h2>
+  <% form_tag(group_path(@group), :method => :put) do %>
+  <%= render :partial => "form" %>
+  <% end %>
+  <p><%= link_to("Back", groups_path, :icon => "group") %></p>
+</div>

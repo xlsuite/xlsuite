@@ -1,0 +1,33 @@
+= What is Flash Helper Plugin ?
+This is a plugin to aid in the management of the Flash.
+
+= What can I use it for ?
+You use the Flash Helper Plugin like this:
+
+app/controllers/account_controller.rb:
+ class AccountController < ApplicationController
+   def login
+     if authenticated? then
+       flash_notice 'Success - you are now logged in !'
+     end
+   end
+ end
+
+app/views/layouts/application.rhtml:
+ <%= show_flash_messages :textilize => true %>
+
+= Okay, but what is it REALLY used for ?
+This is an aid to the standardization effort started by Luke Randall on the Rails mailing list.  For more information,
+see this thread on the mailing list:  http://article.gmane.org/gmane.comp.lang.ruby.rails/28104
+
+= Cool, but how do I use it ?
+Drop the plugin in your vendor/plugin area, using one of these methods:
+* svn export http://opensvn.csie.org/flash_helper_plugin/trunk vendor/plugins/flash_helper
+* svn ps svn:externals "flash_helper http://opensvn.csie.org/flash_helper_plugin/trunk" vendor/plugins
+* Get the .tar.gz or .zip file, and unpack into vendor/plugins
+
+== How to use the unit test assertions ?
+You only need to require the assertions.rb file in test/test_helper.rb:
+
+test/test_helper.rb:
+ require 'francois_beausoleil/flash_plugin_helper/assertions'

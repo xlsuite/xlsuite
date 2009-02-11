@@ -1,0 +1,78 @@
+page << create_tab_using_ajax_response("Edit Template") do
+%Q`
+  
+  #{generate_save_close_cancel_toolbar(@_template, template_path(@_template), template_path(:id => @_template.id, :commit_type => "close"))}
+
+  var bodyEditorPanel = new Ext.Panel({
+    layout: "table",
+    layoutConfig: {
+      columns: 2
+    },
+    items: [
+      {
+        layout: "form",
+        items: [
+          new Ext.ux.HtmlEditor({
+            width: "100%",
+            height: 350,
+            fieldLabel: 'Body',
+            name: '_template[body]',
+            value: #{@_template.body.to_json},
+            listeners: {
+              'render': function(component){
+                component.getToolbar().insertButton(16, #{html_editor_image_video_embed_button(@_template)});
+              }
+            }
+          })
+        ]
+      }, 
+      {
+        html: #{%Q`<div style="padding-left: 20px">#{render_plain_template_syntaxes}</div>`.to_json}
+      }
+    ]
+  });
+  
+  var formPanel = new Ext.form.FormPanel({
+    autoScroll: true,
+    tbar: tbarbbarButtons,
+    bbar: tbarbbarButtons,
+    labelAlign: 'left',
+    items: [            
+              {
+                html: '<div class="notices" id="#{dom_id(@_template)}_errorMessages"/>'
+              },
+              new Ext.form.TextField({
+                width: 505,
+                fieldLabel: 'Subject',
+                name: '_template[subject]',
+                value: #{@_template.subject.to_json}
+              }),
+              bodyEditorPanel,
+              new Ext.form.TextField({
+                width: 505,
+                fieldLabel: 'Label',
+                name: '_template[label]',
+                value: #{@_template.label.to_json}
+              }),
+              new Ext.form.TextArea({
+                fieldLabel: "Description",
+                width: 505,
+                name: "template[description]",
+                value: #{@_template.description.to_json}
+              }),
+              {
+                layout: 'form',
+                items: [ 
+                  #{render_tags_text_area("_template[tag_list]", @_template, {:fieldLabel => "Tags"}, true)},
+                  #{render_tags_selection("_template[tag_list]", @_template, current_account.templates.tags, true, {:style => 'margin-left:110px'})}
+                ]
+              },
+              {
+                html: #{render(:partial => "form").to_json}
+              }
+            ]
+        });
+
+  newPanel.add(formPanel);
+`
+end

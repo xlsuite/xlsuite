@@ -1,0 +1,8 @@
+<%
+  apply_to = [] unless apply_to
+  after_update = "null" unless after_update
+%>
+<li id="<%= dom_id(tag) %>">
+  <%= link_to_function(h(tag.name),
+      %Q(applyTagTo("#{tag.name}", #{apply_to.to_json}, {afterUpdate: #{after_update}})), :tabindex => "-1") %>
+</li>

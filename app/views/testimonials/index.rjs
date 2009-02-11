@@ -1,0 +1,350 @@
+limit = params[:limit] || 50
+testimonials_url_json = formatted_testimonials_path(:format => :json).to_json
+
+after_render = %Q`
+  ds.load({params: {start: 0, limit: #{limit} }});
+`
+
+page << create_tab_using_ajax_response("Testimonials | Index", after_render) do
+%Q`
+  var selectedIds = null;
+  var testimonialPath = #{testimonial_path("__ID__").to_json};
+  
+  // create file record
+  var TestimonialRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'object_id', mapping: 'object_id'},
+    {name: 'author_name', mapping: 'author_name'},
+    {name: 'author_company_name', mapping: 'author_company_name'},
+    {name: 'email_address', mapping: 'email_address'},
+    {name: 'tag_list', mapping: 'tag_list'},
+    {name: 'website_url', mapping: 'website_url'},
+    {name: 'phone_number', mapping: 'phone_number'},
+    {name: 'body', mapping: 'body'},
+    {name: 'status', mapping: 'status'}    
+  ]);
+  
+  // data reader to parse the json response
+  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, TestimonialRecord);
+
+  // set up connection of the data
+  var connection = new Ext.data.Connection({url: #{testimonials_url_json}, method: 'get'});
+  var proxy = new Ext.data.HttpProxy(connection);
+
+  // set up the data store and then send request to the server
+  var ds = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+
+  // set up the ext grid object
+  var xg = Ext.grid;
+
+  // define paging toolbar that is going to be appended to the footer of the grid panel
+  var paging = new Ext.PagingToolbar({
+    store: ds,
+    pageSize: #{limit},
+    displayInfo: true,
+    displayMsg: 'Displaying {0} to {1} of {2}',
+    emptyMsg: "No record to display",
+    cls: "bottom-toolbar paging-toolbar-bottom",
+    plugins: [new Ext.ux.PageSizePlugin]
+  });
+  
+  #{create_grid_tbar_filter_field}
+  
+  #{create_grid_tbar_clear_button}
+
+  var gridTopToolbar = new Ext.Toolbar({
+    cls: "top-toolbar",
+    items: [{text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+  });
+  
+  var grid = new Ext.grid.GridPanel({
+    store: ds,
+    cm: new Ext.grid.ColumnModel([
+        {id: "testimonial-author_name", header: "Name", sortable: true, dataIndex: 'author_name'},
+        {id: "testimonial-author_company_name", header: "Company name", sortable: true, dataIndex: 'author_company_name'},        {id: "testimonial-email_address", header: "Email", sortable: true, dataIndex: 'email_address'},        {id: "testimonial-tag_list", header: "Tags", sortable: false, dataIndex: 'tag_list'},        {id: "testimonial-website_url", header: "Website", sortable: true, hidden: true, dataIndex: 'website_url'},        {id: "testimonial-phone_number", header: "Phone", sortable: true, hidden: true, dataIndex: 'phone_number'},        {id: "testimonial-body", header: "Body", sortable: false, dataIndex: 'body'},
+        {id: "testimonial-status", header: "Status", width: 100, sortable: false, dataIndex: 'status'}
+      ]),
+    autoScroll: true,
+    autoWidth: true,
+    height: #{get_default_grid_height(nil)},
+    clicksToEdit:1,
+    tbar: gridTopToolbar, 
+    bbar: paging,
+    selModel: new Ext.grid.RowSelectionModel,
+    loadMask: true,
+    viewConfig: { autoFill: true, forceFit: true}
+  });
+  
+  newPanel.add(grid);
+  xl.runningGrids.set("testimonials", grid);
+  newPanel.on("destroy", function(){
+    xl.runningGrids.unset("testimonials");
+  });
+  
+  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
+  extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('testimonials_new_nil', #{new_testimonial_path.to_json})").to_json});
+
+  var editTestimonialUrl = #{edit_testimonial_path(:id => "__ID__").to_json};
+
+  // set doubleclick action on grid cells
+  grid.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
+    var record = ds.getAt(rowIndex);
+    var id = record.data.id;
+
+    xl.openNewTabPanel('testimonials_edit_'+id, editTestimonialUrl.sub("__ID__", id));
+  });
+  
+  var selectAllAction = new Ext.Action({
+    text: "Select all",
+    iconCls: "display_none"
+  });
+
+  var clearAllAction = new Ext.Action({
+    text: "Clear all",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var approveAction = new Ext.Action({
+    text: "Approve",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var rejectAction = new Ext.Action({
+    text: "Reject",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var embedCodeAction = new Ext.Action({
+    text: "Embed code",
+    iconCls: "display_none",
+    disabled: false
+  });
+  
+  var createContactAction = new Ext.Action({
+    text: "Create contact(s)",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var deleteAction = new Ext.Action({
+    text: "Delete",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var selectionMenu =  new Ext.menu.Menu({
+    items: [selectAllAction, clearAllAction]
+  });
+  
+  selectionMenu.addSeparator();
+  selectionMenu.add(approveAction);
+  selectionMenu.add(rejectAction);
+  selectionMenu.add(embedCodeAction);
+  selectionMenu.add(createContactAction);
+  selectionMenu.addSeparator();
+  selectionMenu.add(deleteAction);
+  
+  xl.viewport.render();
+
+  grid.getTopToolbar().add({ text: "Actions", menu: selectionMenu });
+
+  function alertNoTestimonialsSelected() {
+    Ext.Msg.alert('No Testimonials Selected', 'Please select one or more testimonials to perform that action.');
+  }
+
+  function getSelectedIdsString(records){ 
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    return ids.toString()
+  }
+  
+  clearAllAction.setHandler(function(e) {
+    grid.getSelectionModel().clearSelections();
+    e.disable();
+  });
+
+  selectAllAction.setHandler(function(e) {
+    grid.getSelectionModel().selectAll();
+    e.disable();
+  });
+  
+  approveAction.setHandler(function(e) {
+    Ext.Msg.confirm("", "Approve selected testimonials?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        grid.disable();
+        params['ids'] = selectedIds.join(",");
+        new Ajax.Request(#{approve_collection_testimonials_path.to_json}, {
+          method: 'put',
+          parameters: params,
+          onSuccess: function(transport){
+            grid.enable();
+          }
+        });
+      }
+    });
+  });
+
+  rejectAction.setHandler(function(e) {
+    Ext.Msg.confirm("", "Reject selected testimonials?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        grid.disable();
+        params['ids'] = selectedIds.join(",");
+        new Ajax.Request(#{reject_collection_testimonials_path.to_json}, {
+          method: 'put',
+          parameters: params,
+          onSuccess: function(transport){
+            grid.enable();
+          }
+        });
+      }
+    });
+  });
+  
+  embedCodeAction.setHandler(function(e) {
+    var modeValue = "Tag list";
+    var tagListValue = "tags";
+    var idsValue = "";
+    
+    if (selectedIds && selectedIds.length > 0){
+      modeValue = "Selected";
+      tagListValue = "";
+      idsValue = selectedIds.join(",");
+    }
+  
+    Ext.Ajax.request({
+      url: #{embed_code_testimonials_path.to_json},
+      params: {mode: modeValue, ids: idsValue, tags: tagListValue},
+      method: "GET",
+      success: function(response, options){
+        var response = Ext.util.JSON.decode(response.responseText);
+        
+        if (response.success){
+          var embedCodeFormPanel = new Ext.form.FormPanel({
+            items: [
+              new Ext.form.Hidden({
+                name: "ids",
+                value: idsValue
+              }),
+              new Ext.form.ComboBox({
+                fieldLabel: "Mode",
+                name: "mode",
+                store: ["Selected", "Tag list"],
+                triggerAction: "all",
+                value: modeValue,
+                editable: false,
+                forceSelection: true
+              }),
+              new Ext.form.TextField({
+                fieldLabel: "Tag list",
+                name: "tags",
+                value: tagListValue
+              }),
+              new Ext.form.TextField({
+                name: "count",
+                value: 1,
+                fieldLabel: "Count"
+              })
+            ]
+          });
+          
+          var embedCodeTextArea = new Ext.form.TextArea({
+            readOnly: true,
+            value: response.code
+          });
+
+          var embedCodePanel = new Ext.Panel({
+            title: "Generated code",
+            items: embedCodeTextArea,
+            listeners: {
+              render: function(cpt){
+                xl.fitToOwnerCtWidth(cpt);
+                embedCodeTextArea.setWidth(cpt.getSize().width);
+              }
+            },
+            bbar: new Ext.Toolbar.Button({
+              text: "Regenerate",
+              handler: function(btn, e){
+                Ext.Ajax.request({
+                  url: #{embed_code_testimonials_path.to_json},
+                  params: embedCodeFormPanel.getForm().getValues(false),
+                  method: "get",
+                  success: function(response, options){
+                    var response = Ext.util.JSON.decode(response.responseText);
+                    embedCodeTextArea.setValue(response.code);
+                    embedCodePanel.el.unmask();
+                  }
+                });
+                embedCodePanel.el.mask("Generating...");
+              }
+            })
+          });
+          
+          var embedCodeWindow = new Ext.Window({
+            title: "Testimonials embed code",
+            width: 400,
+            height: 250,
+            items: [embedCodeFormPanel, embedCodePanel],
+            resizable: false
+          });
+
+          embedCodeWindow.show();
+        }
+        else{
+          Ext.Msg.alert("XLsuite Embed Code Generator", response.errors);
+        }
+      }
+    });    
+  });
+
+  createContactAction.setHandler(function(e) {
+    Ext.Msg.confirm("", "Create contact(s) from selected testimonials?", function(btn){      if ( btn.match(new RegExp("yes","i")) ) {        var params = {};        grid.disable();        params['ids'] = selectedIds.join(",");        new Ajax.Request(#{create_contacts_testimonials_path.to_json}, {          method: 'post',          parameters: params,          onSuccess: function(transport){            grid.enable();          }        });      }    });  });
+
+  deleteAction.setHandler(function(e) {
+    Ext.Msg.confirm("", "Delete selected testimonials permanently?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        grid.disable();
+        params['ids'] = selectedIds.join(",");
+        new Ajax.Request(#{destroy_collection_testimonials_path.to_json}, {
+          method: 'delete',
+          parameters: params,
+          onSuccess: function(transport){
+            grid.enable();
+          }
+        });
+      }
+    });
+  });
+  
+  grid.getSelectionModel().on("selectionchange", function(){
+    records = grid.getSelectionModel().getSelections();
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    selectedIds = ids;
+    
+    if(ids.length>0){
+      clearAllAction.enable();
+      deleteAction.enable();
+      approveAction.enable();
+      rejectAction.enable();
+      createContactAction.enable();
+    }
+    else {
+      approveAction.disable();
+      rejectAction.disable();
+      deleteAction.disable();
+      createContactAction.disable();
+      selectAllAction.enable();
+    }
+  });
+`
+end

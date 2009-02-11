@@ -1,0 +1,30 @@
+page << create_tab_using_ajax_response("Embed Code") do
+%Q`
+  var embedCodeTextArea = new Ext.form.TextArea({
+    value: #{@embed_code.to_json},
+    readOnly: true,
+    width: 700,
+    height: 200,
+    listeners: {
+      'focus': function(component){
+        component.getEl().dom.select();
+      }
+    }
+  });
+  
+  var previewArea = new Ext.Panel({
+    html:#{@embed_code.to_json}
+  });
+  
+  var wrapperPanel = new Ext.Panel({
+    items: [
+             {html: "<p>The embed code functionality uses the snippet titled 'product/embed'. You may modify that snippet to change the embed code.</p><p>Click the following text area to select all</p>"},
+             embedCodeTextArea, 
+             {html:"Preview:"}, 
+             previewArea
+           ]
+  });
+  
+  newPanel.add(wrapperPanel);
+`
+end

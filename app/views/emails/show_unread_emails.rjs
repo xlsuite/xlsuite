@@ -1,0 +1,4 @@
+
+page.replace_html "mailPanel", "<div id='mailWrapper' style='height:100%; overflow-x:hidden; overflow-y:auto'><ul id='mailList'></ul></div>"
+page.replace_html "mailList", :partial => "list_emails", :collection =>@emails 
+page.replace_html "mail-panel-title", "My Recent Unread Messages (#{@email_count})"

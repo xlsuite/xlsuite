@@ -1,0 +1,7 @@
+#query { list-style-type: decimal; padding-left: 2em; }
+#query span { font-weight: normal; }
+#query span.field, #query span.value { font-weight: bold; }
+#query span.from,
+#query span.to { font-weight: bold; }
+#query .operator { text-transform: lowercase; }
+#query a.remove { font-size: 80%; }

@@ -1,0 +1,130 @@
+limit = params[:limit] || 50
+pages_url_json = "'/admin/pages/find_pages_json'" #formatted_pages_path(:format => :json).to_json
+
+page << create_tab_using_ajax_response("CMS") do
+%Q`
+
+var pageRecord = new Ext.data.Record.create([
+  {name: 'id'},
+  {name: 'title'},
+  {name: 'status'},
+  {name: 'behaviour'},
+  {name: 'slug'}
+]);
+
+// Data reader to parse the json response
+var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, pageRecord);
+
+// Set up connection for the data
+var proxy = new Ext.data.HttpProxy(new Ext.data.Connection({url: #{pages_url_json}, method: 'get'}));
+
+// Set up the data store and then send request to the server
+var store = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+store.load({params: {start: 0, limit: #{limit} }});
+
+var pagesGridPanel = new Ext.grid.GridPanel({
+  store: store,
+  cm: new Ext.grid.ColumnModel([
+  	{header: "Title", width: 100, sortable: true, dataIndex: 'title'},
+	{header: "Status", width: 150, sortable: true, dataIndex: 'status'},
+	{header: "Behaviour", width: 150, sortable: true, dataIndex: 'behaviour'},
+	{header: "Slug", width: 55, sortable: true, dataIndex: 'slug'}
+  ]),
+  viewConfig: { forceFit: false },
+  autoScroll: true,
+  autoWidth: true,
+  height: #{get_default_grid_height(nil)},
+  //tbar: gridTopToolbar,
+  //bbar: paging,
+  footer: true,
+  iconCls: 'icon-grid'
+});
+
+var tabPanel = new Ext.TabPanel({
+	activeTab: 0,
+	border: false,
+	bodyBorder: false,
+	
+	items: [{
+		title: 'Pages',
+		html: pagesGridPanel
+	},{
+		title: 'Snippets',
+		html: "<p>THIS IS SNIPPETS</p>"
+	},{
+		title: 'Layouts',
+		html: "<p>THIS IS LAYOUTS</p>"
+	}]
+});
+
+/*
+// define paging toolbar that is going to be appended to the footer of the grid panel
+var paging = new Ext.PagingToolbar({
+  store: ds,
+  pageSize: #{limit},
+  displayInfo: true,
+  displayMsg: 'Displaying {0} to {1} of {2}',
+  emptyMsg: "No record to display",
+  cls: "bottom-toolbar paging-toolbar-bottom",
+  plugins: [new Ext.ux.PageSizePlugin]
+});
+
+// create filter field to be appended as the top grid toolbar
+var filterField = new Ext.form.TextField({selectOnFocus: true, grow: false, emptyText: "Search"});
+filterField.on("specialkey",
+  function(field, e) {
+    if (e.getKey() == Ext.EventObject.RETURN || e.getKey() == Ext.EventObject.ENTER) {
+      e.preventDefault();
+      ds.baseParams['q'] = this.getValue();
+      ds.reload({params: {start: 0, limit: #{limit}}});
+    }
+  }
+);
+
+// clear button for the filter field
+var clearButton = new Ext.Toolbar.Button({
+  text: 'Clear',
+  handler: function() {
+    filterField.setValue("");
+    ds.baseParams['q'] = "";
+    ds.reload();
+  }
+});
+
+var gridTopToolbar = new Ext.Toolbar({
+  cls: "top-toolbar",
+  items: [idSelection, {text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+});
+
+// create GridPanel object
+var grid = new Ext.grid.GridPanel({
+  store: ds,
+  cm: new xg.ColumnModel([
+      {header: "ID", width: 100, sortable: false, dataIndex: 'id'},
+      {header: "Name", width: 150, sortable: true, dataIndex: 'name'},
+      {header: "Most Recent Supplier", width: 150, sortable: true, dataIndex: 'most_recent_supplier_name'},
+      {header: "In Stock", width: 55, sortable: true, dataIndex: 'in_stock'},
+      {header: "On Order", width: 55, sortable: true, dataIndex: 'on_order'},
+      {header: "Sold to Date", width: 75, sortable: true, dataIndex: 'sold_to_date'},
+      {header: "Wholesale Price", width: 90, sortable: true, dataIndex: 'wholesale_price'},
+      {header: "Retail Price", width: 90, sortable: true, dataIndex: 'retail_price'},
+      {header: "Margin", width: 50, sortable: true, dataIndex: 'margin'}
+    ]),
+  viewConfig: {
+    forceFit: false
+  },
+  autoScroll: true,
+  autoWidth: true,
+  height: #{get_default_grid_height(nil)},
+  tbar: gridTopToolbar,
+  bbar: paging,
+  footer: true,
+  iconCls: 'icon-grid'
+}); */
+
+newPanel.add(tabPanel);
+//xl.runningGrids.set('pages', gridPanel);
+//newPanel.on('destroy', function(){ xl.runningGrids.unset('pages'); });
+
+`
+end

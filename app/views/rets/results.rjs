@@ -1,0 +1,294 @@
+limit = params[:limit] || 10
+underbarLinks = link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('listings_new_nil', #{new_listing_path.to_json})")
+underbarLinks << link_to_function("Listings Search&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('listings_search_nil', #{listings_search_rets_path.to_json})")
+underbarLinks << link_to_function("Targeted MLS# Import&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('listings_import_nil', #{listings_import_rets_path.to_json})")
+
+page << create_tab_using_ajax_response("Listings Search Results") do
+%Q`
+var listingRecord = new Ext.data.Record.create([
+  {name: 'id'},
+	{name: 'mls_no'},
+	{name: 'address'},
+	{name: 'area'},
+	{name: 'city'},
+	{name: 'style'},
+	{name: 'no_bed_bath'},
+	{name: 'sqft'},
+	{name: 'price'},
+	{name: 'description'},
+	{name: 'list_date'},
+  {name: 'last_transaction'},
+  {name: 'status'},
+  {name: 'contact'},
+  {name: 'dwelling_type'},
+  {name: 'dwelling_class'},
+  {name: 'title_of_land'},
+  {name: 'year_built'},
+  {name: 'num_of_images'},
+  {name: 'extras'},
+  {name: 'tags'},
+  {name: 'picture_ids'}
+]);
+
+// data reader to parse the json response
+var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, listingRecord);
+
+// set up connection for the data
+var proxy = new Ext.data.HttpProxy(new Ext.data.Connection({
+  url: #{formatted_results_rets_path(:ids => @ids, :id=> @id, :format => :json).to_json}, 
+  method: 'get'
+}));
+
+// set up the data store and then send request to the server
+var store = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+store.load({params: {start: 0, limit: #{limit} }});
+  
+  #{create_grid_tbar_filter_field("store")}
+  
+  #{create_grid_tbar_clear_button("store")}
+
+function alertNoListingSelected() {
+  Ext.Msg.alert('No Listing Selected', 'Please select one or more listing to perform that action.');
+}
+
+// Action Menu Actions
+var selectAllAction = new Ext.Action({
+  text: "Select all",
+  iconCls: "display_none",
+  handler: function(e) {
+    gridPanel.getSelectionModel().selectAll();
+    //e.disable();
+  }
+});
+
+var clearAllAction = new Ext.Action({
+  text: "Clear all",
+  iconCls: "display_none",
+  handler: function(e) {
+    gridPanel.getSelectionModel().clearSelections(); 
+    //e.disable();
+  }
+});
+
+var deleteAction = new Ext.Action({
+  text: "Delete",
+  iconCls: "display_none",
+  handler: function(e) {
+    var records = gridPanel.getSelectionModel().getSelections();
+    if (records.length == 0) {
+      alertNoListingSelected();
+      return false;
+    }
+    
+    var ids = records.invoke('get', 'id');  // Returns an Array of the ids retrieved by calling .get('id') on each record in records
+    
+    Ext.Msg.confirm("Confirm Delete", "Are you sure you want to delete the selected listing(s)?", function(buttonText) {
+      if (buttonText.match(new RegExp("yes","i"))) {
+        Ext.Ajax.request({
+          url: '/admin/listings/async_destroy_collection',
+          method: "POST",
+          params: { ids: ids.join(', ') },
+          failure: xl.logXHRFailure,
+          success: function(request, options) {
+            xl.log("SUCCESS: " + request.responseText);
+            gridPanel.getStore().reload();
+          } // end success(r,o)
+        }); // end Ext.Ajax.request
+      } // end if(buttonText.match...
+    }); // end Ext.Msg.confirm
+  }
+});
+
+var gridTopToolbar = new Ext.Toolbar({
+  cls: "top-toolbar",
+  items: [
+    { text:"Filter: " },
+    filterField,
+    clearButton,
+    new Ext.Action({
+      text: "Expand all",
+      handler: function() {
+        Ext.DomQuery.select('.x-grid3-row-collapsed').each(function(e) {
+          expander.expandRow(e);
+        })
+      } // end handler
+    }),
+    new Ext.Action({
+      text: "Collapse all",
+      handler: function(){
+        Ext.DomQuery.select('.x-grid3-row-expanded').each(function(e) {
+          expander.collapseRow(e);
+        })
+      } // end handler
+    }), // end new Action
+    {
+      text: 'Actions',
+      iconCls: 'display_none',
+      menu: new Ext.menu.Menu({
+        defaults: { iconCls: "display_none" },
+        
+        items: [
+          selectAllAction,
+          clearAllAction,
+          '-',
+          { text: "Create RSS Feed", disabled: true },
+          { text: "Download Images", disabled: true },
+          { text: "Send Images", disabled: true },
+          { text: "Send Secure Links", disabled: true },
+          '-',
+          deleteAction
+        ]
+      })
+    }
+  ] // end items
+});
+
+var pagingToolbar = new Ext.PagingToolbar({
+  store: store,
+  pageSize: #{limit},
+  displayInfo: true,
+  displayMsg: 'Displaying {0} to {1} of {2}',
+  emptyMsg: "No record to display",
+  cls: "bottom-toolbar paging-toolbar-bottom",
+  plugins: [new Ext.ux.PageSizePlugin]
+});
+
+function createImagePanels(listingId, ids, shouldShowThumbnails) {
+  var html = '';
+  var downloadAssetUrl = #{download_asset_url(:id => "__ID__").to_json};
+  var shouldShowThumbnails = shouldShowThumbnails || false;
+  
+  if (ids.length > 0) {
+    var url = downloadAssetUrl.sub("__ID__", ids[0]);    
+    var onclick = "xl.createTab('" + url + "', 'listing_" + listingId + "_picture_" + ids[0] + "');";
+    
+    html = '<a id="listing_' + listingId + '_picture" class="main" href="#" onclick="' + onclick + '" rel="lightbox[' + listingId + ']"><img src="' + url + '?size=small" alt="Listing #' + listingId + ' Main Image" /></a>';
+    
+    if (shouldShowThumbnails && ids.length > 1) { // Make thumbnails
+      html += '<ul id="listing_' + listingId + '_thumbnails" class="imagegallery">';
+      $A(ids.slice(1)).each(function(id) {
+        var url = downloadAssetUrl.sub("__ID__", id);
+        html += '<li><a rel="lightbox[' + listingId + ']" href="' + url + '"><img src="' + url + '?size=mini" alt="Listing #' + listingId + ' Thumbnail" /></a>';
+      }); 
+      html += '</ul>';
+    }
+  } else {
+    html = '<div id="listing_' + listingId + '_picture" class="main"><img src="/images/no-image_small.jpg" alt="no description" /></div>';
+  }
+  
+  return new Ext.Panel({
+    html: html,
+    rowspan: 12,
+    width: 240
+  });
+}
+
+function replaceExpanderDivWithPanel(expander, record, body, rowIndex) {
+  var contact = record.get('contact');
+  var div = Ext.DomQuery.selectNode('div[id=expander-for-listing-' + record.get('mls_no') + ']', body);
+  
+  var panel = new Ext.Panel({
+    layout: 'table',
+    layoutConfig: { columns: 3 },
+    renderTo: div,
+    
+    items: [
+      { html: 'Description:', cls: 'summaryLabel' },
+      { html: record.get('description'), cls: 'summaryValue', autoWidth: true },
+      
+      createImagePanels(record.get('id'), record.get('picture_ids'), false),
+      
+      { html: 'List Date:', cls: 'summaryLabel' },
+      { html: record.get('list_date'), cls: 'summaryValue' },
+      
+      { html: 'Last Transaction:', cls: 'summaryLabel' },
+      { html: record.get('last_transaction'), cls: 'summaryValue' },
+      
+      { html: 'Status:', cls: 'summaryLabel' },
+      { html: record.get('status'), cls: 'summaryValue' },
+      
+      { html: 'Contact:', cls: 'summaryLabel' },
+      {
+        html: '<a href="#" onclick="xl.openNewTabPanel(\\'new_email_to_' + contact + '_nil\\', \\'#{sandbox_new_emails_path}?to_name_addresses=' + contact + '\\')">' + contact + '</a>',
+        cls: 'summaryValue'
+      },
+      
+      { html: 'Dwelling Type:', cls: 'summaryLabel' },
+      { html: record.get('dwelling_type'), cls: 'summaryValue' },
+      
+      { html: 'Dwelling Class:', cls: 'summaryLabel' },
+      { html: record.get('dwelling_class'), cls: 'summaryValue' },
+      
+      { html: 'Title of Land:', cls: 'summaryLabel' },
+      { html: record.get('title_of_land'), cls: 'summaryValue' },
+      
+      { html: 'Year Built:', cls: 'summaryLabel' },
+      { html: record.get('year_built'), cls: 'summaryValue' },
+      
+      { html: 'Images:', cls: 'summaryLabel' },
+      { html: record.get('num_of_images'), cls: 'summaryValue' },
+      
+      { html: 'Extras:', cls: 'summaryLabel' },
+      { html: record.get('extras'), cls: 'summaryValue' },
+      
+      { html: 'Tags:', cls: 'summaryLabel' },
+      { html: record.get('tags'), cls: 'summaryValue' },
+    ]
+  });
+  
+}
+
+// create row expander of the grid object
+var expander = new Ext.grid.RowExpander({
+  contains: ['mls_no'],
+  tpl: new Ext.Template('<div id="expander-for-listing-{mls_no}"></div>')
+});
+expander.on({
+  /*'click': function(expander, record, body, rowIndex) {
+    var editListingUrl = #{edit_listing_path(:id => "__ID__").to_json};
+    xl.openNewTabPanel( 'listings_edit_' + record.get('id'), editListingUrl.sub("__ID__", record.get('id')) );
+  },*/
+  'expand': replaceExpanderDivWithPanel
+});
+
+// create GridPanel object
+var gridPanel = new Ext.grid.GridPanel({
+  store: store,
+  cm: new Ext.grid.ColumnModel([
+    expander,
+    {id: 'mls_no', header: "MLS #", sortable: true, dataIndex: 'mls_no'},
+    {id: 'address', header: "Address", sortable: true, dataIndex: 'address'},
+    {header: "Area", sortable: true, dataIndex: 'area'},
+    {header: "City", sortable: true, dataIndex: 'city'},
+    {header: "Style", sortable: false, dataIndex: 'style'},
+    {header: "Bed./Bath", sortable: true, dataIndex: 'no_bed_bath'},
+    {header: "ft<sup>2</sup>", sortable: true, dataIndex: 'sqft'},
+    {header: "Price", sortable: true, dataIndex: 'price'}
+  ]),
+  viewConfig: { forceFit: false },
+  autoScroll: true,
+  autoWidth: true,
+  autoExpandColumn: 'address',
+  height: #{get_default_grid_height(nil)},
+  tbar: gridTopToolbar,
+  bbar: pagingToolbar,
+  plugins: expander,
+  footer: true
+});
+
+gridPanel.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
+  var record = store.getAt(rowIndex);
+  var editListingUrl = #{edit_listing_path(:id => "__ID__").to_json};
+  xl.openNewTabPanel( 'listings_edit_' + record.get('id'), editListingUrl.sub("__ID__", record.get('id')) );
+});
+
+newPanel.add(gridPanel);
+//xl.runningGrids.set("rets_results", gridPanel);
+///newPanel.on("destroy", function(){ xl.runningGrids.unset("listings"); });
+
+// add extra links to the header
+var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
+extra_links_span.insertHtml('afterBegin', #{underbarLinks.to_json});
+
+`
+end

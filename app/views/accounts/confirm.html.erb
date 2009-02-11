@@ -1,0 +1,282 @@
+<% content_for :js do %>
+  <script src="/javascripts/jquery/jquery-latest.js"></script>
+  <script type="text/javascript" src="/javascripts/jquery/view/tags/ui/latest/ui/ui.core.js"></script>
+  <script type="text/javascript" src="/javascripts/jquery/view/tags/ui/latest/ui/ui.tabs.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $("#signupDetails > ul").tabs();
+    });
+  </script>
+
+  <script src="/javascripts/jquery/jquery.tooltip.min.js" type="text/javascript"></script>
+  <script src="/javascripts/jquery/jquery.bgiframe.js" type="text/javascript"></script>
+  <script src="/javascripts/jquery/jquery.dimensions.js" type="text/javascript"></script>
+  <script src="/javascripts/jquery/chili-1.7.pack.js" type="text/javascript"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    $('td.title a').tooltip({
+      delay: 0,
+      showURL: false,
+      bodyHandler: function() {
+        return $("<img/>").attr("src", this.href);
+      }
+    });
+  });
+  </script>
+
+  <script type="text/javascript">
+    var initializeRegisterButton = function(){
+      $("#account-signup-register-button").click(function(){
+        var checkBox = document.getElementById("account-signup-confirm-agreement");
+        if(!checkBox.checked){
+          alert("To complete the registration process, you must agree to our user agreement and privacy policy by checking the checkbox");
+          return false;
+        }
+      });
+    };
+    
+    var initializeTableClicking = function(){
+      $("tr:even").addClass('even');
+      $("tr:odd").addClass('odd');
+
+      $("table tr.odd(:first)").addClass("active");
+      $("table tr.even:not(:first)").hide();
+
+      $("table tr.odd").click(function(){
+        $(this).next("tr:even").slideToggle("slow")
+        .siblings("tr.even:visible").slideUp("slow");
+        $(this).toggleClass("active");
+        $(this).siblings("tr.odd").removeClass("active");
+      });
+    };
+   
+    $(document).ready(function(){
+      initializeTableClicking();
+      $("#advancedSearchTrigger").click(function(){
+        $("#advancedSearch").slideToggle("slow");
+        $(this).toggleClass("active"); return false;
+      });
+      initializeRegisterButton();
+    });
+  </script>
+
+<% unless @suite %>
+  <script type="text/javascript">
+  var replaceAccountTemplateSelections = function(data, status){
+    $("#account_template_selections").html(data);
+  };
+ 
+  $(document).ready(function(){
+    $(".btn-slide").click(function(){
+      $("td.details .panel").slideToggle("slow");
+      $(this).toggleClass("active"); return false;
+    });
+   
+    $.ajax({
+      type: "GET",
+      url: <%= public_account_templates_path.to_json %>,
+      dataType: "text",
+      success: function(data, status){
+        replaceAccountTemplateSelections(data, status);
+        initializeTableClicking();
+      }
+    });
+   
+    $("#searchAccountTemplateButton").click(function(){
+      var mainThemeElement = document.getElementById("search[main_theme]");
+      var industryElement = document.getElementById("search[industry]");
+      var mainThemeValue = mainThemeElement.options[mainThemeElement.selectedIndex].value;
+      var industryValue = industryElement.options[industryElement.selectedIndex].value;
+<% AccountTemplate.functionality_column_names.each do |column_name| %>
+      var <%= column_name %>Element = document.getElementById("search[<%= column_name %>]");
+      var <%= column_name %>Value = "0";
+      if (<%= column_name %>Element.checked){ <%= column_name %>Value = "1"};
+<% end %>
+      $.ajax({
+        type: "GET",
+        url: <%= public_account_templates_path.to_json %>,
+        data: {
+<% AccountTemplate.functionality_column_names.each do |column_name| %>
+          "search[<%= column_name %>]": <%= column_name %>Value,
+<% end %>
+          "search[main_theme]":mainThemeValue,
+          "search[industry]":industryValue
+        },
+        dataType: "text",
+        success: function(data, status){
+          replaceAccountTemplateSelections(data, status);
+          initializeTableClicking();
+        }
+      });
+    });
+  });
+  </script>
+<% end %>
+<% end %>
+<% content_for :css do %>
+  <%= cached_stylesheet_link_tag "accounts/confirm.css" %>
+<% end %>
+
+<div align="center">
+  <div id="content">
+    <div id="top">
+      <%= error_messages_for(:acct, :domain, :owner, :address, :phone, :email, :object_name => "account") %>
+    </div>
+   
+    <div id="left">
+      <h1><%= @parent_domain.name %></h1>
+      <div id="signupDetails" class="flora">
+        <ul class="ui-tabs-nav">
+          <li class="ui-tabs-selected"><a href="#signup1" id="first"><span>1</span></a></li>
+          <li class=""><a href="#signup2" id="second"><span>2</span></a></li>
+          <li class=""><a href="#signup6" id="third"><span>3</span></a></li>
+        </ul>
+      </div>
+    </div>
+   
+    <div id="right">
+      <%= form_tag activate_accounts_path, :enctype => "multipart/form-data" %>
+        <span style="display: none;"><%= hidden_field_tag "code", params[:code] %></span>
+        <div class="ui-tabs-panel" id="signup1">
+          <fieldset>
+            <legend>Create an account</legend>
+            <label><span class="mandatory">*</span> Choose a password</label>
+            <%= password_field_tag "owner[password]" %>
+            <span>Password is minimum of 6 characters in length</span>
+            <label><span class="mandatory">*</span> Re-enter password</label>
+            <%= password_field_tag "owner[password_confirmation]" %>
+          </fieldset> 
+          <fieldset>
+            <legend>Personal details</legend>
+            <label>Title</label>
+            <%= select_tag "owner[honorific]", options_for_select(Party::HONORIFICS, "Mr.") %>
+            <label>First Name</label>
+            <%= text_field_tag "owner[first_name]", "" %>
+            <label>Last Name</label>
+            <%= text_field_tag "owner[last_name]", "" %>
+            <label>Avatar</label>
+            <input type="file" name="owner[avatar]"/>
+            <span class="small">(please use only .jpg / .jpeg / .png /.gif graphics format for your avatar)</span>
+          </fieldset>
+          <input class="submit" type="submit" name="" onClick="$('#signupDetails > ul').tabs('select', 1); return false;" value="Next"/>
+        </div>
+        <div class="ui-tabs-panel ui-tabs-hide" id="signup2">
+          <fieldset>
+          <legend>Contact Details</legend>
+            <label>Company</label>
+            <%= text_field_tag "owner[company_name]", "" %>
+            <label>Position</label>
+            <%= text_field_tag "owner[position]", "" %>
+            <label>Phone</label>
+            <span style="display: none;"><%= hidden_field_tag "phone[name]", "Main" %></span>
+            <%= text_field_tag "phone[number]", "" %>
+            <label>Address Line 1</label>
+            <%= text_field_tag "address[line1]", "" %>
+            <label>Address Line 2</label>
+            <%= text_field_tag "address[line2]", "" %>
+            <label>Address Line 3</label>
+            <%= text_field_tag "address[line3]", "" %>
+            <label>City</label>
+            <%= text_field_tag "address[city]", "" %>
+            <label>Country</label>
+            <%= select_tag "address[country]", options_for_select(AddressContactRoute::COUNTRIES, AddressContactRoute::CANADA) %>
+            <label>Province/State</label>
+            <%= select_tag "address[state]", options_for_select(AddressContactRoute::STATES) %>
+            <label>Zip/Postal Code</label>
+            <%= text_field_tag "address[zip]", "" %>
+            <!--<label>Make my profile public</label>
+            <input type="checkbox" name="create_profile"/>
+            <br/>Explanatory text about profile status-->
+          </fieldset>
+          <input class="submit" type="submit" name="" onClick="$('#signupDetails > ul').tabs('select', 2); return false;" value="Next"/>
+        </div>
+        <div class="ui-tabs-panel ui-tabs-hide" id="signup6">
+    <% if @suite %>
+          <h2>Your selected Suite</h2>
+          <div class="xlsuite-account-install-selected-suite">
+<% unless @suite.main_image_url.blank? %>
+            <%= image_tag(@suite.main_image_url+"?size=medium") %>
+<% end %>
+            <div class="xlsuite-account-install-selected-suite-details">
+              <h2><a href="<%= @suite.demo_url %>"><%= @suite.name %></a></h2>
+              <dl>
+                <dt>Installation Fee</dt><dd><%= @suite.setup_fee.format(:with_currency, :no_blank) %></dd>
+                <dt>Monthly Fee</dt><dd><%= @suite.subscription_fee.format(:with_currency, :no_blank) %></dd>
+              </dl>
+            </div>
+          </div>
+          <%= hidden_field_tag("acct[account_template_id]", @suite.id, :style => "display:none;") %>
+          <%= hidden_field_tag("acct[suite_id]", @suite.id, :style => "display:none;") %>
+    <% else %>
+          <h2>Choose your Suite</h3>
+          <fieldset>
+          <legend>Search</legend>
+          <label>Industry:</label>
+          <%= select_tag "search[industry]", options_for_select(([["All", "all"]] + account_template_category_selections("industry")), "all") %>
+          <label>Main Theme:</label>
+          <%= select_tag "search[main_theme]", options_for_select(([["All", "all"]] + account_template_category_selections("main_theme")), "all") %>
+          </fieldset>
+          <br/>
+          <a id="advancedSearchTrigger">[ADVANCED SEARCH]</a>
+          <div id="advancedSearch" style="display:none;">
+          <fieldset id="templateFilter">
+            <legend>Select functionalities</legend>
+            <% AccountTemplate.functionality_column_names.each do |column_name| %>
+              <%= check_box_tag "search[#{column_name}]", "1", false %>
+              <label>
+                <%= column_name.gsub(/^f_/,"").humanize %>
+              </label> 
+            <% end %>
+          </fieldset>
+          </div>
+          <br/>
+          <br/>
+          <a href="#" id="searchAccountTemplateButton">GO!</a>
+          <table cellpadding="0" cellspacing="0" border="1" width="100%">
+            <colgroup>
+              <col width="5%">
+              <col width="10%">
+              <col width="15%">
+              <col width="15%">
+              <col width="5%">
+              <col width="10%">
+              <col width="15%">
+              <col width="10%">
+              <col width="15%">
+            </colgroup>
+            <thead>
+              <tr>
+                <td>Select</td>
+                <td>Name</td>
+                <td>Industry</td>
+                <td>Main theme</td>
+                <td>Rating</td>
+                <td>Comments</td>
+                <td>Author</td>
+                <td>Setup fee</td>
+                <td>Subscription fee</td>
+              </tr>
+            </thead>
+            <tbody id="account_template_selections">
+            </tbody>
+          </table>
+          </fieldset>
+    <% end %>
+          <p>
+            <input id="account-signup-confirm-agreement" type="checkbox" name="confirmed_agreement"/>
+            I understand and agree that registration on or use of this site constitutes agreement to its <%= link_to("User Agreement", user_agreement_url(@parent_domain), :target => "_blank") %> and <%= link_to("Privacy Policy", privacy_policy_url(@parent_domain), :target => "_blank") %>
+          </p>
+          <p><%= submit_tag "Register", :id => "account-signup-register-button" %></p>
+        </div>
+      </form>
+    </div>
+    <div id="footer">
+      <div id="leftFooter">
+        <p>Copyrights 2008 XLsuite.com. All rights reserved</p>
+      </div>
+      <div id="rightFooter"> <a class="footerLink" target="_blank" href="http://xlsuite.com/help">Help</a> | <a class="footerLink" href="http://xlsuite.com/terms_of_services" target="_blank">Terms of services</a> | <%= link_to("User Agreement", user_agreement_url, :class => "footerLink", :target => "_blank") %> | <%= link_to("Privacy Policy", privacy_policy_url, :target => "_blank", :class => "footerLink") %> </div>
+    </div>
+  </div>
+</div>

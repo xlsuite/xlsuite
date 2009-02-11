@@ -1,0 +1,13 @@
+root:
+  id: 1
+  name: root
+  description: The root of link category
+  parent_id: 
+  account_id: 1
+
+link_category_one:
+  id: 2
+  name: WePutUpLights
+  description: The description of link category one
+  parent_id: 1
+  account_id: 1

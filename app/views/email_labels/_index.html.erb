@@ -1,0 +1,14 @@
+
+<div>
+  <table id="email_label_table" style="width:90%">
+    <%= render :partial => "label", :collection => @labels %>
+  </table>
+</div>
+
+<% form_tag email_labels_path, {:method => :post} do %>
+New Label: <%= text_field_tag "email_label[name]", nil%>
+<%= submit_to_remote 'create', 'Create', {:url => email_labels_path, :method => :post}%>
+<% end -%>
+<script>
+  myEmailLabelsRefresh();
+</script>

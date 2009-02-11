@@ -1,0 +1,15 @@
+<div>
+  <p>Your cart contains:</p>
+  <% if @cart.lines.empty? %>
+    <p>Nothing - it's empty</p>
+  <% else %>
+    <% @cart.lines.each do |line| %>
+    <p><%= line.quantity + " " + line.product.name + " @ " + line.retail_price %></p>
+    <% end %>
+  <% end %>
+</div>
+
+<div>
+  <p>Parameters received are:</p>
+  <p><%= params.inspect %></p>
+</div>

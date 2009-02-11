@@ -1,0 +1,13 @@
+<div id="registerNew">
+  <h2>Register</h2>
+  <p>Provide your E-mail address to receive a Confirmation Request to complete the sign-up. Remember to check your spam folder if needed. We will not trade, sell, or barter your E-mail address to any other party.</p>
+  <% labelled_form_for(:party, :url => signup_parties_path) do |f| %>
+    <%= error_messages_for(:party, :email_address) %>
+    <!--<% fields_for(:email_address) do |f| %>!-->
+    E-mail: <%= f.text_field :email_address %>
+
+    <!--<% end -%>!-->
+    <%= hidden_field :party, :tag_list, :value => @tags%>
+    <p><%= submit_tag "Register!", :class => "reg_button" %></p>
+  <% end -%>
+</div>

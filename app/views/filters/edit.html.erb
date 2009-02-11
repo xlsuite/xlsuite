@@ -1,0 +1,13 @@
+<% content_for(:js) do -%>
+  <%= javascript_include_tag "filters/new.js" %>
+<% end -%>
+
+<% form_tag (filter_path(@filter), :id => "edit_filter_form") do %>
+<%= render :partial => "form" %>
+<%= submit_to_remote '_test', 'Test', :url => filter_path(@filter), :method => :put, :html => {:id => "filter_test_button"}%>
+<%= submit_tag 'Update', {:name => "_update_", :method => :put, :onclick => "$('edit_filter_form').appendChild($('form_method'));"} %><%= link_to "Cancel", filters_path%>
+<% end -%>
+<input id="form_method" type="hidden" name="_method" value="put"/>
+<div id='email_list' style='display:none'></div>
+
+<%= render_extjs_filter_grid %>

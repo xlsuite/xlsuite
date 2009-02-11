@@ -1,0 +1,20 @@
+<%
+  if phone_contact_route.routable && !phone_contact_route.routable.new_record? then
+    if phone_contact_route.new_record? && !phone_contact_route.routable.new_record? then
+      save_url = party_phones_path(phone_contact_route.routable)
+    else
+      update_url = party_phone_path(phone_contact_route.routable, phone_contact_route)
+    end
+  end
+-%>
+<% inline_fields_for(:phone, phone_contact_route, :url => update_url, :indexed => true) do |f| -%>
+<% contact_route_tag(phone_contact_route, :show_editor => @force_editor) do %>
+  <fieldset>
+    <%= icon_tag(:phone, :class => "CR_img") %>
+    <%= f.text_field_with_auto_complete :name, :values => phone_contact_route.choices %>
+    <%= f.text_field :number, :value => phone_contact_route.formatted_number, :blank_prefix => typed_dom_id(phone_contact_route, :name, :field) %>
+    <%= f.text_field :extension, :value => phone_contact_route.formatted_extension, :blank_prefix => typed_dom_id(phone_contact_route, :name, :field) %>
+  </fieldset>
+  <%= f.save_or_cancel_links(save_url, %w(name number extension), :inline => true) unless @force_editor %>
+<% end -%>
+<% end -%>

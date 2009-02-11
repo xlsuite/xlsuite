@@ -1,0 +1,31 @@
+
+<%= content_tag 'p', h(flash[:warning]), :class => 'notice' if flash[:warning] %>
+
+<h2><b>Upload CSV file</b></h2>
+<fieldset style="border: 1px solid;">
+<div id="newImport" class="text ipage">
+<p>Please upload the file to be imported (File size must be < 60KB)</p>
+<% form_for :import, :url => imports_path, :html => {:multipart => true} do |f| %>
+  <p>File: <%= f.file_field :file %> </p>
+  <p>
+    <%= submit_tag "Upload", :class =>"button" %>
+    <%= link_to "Cancel", imports_path %>
+  </p>
+<% end %>
+</div>
+</fieldset>
+
+<br class="clear" />
+<h2><b>URL to CSV file</b></h2>
+<fieldset style="border: 1px solid;">
+<div id="newImport" class="text ipage">
+<p>Please input the url of the csv file</p>
+<% form_for :import, :url => imports_path do |f| %>
+  <p>URL: <%= text_field_tag('import[csv_from_url]', nil, :size => 70) %> </p>
+  <p>
+    <%= submit_tag "Next", :class =>"button" %>
+    <%= link_to "Cancel", imports_path %>
+  </p>
+<% end %>
+</div>
+</fieldset>

@@ -1,0 +1,233 @@
+=== FeedTools 0.2.27
+  * now uses the URI class from GentleCMS
+  * full support for IRIs
+  * schema changed to allow additional functionality
+  * added support for Google reader API elements
+  * added support for Google data format
+  * added better support for copyright information
+  * added method to allow feeds and feed items to override lazy parsing
+  * added configuration setting to override lazy parsing
+  * added serialization feature to allow preparsing with FeedUpdater
+  * added support for HTTP Basic authentication
+  * fixed some issues with identifying the correct base uri
+  * added config path method to the database feed cache
+  * added default time to live configuration variable
+  * fixed autodiscovery redirect loops
+  * improved handling of entities
+  * no longer causes problems with Mongrel's monkey patch
+=== FeedTools 0.2.26
+  * added support for retarded, ugly Radio redirects
+  * improved autodiscovery support
+  * fixed lazy evaluation issue
+=== FeedTools 0.2.25
+  * fixed self reference href bug
+  * fixed primary link assignment heuristic
+  * link rel's now default to 'alternate' for atom feeds
+  * better handling of language attributes
+  * better support for threaded applications
+  * generated rss 2.0 now includes author, managingEditor, webMaster elements
+  * improved handling of author elements
+  * improved handling of http timeouts
+  * fixed issue with relative paths in the location header on http redirection
+  * monkey patches now work with Ruby 1.8.4's version of REXML
+  * REXML monkey patches moved into their own file
+=== FeedTools 0.2.24
+  * fixed autodiscovery bugs
+  * updated autodiscovery to handle relative uris
+  * added per feed configuration
+  * rewrote http retrieval code
+  * supports authenticated http proxies
+  * supports basic http auth
+  * fixed relative url resolution issues
+  * corrected db schema files to match migration file
+  * fixed bug in the save method
+  * fixed some major http bugs
+  * updated dependancies
+  * no longer causes problems with frozen rails
+=== FeedTools 0.2.23
+  * autodiscovery implemented
+  * now knows a title from a hole in the ground
+  * now resolves relative urls when possible
+  * changed default table name to "cached_feeds" to avoid name collisions
+  * schema now uses "href" instead of "url"
+  * feed cache is set to nil by default now
+  * both summary and content elements are generated now
+  * now supports proxies
+  * now supports internationalized domain names if libidn is installed
+  * fixed bug with feed merging referencing a method that was refactored
+  * no longer dies if uuidtools gem is missing but the UUID class is defined
+  * updated timestamp handling and generation
+  * added support for entry sorting on any feed item field
+  * added support for disabling entry sorting entirely
+  * fixed issue with itunes categories
+  * fixed itunes subtitle/summary
+  * fixed entry assignment bug
+  * fixed issued/published variable name mix-up
+  * added support for the payload module
+  * added support for xhtml:div elements
+  * dc:date now preempts pubDate
+  * added better support for the scriptingNews format
+  * now correctly strips out wrapper div elements from text constructs
+  * fixed issue with some atom links being incorrectly identified as images
+  * reorganized some of the helper modules
+  * made some portions of url normalization case insensitive
+  * fixed issue with filename handling on Windows
+=== FeedTools 0.2.22
+  * fixed another atom generation error
+=== FeedTools 0.2.21
+  * fixed atom generation error
+  * added summary element to generated atom xml
+  * added warning message for improperly set up database tables
+=== FeedTools 0.2.20
+  * fixed some atom namespace bugs
+  * added a summary method to feed items
+  * added some support for the apple-wallpapers elements
+=== FeedTools 0.2.19
+  * lousy encoding support (as opposed to none at all)
+  * xml processing instruction now correctly prefixes generated feeds
+  * attributes are escaped properly when generating feeds
+  * uppercase html is no longer sanitized for not being in the whitelist
+  * added alias method for assigning to entries
+  * changed the xpath querying to be much, much more DRY
+  * find_node and find_all_nodes are actually useful now
+  * full case-insensitivity implemented for the xpath helper methods
+  * fixed bug in tests where some assertion failures could affect other tests
+  * fixed bug where the feed item author would sometimes be parsed incorrectly
+  * fixed bug where the convertLineBreaks element would break feed entries
+  * default (i.e. preferred) methods will be Atom-style instead of RSS-style
+  * default feed output format changed to Atom 1.0
+  * itunes namespace corrected
+  * fixed images property when dealing with atom
+  * fixed atom link property
+  * improved timestamp handling
+  * whitespace nodes now ignored by REXML
+  * added option to disable timestamp estimation
+  * added option to limit time-to-live to some upper maximum
+  * enclosures included in feed generation
+  * no longer uses the cache at all for file:/// urls
+  * changed itunes:keywords to use commas
+  * testing now excludes cache testing by default
+  * more tests
+=== FeedTools 0.2.18
+  * no longer ever polls more often than once every 30 minutes
+  * fixed overlooked improperly refactored enclosure code
+  * fixed issue with inner_xml incorrectly handling xml comments
+  * added helper modules
+  * test cases now implemented using helpers
+  * fixed issue with timeouts
+  * fixed stack overflow while estimating timestamps
+  * fixed some namespace issue with atom
+  * added base64 decoding support
+=== FeedTools 0.2.17
+  * more fixes for timestamping of feed items
+  * fixed nil bug in root_node, feed_type, feed_version, build_xml
+  * build_xml method is now properly unit tested
+  * fixed issue with setting the Host http header
+  * namespaces are no longer hard-coded for feed generation
+  * better url normalization for file: style urls
+  * generated timestamps are now in UTC
+=== FeedTools 0.2.16
+  * atom feed generation now defaults to atom 1.0
+  * removed erroneous published element at atom feed-level
+  * fixed some incompatibilities with ruby 1.8.3
+  * better support for universal subscription mechanism within feeds
+  * now handles both atom 0.3 and 1.0 namespaces
+  * fixed timestamping of feed items
+=== FeedTools 0.2.15
+  * changed so that tidied elements no longer handle entities differently
+  * tidy now assumes utf-8 encoding instead of ascii
+  * began the first bit of work on namespace support
+  * better support for cdatas
+  * removed "bozo bit" - no need for a parser to moonlight as a validator
+=== FeedTools 0.2.14
+  * fixed bug with feeds not expiring properly
+=== FeedTools 0.2.13
+  * fixed issued with missing namespace parameter for uuid creation
+=== FeedTools 0.2.12
+  * schema change!
+  * fixed missing cache connection breaking redirects
+  * fixed redirects creating duplicate cache entry
+  * exception now raised if cache_only option is set but the cache is disabled
+  * additional unit tests to verify that the cache works with redirects
+  * fixed feed expiration bugs with expire!
+  * xml_data renamed to feed_data
+  * feed_data_type method added
+=== FeedTools 0.2.11
+  * ruby -w shouldn't produce nearly as many warnings
+  * you can now force the open method to only pull from the cache
+  * the global cache_only option has been removed
+  * nows queries the cache after each redirection
+  * attribute dictionary stuff removed for being unnecessary and pythonic
+  * better file structure -- no more 5000 line files
+  * schema files are formatted better to keep them from looking wierd in rdoc
+=== FeedTools 0.2.10
+  * http error messages now sport a list of redirections to simplify debugging
+  * automatic table creation removed
+  * database schema information included in rdoc and package files
+  * deals with servers returning 404 if passed a User-Agent http header
+=== FeedTools 0.2.9
+  * changed ordering of elements checked for the item content
+  * added dependancy on uuidtools, uuids used in feed generation
+  * database feed cache implementation factored out into its own file
+  * http_fetch changed to use lambda
+  * fixed invalid rss 1.0/2.0 generation (missing some namespaces)
+=== FeedTools 0.2.8
+  * fixed bug with http headers being loaded from invalid YAML
+  * fixed uninitialized constant bug (you shouldn't have RUBYOPT set)
+  * cleaned up inspect methods
+=== FeedTools 0.2.7
+  * added support for Atom 1.0 output
+  * improved support for Atom parsing and handling
+  * added no content string option to keep the feed validator happy
+  * greatly improved handling of timestamps and feed item sorting
+  * added aliases for the Atom 1.0 elements that were renamed
+  * feed merging is now threaded
+=== FeedTools 0.2.6
+  * added support for merging feeds
+  * vastly improved handling of feed creation
+=== FeedTools 0.2.5
+  * fixed multiple rows being created in the cache after a 301 redirection
+  * fixed broken table creation for postgresql and sqlite
+  * testing against non-standard feeds
+  * removed the 'comment_link' method in favor of the 'comments' method
+=== FeedTools 0.2.4
+  * fixed bug in the sqlite table creation query
+  * greatly improved image support
+  * improved cdf support (still needs way more work)
+  * support for text input elements
+  * now possible to force retrieval from the cache only
+  * increased the flexibility of the database caching implementation
+  * feed attributes accessible through the keys and values collections
+  * minor coding style changes
+  * fixed really dumb typo in the podcast? and vidlog? methods
+  * fixed exception from missing titles and descriptions
+  * now passes all of mark pilgrim's well-formed rss tests
+=== FeedTools 0.2.3
+  * fixed omission of get parameters from http requests
+=== FeedTools 0.2.2
+  * fixed http redirection bug
+  * fixed several documentation typos
+  * still more unit tests
+  * improved support for atom
+  * minor improvements to the database caching mechanism
+  * more complete support for rss elements
+  * major improvements to the handling of tags containing html content
+=== FeedTools 0.2.1
+  * fixed incorrect dependancy on ActiveRecord 1.10.1
+  * more unit tests
+  * preliminary support for "bozo-detection"
+=== FeedTools 0.2.0
+  * more complete support for rss, atom, cdf
+  * modular caching mechanism
+  * lazy parsing
+  * HTML sanitization of possibly dangerous fields
+  * HTML tidy support
+  * support for podcasts and vidlogs
+  * corrected handling of http redirection
+  * made http header information available
+  * file: protocol support
+  * custom parsing can be done using the find_node and find_all_nodes methods
+=== FeedTools 0.1.0
+  * basic support for rss, atom, cdf
+  * basic caching using active record
+  * support for etags

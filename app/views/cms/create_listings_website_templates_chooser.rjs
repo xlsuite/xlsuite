@@ -1,0 +1,58 @@
+page << %Q`
+  var templateDomainSelections = new Ext.data.SimpleStore({
+    fields: ['value'],
+    data: #{@template_domain_selections.to_json}
+  });
+
+  var templatesPanel = new Ext.form.FormPanel({
+    autoScroll: true,
+    items:[ 
+        new Ext.form.ComboBox({
+          fieldLabel: "Using template",
+          labelSeparator: ":",
+          name: "domain_name",
+          store: templateDomainSelections,
+          displayField: "value",
+          valueField: "value",
+          editable: false,
+          mode: "local",
+          value: #{@template_domain_selections.first.first.to_json},
+          triggerAction: "all"
+        })
+      ]
+  });
+
+  var window = new Ext.Window({
+    title: 'Create Listings Website',
+    resizable: false,
+    width: 400,
+
+    items: templatesPanel,
+
+    buttons: [
+    {
+      text: "OK",
+      handler: function() {
+          var gridPanel;
+          xl.runningGrids.each(function(pair){
+            var grid = pair.value;
+            var dataStore = grid.getStore();
+            if (dataStore.proxy.conn.url.match(new RegExp('listings', "i"))) {
+              gridPanel = grid;
+            }
+          });
+          var records = gridPanel.getSelectionModel().getSelections();
+
+          var ids = records.invoke('get', 'id');
+          templatesPanel.getForm().doAction('submit', {url: #{create_listings_website_cms_path.to_json}, params:{ids:ids.toString()}});
+          window.hide(); window.close();
+        }
+    },
+    {
+      text: 'Close',
+      handler: function() { window.hide(); window.close(); }
+    }]
+  });
+
+  window.show();
+`

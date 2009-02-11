@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Error xmlns="urn:yahoo:api">
+		The following errors were detected:
+		<Message>unable to parse location</Message>
+</Error>
+<!-- ws05.search.re2.yahoo.com uncompressed/chunked Wed Apr 25 15:13:01 PDT 2007 -->

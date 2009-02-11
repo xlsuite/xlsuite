@@ -1,0 +1,14 @@
+<tr id="<%= dom_id(account) %>">
+  <td><%= link_to(icon_tag("delete"), account_path(account), :method => :delete, 
+      :confirm => "Are you sure you want to destroy #{h(account.owner ? account.owner.display_name : "unknown")} account permanently?") %>
+  </td>
+  <td><%= link_to(h(account_name(account)), edit_account_path(account)) %></td>
+  <td><%= if account.domains.size == 1 then
+        link_to(account.domains.first.name, "http://#{account.domains.first.name}/")
+      else
+        "#{account.domains.size} domains"
+      end %></td>
+  <td><%= format_date_time(account.expires_at) %></td>
+  <td><%= account.cost %></td>
+  <td><%= account.formatted_options %></td>
+</tr>

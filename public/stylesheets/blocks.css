@@ -1,0 +1,224 @@
+/* XLsuite  CSS > blocks
+
+created: 2007-06-22 | by: max
+updated: 2007-06-22 | by: max
+purpose: custom standard blocks of content, such as login, search
+details: contains login, breadcrumbs, search module, search results
+
+*/
+
+/*
+  > > > > > > new session (login) - - - - - - -
+*/
+#sessions_new                   { border: 1px solid #DDDDDD;
+                                  margin-left: 70px;
+								  padding: 60px;
+								  width: 40%;}
+
+#sessions_new label             { float: left}
+#sessions_new input             { float: right}
+#sessions_new input#remember_me { float: left; margin-right: 4px;}
+#sessions_new p.row             { padding: 4px 0px;}
+#sessions_new p.clear a         { float: right;}
+#sessions_new h2                { font-weight: bold; padding-bottom: 2px; border-bottom: 1px solid #ddd;}
+
+/*
+  > > > > > > breadcrumbs - - - - - - -
+*/
+#breadCrumbs ul                 { list-style-type: none; }
+#breadCrumbs ul li              { display: inline; }
+#breadCrumbs ul li:after        { content: ' | '; }
+#breadCrumbs ul li.last:after   { content: ''; }
+#breadCrumbs ul li a            { color: #333333; }
+#breadCrumbs ul li a.alternate  { color: #8dc63f; }
+
+/*
+  > > > > > > search module - - - - - - -
+*/
+
+/*
+saved searches only for the time being used to be: quick nav and quick search
+*/
+
+#module_search                     { position:absolute; right:5px; top:50px; width:280px; z-index:1; }
+
+/* CSS for Search Module */
+
+/* colors 
+
+input border, text hover =  #8dc63f
+borders = #ccc
+
+*/
+
+/*elements */
+
+fieldset      
+                                   { border: none; margin: 0; padding: 0; }
+/*surface classes*/
+
+ .menuItem_search                  { width: 100%; height: 20px; padding-left: 10pt; position: relative; }
+ .quickToggle                      { width: 100%; height: 100%; 
+                                     font-weight: bold; padding-top: 3px; border-bottom: 1px solid #ccc;}
+ 	 .quickToggle:hover              { cursor: pointer; color: #8dc63f; }
+ 	 .quickToggle span               { display: inline; padding-left: 5px; }
+ 	 .quickToggle span.status        { font-weight: normal; font-style: italic; padding-left: 30%; }
+   .quickSearch_outerInput         { width: 60%; position: absolute; right: 20px; top: 1px; }
+	 .quickSearch_outerInput input   { width: 100%; }
+
+
+ .searchBarLabel,.quickBarLabel    { font-weight: bold; }
+ .searchBarLabel                   { margin-left: 0px;}
+ .searchBarLabel:hover             { color:  #8dc63f; cursor: pointer;}
+
+	
+a.submit                           { margin-bottom: -30px; }
+	
+/*surface IDs */
+
+#quickBar_left                     { width: 49%; float: left; margin-left: 4px;}
+#quickBar_right                    { width: 49%; float: left; margin-left: 0px;}
+
+#searchBar                         {  }
+#search                            { width: 120px; }
+#input_quickNav, #input_quickSort  { width: 43%;}
+
+
+/*GO! Throbber */
+img#quickSearchGo_throbber         { position:absolute;right:15px;top:4px;z-index:30;}
+
+/*subPanel classes*/
+
+fieldset.searchSubPanelForm                { position: relative; margin: 2px 0;padding: 7px 0;}
+        .searchSubPanelForm                { margin: 0; padding: 0; }
+        .searchSubPanelForm span           { display: inline; } 
+        
+     div.report-line-fieldsets             { position: relative; margin: 2px 0;padding: 7px 0; }
+        .report-line-fieldsets span        { display: inline; }
+        .report-line-fieldsets input       { position: absolute; top: 0px; left: 2px; }
+        .report-line-fieldsets select      { position: absolute; top: 0px; left: 2px; }
+     div.report-line-fieldsets span.display    { position: absolute; top: 0px; left: 12px; }
+     div.report-line-fieldsets span.exclude    { position: absolute; top: 0px; left: 12px; height: 20px; width: 35px; }
+     div.report-line-fieldsets span.exclude .box {float: left; display: inline;}
+     div.report-line-fieldsets span.sort       { position: absolute; top: 0px; left: 12px; }
+     div.report-line-fieldsets span.sort img.sortOrder { display: inline; }
+        /*input.advancedSearch_text,
+        select.searchOptions_select        { float: left; display: inline; }*/
+        .subPanelHeader                    { margin: 5px 0;}
+
+        .subPanelHeader span               { float: left;font-weight: bold;}
+
+
+       a.right                             { display: inline;float: right;margin-right: 4px;}
+        .searchSubPanel                    { padding: 2px;	margin-top: 3px;
+                                             border-left: 1px solid #ccc;
+                                             border-right: 1px solid #ccc; 
+									                           border-bottom: 1px solid #ccc;	
+									                           background: #fff;}
+
+        .searchSubPanel form input.text    { width: 265px; }
+        .searchSubPanel form textarea      { width: 268px; }
+
+    /*  span.exclude .box                      { }
+        .exclude                           { } */
+
+/* little graphic that says 'exclude' */
+
+  img.exclude_label                { display: inline; }
+
+input.advancedSearch_text,
+select.advancedSearch_order         { padding: 2px; background: #fff; font: 10px Verdana;color: #666; border: 1px solid #8dc63f; }
+input.advancedSearch_text          { width: 25%;}
+select.advancedSearch_order         { width: 50%;}
+input.advancedSearch_text:hover,
+select.advancedSearch_order:hover,
+input.advancedSearch_text:focus,
+select.advancedSearch_order:focus   { border: 1px solid #666; }
+
+     .searchSubPanel_optionsBar    { height: 20px; margin: 2px auto 0 auto; padding: 2px 0 0 0;}
+     .searchSubPanel_optionsBar a  { margin: 5px;}
+
+     
+     #report_lines_1_field         { margin: 0px 0px 0px 0px; }
+
+  img.sortOrder                    { border: none; margin-bottom: -4px; margin-left: 4px; }
+ 
+
+
+     #quickSort input.text         { width: 65%; }
+
+input.button_search	               { width: 52px; 
+                                     height: 20px; 
+									 background: #eee; 
+									 font: 11px 'Tahoma', Verdana, sans-serif;
+									 color: #666;
+									 outline: none;
+									 border: 1px solid #666;}
+	
+input.button_search:hover          { background: #8dc63f;
+                                     color: #fff;
+                                     cursor: pointer;
+                                     outline: none;	}
+	
+
+/*Saved Searches */
+
+table#savedSearches                      { width: 100%;margin: 0px auto;}
+#savedSearches td                        { text-align: center; }
+#savedSearches td a                      { padding: 0px 4px; }
+#savedSearches tr.bg                     { background: #eee; }
+
+/*advanced search */
+
+#saved_advanced_search_dialog            { width:274px; background: #fff; position:relative; z-index:10; }
+
+#saved_advanced_search_dialog h2         { font-weight: bold; border-bottom: none; margin: 6px 0px;}
+#saved_advanced_search_dialog form label { display:block;
+margin:2px 0px;}
+
+
+
+/*throbbers*/
+
+.throbber_savedSearch_edit               { margin-left:-25px; position:fixed; z-index:10;}
+.throbber_savedSearch_delete             { margin-left:-25px; position:fixed; z-index:10;}
+.throbber_savedSearch_execute            { float:left; margin-left:1px; margin-top:-13px;}
+
+/*
+  > > > > > > search results - - - - - - -
+*/
+
+a, a:visited                             { color: #008eb0; text-decoration: none; }
+   a:hover                               { color: #8dc63f; }
+
+
+td.date                                  { font-size: 9px; }
+
+#searchResults                           { width: 100%; border: none; text-align: left;}
+	#searchResults tr.bground            { background: #f5f5dc; }
+	#searchResults tr.header             { background: #8da177 /*url(../img/table_headerBg.png) repeat-x;*/ ; color: #fff; }
+	#searchResults td, 
+	#searchResults th                    { padding: .35em; }
+	#searchResults th                    { font-weight: bold;}
+	#searchResults th.header01           { width: 70%; }
+	#searchResults th.header02, 
+	#searchResults th.header03, 
+	#searchResults th.header04           { width: 10%; }
+	
+/*
+  > > > > > > tag cloud - - - - - - -
+*/
+
+ul.tag_cloud                             { clear:both; 
+                                           padding: 4px; 
+										   display: block; 
+										   border: 1px solid #ddd; 
+										   margin-top: 30px; }
+ul.tag_cloud li                          { display:inline;}
+ul.tag_cloud li.separator                { }
+  .tag_list                              { float: left;
+                                           width: 578px;
+										   height: 60px; 
+										   overflow-y: scroll; 
+										   margin-right: 10px; 
+										   margin-bottom: 10px; }

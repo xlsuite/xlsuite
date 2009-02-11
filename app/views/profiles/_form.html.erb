@@ -1,0 +1,175 @@
+<%= cached_javascript_include_tag "prototype.js"%>
+<%= javascript_include_tag  :defaults %>
+<%= cached_javascript_include_tag "parties.js"%>
+<%= javascript_include_tag "profiles/form.js"%>
+<div id="profile_error_messages"><%= params[:form_errors] %></div>
+  <div id="publicProfile_signup">
+    <div class="signup_section contact_details">
+      <h3>Details:</h3>
+      <p>*(required)</p>
+      <table class="signup" width="100%" cellpadding="4px">
+        <tr>
+          <td width="15%"><label>User Name <span class="small">(will be displayed):</span></label></td>
+          <td width="85%"><%= f.text_field :forum_alias, :class => "text required", :value => (params[:party][:forum_alias] rescue nil) %>
+            <%= content_tag(:div, "", :class => "auto_complete validation", :id => "party_forum_alias_messages", :style => "display:none") %>
+                <%= javascript_tag %Q(
+              new Ajax.Validator(
+                "party_forum_alias",
+                "party_forum_alias_messages",
+                "#{validate_forum_alias_profiles_path}",
+                {method:'get', paramName: 'forum_alias', frequency: 0.2, minChars: 1, parameters: 'party_id=#{@party.id || nil}'}); 
+            ) %></td>
+        </tr>
+        <% unless current_user == @party%>
+          <tr>
+            <td><label><span class="colour">*</span>Password: </label></td>
+            <td><%= f.password_field :password, :class => "text required", :value => nil %></td>
+          </tr>
+        <% end -%>
+        <% unless @edit %>
+          <tr>
+            <td><label><span class="colour">*</span>Confirm password: </label></td>
+            <td><%= f.password_field :password_confirmation, :class => "text required", :value => nil %></td>
+          </tr>
+        <% end -%>
+        <%#=<tr>
+          <td><label>Photo/Avatar</label></td>
+          <td><input type="file" /></td>
+        </tr>%>
+        <tr>
+          <td><label>First Name:</label></td>
+          <td><%= text_field_tag "party[first_name]", (params[:party][:first_name] rescue @party.first_name rescue nil), :class => "text", :size => 30 %></td>
+        </tr>
+        <tr>
+          <td><label>Last Name:</label></td>
+          <td><%= text_field_tag "party[last_name]", (params[:party][:last_name] rescue @party.last_name rescue nil), :class => "text", :size => 30 %></td>
+        </tr>
+        <tr>
+          <td><label>Company:</label></td>
+          <td><%= text_field_tag "party[company_name]", (params[:party][:company_name] rescue @party.company_name rescue nil), :class => "text", :size => 30 %></td>
+        </tr>
+        <tr>
+          <td><label>Website URL:</label></td>
+          <td><%= text_field_tag "link[url]", (params[:link][:url] rescue @party.links.last.url rescue nil), :class => "text", :size => 30 %></td>
+        </tr>
+        <tr>
+          <td><label>Office Number:</label></td>
+          <td><%= text_field_tag "phone[office][number]", (params[:phone][:office][:number] rescue @party.phones.reject{|a| a.name.downcase != "office"}.last.number rescue nil), :class => "text", :size => 20 %></td>
+        </tr>
+        <tr>
+          <td><label>Cell:</label></td>
+          <td><%= text_field_tag "phone[cell][number]", (params[:phone][:cell][:number] rescue @party.phones.reject{|a| a.name.downcase != "cell"}.last.number rescue nil), :class => "text", :size => 20 %></td>
+        </tr>
+        <tr>
+          <td><label>Alt. Number:</label></td>
+          <td><%= text_field_tag "phone[alt][number]", (params[:phone][:alt][:number] rescue @party.phones.reject{|a| a.name.downcase != "alt"}.last.number rescue nil), :class => "text", :size => 20 %></td>
+        </tr>
+        <tr>
+          <td><label>Fax:</label></td>
+          <td><%= text_field_tag "phone[fax][number]", (params[:phone][:fax][:number] rescue @party.phones.reject{|a| a.name.downcase != "fax"}.last.number rescue nil), :class => "text", :size => 20 %></td>
+        </tr>
+        <% address = @party.addresses.reject{|a| a.name.downcase != "main"}.last rescue nil%>
+        <tr>
+          <td><label>Address Line 1:</label></td>
+          <td><%= text_field_tag "address[line1]", (params[:address][:line1] rescue address.line1 rescue nil), :class => "text", :size => 40 %></td>
+        </tr>
+        <tr>
+          <td><label>Address Line 2:</label></td>
+          <td><%= text_field_tag "address[line2]", (params[:address][:line2] rescue address.line2 rescue nil), :class => "text", :size => 40 %></td>
+        </tr>
+        <tr>
+          <td><label>City:</label></td>
+          <td><%= text_field_tag "address[city]", (params[:address][:city] rescue address.city rescue nil), :class => "text", :size => 20 %></td>
+        </tr>
+        <tr>
+          <td><label>Province/State:</label></td>
+          <td><%= text_field_tag "address[state]", (params[:address][:state] rescue address.state rescue nil), :class => "text", :size => 20 %></td>
+        </tr>
+        <tr>
+          <td><label>Postal/Zip Code:</label></td>
+          <td><%= text_field_tag "address[zip]", (params[:address][:zip] rescue address.zip rescue nil), :class => "text", :size => 15 %></td>  
+        </tr>
+        <tr>
+          <td><label>Make profile public?</label></td>
+          <td><%= check_box_tag "party[public_profile]", '1', (params[:party][:public_profile] rescue @party.public_profile rescue nil)%></td>
+        </tr>
+<%#=        <tr>      
+          <td><label>Description:</label></td>  
+          <td><%= text_area_tag "info[body][0]", (params[:info][:body]['0'] rescue @party.info[:body]['0'] rescue nil), :class=>"text", :cols => 45, :rows => 10%><%#=</td>
+        </tr>
+        <tr>
+          <td>&nbsp;</td>
+          <td>200 Character Limit. Remaining:<input type="text" value="200" maxlength="3" size="3" class="text"/></td>
+        </tr> %>
+      </table>
+    </div>
+    <div id="sso_inputs" class="signup_section optional_inputs">
+      <!--- Optional Input Box : User can edit title, and can create additional boxes -->
+      <% i = 0 %>
+      <% party_info = params[:info].blank? ? @party.info : params[:info]%>
+        <% party_info[:body].each_pair do |key, value|%>
+          <% unless key.downcase == "0" %>
+            <div id="optional_input<%=i%>" class="optional_input">
+              <% title = party_info[:title][key] %>
+              <p><%= text_field_tag "info[title][#{key}]", (title), :class=>"text" %></p>
+              <p><%= text_area_tag "info[body][#{key}]", "#{sanitize(value) rescue nil}", :class=>"text", :cols => 45, :rows => 8, :onkeyup => "counter('#{key}')"%></p>
+              <p>200 Character Limit. Remaining:<input type="text" value="<%=200-value.length rescue 200%>" maxlength="3" size="3" class="text" readonly="readonly" id="counter<%=key%>"/></p>
+            </div>
+            <% i = key.to_i %>
+          <% end -%>
+        <% end rescue nil%>
+        <% if i==0 %>
+          <% i += 1%>
+          <div id="optional_input1" class="optional_input">
+            <p><%= text_field_tag "info[title][1]", (params[:info][:title]['1'] rescue "About:"), :class=>"text" %></p>
+            <p><%= text_area_tag "info[body][1]", (params[:info][:body]['1'] rescue nil), :class=>"text", :cols => 45, :rows => 8, :onkeyup => "counter('1')"%></p>
+            <p>200 Character Limit. Remaining:<input type="text" value="<%=200-params[:info][:body]['1'].length rescue 200%>" maxlength="3" size="3" class="text" readonly="readonly" id="counter1"/></p>
+          </div>
+        <% end -%>
+      <%= hidden_field_tag :num_of_optional_inputs, i %>
+    </div>
+    <p class="req_more"><a href="#" onclick="addInputSection('sso_inputs');return false;">[Add Another Section]</a></p><!-- This link creates another "optional_input" DIV -->
+    <div class="signup_section profile_feeds">
+      <div id="optional_feed">
+        <h3>My Feeds:</h3>
+        <% j = 0 %>
+        <% feeds_info = params[:feed].blank? ? @party.feeds : params[:feed] %>
+        <% feeds_info.each do |key, value|%>
+          <div id="optional_feed<%=j%>">
+            <p><label>Title:</label><%= text_field_tag "feed[#{j}][label]", (value[:label] rescue key[:label]), :class => "text", :size => 20 %></p>
+                <%= content_tag(:div, "", :class => "auto_complete validation", :id => "feed[#{j}][messages]", :style => "display:none") %>
+                <%= javascript_tag %Q(
+              new Ajax.Validator(
+                "feed[#{j}][label]",
+                "feed[#{j}][messages]",
+                "#{validate_feed_profiles_path}",
+                {method:'get', paramName: 'label', frequency: 0.2, minChars: 1, parameters: 'party_id=#{@party.id || nil}'}); 
+            ) %>
+            <p><label>Feed URL:</label><%= text_field_tag "feed[#{j}][url]", (value[:url] rescue key[:url]), :class => "text", :size => 40 %></p>
+            <% j += 1%>
+          </div>
+        <% end %>
+        <% if j==0 %>
+          <div id="optional_feed0">
+            <% j += 1%>
+            <p><label>Title:</label><%= text_field_tag "feed[0][label]", nil, :class => "text", :size => 20 %></p>
+                <%= content_tag(:div, "", :class => "auto_complete validation", :id => "feed[0][messages]", :style => "display:none") %>
+                <%= javascript_tag %Q(
+              new Ajax.Validator(
+                "feed[0][label]",
+                "feed[0][messages]",
+                "#{validate_feed_profiles_path}",
+                {method:'get', paramName: 'label', frequency: 0.2, minChars: 1});
+            ) %>
+            <p><label>Feed URL:</label><%= text_field_tag "feed[0][url]", nil, :class => "text", :size => 40 %></p>
+          </div>
+        <% end %>
+      </div>
+      <a class="addFeed" href="#" onclick="addFeedSection('optional_feed');return false;">[Add another feed]</a>
+      <%= hidden_field_tag :num_of_feeds, j %>
+    </div>
+  </div>
+  <%= hidden_field_tag(:code, @code) -%>
+  <%#= hidden_field_tag "info[title][0]", "description" %>
+
+

@@ -1,0 +1,9 @@
+
+<% form_tag (filters_path, {:method => :post, :id => "edit_filter_form"}) do %>
+<%= render :partial => "form" %>
+<%= submit_to_remote '_test', 'Test', :url => filters_path(), :method => :post, :html => {:id => "filter_test_button"}%>
+<%= submit_tag 'Save', :name => "_save" %><%= link_to "Cancel", filters_path%>
+<% end -%>
+<div id='email_list' style='display:none'></div>
+
+<%= render_extjs_filter_grid %>

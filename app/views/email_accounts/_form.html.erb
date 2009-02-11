@@ -1,0 +1,22 @@
+  <p>
+	  <label for="email_account_name">Name:</label>
+    <%= f.text_field :name, :class => "text" %>
+  </p>
+	<p>
+  <label for="email_account_type">Type:</label>
+  <%= f.select :access_method, [["POP3", "POP3"]] %>
+  <p>
+    <label for="email_account_server">Server:</label>
+    <%= f.text_field :server, :class => "text" %>
+	</p>
+	<p>
+    <label for="email_account_port">Port:</label>
+   <%= f.text_field :port, :class => "text" %>
+	<p>
+    <label for="email_account_username">Username:</label>
+    <%= f.text_field :username, :class => "text" %>
+	</p>
+	<p>
+    <label for="email_account_password">Password:</label>
+   <%= f.password_field :password, :class => "text" %>
+  </p>

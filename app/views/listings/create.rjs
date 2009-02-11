@@ -1,0 +1,6 @@
+page << update_notices_using_ajax_response
+if @listing_created
+  page << refresh_grid_datastore_of("listings")
+  page << "xl.closeTabPanel('listings_new_nil');"
+  page << %Q~xl.openNewTabPanel(#{("listings_edit" + @listing.id.to_s).to_json}, #{edit_listing_path(@listing).to_json});~
+end

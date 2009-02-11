@@ -1,0 +1,12 @@
+<div id="errorMessages"></div>
+
+<div class="ipage">
+  <% remote_form_for(:page, :url => page_path(@page), :html => { :method => :put }) do |f| %>
+      <%= throbber(nil, :class => "save_indicator") %>
+    </p>
+    <%= render :partial => "form", :locals => {:form => f} %>
+    <p class="save_options">
+      <%= throbber(nil, :class => "save_indicator") %>
+    </p>
+  <% end %>
+</div>

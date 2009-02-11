@@ -1,0 +1,5 @@
+<ul>
+<% auto_complete.each do |e| -%>
+  <%= content_tag(:li, highlight(h(e.to_s), @q), :id => dom_id(e)) %>
+<% end -%>
+</ul>

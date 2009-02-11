@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+AVAILABLE_COMMANDS = %w(start stop restart)
+command = ARGV.shift
+
+raise "Unknown command #{command.inspect}.  Must be one of: #{AVAILABLE_COMMANDS.join(', ')}" \
+    unless AVAILABLE_COMMANDS.include?(command)
+raise "No RAILS_ENV defined" if ENV["RAILS_ENV"].to_s.empty? && command == "start"
+
+action = "#{command}ing".capitalize
+Dir[File.dirname(__FILE__) + "/../lib/daemons/*_ctl"].each do |daemon_script|
+  puts "#{action} #{daemon_script}"
+  `#{daemon_script} #{command}`
+end

@@ -1,0 +1,130 @@
+--- !ruby/object:Gem::Specification 
+name: color
+version: !ruby/object:Gem::Version 
+  version: 1.4.0
+platform: ruby
+authors: 
+- Austin Ziegler
+- Matt Lyon
+autorequire: 
+bindir: bin
+cert_chain: 
+- |
+  -----BEGIN CERTIFICATE-----
+  MIIDNjCCAh6gAwIBAgIBADANBgkqhkiG9w0BAQUFADBBMQ8wDQYDVQQDDAZhdXN0
+  aW4xGTAXBgoJkiaJk/IsZAEZFglydWJ5Zm9yZ2UxEzARBgoJkiaJk/IsZAEZFgNv
+  cmcwHhcNMDcxMTMwMDE0OTAwWhcNMDgxMTI5MDE0OTAwWjBBMQ8wDQYDVQQDDAZh
+  dXN0aW4xGTAXBgoJkiaJk/IsZAEZFglydWJ5Zm9yZ2UxEzARBgoJkiaJk/IsZAEZ
+  FgNvcmcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDOSg1riVV22ord
+  q0t4YVx57GDPMqdjlnQ5M7D9iBnnW0c8pifegbb0dm+mC9hJSuPtcJS53+YPTy9F
+  wlZbjI2cN+P0QLUUTOlZus2sHq7Pr9jz2nJf8hCT7t5Vlopv1N/xlKtXqpcyEkhJ
+  JHTrxe1avGwuq8DIAIN01moQJ+hJlgrnR2eRJRazTGiXKBLGAFXDl/Agn78MHx6w
+  pzZ2APydo6Nuk7Ktq1MvCHzLzCACbOlYawFk3/9dbsmHhVjsi6YW+CpEJ2BnTy8X
+  JBXlyNTk1JxDmcs3RzNr+9AmDQh3u4LcmJnWxtLJo9e7UBxH/bwVORJyf8dAOmOm
+  HO6bFTLvAgMBAAGjOTA3MAkGA1UdEwQCMAAwCwYDVR0PBAQDAgSwMB0GA1UdDgQW
+  BBT9e1+pFfcV1LxVxILANqLtZzI/XTANBgkqhkiG9w0BAQUFAAOCAQEAhg42pvrL
+  uVlqAaHqV88KqgnW2ymCWm0ePohicFTcyiS5Yj5cN3OXLsPV2x12zqvLCFsfpA4u
+  D/85rngKFHITSW0h9e/CIT/pwQA6Uuqkbr0ypkoU6mlNIDS10PlK7aXXFTCP9X3f
+  IndAajiNRgKwb67nj+zpQwHa6dmooyRQIRRijrMKTgY6ebaCCrm7J3BLLTJAyxOW
+  +1nD0cuTkBEKIuSVK06E19Ml+xWt2bdtS9Wz/8jHivJ0SvUpbmhKVzh1rBslwm65
+  JpQgg3SsV23vF4qkCa2dt1FL+FeWJyCdj23DV3598X72RYiK3D6muWURck16jqeA
+  BRvUFuFHOwa/yA==
+  -----END CERTIFICATE-----
+
+date: 2007-11-29 00:00:00 -05:00
+default_executable: 
+dependencies: 
+- !ruby/object:Gem::Dependency 
+  name: archive-tar-minitar
+  type: :runtime
+  version_requirement: 
+  version_requirements: !ruby/object:Gem::Requirement 
+    requirements: 
+    - - ~>
+      - !ruby/object:Gem::Version 
+        version: 0.5.1
+    version: 
+- !ruby/object:Gem::Dependency 
+  name: hoe
+  type: :runtime
+  version_requirement: 
+  version_requirements: !ruby/object:Gem::Requirement 
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        version: 1.3.0
+    version: 
+description: The capabilities of the Color library are limited to pure mathematical manipulation of the colours based on colour theory without reference to colour profiles (such as sRGB or Adobe RGB). For most purposes, when working with the RGB and HSL colours, this won't matter. However, some colour models (like CIE L*a*b*) are not supported because Color does not yet support colour profiles, giving no meaningful way to convert colours in absolute colour spaces (like L*a*b*, XYZ) to non-absolute colour spaces (like RGB).
+email: 
+- austin@rubyforge.org
+- matt@postsomnia.com
+executables: []
+
+extensions: []
+
+extra_rdoc_files: 
+- History.txt
+- Install.txt
+- Licence.txt
+- Readme.txt
+files: 
+- History.txt
+- Install.txt
+- Licence.txt
+- Manifest.txt
+- Rakefile
+- Readme.txt
+- lib/color.rb
+- lib/color/cmyk.rb
+- lib/color/css.rb
+- lib/color/grayscale.rb
+- lib/color/hsl.rb
+- lib/color/palette.rb
+- lib/color/palette/adobecolor.rb
+- lib/color/palette/gimp.rb
+- lib/color/palette/monocontrast.rb
+- lib/color/rgb-colors.rb
+- lib/color/rgb.rb
+- lib/color/rgb/metallic.rb
+- lib/color/yiq.rb
+- setup.rb
+- test/test_adobecolor.rb
+- test/test_all.rb
+- test/test_cmyk.rb
+- test/test_color.rb
+- test/test_css.rb
+- test/test_gimp.rb
+- test/test_grayscale.rb
+- test/test_hsl.rb
+- test/test_monocontrast.rb
+- test/test_rgb.rb
+- test/test_yiq.rb
+has_rdoc: true
+homepage: http://color.rubyforge.org/
+post_install_message: 
+rdoc_options: 
+- --main
+- README.txt
+require_paths: 
+- lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">"
+    - !ruby/object:Gem::Version 
+      version: 0.0.0
+  version: 
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+requirements: []
+
+rubyforge_project: color
+rubygems_version: 1.2.0
+signing_key: 
+specification_version: 1
+summary: Colour management with Ruby
+test_files: 
+- test/test_all.rb

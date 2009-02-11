@@ -1,0 +1,73 @@
+--- !ruby/object:Gem::Specification 
+name: archive-tar-minitar
+version: !ruby/object:Gem::Version 
+  version: 0.5.2
+platform: ruby
+authors: 
+- Austin Ziegler, Mauricio Ferna'ndez
+autorequire: 
+bindir: bin
+cert_chain: []
+
+date: 2008-02-26 00:00:00 -05:00
+default_executable: minitar
+dependencies: []
+
+description: Archive::Tar::Minitar is a pure-Ruby library and command-line utility that provides the ability to deal with POSIX tar(1) archive files. The implementation is based heavily on Mauricio Ferna'ndez's implementation in rpa-base, but has been reorganised to promote reuse in other projects.
+email: minitar@halostatue.ca
+executables: 
+- minitar
+extensions: []
+
+extra_rdoc_files: 
+- README
+- ChangeLog
+- Install
+files: 
+- bin
+- bin/minitar
+- ChangeLog
+- Install
+- lib
+- lib/archive
+- lib/archive/tar
+- lib/archive/tar/minitar
+- lib/archive/tar/minitar/command.rb
+- lib/archive/tar/minitar.rb
+- Rakefile
+- README
+- tests
+- tests/tc_tar.rb
+- tests/testall.rb
+has_rdoc: true
+homepage: http://rubyforge.org/projects/ruwiki/
+post_install_message: 
+rdoc_options: 
+- --title
+- Archive::Tar::MiniTar -- A POSIX tarchive library
+- --main
+- README
+- --line-numbers
+require_paths: 
+- lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: 1.8.2
+  version: 
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+requirements: []
+
+rubyforge_project: ruwiki
+rubygems_version: 1.2.0
+signing_key: 
+specification_version: 2
+summary: Provides POSIX tarchive management from Ruby programs.
+test_files: 
+- tests/testall.rb

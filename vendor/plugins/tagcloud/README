@@ -1,0 +1,26 @@
+= TagCloud
+Generates a "tag cloud".
+
+== Installation
+Copy the assets/javascripts/tag_cloud.js file to your public/javascripts
+folder.  Load the JavaScript in your layout:
+
+ <%= javascript_include_tag 'tag_cloud' %>
+
+This plugin requires the presence of the polymorphic version of
++acts_as_taggable+.  Look for it at
+http://dev.rubyonrails.org/svn/rails/plugins/acts_as_taggable
+
+== Usage
+ <%= tag_cloud(:post, :tag_list, :limit => 20, :order => :popularity, :target_class => :post %>
+
+Where:
+
+* <tt>:limit</tt>: The maximum number of tags to show.  The default is 20.
+* <tt>:order</tt>: In what order should the tags be shown.  Accepts
+                   <tt>:popularity</tt> or <tt>:alpha</tt>.  The default is
+                   <tt>:popularity</tt>.
+* <tt>:target_class</tt>: Optional.  If the object is nil, this value becomes
+                          required.  This option identifies which class we
+                          should query to find the tags to use.
+* <tt>:field_id</tt>: The field to modify (add/remove tag name).

@@ -1,0 +1,105 @@
+<% content_for(:head) do -%>
+  <%= auto_discovery_link_tag(:atom, formatted_forum_category_forum_topic_posts_url(@topic.forum_category, @topic.forum, @topic, :atom)) %>
+<% end -%>
+
+<div id="forumHeader">
+  <div class="threadSubject">
+    <h2>
+      <%= @topic.title %>
+      <% if @topic.locked? %>&nbsp;(locked)<% end %>
+      <%= link_to(icon_tag("feed"), formatted_forum_category_forum_topic_posts_url(@topic.forum_category, @topic.forum, @topic, :atom), :rel => "alternate", :type => "application/atom+xml") %>     
+    </h2>        
+      <span class="returnToIndex">
+        <%= link_to("Index", forum_categories_path, :class => "whiteColorLink") %>&nbsp;|&nbsp;
+        <%= link_to(truncate(@topic.forum_category.name, 20), forum_category_path(@topic.forum_category), :class => "whiteColorLink") %>&nbsp;|&nbsp;
+        <%= link_to(truncate(@topic.forum.name, 20), forum_category_forum_path(@topic.forum_category, @topic.forum), :class => "whiteColorLink") %>
+      </span>
+    <!-- under construction - save this for later -->
+    <!--<p class="left">Rating:</p>
+    <ul class="star-rating small-star" style="margin-top: 3px;">
+      <li class="current-rating" style="width:50%">Currently 2.5/5 Stars.</li>
+      <li><a href="#" title="1 star out of 5" class="one-star">1</a></li>
+      <li><a href="#" title="2 stars out of 5" class="two-stars">2</a></li>
+      <li><a href="#" title="3 stars out of 5" class="three-stars">3</a></li>
+      <li><a href="#" title="4 stars out of 5" class="four-stars">4</a></li>
+      <li><a href="#" title="5 stars out of 5" class="five-stars">5</a></li>
+    </ul>-->
+  </div>
+  <div class="ind">
+<% if current_user? then %>
+<% if @topic.editable_by?(current_user) then %>
+    <%= link_to 'Edit', edit_forum_category_forum_topic_path(:forum_category_id => @forum_category.id, :forum_id => @forum.id, :id => @topic.id, :page => params[:page], :show => params[:show], :escape => false) %>
+    &nbsp;|&nbsp;
+    <%= link_to 'Delete', forum_category_forum_topic_path(@forum_category, @forum, @topic), :method => :delete, :confirm => "Delete this topic forever?" %>
+    &nbsp;|&nbsp;
+<% end %>
+    <%= link_to("New Topic", new_forum_category_forum_topic_path(@forum_category, @forum), 
+        :onclick => "$('newTopic').down('.threadSubject').down('.title').innerHTML = #{@forum.name.inspect};
+        $('newTopic').down('form').action = #{forum_category_forum_topics_path(@forum_category.id, @forum.id).inspect};
+        $('newTopic').toggle();
+        $('topic_title').value = '';
+        $('topic_title').focus();
+        return false;") %>
+    &nbsp;|&nbsp;
+    <%= @topic.locked? ? "Locked" : 
+            link_to("Reply", new_forum_category_forum_topic_post_path(@forum_category, @forum, @topic), 
+                :onclick => "$('newReply').down('.userPostHeading').down('.bold').innerHTML = #{@topic.title.inspect};
+                $('newReply').down('form').action = #{forum_category_forum_topic_posts_path(:forum_category_id => @forum_category, :forum_id => @forum, :topic_id => @topic, :show => params[:show], :sort => params[:sort], :escape => false).inspect};
+                $('newReply').toggle();
+                $('post_body').focus();
+                return false;") %>
+<% end %>
+    <br/>
+    <%= pluralize @topic.posts.count, 'Post' %>, <%= pluralize @voices, 'Voice' %>      
+  </div>
+</div>
+
+<table class="forum">
+  <!-- headers (not displayed) --> 
+  <tr style="display: none;">
+    <th class="postByHeader">Author</th>
+    <th class="postSubjectHeader">Message</th>
+  </tr>
+  <%= render :partial => "posts/post", :collection => @posts %>
+</table>
+
+<div id="forumConsole">
+  <div class="left">
+    <%= paginator_on(@page) %>
+    <% if current_user? %>
+    <p class="inline left">
+      <%= @topic.locked? ? "Locked" : 
+            link_to("Reply", new_forum_category_forum_topic_post_path(@forum_category, @forum, @topic), 
+                :onclick => "$('newReply').down('.userPostHeading').down('.bold').innerHTML = #{@topic.title.inspect};
+                $('newReply').down('form').action = #{forum_category_forum_topic_posts_path(:forum_category_id => @forum_category, :forum_id => @forum, :topic_id => @topic, :show => params[:show], :sort => params[:sort], :escape => false).inspect};
+                $('newReply').toggle();
+                $('post_body').focus();
+                return false;", :class => "replyToPost") %>
+      <%= link_to("New Topic", new_forum_category_forum_topic_path(@forum_category, @forum), 
+        :onclick => "$('newTopic').down('.threadSubject').down('.title').innerHTML = #{@forum.name.inspect};
+        $('newTopic').down('form').action = #{forum_category_forum_topics_path(@forum_category.id, @forum.id).inspect};
+        $('newTopic').toggle();
+        $('topic_title').value = '';
+        $('topic_title').focus();
+        return false;", :class => "newThread") %>
+    </p>    
+    <% end %>
+  </div>
+  <div class="post_sort right">
+    Sort posts by: 
+    <%= link_to "Newest", forum_category_forum_topic_path(:forum_category_id => @forum_category, :forum_id => @forum, :id => @topic, :params => params.merge(:sort => "newest", :page => "1")), :class => "bold" %>&nbsp;&laquo;&raquo;
+    <%= link_to "Oldest", forum_category_forum_topic_path(:forum_category_id => @forum_category, :forum_id => @forum, :id => @topic, :params => params.merge(:sort => "oldest", :page => "1")), :class => "bold" %>
+  </div>
+</div>
+
+<%= render :partial => "new_forum_topic", :locals => {:forum_category => @forum_category, :forum => @forum}%>
+<%= render :partial => "posts/new_forum_post" %>
+
+<%= javascript_tag %Q(
+    if (document.location.toString().split("#", 2).last() == "reply-form") {
+      $('newReply').down('form').action = #{forum_category_forum_topic_posts_path(:forum_category_id => @forum_category.id, :forum_id => @forum.id, :topic_id => @topic.id, :show => params[:show], :escape => false).inspect};
+      $('newReply').toggle();
+      $('post_body').focus();
+    } 
+    ) 
+%>

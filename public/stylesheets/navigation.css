@@ -1,0 +1,112 @@
+/* XLsuite  CSS > navigation
+
+purpose: holds navigation items 
+details: 
+
+*/
+
+/*
+  > > > > > > horizontal navigation - - - - - - -
+*/
+
+.dead  { color: #AAAAAA !important; } /*unavailable links*/
+
+#nav {width: 798px;/* to allow for 'login' link */ height: 28px /*arbitrary*/; position: relative; z-index: 9999;}
+#nav li	{float:left; position: relative;}
+#nav li a, #nav li a:visited {
+display: block; 
+color: #7a7773;
+width: 106px; 
+text-align: left; 
+overflow:hidden; height: 18px; line-height: 18px; font-size: 11px;
+border-bottom: 1px solid #fff;
+padding: 2px 4px; 
+}
+#nav li ul { display: none; }
+
+
+#nav li:hover a {color:#000; background: #fff;}
+#nav li:hover ul {display:block; position:absolute; top:25px; left:0; width:106px;}
+#nav li:hover ul li ul {display: none;}
+#nav li:hover ul li:hover ul li ul{display: none;}
+#nav li:hover ul li a {display:block; background: #CDD7B2 ; color:#000;
+   filter:alpha(opacity=75);   /* Internet Explorer       */
+   -moz-opacity:0.75;           /* Mozilla 1.6 and below   */
+   opacity: 0.75;               /* newer Mozilla and CSS-3 */}
+#nav li:hover ul li a:hover {background: #9ACA3C; color:#000;}
+#nav li:hover ul li:hover ul {display:block; position:absolute; left:114px; top:0;}
+#nav li:hover ul li:hover ul li:hover ul {display:block; position:absolute; left:115px; top:0;}
+
+/* separate styling for top level */
+#nav li a.mainline {border:none; padding: 3px 4px 4px 4px; text-align: center;}
+
+/*drop downs get left border*/
+#nav ul li ul li a {border-left: 1px solid #fff;} 
+
+/*right angle quotes*/
+#nav span.right {
+float:right;
+margin-right: 4px;
+margin-top: -20px;
+} 
+
+
+/*
+  > > > > > > tabbed navigation - - - - - - -
+*/
+
+/* tabs for parties pages */
+
+    .tabNav {
+      float:left;
+      width: 100%;
+      background:#fff;
+      font-size:93%;
+      line-height:normal;
+	    border-bottom: 1px solid #c7c7c7;
+      }
+   	.tabNav ul {
+	    margin:0;
+	    padding: 0 10px 0 50px;
+	    list-style:none;
+      }
+    .tabNav li {
+      display:inline;
+      margin:0;
+      padding:0;
+      }
+    .tabNav a {
+      float:left;
+      background:url("../images/tableft.gif") no-repeat left top;
+      margin:0;
+      padding:0 0 0 4px;
+      text-decoration:none;
+      }
+      
+    .tabNav a span {
+      float:left;
+      display:block;
+      background:url("../images/tabright.gif") no-repeat right top;
+      padding:5px 15px 4px 6px;
+      color:#666;
+      }
+	  
+    .tabNav a:hover span {
+      color:#000;
+      }
+    .tabNav a:hover {
+      background-position:0% -42px;
+      }
+   	.tabNav a:hover span {
+      background-position:100% -42px;
+      }
+    .tabNav li#current a {
+      background-position:0% -42px;
+      }
+   	.tabNav li#current span {
+      background-position:100% -42px;
+      }
+      
+
+
+

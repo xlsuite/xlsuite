@@ -1,0 +1,12 @@
+<% @messages = show_flash_messages(:textilize => true) unless @no_notice -%>
+<% unless @messages.blank? -%>
+<div id="notification-area" onclick='<%= visual_effect(:fade, 'notification-area') %>'>
+  <%= @messages %>
+  <p class="note">Click to close</p>
+  <%= javascript_tag(visual_effect(:appear, 'notification-area')) %>
+</div>
+<% end -%>
+<% if @estimate -%>
+<%= error_messages_for('estimate') %>
+<%= javascript_tag(visual_effect(:appear, 'errorExplanation')) unless @estimate.errors.empty? %>
+<% end -%>

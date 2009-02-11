@@ -1,0 +1,13 @@
+<dt class="<%= "selected" if template.name == @acct.template_name %>" id="<%= dom_id(template) %>"><%=h template.nice_name %></dt>
+<dd class="<%= "selected" if template.name == @acct.template_name %>" id="<%= typed_dom_id(template, :body) %>">
+  <%= render_domain_thumbnail(template) %>
+  <label>
+    <%= radio_button :acct, :template_name, template.name %>
+    Choose this template
+  </label>
+  <div class="description">
+    <%= textilize(template.description) unless template.description.blank? %>
+  </div>
+  <p class="cost">Cost: <span class="price<%= " free" if template.price.zero? %>"><%= template.price.format(:html, :with_currency) %></span></p>
+  <%= render :partial => "rating" %>
+</dd>

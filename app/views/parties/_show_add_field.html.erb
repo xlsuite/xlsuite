@@ -1,0 +1,19 @@
+<% unless @party.new_record? then -%>
+  <span id="<%= typed_dom_id(@party, :extra_fields_controller) %>" style="text-align: center">
+    <span id="optionsToggle" style="text-align: center">
+      <%= link_to("Show&nbsp;/&nbsp;Add Additional Fields", "#", :id => "show_add_field") %>
+      <%= throbber("optionsToggle_throbber") %>
+    </span>
+  </span>
+  <span id="contactOptions" class="row" style="display:none; text-align: center;">
+    <select id="contactOptions_values">
+      <option value="">Show/Add&hellip;</option>
+      <option value="address" url="<%= @new_address_url %>" target="<%= typed_dom_id(@party, :addresses_group) %>" newname="<%= dom_id(AddressContactRoute.new) %>">New address</option>
+      <option value="phone" url="<%= @new_phone_url %>" target="<%= typed_dom_id(@party, :routes_group) %>" newname="<%= dom_id(PhoneContactRoute.new) %>">New phone</option>
+      <option value="email" url="<%= @new_email_url %>" target="<%= typed_dom_id(@party, :routes_group) %>" newname="<%= dom_id(EmailContactRoute.new) %>">New e-mail address</option>
+      <option value="link" url="<%= @new_link_url %>" target="<%= typed_dom_id(@party, :routes_group) %>" newname="<%= dom_id(LinkContactRoute.new) %>">New link</option>
+      <option><%= "&ndash;&nbsp;"*12 %></option>
+    </select>
+    <%= link_to("Cancel", "#", :id => "show_add_field_cancel") %>
+  </span>
+<% end -%>           

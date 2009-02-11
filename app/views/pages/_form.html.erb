@@ -1,0 +1,38 @@
+<div id="cms_edit_forms">
+  
+<% labelled_fields_for(:page, @page) do |form| -%>
+  <input id='save_or_close_<%=dom_id(@page)%>' class="text" type="text" value="" name="commit_type" style="display:none"/>
+  <p class="save_options"> <%= submit_tag "Save", :name => "_save", :class => "button", :onclick=>"$('save_or_close_#{dom_id(@page)}').value='save';" %> 
+    <%= submit_tag "Close", :name => "_close", :class => "button", :onclick=>"$('save_or_close_#{dom_id(@page)}').value='close';"%> 
+    <%= link_to_function "Cancel", @page.new_record? ? "xl.closeTabs('pages_new_nil')" : "xl.closeTabs('pages_edit_#{@page.id}')"%> <%= throbber("save_indicator") %></p>
+  <fieldset>
+    <%= form.text_field :title, :size => 80, :class => "text" %>
+    <div id="behavior_content">
+      <%= render @page.render_edit %>
+    </div>
+  </fieldset>
+  
+  <fieldset>
+    <div id="page_edit_options">
+     <%= form.select :behavior, Page.behaviors_for_select %>
+     <%= observe_field(:page_behavior, :url => @page.new_record? ? behavior_new_page_path : behavior_page_path(@page),
+            :update => "behavior_content", :method => :get,
+            :with => "page[behavior]") %>
+     <%= form.text_field :fullslug, :class => "text", :value => @page.new_record? ? "#{@page.fullslug}/" : @page.fullslug %>
+     <%= form.collection_select :layout, @layouts, :title, :title %>
+     <%= form.select :status, Page.statuses_for_select %>
+     <%= form.check_box :require_ssl %>
+    </div>
+    <div id="page_edit_mdomain">
+     <%= render :partial => 'shared/multi_domain', :object => @page, :locals => {:form => form} %>
+    </div>
+    <div id="page_edit_auth">
+     <%= authorization_fields_for :page %>
+    </div>
+  </fieldset>
+  <input id='save_or_close_<%=dom_id(@page)%>' class="text" type="text" value="" name="commit_type" style="display:none"/>
+  <p class="save_options"> <%= submit_tag "Save", :name => "_save", :class => "button", :onclick=>"$('save_or_close_#{dom_id(@page)}').value='save';" %> 
+    <%= submit_tag "Close", :name => "_close", :class => "button", :onclick=>"$('save_or_close_#{dom_id(@page)}').value='close';"%> 
+    <%= link_to_function "Cancel", @page.new_record? ? "xl.closeTabs('pages_new_nil')" : "xl.closeTabs('pages_edit_#{@page.id}')"%> <%= throbber("save_indicator") %></p>
+<% end -%>
+</div>

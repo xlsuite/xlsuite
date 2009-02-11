@@ -1,0 +1,71 @@
+<h2 class="mail_header">Email</h2>
+<div class="mail_user_options">
+<% if @email.received? %>
+ <span class="links">
+ <%= link_to "Reply", reply_email_path(@email) %>
+ <%= link_to "Reply all", reply_all_email_path(@email) %>
+ <%= link_to "Forward", forward_email_path(@email) %>
+ <%= link_to "Delete", :onclick =>"alert(This feature does not work)" %><!-- needs method/controller -->
+ </span>
+<% end %>
+</div>
+<div class="mail_body">
+<table class="email_show_head">
+  <tr>
+    <td class="bold">From:</td>
+    <td><%= h(@email.sender.to_formatted_s) %></td>
+  </tr>  
+  <tr>
+    <td class="bold">To:</td>
+    <td><%= h(@email.tos.to_formatted_s) %></td>
+  </tr>
+  <% unless @email.ccs.blank? %>
+  <tr>
+    <td>CC:</td>
+    <td><%= h(@email.ccs.to_formatted_s) %></td>
+  </tr>
+  <% end %>
+  <% if @email.received? %>
+  <tr>
+    <td class="bold">Date:</td>
+    <td><%= @email.received_at.strftime("%b %d, %Y %I:%M%p") %></td>
+  </tr>
+  <% elsif @email.sent? %>
+  <tr>
+    <td>Sent at:</td>
+    <td><%= @email.sent_at.strftime("%b %d, %Y %I:%M%p") %></td>
+  </tr>
+  <% elsif @email.ready? %>
+  <tr>
+    <td>Release at:</td>
+    <td><%= @email.released_at.strftime("%b %d, %Y %I:%M%p") %></td>
+  </tr>
+  <% end %>
+  <tr>
+    <td class="bold">Subject:</td>
+    <td><%= h(@email.subject) %></td>
+  </tr>
+</table>
+<div class="email_show_body">
+  <pre><%= h(@email.body) %></pre>
+</div>
+<ul id="x_attachments">
+  <% @hide_remove_link = true -%>
+  <%= render :partial => @email.attachments %>
+</ul>
+</div>
+<div class="mail_user_options">
+<% if @email.received? %>
+ <span class="links">
+ <%= link_to "Reply", reply_email_path(@email) %>
+ <%= link_to "Reply all", reply_all_email_path(@email) %>
+ <%= link_to "Forward", forward_email_path(@email) %>
+ <%= link_to "Delete" , :onclick =>"alert(This feature does not work)" %> <!-- needs method/controller -->
+ </span>
+<% end %>
+</div>
+
+<script>
+  parent.unreadMailRefresh();
+  parent.sentReadMailRefresh();
+</script>

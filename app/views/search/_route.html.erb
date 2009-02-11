@@ -1,0 +1,11 @@
+<%
+  name = case route
+  when EmailContactRoute
+    "email_address"
+  when PhoneContactRoute, LinkContactRoute, AddressContactRoute
+    route.class.name.underscore.sub("_contact_route", "")
+  else
+    "unknown_route_class_name__#{route.class.name}"
+  end
+%>
+<%= render :partial => "parties/"+name, :object => route %>

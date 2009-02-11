@@ -1,0 +1,7 @@
+<% file = list_record_files%>
+
+<div class="<%= cycle('mail-column', 'mail-column-bg', :name => 'record_file_column_bg_switch') %>"
+  a onclick="<%=change_centre_iframe_src(asset_path(file))%>; return false;" href="#">
+  <li class="file-accordion-filename"><%= file.filename %></b></li>
+  <li><%= file.owner.display_name %></li>
+</div>

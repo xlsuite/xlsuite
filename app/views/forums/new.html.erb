@@ -1,0 +1,12 @@
+<div id="newForum" class="newTopic forumInput">
+  <div class="threadSubject">
+    <h2>New Forum in <span class="title"><%= @forum_category.name %></span></h2>
+  </div>
+  <div class="left">
+  <% form_for :forum, @forum, :url => forum_category_forums_path(@forum_category) do |f| -%>
+    <%= render :partial => "forums/form", :locals => { :f => f } %>
+    <%= submit_tag 'Create', :id => "topicPost", :class => "button" %>
+    <%= link_to 'Cancel', forum_categories_url, :class => "link_button" %>
+  <% end -%>
+  </div>
+</div>

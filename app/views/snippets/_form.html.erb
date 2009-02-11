@@ -1,0 +1,44 @@
+<% content_for(:js) do %>
+  <%= javascript_include_tag 'fckeditor/fckeditor' %>
+<% end -%>
+
+<% labelled_fields_for(:snippet, @snippet) do |f| -%>
+  <div id="errorMessages">
+    <%= error_messages_for :snippet %>
+  </div>
+  <input id='save_or_close_<%=dom_id(@snippet)%>' class="text" type="text" value="" name="commit_type" style="display:none"/>
+  <p class="save_options"> <%= submit_tag "Save", :name => "_save", :class => "button", :onclick=>"$('save_or_close_#{dom_id(@snippet)}').value='save';" %> 
+    <%= submit_tag "Close", :name => "_close", :class => "button", :onclick=>"$('save_or_close_#{dom_id(@snippet)}').value='close';"%> 
+    <%= link_to_function "Cancel", @snippet.new_record? ? "xl.closeTabs('snippets_new_nil')" : "xl.closeTabs('snippets_edit_#{@snippet.id}')"%> <%= throbber("save_indicator") %></p>
+  <%= error_messages_for :snippet %>
+  
+  <div id="cms_edit_forms">
+
+    <%= f.text_field :title, :size => 80, :class => "text" %>
+
+    <div id="behavior_content">
+      <%= render @snippet.render_edit %>
+    </div>
+
+    <div id="snippet_edit_options">
+      <%= f.select :behavior, Snippet.behaviors_for_select %>
+      <%= throbber(:behavior_update_throbber) %>
+
+      <%= observe_field(:snippet_behavior,
+          :url => @snippet.new_record? ? behavior_new_snippet_path : behavior_snippet_path(@snippet),
+          :update => "behavior_content", :method => :get, :loading => "$('behavior_update_throbber').show()",
+          :completed => "$('behavior_update_throbber').hide()",
+          :with => "snippet[behavior]") %>
+    </div>
+
+    <div id="snippet_edit_mdomain">
+      <%= render :partial => 'shared/multi_domain', :object => @snippet, :locals => {:form => f} %>
+    </div>
+    <div style="clear:both">
+      <%= authorization_fields_for :snippet %>
+    </div>
+  </div>
+  <p class="save_options"> <%= submit_tag "Save", :name => "_save", :class => "button", :onclick=>"$('save_or_close_#{dom_id(@snippet)}').value='save';" %> 
+    <%= submit_tag "Close", :name => "_close", :class => "button", :onclick=>"$('save_or_close_#{dom_id(@snippet)}').value='close';"%> 
+    <%= link_to_function "Cancel", @snippet.new_record? ? "xl.closeTabs('snippets_new_nil')" : "xl.closeTabs('snippets_edit_#{@snippet.id}')"%> <%= throbber("save_indicator") %></p>
+<% end -%>

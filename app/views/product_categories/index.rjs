@@ -1,0 +1,421 @@
+page << create_tab_using_ajax_response("Product Categories") do
+%Q`
+  var idPrefix = 'product_categories';
+  var productsStore = null;
+  var productsGridPanel = null;
+  var gLastNodeClicked = {id: 0};
+  var gMakingNew = #{!params[:new].nil?};
+
+  var asyncUpdateProductCategoryPath = #{async_update_product_category_path(:id => "__ID__").to_json};
+  var form = {url: "", object: 'product_category'}  
+  
+  /***************
+   ** FUNCTIONS **
+   ***************/
+  var openRemoveWindow = function(button, event) {
+    if (gLastNodeClicked.id == 0) return;
+    
+    gLastNodeClicked.ensureVisible();
+    
+    var window = new Ext.Window({
+      autoHeight: true,
+      width: 250,
+      header: false,
+      headerAsText: false,
+
+      plain: true,
+      floating: true,
+      shadow: true,
+      constrain: true,
+
+      closable: false,
+      collapsibe: false,
+      draggable: false,
+      maximizable: false,
+      minimizable: false,
+      resizable: false,
+      modal: true,
+
+      items: [
+        {
+          html: '<p>Are you sure you want to remove the category  \"' + gLastNodeClicked.text + '\" and all of its children?</p><br />'
+        }
+      ],
+
+      defaultButton: 1,
+      buttons: [
+        {
+          text: 'Remove',
+          handler: function() {
+            var url = #{destroy_product_category_path(:id => '__ID__').to_json}.sub('__ID__', gLastNodeClicked.id);
+            Ext.Ajax.request({
+              url: url,
+              method: 'delete',
+              success: function(xhr) {
+                window.hide();
+                window.close();
+                gLastNodeClicked.remove();
+              }
+            });
+          } // end handler
+        }, // end Create Button
+        {
+          text: 'Cancel',
+          handler: function() {
+            window.hide();
+            window.close(); // This destroys it
+          }
+        }
+      ] // end buttons
+    });
+
+    window.setPagePosition(event.getXY()[0] + 10, event.getXY()[1] + 10);
+    window.show(button.getId());
+  };
+  
+  var openNewWindow = function(button, event) {
+    var labelField = new Ext.form.TextField({
+      fieldLabel: 'Label',
+      allowBlank: false
+    });
+    var errorPanel = new Ext.Panel({
+      html: ''
+    });
+
+    var window = new Ext.Window({
+      autoHeight: true,
+      width: 250,
+      header: false,
+      headerAsText: false,
+
+      plain: true,
+      floating: true,
+      shadow: true,
+      constrain: true,
+
+      closable: false,
+      collapsibe: false,
+      draggable: false,
+      maximizable: false,
+      minimizable: false,
+      resizable: false,
+      modal: event == null, // If no event is given, make it modal
+
+      items: [
+        {
+          html: '<p>Please enter the product category label:</p><br />'
+        },
+        {
+          layout: 'form',
+          labelWidth: 50,
+          labelAlign: 'right',
+          items: labelField
+        },
+        errorPanel
+      ],
+
+      defaultButton: 1,
+      buttons: [
+        {
+          text: 'Cancel',
+          handler: function() {
+            window.hide();
+            window.close(); // This destroys it
+          }
+        },
+        {
+          text: 'Create',
+          handler: function() {
+            var selectedNode = treePanel.getSelectionModel().getSelectedNode();
+            var parentId = (selectedNode == null) || (selectedNode.id == 0) ? null : selectedNode.id;
+
+            xl.widget.DoAsyncCreateAndOpenEdit({
+              object: 'product_category',
+              async_create: {
+                url: #{async_create_product_categories_path.to_json},
+                params: { label: labelField.getRawValue(), parent_id: parentId }
+              },
+              success: function(response) {
+                if (parentId == null) parentId = 0;
+                var newNode = new Ext.tree.TreeNode({
+                  text: response.text,
+                  id: response.id
+                });
+                var parent = treePanel.getNodeById(parentId);
+                parent.appendChild(newNode);
+                window.hide(); window.close();
+              }
+            });
+          } // end handler
+        } // end Create Button
+      ] // end buttons
+    });
+    
+    if (event != null) {
+      window.setPagePosition(event.getXY()[0] + 10, event.getXY()[1] + 10);
+      window.show(button.getId());
+    } else {
+      window.show();
+    }
+  };
+   
+  var getHiddenField = function() { return Ext.getCmp('product_category_' + gLastNodeClicked.id + '.hidden.product_ids'); };
+  
+  var getProductIds = function() {
+    // We want the ids to be integers; it's just easier that way
+    var ids = getHiddenField().getRawValue().split(',').collect(function(s) {
+      var x = parseInt(s);
+      // x could be NaN if s == '', so if it is, return null instead
+      return x || null;
+    });
+    return ids.without(null);
+  };
+  
+  var doUpdateProductIds = function(ids, store, callback) {
+    var params = {}, key = 'product_category[product_ids]';
+    params[key] = ids.join(',');
+    var url = #{async_update_product_category_path(:id => '__ID__').to_json}.sub('__ID__', gLastNodeClicked.id);
+    Ext.Ajax.request({
+      url: url,
+      method: 'put',
+      params: params,
+      success: function(xhr) {
+        var array = $A(Ext.util.JSON.decode(xhr.responseText));
+        getHiddenField().setRawValue(array.join(','));
+        store.reload();
+        if (callback) callback(array);
+      }
+    });
+  };
+  
+  var tickActionHandler = function(grid, record, rowIndex, event) {
+    var ids = getProductIds();
+    var id = record.get('id');
+    
+    if (ids.include(id))
+      ids = ids.without(id);
+    else
+      ids.push(id);
+    doUpdateProductIds(ids, grid.getStore());
+  };
+
+  var tickActionRenderer = function(value, cell, record) {
+    var ids = getProductIds();
+    var cls = ids.include(record.get('id')) ? 'icon_tick' : 'icon_tick_opacity20';
+    return '<div class="hasRowAction pointerOnHover ' + cls + '">&nbsp;</div>';
+  };
+  
+  var generateFilterToolbar = function(store) {
+    var filterField = new Ext.form.TextField({
+      validationDelay: 5,
+      validator: function(value) {
+        xl.log('Filtering by: ' + value);
+        if (value != '')
+          store.filter('name', value, true, false);
+        else
+          store.clearFilter(false);
+        return true;
+      }, // end validator
+      listeners: {
+        'specialkey': function(field, event) {
+          if (event.getKey() == Ext.EventObject.ENTER) {
+            if (field.getRawValue() == '') {
+              store.clearFilter(false);
+            } else {
+              var shownProducts = store.query('name', field.getRawValue(), true, false);
+              var ids = getProductIds();
+              shownProducts.each(function(product) {
+                var id = product.get('id');
+                // Inverse the selection
+                if (ids.include(id))
+                  ids = ids.without(id);
+                else
+                  ids.push(product.get('id'));
+              });
+              doUpdateProductIds(ids, store);
+            }
+              // Inverse selection of shown products
+          }
+        }
+      }
+    }); // end filterField
+    
+    var clearButton = new Ext.Button({
+      text: 'Clear',
+      handler: function(button, event) {
+        filterField.setRawValue('');
+        store.clearFilter(false);
+      } // end handler
+    }); // end clearButton
+    
+    return new Ext.Toolbar(['Filter:', filterField, '&nbsp;&nbsp;&nbsp;', clearButton]);
+  };
+  
+  /*************
+   ** OBJECTS **
+   *************/
+  
+  var treePanel = new Ext.tree.TreePanel({
+    region: 'west',
+    split: true,
+    width: 200,
+    
+    autoScroll: true,
+    animate: true,
+    enableDD: true,
+    collapsible: true,
+    ddAppendOnly: false,
+    containerScroll: true,
+    dropConfig: {
+      allowContainerDrop: true,
+      allowParentInsert: true
+    },
+    loader: new Ext.tree.TreeLoader({
+        dataUrl: #{tree_json_product_categories_path.to_json},
+        requestMethod: 'get'
+    }),
+    root: new Ext.tree.AsyncTreeNode({
+        text: 'Categories',
+        draggable: false,
+        id: '0'
+    })
+  });
+  Ext.StoreMgr.add('product_categories_treePanel_piggyback', treePanel);
+  
+  treePanel.on('movenode', function(tree, node, oldParent, newParent, index) {
+    var updateUrl = #{async_update_product_category_path(:id => '__ID__').to_json};
+    var params = {}, key = 'product_category[parent_id]';
+    params[key] = newParent.id;
+    Ext.Ajax.request({
+      url: updateUrl.sub('__ID__', node.id),
+      method: 'put',
+      params: params,
+      success: function(xhr) {
+        var id = Ext.util.JSON.decode(xhr.responseText);
+      }
+    });
+  });
+  
+  treePanel.on('click', function(node, event) {
+    // Can't edit the root "Categories" node
+    if (node.id == 0) return;
+    
+    var editUrl = #{edit_product_category_path(:id => "__ID__").to_json}.sub('__ID__', node.id);
+    form.url = asyncUpdateProductCategoryPath.sub("__ID__", node.id);
+    Ext.Ajax.request({
+      url: editUrl,
+      method: 'get',
+      success: function(xhr) {
+        var config = Ext.decode(xhr.responseText);
+        var newPanel = Ext.ComponentMgr.create(config, config.xtype || 'panel');
+        editWrapperPanel.remove(editWrapperPanel.getComponent(0), true);
+        editWrapperPanel.add(newPanel);
+        editWrapperPanel.doLayout();
+        #{render_tags_panel("product[tag_list]", "product_categories_edit_common", current_account.product_categories.tags)}
+        tagsPanelTextArea.setValue(node.attributes.tag_list);
+        tagsPanel.render("product_category_" + node.id + "_tags_panel_wrapper");
+        gLastNodeClicked = node;
+        // If neither the Store nor the GridPanel have been initialized,
+        /*if ((productsGridPanel == null) && (productsStore == null)) {
+          productsStore = xl.widget.SimpleJSONStore({
+            url: #{formatted_products_path(:format => :json).to_json},
+            doLoad: true,
+            doSmartMappings: true,
+            fields: [ 'id', 'name' ]
+          }).store;
+          
+          // prouctsStore.on('load', function(store) { // Update selected count });
+          
+          var tickAction = new Ext.ux.grid.RowAction({
+            dataIndex: 'id', width: 32, iconCls: 'hasRowAction',
+            renderer: tickActionRenderer
+          });
+          tickAction.on('action', tickActionHandler);
+          
+          productsGridPanel = new Ext.grid.GridPanel({
+            store: productsStore,
+
+            cm: new Ext.grid.ColumnModel([
+              tickAction,
+              {header: "Name", width: 150, sortable: true, dataIndex: 'name'}
+            ]),
+
+            viewConfig: { forceFit: true },
+            autoScroll: true,
+            autoWidth: true,
+            tbar: generateFilterToolbar(productsStore),
+            plugins: tickAction,
+            loadMask: { removeMask: true }
+          });
+          centerPanel.add(productsGridPanel);
+          centerPanel.doLayout();
+        } else {
+          productsGridPanel.getStore().reload();
+          
+        }*/ // end if
+      } // end success
+    }); // end Ext.Ajax.request
+  }); // end treePanel
+  
+  var editWrapperPanel = new Ext.Panel({
+    id: idPrefix + '.layout.editWrapperPanel',
+    items: [
+      { html: '<p>Click a category to edit it.</p>' },
+    ]
+  });
+  
+  var centerPanel = new Ext.Panel({
+    region: 'center',
+    //split: true,
+    layout: 'ux.rowfit',
+    items: [
+      editWrapperPanel/*,
+      {
+        id: idPrefix + '.layout.splitBar',
+        height: 15,
+        border: false,
+        bodyBorder: false,
+        frame: false,
+        cls: 'IHaveASplitBar',
+        html: '<div style="height: 15px; background: url(/javascripts/extjs/resources/images/xl/horizontal-split-handle.gif); background-position: top; background-repeat: no-repeat;">&nbsp;</div>'
+      }*/
+    ]
+  });
+  
+  var layoutPanel = new Ext.Panel({
+    layout: 'border',
+    items: [
+      treePanel, 
+      centerPanel
+    ]
+  });
+  
+  newPanel.add(layoutPanel);
+  newPanel.getTopToolbar().add(
+    {
+      id: 'product_categories_new_button',
+      text: 'New',
+      handler: openNewWindow
+    },{
+      text: 'Remove',
+      handler: openRemoveWindow
+    },
+    '-',
+    {
+      text: "Product Manager",
+      handler: function() { xl.openNewTabPanel('products_index_nil', #{products_path.to_json}) }
+    },{
+      text: "New Product",
+      handler: function() { xl.openNewTabPanel('products_new_nil', #{new_product_path.to_json}) }
+    }
+  );
+  
+  var _afterRenderCallback = function() {
+    treePanel.getRootNode().expand();
+    var splitBar = new Ext.SplitBar(idPrefix+'.layout.splitBar', idPrefix+'.layout.editWrapperPanel', Ext.SplitBar.VERTICAL, Ext.SplitBar.TOP);
+    splitBar.setAdapter(new Ext.ux.layout.RowFitLayout.SplitAdapter(splitBar));
+
+    if (gMakingNew) openNewWindow(null, null);
+  }
+`
+end

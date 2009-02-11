@@ -1,0 +1,25 @@
+<%= error_messages_for(:permission_set) %>
+<% labelled_fields_for(:permission_set) do |f| %>
+  <%= f.hidden_field(:id) if @permission_set_id %>
+  <%= f.text_field :name, :class=>'text' %>
+
+  <div id="permissions">
+  <h2>Permissions</h2>
+    <%= render :partial => "permissions" %>
+    <p class="select_clear">
+      <%= link_to_function("Select All", "selectAll('permissions')") %>
+      <%= link_to_function("Clear All", "deselectAll('permissions')") %>
+    </p>
+  </div>
+
+  <div id="subpermission_sets">
+  <h2>Permission Sets</h2>
+    <%= render :partial => "permission_sets" %>
+    <p class="select_clear">
+      <%= link_to_function("Select All", "selectAll('subpermission_sets')") %>
+      <%= link_to_function("Clear All", "deselectAll('subpermission_sets')") %>
+    </p>
+  </div>
+
+  <%= submit_tag "Save", :name => nil, :class => "button" %>
+<% end -%>

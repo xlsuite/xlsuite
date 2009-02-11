@@ -1,0 +1,24 @@
+<div id="newThread" class="forumInput">
+  <div class="threadSubject">
+    <h2>New Topic in <%= @forum.name %></h2>
+  </div>
+  <%= error_messages_for :topic %>
+  <% form_for :topic,
+      :url  => forum_category_forum_topics_path(@forum_category.id, @forum.id) do |f| -%>
+    <%= render :partial => "topics/form", :locals => { :f => f } %>
+    <div class="left">
+      <p class="inputArea">
+        <label for="thread_body">Body:</label><br />
+        <%= f.text_area :body, :rows => "12", :cols => "90" %>
+      </p>
+    </div>
+    <div class="left">
+      <%= render_textile_help_box %>
+      <div class="postButtons">
+        <%= submit_tag 'Post', :class => "button" %> 
+        <%= link_to('Cancel', forum_categories_url, :class => "link_button") %>
+      </div>
+    </div>
+  <% end -%>
+  <br class="clear" />
+</div>

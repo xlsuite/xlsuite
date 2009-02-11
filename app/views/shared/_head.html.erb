@@ -1,0 +1,13 @@
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+<title><%= h(@title) %></title>
+<%= yield(:head) %>
+<%= cached_javascript_include_tag :defaults, 'search_feature', 'scriptaculous.js?load=effects' %>
+<%= cached_javascript_include_tag "extjs/adapter/prototype/ext-prototype-adapter.js" %>
+<%= cached_javascript_include_tag "extjs/ext-all-debug.js" unless RAILS_ENV == "production" %>
+<%= cached_javascript_include_tag "extjs/ext-all.js" if RAILS_ENV == "production" %>
+<%= initialize_center_header %>
+<%= yield(:js) %>
+<%= cached_stylesheet_link_tag :defaults, 'leftConsole', 'rightConsole', 'layout.css', 'forms.css', 'tabbedNavigation.css', 'type.css', 'reset.css', 'navigation.css', 'blocks.css', 'pages.css' %>
+<%= cached_stylesheet_link_tag "/javascripts/extjs/resources/css/ext-all.css" %>
+<%= cached_stylesheet_link_tag "/javascripts/extjs/resources/css/xtheme-starter.css" %>
+<%= yield(:css) %>

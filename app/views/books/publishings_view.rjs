@@ -1,0 +1,101 @@
+limit = params[:limit] || 50
+books_url_json = formatted_books_path(:format => :json).to_json
+underbarLinks = '' #link_to_function("New Publishing&hellip;&nbsp;&nbsp;&nbsp;", "openNewWindow()")
+
+page << create_tab_using_ajax_response("Publishings | Runs View") do
+%Q`
+
+/***************
+ ** FUNCTIONS **
+ ***************/
+var openEditTabPanelWithId = function(id) {
+  var editUrl = #{edit_book_path(:id => "__ID__").to_json}.sub('__ID__', id);
+  xl.openNewTabPanel( 'book_edit_' + id, editUrl);
+};
+
+var editActionRenderer = function(value, cell, record, row, col, store) {
+  return '<div class="icon_pencilGo pointerOnHover"> </div>';
+};
+
+var amountRenderer = function(value) {
+  // 1234567 -> 1,234,567
+  return value;
+};
+
+var moneyRenderer = function(value, cell, record, row, col, store) {
+  return record.get('prefix') + value + ' ' + record.get('suffix');
+};
+
+/*************
+ ** OBJECTS **
+ *************/
+var publishingRecord = new Ext.data.Record.create([
+  {name: 'id', type: 'int'},
+  {name: 'printing_date', type: 'date'},
+  {name: 'printing_cost', type: 'float'},
+  {name: 'production_cost', type: 'float'},
+  {name: 'amount_printed', type: 'int'},
+  {name: 'cost_per_book', type: 'float'},
+  {name: 'name', type: 'string'},
+  {name: 'prefix', type: 'string'},
+  {name: 'suffix', type: 'string'}
+]);
+// {'id': X, 'printing_date': "<date as usual>", 'printing_cost': X.YY, 'production_cost': X.YY, 'amount_printed': X, 'cost_per_book': X.YY, 'name': "Name", 'prefix': '$', 'suffix': 'CAD'}
+var reader = new Ext.data.JsonReader({totalProperty: 'total', root: 'collection', id: 'id'}, publishingRecord);
+
+// set up connection for the data
+var proxy = new Ext.data.HttpProxy(new Ext.data.Connection({url: #{formatted_publishings_view_books_path(:format => :json).to_json}, method: 'get'}));
+
+var store = new Ext.data.GroupingStore({
+  proxy: proxy,
+  reader: reader,
+  sortInfo: { field: 'printing_date', direction: 'ASC' },
+  groupField: 'name'
+});
+store.load();
+
+var editRowAction = new Ext.ux.grid.RowAction({ dataIndex: 'id', width: 30, iconCls: 'icon_pencilGo', renderer: editActionRenderer });
+editRowAction.on('action',
+  function(grid, record, rowIndex, event, response) {
+    openEditTabPanelWithId(record.get('id'));
+  }
+);
+
+var summary = new Ext.grid.GroupSummary(); 
+
+var gridPanel = new Ext.grid.GridPanel({
+  store: store,
+
+  cm: new Ext.grid.ColumnModel([
+    editRowAction,
+    {id: 'printing_date', header: "Printing Date", sortable: true, dataIndex: 'printing_date', renderer: Ext.util.Format.dateRenderer('F j, Y') },
+    {id: 'printing_cost', header: "Printing Cost", sortable: true, dataIndex: 'printing_cost', summaryType: 'sum', renderer: moneyRenderer},
+    {id: 'production_cost', header: "Production Cost", sortable: true, dataIndex: 'production_cost', summaryType: 'sum', renderer: moneyRenderer},
+    {id: 'amount_printed', header: "Amount Printed", sortable: true, dataIndex: 'amount_printed', summaryType: 'sum', renderer: amountRenderer},
+    {id: 'cost_per_book', header: "Cost Per Book", sortable: true, dataIndex: 'cost_per_book', summaryType: 'average', renderer: moneyRenderer},
+    {id: 'name', header: "Name", sortable: true, dataIndex: 'name', hidden: true}
+  ]),
+  //clicksToEdit: 2,
+  
+  view: new Ext.grid.GroupingView({
+    forceFit: true,
+    groupTextTpl: '{text} ({[values.rs.length]} {[values.rs.length > 1 ? "Runs" : "Run"]})',
+    showGroupName: false,
+    enableNoGroups:false, // REQUIRED!
+    hideGroupedColumn: true
+  }),
+  
+  plugins: [editRowAction/*, summary*/],
+  
+  viewConfig: { forceFit: false },
+  autoScroll: true,
+  autoWidth: true,
+  autoExpandColumn: 'name'
+});
+
+newPanel.add(gridPanel);
+xl.runningGrids.set("publishings_publishings_view", gridPanel);
+newPanel.on("destroy", function(){ xl.runningGrids.unset("publishings_publishings_view"); });
+
+`
+end

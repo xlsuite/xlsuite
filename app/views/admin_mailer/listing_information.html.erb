@@ -1,0 +1,34 @@
+<p>Hello <%= @recipient.name.to_s %>,</p>
+<p>Please follow the links below to see listings that we've selected specifically for you:</p>
+
+<% unless @public_listing_urls.blank? %>
+<p> 
+  <ul>
+  <% for listing_url in @public_listing_urls %>
+    <li><%= link_to listing_url, listing_url %></li>
+  <% end %>
+  </ul>
+</p>
+<% end %>
+
+<% unless @private_listing_urls.blank? %>
+<p>The following links require that you be logged in as they are not yet publicly visible on MLS:</p>
+<p> 
+  <ul>
+  <% for listing_url in @private_listing_urls %>
+    <li><%= link_to listing_url, listing_url %></li>
+  <% end %>
+  </ul>
+</p>
+<% end %>
+
+<p>
+  Need a password?<br/>
+  <%= @forgot_password_url %>
+</p>
+
+<p>
+  Thank you<br/><br/>
+  <%= @account_owner.name.to_s %><br/>
+  <%= @account_owner.main_phone %>
+</p>

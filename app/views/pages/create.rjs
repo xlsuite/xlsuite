@@ -1,0 +1,8 @@
+page << update_notices_using_ajax_response
+page.replace_html "new_page_errorMessages", @page.errors.full_messages.blank? ? @syntax_error : error_messages_for(:page)
+
+if @created
+  page << refresh_grid_datastore_of("pages")
+  page << "xl.openNewTabPanel('pages_edit_#{@page.id}', #{edit_page_path(@page).to_json});" unless @close
+  page << "xl.closeTabs('pages_new_nil');"
+end

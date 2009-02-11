@@ -1,0 +1,38 @@
+<%
+  classes = if testimonial.rejected? then
+    "rejected"
+  elsif testimonial.approved? then
+    "approved"
+  else
+    nil
+  end
+-%>
+<% content_tag(:li, :id => dom_id(testimonial), :class => classes) do %>
+  <h3><span class="by">By</span>
+    <span class="name">
+<% if current_user? && current_user.can?(:edit_party) then -%>
+    <%= link_to_party(testimonial.party) %>
+<% else -%>
+    <%=h testimonial.party.name %>
+<% end -%>
+    </span>
+<% unless testimonial.party.company_name.blank? then -%>
+    <span class="of">of</span>
+    <span class="company_name"><%=h testimonial.party.company_name %></span>
+<% end -%>
+  </h3>
+  <%= simple_format(h(testimonial.body)) %>
+<% if current_user? && current_user.can?(:edit_party) then -%>
+  <%= throbber(typed_dom_id(testimonial, :throbber)) %>
+  <p class="actions">
+    <%= link_to_remote("Approve", :url => approve_testimonial_path(testimonial),
+        :method => :put, :icon => "thumb_up", :class => "approve",
+        :loading => visual_effect(:appear, typed_dom_id(testimonial, :throbber))) unless testimonial.approved? %>
+    <%= link_to_remote("Reject", :url => reject_testimonial_path(testimonial),
+        :method => :put, :icon => "thumb_down", :class => "reject",
+        :loading => visual_effect(:appear, typed_dom_id(testimonial, :throbber))) unless testimonial.rejected? %>
+  </p>
+<% end -%>
+  <h4 title="<%= testimonial.testified_on.to_s(:db) %>"><%= time_ago_in_words(testimonial.testified_on.to_time) %></h4>
+  <hr/>
+<% end -%>

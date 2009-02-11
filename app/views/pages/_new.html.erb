@@ -1,0 +1,9 @@
+
+<div id="errorMessages"></div>
+<div class="ipage"> 
+  <%= error_messages_for :page %>
+  <% remote_form_for(:page, :url => pages_path) do |f| %>
+  
+  <%= render :partial => "form", :locals => {:form => f} %>
+  <% end %>
+</div>

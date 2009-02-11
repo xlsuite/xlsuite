@@ -1,0 +1,19 @@
+<li id="<%= asset.dom_id %>">
+  <div>
+    <a class="view" href="<%= asset_path(asset) %>">
+    <%- if asset.image? then -%>
+      <img src="<%= download_asset_path(:id => asset, :size => "square") %>" width="75" height="75" alt="<%=h asset.title %>"/>
+    <%- else -%>
+      <%= image_tag(icon_path(icon_for(asset)), :alt => h(asset.title), :size => "75x75") %>
+    <%- end -%>
+    </a>
+    <%= link_to(content_tag(:h4, h(asset.title)), asset_path(asset)) %>
+  
+    <%= link_to(icon_tag(:image), asset_path(asset), :title => "View File", :class => "details", :id => typed_dom_id(asset, :details, :toggle)) %>
+    <%= link_to(icon_tag(:image_edit), edit_asset_path(asset), :title => "Edit Details", :class => "edit") %>
+    <%= link_to(icon_tag(:image_delete), asset_path(asset), :title => "Delete File", :class => "delete", :confirm => "Are you sure ?") %>
+  </div>
+  <div>
+    <%= text_field_tag("", ("http://" + current_domain.name + '/z/' + asset.file_directory_path), :id => asset.dom_id, :onclick => %Q`this.focus(); this.select()`, :readonly => true) %>
+  </div>
+</li>

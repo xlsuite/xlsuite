@@ -1,0 +1,3 @@
+<% show_editor = false unless show_editor -%>
+<%= render :partial => contact_route.class.name.underscore.pluralize + "/" + contact_route.class.name.underscore,
+    :object => contact_route, :local => {:show_editor => show_editor} %>

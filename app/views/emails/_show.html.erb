@@ -1,0 +1,51 @@
+<table class="emailFieldsTable">
+	<tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+  <tr>
+  	<td class="emailFieldLabel">From:</td>
+    <td><%= h(@email.sender.to_formatted_s) %></td>
+  <tr>
+  	
+  <% unless @email.tos.blank? %>
+	  <tr>
+	    <td class="emailFieldLabel">To:</td>
+	    <td><%= h(@email.tos.to_formatted_s) %></td>
+	  <tr>
+  <% end %>
+	
+	<% unless @email.ccs.blank? %>
+		<tr>
+		  <td class="emailFieldLabel">CC:</td>
+		  <td><%= h(@email.ccs.to_formatted_s) %></td>
+		<tr>
+  <% end %>
+	
+  <% if @email.received? %>
+	  <tr>
+	    <td class="emailFieldLabel">Received:</td>
+	    <td><%= @email.received_at.strftime("%b %d, %Y %I:%M%p") %></td>
+	  <tr>
+  <% elsif @email.sent? %>
+	  <tr>
+	    <td class="emailFieldLabel">Sent:</td>
+	    <td><%= @email.sent_at.strftime("%b %d, %Y %I:%M%p") %></td>
+	  </tr>
+<% if @email.mass_mail? then -%>
+    <tr>
+      <td class="emailFieldLabel">Status:</td>
+      <td><%= @email.mass_recipients.sent_count %> of <%= @email.mass_recipients.count %> sent (<%= number_to_percentage(@email.mass_recipients.sent_count / @email.mass_recipients.count.to_f * 100.0, :precision => 0) %>), <%= @email.mass_recipients.errored_count %> errored, <%= @email.mass_recipients.waiting_count %> waiting</td>
+    </tr>
+<% end -%>
+  <% elsif @email.ready? %>
+	  <tr>
+	    <td class="emailFieldLabel">Release at:</td>
+	    <td><%= @email.released_at.strftime("%b %d, %Y %I:%M%p") %></td>
+	  <tr>
+  <% end %>
+  
+	<tr>
+    <td class="emailFieldLabel">Subject:</td>
+    <td><%= h(@email.subject) %></td>
+  <tr>
+  
+	<tr><td colspan="2" class="emailBody"><%= @email.body %></td></tr>
+</table>

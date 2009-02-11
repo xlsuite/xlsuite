@@ -1,0 +1,14 @@
+page << update_notices_using_ajax_response
+if @created
+  page << %Q!
+    xl.runningGrids.each(function(pair){
+      var grid = pair.value;
+      var dataStore = grid.getStore();
+      if (dataStore.proxy.conn.url.match(new RegExp('folders', "i"))) {
+        dataStore.proxy.conn.url = "/admin/folders.json?ids=#{@folder.parent_id||0}";
+        dataStore.reload();
+      }
+    });
+  !
+  page << "xl.closeTabPanel('#{params[:tab_to_close]}');"
+end

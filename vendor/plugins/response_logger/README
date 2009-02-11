@@ -1,0 +1,26 @@
+Ever wondered what exactly Rails returned in an RJS response ?  Here's your chance to see it:
+
+  ===> text/javascript (49 bytes)
+  Element.replace('target', '<em>It works!</em>');
+
+  <===
+
+== ResponseLogger
+
+Logging the response value is easy.  Simply install the plugin and it works.  The plugin will not log the response body in non-development mode.
+
+== Installation
+
+Nothing could be simpler:
+
+  $ script/plugin source svn://svn.teksol.info/svn/rails/plugins
+  $ script/plugin install response-logger
+
+Alternatively, you can install using <code class="svn property">svn:externals</code> by doing:
+
+  $ script/plugin source svn://svn.teksol.info/svn/rails/plugins
+  $ script/plugin install -x response-logger
+
+== License
+
+This plugin is released under the MIT License.

@@ -1,0 +1,8 @@
+<li id="<%= friend.dom_id %>">
+  <%=h friend.name %> &lt;<%=h friend.email %>&gt;
+  <a onclick="$('<%= friend.dom_id %>').remove(); return false;" href="#">Remove</a>
+  <div style="display:none">
+    <%= hidden_field_tag "referral[friends][][name]", friend.name %>
+    <%= hidden_field_tag "referral[friends][][email]", friend.email %>
+  </div>
+</li>

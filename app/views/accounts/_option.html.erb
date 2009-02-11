@@ -1,0 +1,4 @@
+<li>
+  <label><%= check_box_tag "account[#{option}_option]", "1", account.send("#{option}_option") %> <%=h option.humanize %></label>
+  <%= hidden_field_tag "account[#{option}_option]", "0" %>
+</li>

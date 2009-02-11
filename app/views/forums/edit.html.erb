@@ -1,0 +1,13 @@
+<div class="newTopic">
+  <div class="threadSubject">
+    <h2>Editing Forum: <%= @forum.name %></h2>
+  </div>
+  <% form_for :forum, @forum, :url  => forum_category_forum_path(@forum_category, @forum),
+      :html => { :method => :put } do |f| -%>
+    <%= render :partial => "forums/form", :locals => {:f => f} %>
+    <p class="inputArea clear">    
+      <%= submit_tag 'Save', :class => "button" %>
+      <%= link_to('Cancel', forum_categories_url, :class => "link_button") %>
+    </p>
+  <% end -%>  
+</div>

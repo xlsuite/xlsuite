@@ -1,0 +1,254 @@
+*
+{
+margin:0px;
+padding:0px;
+}
+
+body, html
+{
+margin:0px;
+padding:0px;
+font-family:sans-serif;
+background-image: url('/images/register-signup/body-bg.jpg');
+background-repeat:repeat-x;
+background-color:#FCFCFC;
+}
+
+#content
+{
+overflow:hidden;
+background-image: url('/images/register-signup/content-bg.jpg');
+background-repeat: repeat-y;
+width:906px;
+margin-top:40px;
+background-color:#006C86;
+}
+#top
+{
+float:left;
+display:inline;
+width:906px;
+height:44px;
+background-image: url('/images/register-signup/top-bg.jpg');
+background-repeat:repeat-none;
+
+}
+
+#left
+{
+float:left;
+display:inline;
+width:275px;
+min-height:401px;
+background-image: url('/images/register-signup/left-bg.jpg');
+background-repeat:no-repeat;
+margin-bottom:-2000px;
+padding-bottom:2000px;
+margin-left:3px;
+position:relative;
+
+}
+#left img
+{
+position:absolute;
+top:285px;
+left:114px;
+}
+
+#right
+{
+float:left;
+display:inline;
+width:604px;
+border-left:1px solid #4A666D;
+background-image: url('/images/register-signup/wraper-bg.jpg');
+background-repeat:repeat-x;
+min-height:500px;
+background-color:#042B32;
+text-align:left;
+padding-left:20px
+
+}
+
+#footer
+{
+float:left;
+display:inline;
+background-image: url('/images/register-signup/footer-bg.jpg');
+background-repeat:repeat-none;
+width:906px;
+height:99px;
+}
+
+#right h1
+{
+color:#fff;
+float:left;
+display:inline;
+width:91%;
+text-align:center;
+margin:20px 0px 20px 0px;
+}
+#right h2
+{
+color:#7AD2E8;
+font-size:20px;
+float:left;
+display:inline;
+width:91%;
+
+}
+
+#right p
+{
+color:#EFF6F8;
+margin:20px 0px 20px 0px;
+float:left;
+display:inline;
+width:91%;
+font-family:sans-serif;
+font-size:16px;
+}
+#right form
+{
+float:left;
+display:inline;
+width:100%;
+margin-top:20px;
+}
+#right input
+{
+background-image: url('/images/register-signup/input-bg.jpg');
+padding:5px;
+color:#555;
+width:390px;
+float:left;
+display:inline;
+height:22px;
+border:none;
+margin-bottom:16px;
+}
+#right label
+{
+float:left;
+display:inline;
+color:#9BC5CF;
+width:150px;
+margin-bottom:10px;
+padding-top:8px;
+}
+
+#right input.submit
+{
+float:right;
+color:#fff;
+width:200px;
+background-image: url('/images/register-signup/submit-bg.jpg');
+height:50px;
+margin-top:0px;
+margin-right:53px;
+font-size:17px;
+font-weight:bold;
+letter-spacing:2px;
+text-transform:uppercase;
+cursor:pointer;
+}
+
+#right span
+{
+color: #eee;
+}
+
+#leftFooter
+{
+float:left;
+display:inline;
+width:330px;
+color:#84A4AC;
+font-size:10px;
+margin-top:66px;
+}
+
+#left h1{
+	text-align: center;
+	font-size: 13px;
+	color:#fff;
+	margin-left:15px;
+	margin-top:75px;
+	letter-spacing:1px;	
+}
+
+#rightFooter
+{
+float:right;
+display:inline;
+width:450px;
+margin-top:66px;
+text-align:right;
+margin-right:55px;
+color:#84A4AC;
+font-size:10px;
+}
+
+#rightFooter a.footerLink
+{
+color:#84A4AC;
+text-decoration:none;
+font-size:10px;
+}
+#rightFooter a.footerLink:hover
+{
+color:#fff;
+}
+
+#right label.check
+{
+float:left;
+display:inline;
+width:200px;
+margin-top:10px;
+}
+
+#right label.check input
+{
+width:16px;
+height:20px;
+margin-right:10px;
+
+}
+
+#right a#forgotPass
+{
+color:#9BCE0F;
+font-size:18px;
+text-decoration:none;
+letter-spacing:1px;
+font-family:sans-serif;
+float:left;
+display:inline;
+width:46%;
+margin:0px 0px 20px -11px;
+font-weight:bold;
+background-image: url('/images/register-signup/bullet.gif');
+background-repeat:no-repeat;
+padding-left:36px;
+padding-top:6px;
+}
+
+#right a#registerAccount
+{
+color:#9BCE0F;
+font-size:18px;
+text-decoration:none;
+letter-spacing:1px;
+font-family:sans-serif;
+float:left;
+display:inline;
+width:46%;
+margin:0px 0px 20px -11px;
+font-weight:bold;
+background-image: url('/images/register-signup/bullet.gif');
+background-repeat:no-repeat;
+padding-left:36px;
+padding-top:6px;
+}

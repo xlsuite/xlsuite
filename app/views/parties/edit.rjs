@@ -1,0 +1,59 @@
+memberships_and_permissions_panels = ""
+memberships_and_permissions_tabpanels = ""
+if current_user.can?(:edit_party_security)
+  memberships_and_permissions_panels << self.initialize_memberships_panel
+  memberships_and_permissions_panels << self.initialize_permissions_panel
+  
+  memberships_and_permissions_tabpanels = %Q`
+    {title: "Memberships", items:[membershipsPanel], listeners: {show: function(panel){xl.viewport.render();}} },
+    {title: "Permissions", items:[permissionsPanel], listeners: {show: function(panel){xl.viewport.render();}} },
+  `
+end
+
+tab_panel_title = @party.name.to_s.strip
+tab_panel_title = "Contact | Edit" if tab_panel_title.blank?
+
+page << create_tab_using_ajax_response(tab_panel_title) do
+%Q`
+  #{self.initialize_contact_details_panel}
+
+  #{self.initialize_contact_routes_panel}
+
+  #{memberships_and_permissions_panels}
+  
+  #{self.initialize_files_panel}
+  
+  #{self.initialize_settings_panel}
+
+  #{self.initialize_notes_panel}  
+  
+  #{self.initialize_testimonials_panel}
+
+  var tabPanel = new Ext.TabPanel({
+    activeTab: 0,
+    tabPosition: "bottom",
+    layoutOnTabChange: true,
+    items:[
+      {title: "Contact Details", items:[contactDetailsPanel], autoScroll: true, listeners: {show: function(panel){xl.viewport.render();}} },
+      {title: "Contact Routes", items:[contactRoutesPanel], listeners: {show: function(panel){xl.viewport.render();}} },
+      #{memberships_and_permissions_tabpanels}
+      {title: "Settings", items:[settingsPanel], listeners: {show: function(panel){xl.viewport.render();}} },
+      {title: "Files", items:[filesPanel], listeners: {show: function(panel){xl.viewport.render();}} },
+      {title: "Notes", items:[notePanel], listeners: {show: function(panel){xl.viewport.render();}} },
+      {title: "Testimonials", items:[testimonialsPanel], listeners: {show: function(panel){xl.viewport.render();}} },
+      {title: "Organizations", html:"Under development", listeners: {show: function(panel){xl.viewport.render();}} },
+      {title: "Email Account", html:"Under development", listeners: {show: function(panel){xl.viewport.render();}} } 
+    ]
+  });
+
+  newPanel.add(tabPanel);
+  
+  refreshEastAccordion();
+  
+  noteGridPanel.setHeight(500);
+`
+end
+if @newly_created
+  page << "xl.closeTabPanel('/admin/parties/new-panel');"
+  page << refresh_grid_datastore_of("parties")
+end

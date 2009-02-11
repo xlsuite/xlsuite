@@ -1,0 +1,30 @@
+Version 1.2.0 (August 27, 2006)
+
+* Added: collect() method called just before result().
+* Changed: Elements are not skipped when processes unless :skip=>true.
+  ! Pay attention to this one, it could affect some scrapers.
+* Fixed: Declaring an array immediately creates an accessor for it.
+* Added: Scraper::Microformat for scraping hAtom and basic hCard.
+
+Version 1.1.2 (August 13, 2006)
+
+* Changed: Allows multiple :not pseudo classes to be used with the same
+  element (meaning, select where none of the negators match).
+* Fixed: first-of-type, last-of-type.
+
+Version 1.1.1 (August 8, 2006)
+
+* Added: select() method to each element, that selects from that element.
+* Fixed: Inheritence bug resulting in infinite loop. Credit: Andrew Turner
+
+Version 1.1.0 (July 26, 2006)
+
+* Added: CSS 3 pseudo classes. nth-child, first-child, not, empty, etc.
+* Added: Quoted attribute values.
+* Added: Gem.
+* Fixed: Group selectors not parsing correctly.
+* Fixed: Case sensitive (shouldn't be).
+
+Version 1.0.0 (July 11, 2006)
+
+* First release.

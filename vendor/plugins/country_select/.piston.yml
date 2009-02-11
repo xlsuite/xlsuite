@@ -1,0 +1,8 @@
+--- 
+format: 1
+handler: 
+  commit: c06cd99c0a9e0d3ca9d76326a1f339bd5de4bf0b
+  branch: HEAD
+lock: 
+repository_url: git://github.com/rails/country_select.git
+repository_class: Piston::Git::Repository

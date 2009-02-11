@@ -1,0 +1,21 @@
+<!-- Reply post form -->
+<div id="newReply" class="forumInput" style="display:none;">
+  <div class="threadSubject"><h2>Reply</h2></div>
+  <p><%= content_tag 'p', h(flash[:bad_reply]), :class => 'notice' if flash[:bad_reply] %></p>
+  <p class="userPostHeading">You are replying to:
+    <span class="bold">
+      <!-- Display name of forum being replied to: -->
+    </span>
+  </p>
+  <br />
+  <% form_for :post, :url => "" do |f| -%>
+    <%= render :partial => "posts/form", :locals => { :f => f } %>
+    <div class="left">
+      <%= render_textile_help_box %>
+      <div class="postButtons">
+        <%= submit_tag "Post", :class => "button" %> 
+        <%= link_to_function 'Cancel', "$('newReply').hide(); $('post_body').value = '';", :class => "link_button" %>
+      </div>    
+    </div>
+  <% end -%>
+</div>

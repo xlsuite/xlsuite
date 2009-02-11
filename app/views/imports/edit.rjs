@@ -1,0 +1,12 @@
+page.call("clearAllMappings")
+mappings = @mappings[:map]
+if mappings
+  for i in 0..mappings.size-1
+    next if mappings[i].blank?
+    page["mappings[map][#{i+1}][model]"].value = mappings[i][:model]
+    page["mappings[map][#{i+1}][field]"].value = mappings[i][:field]
+    page["mappings[map][#{i+1}][name]"].value = mappings[i][:name]
+  end
+end
+page.call("initializeMappingColumns", true)
+page.hide("defaultMapperSelection_throbber")

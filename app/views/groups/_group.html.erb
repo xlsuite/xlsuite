@@ -1,0 +1,5 @@
+<% background = cycle("","bg") %>
+<% content_tag(:li, :class => background, :id => dom_id(group)) do %>
+  <%= link_to icon_tag("delete.png"), group_path(group), :method => :delete %>
+  <%= link_to_group(group) %>
+<% end -%>

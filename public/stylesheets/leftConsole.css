@@ -1,0 +1,322 @@
+
+/* Colors 
+app.Grey: d4d0c8
+darker app.Grey b1aa9d
+Green: #8DC63F
+blue, links #008eb0
+*/
+
+/*top menu item border*/
+#menuItemOne {
+border-top: 1px solid #999; 
+}
+
+/*___________________________ Menu Item Universals */
+
+div.menuItem {
+background: transparent url(../images/menuItem_bg.png) repeat-x 0 0px;
+color: #000;
+height: 20px;
+
+
+border-top:1px outset #aaa;
+border-left:1px solid #999;
+border-right:1px solid #999;
+border-bottom:1px outset #999; 
+}
+
+div.menuItem:hover {cursor: pointer; }
+
+/*toggles*/
+
+div.listToggle { height: 17px; width: 172px; background: transparent; color: #fff; float: left; padding-top: 3px; padding-bottom: 1px;}
+div.listToggle:hover { color: #333; background: url(../images/menuItem_bg.png) repeat-x 0 -20px;}
+div.listToggle p { font-weight: bold; padding-left: 4px;  display: inline;}
+
+div.prefToggle { background: #bbb; height: 20px; width: 25px; color: #fff; float: right; border-left: 1px solid #ddd;}
+div.prefToggle:hover { color: #333; background: url(../images/menuItem_bg.png) repeat-x 0 -20px; }
+div.prefToggle p { font-weight: bold; padding-top: 3px; padding-left: 7px;}
+
+/*inline "dynamic" text */
+
+p.feedItems { display: inline; font-size: 11px; font-weight: normal !important; font-style: italic; color: #ddd; margin-left: 10px;}
+
+/*___________________________ Sub Panel Universals */
+
+div.subPanel {
+background: #fff;
+border-right: 1px solid #ccc;
+border-bottom: 1px solid #ccc;
+border-left: 1px solid #b3ae9f;
+}
+
+div.browse  {
+width: 200px;
+margin: 0 auto;
+text-align: center;
+padding: 10px 0px;
+}
+
+div.browse a:link {text-decoration: none; }
+div.browse ul { list-style: none; font: 120% Verdana; font-weight: bold; whitespace: nowrap; margin: 0px auto; width: 190px; }
+div.browse ul li { display: inline;}
+div.browse ul li a { padding: 0 8px 2px 8px; color: #666; border: 1px solid #8dc63f; margin: 0px 3px;}
+div.browse ul li a:hover { color: #8dc63f; border: 1px solid #666;}
+div.browse ul li a span { display:none; }
+
+input:hover, input:focus, textarea:hover, textarea:focus, select:hover
+	{ border: 1px solid #666; }
+	
+input.button:hover {
+	border: 1px solid #666;
+	color: #8dc63f;
+	cursor: pointer;
+}
+
+/*_____________________________ Sub Panel Feed Universals */
+
+div.subPanelFeed {
+padding: 4px;
+}
+
+div.subPanelFeed a, div.subPanelFeed a:visited{
+color: #008eb0;
+text-decoration: underline;
+}
+
+div.subPanelFeed a:hover {
+color: #8dc63f;
+text-decoration: none;
+}
+/* Feed Tables */
+
+div.subPanelFeed table{ width: 100%; border: none;}
+div.subPanelFeed table td { padding: 4px 0; }
+div.subPanelFeed table td.bg { background: #eee; }
+div.subPanelFeed table tr { margin: 2px 0; }
+
+/*________________________________________________________________________ QuickEntry Options */
+
+form#QuickEntry_options {
+padding: 4px 4px 0 4px ;
+}
+
+form#QuickEntry_options label {
+display: block;
+float: left;
+width: 15px;
+text-align: right;
+}
+
+form#QuickEntry_options input.text{
+width: 140px;
+margin-left: 14px;
+margin-bottom: 4px;
+padding: 1px;
+}
+
+
+/*_______________________________________________________________________ QuickEntry Form*/
+
+form#QuickEntry {
+padding: 4px;
+height: 108px;
+}
+
+form#QuickEntry textarea {
+width: 178px;
+margin: 0 0 4px 0;
+padding: 5px;
+}
+
+
+form#QuickEntry input.button
+	{
+	width: 40px;
+	height: 16px;
+	float: right;
+	padding-bottom: 1px;
+	}
+	
+
+select#saveTo {
+	float: left;
+	margin: 0 0 0 4px ;
+	padding: 0;
+}
+
+
+/*_________________________________________________________________________ Inbox Options */
+form#mailSearch label {margin-top: 4px; }
+
+select#mailSearchLocation {
+	float: left;
+	margin: 4px 0 0 4px;
+	padding: 0;
+}
+
+form#mailSearch input#searchForMail {
+	display: inline;
+	float: right;
+	width: 112px;
+	margin-right: 4px;
+}
+
+form#mailSearch input.text{
+margin-top: 4px;
+margin-left: 4px;
+margin-bottom: 4px;
+padding: 1px;
+}
+
+/*_________________________________________________________________________ ToDo Options */
+form#toDoSearch label {margin-top: 4px; }
+
+select#toDoSearchLocation {
+	float: left;
+	margin: 4px 0 0 4px;
+	padding: 0;
+}
+
+form#toDoSearch input#searchForToDo {
+	display: inline;
+	float: right;
+	width: 112px;
+	margin-right: 4px;
+}
+
+
+
+form#toDoSearch input.text{
+
+margin-top: 4px;
+margin-left: 4px;
+margin-bottom: 4px;
+padding: 1px;
+}
+
+
+form#toDoSearch input.button
+	{
+	width: 50px;
+	height: 20px;
+	float: right;
+	margin-right: 4px;
+	padding-bottom: 1px;
+	}
+	
+/*____________________________________________________________ Schedule Options */
+
+form#scheduleSearch label {margin-top: 4px; }
+
+select#scheduleSearchLocation {
+	float: left;
+	margin: 4px 0 0 4px;
+	padding: 0;
+}
+
+form#scheduleSearch input#searchForSchedule {
+	display: inline;
+	float: right;
+	width: 112px;
+	margin-right: 4px;
+}
+
+form#scheduleSearch input.text{
+
+margin-top: 4px;
+margin-left: 4px;
+margin-bottom: 4px;
+padding: 1px;
+}
+
+/*____________________________________________________________ History Options */
+
+form#historySearch label {margin-top: 4px; }
+
+select#historySearchLocation {
+	float: left;
+	margin: 4px 0 0 4px;
+	padding: 0;
+}
+
+form#historySearch input#searchForHistory {
+	display: inline;
+	float: right;
+	width: 112px;
+	margin-right: 4px;
+}
+
+
+form#historySearch input.text{
+
+margin-top: 4px;
+margin-left: 4px;
+margin-bottom: 4px;
+padding: 1px;
+}
+
+
+/*_________________________________________________________________________ Universals */
+
+p.left {
+float: left;
+}
+
+p.hidePanel { 
+display: block;
+clear:both;
+float:right;
+padding: 4px;
+}
+
+
+p.ital { font-style: oblique; }
+
+label.right {
+float: right;
+padding-right: 4px;
+}
+
+label.left {
+float:left;
+margin-left: 4px;
+}
+
+label.clear {
+display: block;
+clear:both;
+margin-left: 4px
+}
+
+div.clear {
+clear: both;
+}
+
+
+label.inline {
+display: inline;
+}
+
+label.null {
+margin: 0; padding: 0;
+}
+.altlink {
+  cursor: pointer; 
+ }
+
+
+/*_________________________________________________________________________ Togglers */
+
+span.TogglePref, span.ToggleList { display: inline; }
+
+span.TogglePref 
+
+/*_________________________________________________________________________ Hidden Elements */
+
+.hidden { display: none }
+
+
+
+
+

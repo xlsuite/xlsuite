@@ -1,0 +1,5 @@
+page.hide "searchConsole"
+page.hide "saved_advanced_search_dialog"
+page.replace_html "mySavedSearchesPanel", :partial => '/search/saved_searches'
+page.visual_effect :highlight, "saved_search#{@saved_search.id}", {:duration => 2}
+page.visual_effect :highlight, "savedSearchesStatus", {:duration => 2} unless @existed

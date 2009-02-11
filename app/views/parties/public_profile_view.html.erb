@@ -1,0 +1,47 @@
+<div id="publicProfile_view">
+	<div class="view_photo">
+		<img src="" alt="user image" />
+	</div>
+	<div class="view_section view_details">
+		<h3>Details</h3>
+		<ul>
+			<li><span class="label">User Name:</span>Dr.Z</li>
+			<!-- The rest of these list items display depending on which fields the user filled in on the sign up page -->
+			<li><span class="label">Name:</span>Yuri Zhivago <!-- concatenate "first name" and "last name" --></li>
+			<li><span class="label">Label:</span>Data</li> <!-- etc, etc -->
+			<li><span class="label">Label:</span>Data</li>
+			<li><span class="label">Website:</span><a href="http//mysite.com">mysite.com</a></li><!-- display all URLs as clickable links -->
+			<li><span class="label">Description:</span>Doctor Zhivago is a 20th century novel by Boris Pasternak. The novel is named after its protagonist, Yuri Zhivago, a medical doctor and poet.</li>
+		</ul>
+		<a class="contact_this_user">Contact this user</a> <!-- this should go to a contact form (NOT a direct link to the user's email) - we can build this later -->
+	</div>
+	<div class="view_section optional_descs">
+		<!-- these are the textareas (if any) that the user chose on the sign up page) -->
+		<div class="optional_desc">
+			<h3>About <!-- or whatever was chosen --></h3>
+			<p>Although it contains passages written in the 1910s and 1920s, Doctor Zhivago was not completed until 1956. After submission for publication to the journal Noviy mir, it was rejected because of Pasternak's political viewpoint (incorrect in the eyes of the Soviet Union): the author, like Dr Zhivago, was more concerned with the welfare of the individual person than with the welfare of the State.</p>
+		</div>
+		<div class="optional_desc"><!-- etc, etc -->
+			<h3>About</h3>
+			<p>Although it contains passages written in the 1910s and 1920s, Doctor Zhivago was not completed until 1956. After submission for publication to the journal Noviy mir, it was rejected because of Pasternak's political viewpoint (incorrect in the eyes of the Soviet Union): the author, like Dr Zhivago, was more concerned with the welfare of the individual person than with the welfare of the State.</p>
+		</div>
+	</div>
+	<div class="view_section view_feeds">
+		<div class="feed_titles"><!-- just what it says: list the titles of the feeds -->
+			<ul>
+				<li><a href="">Feed Title 01</a><!-- onclick displays content of that feed --></li>
+				<li><a href="">Feed Title 02</a></li>
+				<li><a href="">Feed Title 03</a></li>
+			</ul>
+		</div>
+		<div class="feed_display_contents"><!-- displays the content(s) of the feed, depending on what's been selected - by default Feed 01 shows -->
+			<div id="Feed01" class="feed content">
+			 {% %}
+			</div>
+			<!-- we should do an AJAX call when changing between feeds, if possible, rather than a toggle of display:none to display:block to avoid long load times -->
+		</div>
+	</div>
+</div>
+		
+
+ 

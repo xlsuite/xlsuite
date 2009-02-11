@@ -1,0 +1,36 @@
+<tr>
+  <td>
+    <label>To:</label>
+  </td>
+  <td class="email_to">
+    <%= select_tag "email_tos_selection", 
+        options_for_select([["Address(es) listed", "Address(es) listed"], 
+          ["A group", "A group"], 
+          ["A saved search", "A saved search"], 
+          ["Tag", "Tag"], 
+        ], "Address(es) listed"),
+        :onchange => "displaySecondSelection()"
+     %>
+    <div id="collection_of_groups" style="display:none">
+      <%= select_tag "group_selection", 
+          options_for_select( ([ ["Select a group", ""] ] + @groups.map{|e| [e.name, e.name]}), "" ), 
+          :onchange => "addGroupToTosField()" 
+      %>
+    </div>
+    <div id="collection_of_tags" style="display:none">
+      <%= select_tag "tag_selection", 
+          options_for_select( ([ ["Select a tag", ""] ] + @tags.map{|e| [e.name, e.name]}), "" ), 
+          :onchange => "addTagToTosField()" 
+      %>
+    </div>
+    <div id="collection_of_searches" style="display:none">
+      <%= select_tag "search_selection", 
+          options_for_select( ([ ["Select a search", ""] ] + @searches.map{|e| [e.name, e.name]}), "" ), 
+          :onchange => "addSearchToTosField()" 
+      %>
+    </div>
+	</td>
+</tr>
+<%= hidden_field_tag "num_of_inline_attachments", @num_of_inline_attachments.blank? ? 1 : @num_of_inline_attachments.to_i %>
+<%= hidden_field_tag "num_of_download_links",  @num_of_download_links.blank? ? 1 : @num_of_download_links.to_i  %>
+<%= javascript_tag "changeSelectedIndexToDefaultSelectedIndex('email_tos_selection')" %>

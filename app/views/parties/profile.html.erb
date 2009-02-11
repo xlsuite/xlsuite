@@ -1,0 +1,13 @@
+<% content_for(:js) do -%>
+<%= javascript_include_tag "parties/show_add_field.js" %>
+<% end -%>
+
+<% inline_fields_for(:party, @party) do |f| %>
+<%= render :partial => "parties/head" %>
+
+  <%= f.select :timezone, TZInfo::Timezone.all.sort.map {|tz| [tz.to_s, tz.identifier]} %>
+  <%= f.text_field :forum_alias %>
+  <%= f.text_field :birthdate %>
+  <%= f.text_area :signature %>
+  <%= f.text_area :biography %>
+<% end -%>

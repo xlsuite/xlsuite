@@ -1,0 +1,39 @@
+page << 
+%Q`
+  var kDefaultSupplier = {id: 0};
+  
+  var estimateLinesRecordAndStore = xl.widget.SimpleJSONStore({
+    url: '#{estimate_lines_path(@estimate)}',
+    doLoad: true,
+    doSmartMappings: true,
+    fields: [
+      // supplier_id is called supplier_id instead of just supplier to
+      // fool ProvidersController#update, which does receive an id and
+      // sets supplier_id. Otherwise, supplier_id is an array
+      'id'
+    ]
+  });
+  
+  var estimateLinesActionsMenu = new Ext.menu.Menu({});
+  var estimateLinesGridPanel = new Ext.grid.EditorGridPanel({
+    store: estimateLinesRecordAndStore.store,
+    cm: new Ext.grid.ColumnModel([
+      { 
+        header: "ID",
+        dataIndex: "id", 
+        sortable: true, 
+        editor: new Ext.form.TextField({allowBlank: false}),
+        renderer: function(value, cell, record) { return value.name; }
+      }
+    ]),
+    
+    tbar: [
+      'Estimate Lines'
+    ],
+    
+    autoScroll: true,
+    autoWidth: true
+  });
+  
+ 
+`

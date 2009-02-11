@@ -1,0 +1,5 @@
+test.host:
+  id: 1
+  account_id: 1
+  name: test.host
+  activated_at: 2006-12-21 11:09:00

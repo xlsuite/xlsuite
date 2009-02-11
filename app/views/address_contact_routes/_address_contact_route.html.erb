@@ -1,0 +1,32 @@
+<%
+  if address_contact_route.routable && !address_contact_route.routable.new_record? then
+    if address_contact_route.new_record? then
+      save_url = party_addresses_path(address_contact_route.routable)
+    else
+      update_url = party_address_path(address_contact_route.routable, address_contact_route)
+    end
+  end
+-%>
+<% inline_fields_for(:address, address_contact_route, :url => update_url, :indexed => true) do |f| -%>
+<% contact_route_tag(address_contact_route, :show_editor => @force_editor) do %>
+
+<div class="row  adressContactRoute1">
+  <%= f.text_field_with_auto_complete :name, :values => address_contact_route.choices %>
+  <%= link_to_function "View Map", "parent.xl.createTab('#{gmap_url(address_contact_route.to_url)}')", :class =>"mapLink" %>
+</div>
+<div class="row  adressContactRoute2">
+  <%= f.text_field :line1, :row => true, :blank_prefix => typed_dom_id(address_contact_route, :name, :field) %> <%= f.text_field :line2, :row => true, :blank_prefix => typed_dom_id(address_contact_route, :name, :field) %> <%= f.text_field :line3, :row => true, :blank_prefix => typed_dom_id(address_contact_route, :name, :field) %>
+</div>
+<div id="<%= typed_dom_id(address_contact_route, :csc) %>">
+  <div class="row adressContactRoute2"> <%= f.text_field :city, :blank_prefix => typed_dom_id(address_contact_route, :name, :field) %> </div>
+  <div class="row adressContactRoute3"> <%= f.text_field_with_auto_complete :state, :values => AddressContactRoute::STATES.flatten.compact.uniq, :blank_prefix => typed_dom_id(address_contact_route, :name, :field) %> <%= f.text_field_with_auto_complete :country, :values => AddressContactRoute::COUNTRIES.flatten.compact.uniq, :blank_prefix => typed_dom_id(address_contact_route, :name, :field) %>
+ <%= f.text_field :zip, :blank_prefix => typed_dom_id(address_contact_route, :name, :field) %> </div>
+  <%= f.save_or_cancel_links(save_url, %w(name line1 line2 line3 city state country zip)) unless @force_editor  %> </div>
+<div class="row smallText deleteAddress">
+  <% unless address_contact_route.new_record? then -%>
+  <%= link_to_remote("Delete Address", :url => formatted_address_path(address_contact_route, :js), :confirm => "Are you sure ?", :method => :delete, :title => "Delete this address", :loading => %Q(Element.show("#{typed_dom_id(address_contact_route, :throbber, :delete)}")), :class => "delete") %> <%= throbber(typed_dom_id(address_contact_route, :throbber, :delete)) %>
+  <% end -%>
+</div>
+<% end %>
+<% end %>
+<!--icon_tag(:delete)-->

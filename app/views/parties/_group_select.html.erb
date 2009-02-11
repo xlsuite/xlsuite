@@ -1,0 +1,18 @@
+<% group = group_select -%>
+<% content_tag(:li, :class => cycle("alt", "")) do %>
+  <%= check_box_tag "group[children_ids][]", group.id, @party.groups.include?(group),
+      :id => "group_children_ids_#{group.id}", :class => "group" %>
+  <%= content_tag(:label, h(group.name), :for => "group_children_ids_#{group.id}") %>
+  <%= link_to(icon_tag(:bullet_toggle_plus), "#",
+      :id => typed_dom_id(group, :permissions, :open),
+      :style => "display:none", :class => "toggle open") %>
+  <%= link_to(icon_tag(:bullet_toggle_minus), "#",
+      :id => typed_dom_id(group, :permissions, :close),
+      :style => "display:none", :class => "toggle close") %>
+  <ul id="<%= typed_dom_id(group, :permissions) %>" style="display:none">
+    <%= render(:partial => "permission_select", :collection => group.permissions, :locals => {:group => group}) %>
+  </ul>
+  <ul id="<%= typed_dom_id(group, :children) %>">
+    <%= render(:partial => "group_select", :collection => group.children) %>
+  </ul>
+<% end -%>

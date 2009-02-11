@@ -1,0 +1,75 @@
+page << create_tab_using_ajax_response("XL Services Pricing") do
+%Q`
+  var selectedIds = null;
+  
+  var accountModulePath = #{account_module_path("__ID__").to_json};
+    
+  var AccountModuleRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'minimum_subscription_fee', mapping: 'minimum_subscription_fee'},
+    {name: 'module', mapping: 'module'}
+  ]);
+  // data reader to parse the json response
+  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, AccountModuleRecord);
+  
+  // set up connection of the data
+  var connection = new Ext.data.Connection({url: #{formatted_account_modules_path(:format => :json).to_json}, method: 'get'});
+  var proxy = new Ext.data.HttpProxy(connection);
+
+  // set up the data store and then send request to the server
+  var ds = new Ext.data.Store({proxy: proxy, reader: reader});  
+  
+  var grid = new Ext.grid.EditorGridPanel({
+    store: ds,
+    cm: new Ext.grid.ColumnModel([
+        {id: "account-module-module", width: 150, header: "Module", sortable: true, dataIndex: 'module'},
+        {id: "account-module-minimum_subscription_fee", width: 120, header: "Minimum subscription fee", sortable: true, dataIndex: 'minimum_subscription_fee', editor: new Ext.form.TextField()}
+      ]),
+    autoScroll: true,
+    autoWidth: true,
+    height: #{get_default_grid_height(nil)},
+    clicksToEdit:1,
+    loadMask: true,
+    selModel: new Ext.grid.RowSelectionModel,
+    listeners: { render: function(cpt){ds.load();} }
+  });
+
+  newPanel.add(grid);
+  xl.runningGrids.set("account_modules", grid);
+  newPanel.on("destroy", function(){
+    xl.runningGrids.unset("account_modules");
+  });
+  
+  grid.on("validateedit", function(event){
+    var record = event.record;
+    var editedFieldName = event.field;
+    
+    record.set(editedFieldName, event.value);
+    var method = "put";
+    var objectId = record.get("id");
+
+    var params = {};
+    params["from_index"] = "true";
+    params["account_module[minimum_subscription_fee]"] = record.get("minimum_subscription_fee");
+    
+    Ext.Ajax.request({
+      url: accountModulePath.sub("__ID__", objectId),
+      method: method,
+      params: params,
+      success: function(transport, options){
+        response = Ext.util.JSON.decode(transport.responseText);
+        record.set('minimum_subscription_fee', response.minimum_subscription_fee);
+        $("status-bar-notifications").innerHTML = response.flash;
+        if(response.flash.include('Error:'))
+          event.grid.getView().getCell(event.row, event.column).highlight({startcolor: "FF5721"});
+        else
+          event.grid.getView().getCell(event.row, event.column).highlight();
+        if(response.refresh)
+          grid.getStore().reload();
+      }
+    });
+
+  });
+`
+end
+

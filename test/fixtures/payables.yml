@@ -1,0 +1,14 @@
+peters_payment_on_invoice_20051023:
+  id: 1231
+  account_id: 1
+  subject_id: 1662
+  subject_type: Invoice
+  payment_id: 10998
+  amount_cents: 10000
+  amount_currency: CAD
+  created_at: <%= 10.hours.ago.to_s(:db) %>
+  created_by_id: 53
+  created_by_name: Peter
+  updated_at: <%= 10.hours.ago.to_s(:db) %>
+  updated_by_id: 53
+  updated_by_name: Peter

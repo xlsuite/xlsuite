@@ -1,0 +1,77 @@
+page << create_tab_using_ajax_response("Product Categories | New") do
+%Q`
+  /************
+   ** LAYOUT **
+   ************/
+  
+  var productCategoryName = new Ext.form.TextField({
+      fieldLabel: "Name",
+      name: "product_category[name]"
+    });
+    
+  var productCategoryParent = new Ext.form.ComboBox({
+      fieldLabel: "Parent",
+      name: "product_category[parent_id]"
+    });
+    
+  var productCategoryWebCopy = new Ext.form.TextArea({
+      fieldLabel: "Web Copy",
+      name: "product_category[web_copy]"
+    });
+    
+  var productCategoryDescription = new Ext.form.TextArea({
+      fieldLabel: "Description",
+      name: "product_category[description]"
+    });
+          
+  var wrapperPanel = new Ext.Panel({
+    autoScroll: true,
+    layout: "table",
+    layoutConfig: { columns: 3},
+    items: [{
+          html: #{content_tag(:span, "Catalog Categories").to_json}
+        },{
+          html: #{render_header_links}
+        },{
+          html: #{render_header_options}
+        },{
+          layout: "form",
+          items: [productCategoryName]
+        },{
+          layout: "form",
+          items: [productCategoryParent]
+        },{
+          layout: "form",
+          items: [productCategoryWebCopy],
+          rowspan: 2
+        },{
+          layout: "form",
+          items: [productCategoryDescription]
+        },{
+          html: "IMAGE PICKER HERE"
+        },{
+          html: "PRODUCT GRID", colspan: 2
+        },{
+          html: "TAGGINGS AND ACCESS RESTRICTION"
+      }]
+  });
+  
+  var formPanel = new Ext.FormPanel({
+    items: [wrapperPanel],
+    buttons: [{
+        text: 'Submit',
+        handler: function(me, event){
+            formPanel.getForm().doAction('submit',
+              {url: #{product_categories_path.to_json}})
+          }
+      },{
+        text: "Cancel",
+        handler: function(me, event){
+            xl.closeTabPanel('product_categories_new_nil')
+          }
+      }]
+  });
+  
+  newPanel.add(formPanel);
+`
+end

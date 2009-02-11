@@ -1,0 +1,2 @@
+page['last_counter_of_search_lines'].value = @last_counter_of_search_lines
+page.insert_html :before, 'listing_search_submit_button', :partial => "listings_search_new_line", :locals => {:index => @last_counter_of_search_lines}

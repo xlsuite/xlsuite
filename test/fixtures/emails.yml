@@ -1,0 +1,19 @@
+first:
+  id: 1
+  subject: Sending out to Staff Members group
+  body: Suppposedly sent out to Staff Members group
+  scheduled_at: <%= 30.minutes.ago.to_formatted_s(:db) %>
+  sent_at: <%= 10.minutes.ago.to_formatted_s(:db) %>
+  created_at: <%= 40.minutes.ago.to_formatted_s(:db) %>
+  updated_at: <%= 40.minutes.ago.to_formatted_s(:db) %>
+  released_at: <%= 10.minutes.ago.to_formatted_s(:db) %>
+  bad_recipient_count: 0
+  generate_password: false
+  unique_id_listing: email1uniqueidlisting # :null => false
+  received_at:
+  inline_attachments: false # :null => false
+  about_type:
+  about_id:
+  account_id: 1 #WPUL
+  message_id: email1messageid # :null => false
+  mass_mail: 1

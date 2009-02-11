@@ -1,0 +1,8 @@
+<p>Hi <%= @account_owner.first_name %>,</p>
+<p>Thank you for registering this account on XLsuite</p>
+<p> <%= @domain_name %></p> 
+<p>We did notice however that you have not yet confirmed.</p>
+<p>We like to keep things tidy around here, so we delete temporary accounts fairly quickly.</p>
+<p>Feel free to signup again <a href="http://<%= @domain_name %>">here</a> if you'd still like to try the system.</p>
+<p>If you did not see the confirmation email, check your spam box this time, it's probably in there.</p>
+<p>Sincerely,<br/>The XL group<br/><%= link_to "http://xlsuite.com", "http://xlsuite.com" %></p>

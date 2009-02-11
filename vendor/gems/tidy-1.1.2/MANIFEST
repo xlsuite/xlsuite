@@ -1,0 +1,12 @@
+lib/tidy.rb
+lib/tidy/tidybuf.rb
+lib/tidy/tidyerr.rb
+lib/tidy/tidylib.rb
+lib/tidy/tidyobj.rb
+lib/tidy/tidyopt.rb
+test/usage.rb
+CHANGES
+MANIFEST
+README.txt.en
+tidy.gemspec
+VERSION

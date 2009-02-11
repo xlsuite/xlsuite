@@ -1,0 +1,64 @@
+0.8.4
+	Fixed auth issue with authenticate headers with spaces after commas. (Ken Wiesner, Scott Patterson)
+	
+0.8.3
+	Added example #set_pre_request_block. (Franois Beausoleil)
+	Allow a pre request block to be set for RETS4R::Client.  
+		This allows the caller to change the request in any meaningful way, such as adding a 
+		RETS-UA-Authorization header when appropriate. (Franois Beausoleil)
+	Better response handling of HTTP errors. Response codes > 300 other than 401 now raise an 
+		HTTPError exception that encapsulates the HTTPResponse object.
+		401 errors raise a LoginError exception. (Scott Patterson)
+	Added in RETS specification error messages to reference. (Scott Patterson)
+	New Rakefile.  Install the rake gem and do 'rake test' to run the tests. (Franois Beausoleil)
+	
+0.8.2
+	Added missing result parameter to Client#search's yield (Scott Patterson)
+	Added 1.7 to supported list and default version (Franois Beausoleil)
+	No longer sends empty (nil) headers (Franois Beausoleil)
+	Added debugging to HTTP output. (Franois Beausoleil, Scott Patterson)
+	Added support for multiple set-cookie headers in the server response (Franois Beausoleil)
+	Added basic search example (Scott Patterson)
+	Implied default value of \t in RETS4R::Client::Transaction#delimiter (Franois Beausoleil)
+	#get_metadata now returns the block's value or the results. (Franois Beausoleil)
+	Made sure #login always calls #logout if called with a block.  #login returns the block's value 
+		instead of results. (Franois Beausoleil)
+	New assertions that require Client to have Ruby-like accessors for attributes, instead of 
+		getters and setters.  Applied 'Rename Attribute' on @parser, because #get_parser_class 
+		was returning the class of the parser's class, instead of the parser's class itself. (Franois Beausoleil)
+	Client#set_rets_version should take care to generate the correct RETS-Version header, 
+		and #get_rets_version should undo the changes that #set_rets_version did before 
+		returning the value. (Franois Beausoleil)
+	Don't rescue an exception that's not being processed in Parser. (Franois Beausoleil)
+	RETS4R::Client#get_object extensions: yield or return the array of DataObject instances; 
+		changed the multipart/parallel response boundary processing rules 
+		(include \r\n in the boundary detection); added documentation. (Franois Beausoleil)
+	Added GetObject example (Scott Patterson)
+	Changed #get_object now yields each DataObject if a block is given rather 
+		than an array of DataObjects (Scott Patterson)
+	
+0.8.1
+	Added Action-URL support per the specification.
+	Added a secondary_response accessor to the Transaction object, which is what the Action-URL result is stored in.
+	Fixed a bug with loggers and parsers
+	
+0.8.0
+	Fixed RParser support, which now means you can use REXML.
+	RParser now retries XML that produced a parser error after trying to clean it.
+	Parser support is now more open so that more parsers can be easily added in the future.
+	Reorganized parser file layout.
+	CParser will only be loaded if libxml (its dependency) is present. If it is, it is the default
+		parser.
+	Added more parser unit tests.
+	Renamed CParser to XMLParser and RPARSER to REXML, both with the hierarchy RETS4R::Client::Module.
+	Fixed a bug with the parser output not being set properly.
+	Fixed a bug with the parser not respecting the DELIMITER value and insisting on tab delimiters.
+	Added support for using a logger
+	Added more defaults to the search options (Count => '0', Format => 'COMPACT')
+	Added some Rubyisms (blocks can now be given to #new, #login, #get_metadata, #get_object, and #search)
+	
+0.7.1
+	Added support for reading the results count for searches.
+	
+0.7.0
+	Initial GEM Version

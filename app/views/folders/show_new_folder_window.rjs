@@ -1,0 +1,1 @@
+page.insert_html :after, 'insert_new_folder_form', :partial => "new"

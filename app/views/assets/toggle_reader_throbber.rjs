@@ -1,0 +1,1 @@
+page.toggle("reader_update_throbber#{@asset.id}")

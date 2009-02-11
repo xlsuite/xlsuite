@@ -1,0 +1,79 @@
+--- !ruby/object:Gem::Specification 
+name: transaction-simple
+version: !ruby/object:Gem::Version 
+  version: 1.4.0
+platform: ruby
+authors: 
+- Austin Ziegler
+autorequire: 
+bindir: bin
+cert_chain: 
+date: 2007-02-03 00:00:00 -05:00
+default_executable: 
+dependencies: 
+- !ruby/object:Gem::Dependency 
+  name: hoe
+  type: :runtime
+  version_requirement: 
+  version_requirements: !ruby/object:Gem::Requirement 
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        version: 1.1.7
+    version: 
+description: Transaction::Simple provides a generic way to add active transaction support to objects. The transaction methods added by this module will work with most objects, excluding those that cannot be Marshal-ed (bindings, procedure objects, IO instances, or singleton objects).
+email: austin@rubyforge.org
+executables: []
+
+extensions: []
+
+extra_rdoc_files: 
+- History.txt
+- Install.txt
+- Licence.txt
+- Readme.txt
+files: 
+- History.txt
+- Install.txt
+- Licence.txt
+- Manifest.txt
+- Rakefile
+- Readme.txt
+- lib/transaction/simple.rb
+- lib/transaction/simple/group.rb
+- lib/transaction/simple/threadsafe.rb
+- lib/transaction/simple/threadsafe/group.rb
+- setup.rb
+- test/test_all.rb
+- test/test_broken_graph.rb
+- test/test_transaction_simple.rb
+- test/test_transaction_simple_group.rb
+- test/test_transaction_simple_threadsafe.rb
+has_rdoc: true
+homepage: http://rubyforge.org/projects/trans-simple
+post_install_message: 
+rdoc_options: []
+
+require_paths: 
+- lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: 1.8.2
+  version: 
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+requirements: []
+
+rubyforge_project: trans-simple
+rubygems_version: 1.2.0
+signing_key: 
+specification_version: 1
+summary: Simple object transaction support for Ruby.
+test_files: 
+- test/test_all.rb

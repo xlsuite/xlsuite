@@ -1,0 +1,45 @@
+Return-Path: <mary@goodjob.com>
+Received: from mx4.internal (mx4.internal [10.202.2.203])
+	 by server4.messagingengine.com (Cyrus v2.3-alpha) with LMTPA;
+	 Wed, 19 Apr 2006 13:12:16 -0400
+X-Sieve: CMU Sieve 2.3
+X-Spam-score: 0.0
+X-Spam-hits: BAYES_00
+X-Resolved-to: fbeausoleil@ftml.net
+X-Delivered-to: bob@test.com
+X-Mail-from: mary@goodjob.com
+Received: from toxic.magnesium.net (toxic.magnesium.net [207.154.84.15])
+	by mx4.messagingengine.com (Postfix) with ESMTP id 536F1FBFA
+	for <bob@test.com>; Wed, 19 Apr 2006 13:11:49 -0400 (EDT)
+Received: from [192.168.1.70] (coop.robotcoop.com [216.231.59.167])
+	by toxic.magnesium.net (Postfix) with ESMTP id 2913EDA871
+	for <bob@test.com>; Wed, 19 Apr 2006 10:12:14 -0700 (PDT)
+Mime-Version: 1.0 (Apple Message framework v749.3)
+In-Reply-To: <44464ACA.9040406@teksol.info>
+References: <44464ACA.9040406@teksol.info>
+Content-Type: text/plain; charset=ISO-8859-1; delsp=yes; format=flowed
+Message-Id: <CFD2A945-D163-403E-9DE7-EDC131CC61C8@segment7.net>
+Content-Transfer-Encoding: quoted-printable
+From: Mary <mary@goodjob.com>
+Subject: Re: About speeding up rails testing on Windows
+Date: Wed, 19 Apr 2006 10:12:09 -0700
+To: Bob <bob@test.com>
+X-Mailer: Apple Mail (2.749.3)
+
+On Apr 19, 2006, at 7:35 AM, Fran=E7ois Beausoleil wrote:
+
+> Essentially, the idea would be to start the next instance of Rails =20
+> while the coder is busy.  That way, when the next test run is =20
+> called, the Rails instance would already be loaded and waiting.
+
+That sounds like a good way to do it.  More painful for laptop people =20=
+
+on batteries, but at least it will work.  Do you want me to drop you =20
+a tarball so you can hack it in?  I don't have a windows machine to =20
+test on.
+
+--=20
+Eric Hodel - mary@goodjob.com - http://blog.segment7.net
+This implementation is HODEL-HASH-9600 compliant
+
+http://trackmap.robotcoop.com

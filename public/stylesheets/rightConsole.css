@@ -1,0 +1,354 @@
+/*Right Accordion Boxes _________________________________________________________________________________*/
+
+a:hover { color: #8dc63f; }
+	
+#rightAccordionBoxes {
+ width: 280px;
+ margin-top: 80px;
+ padding: 0;
+	}
+
+/* Accordion Bar Faces */
+div.rightMenuItem {
+background: #fff;
+height: 20px;
+border-top: 1px solid #ccc;
+}
+
+
+
+
+div.rightMenuItem:hover, div.rightMenuItemInput:hover,  div.rightMenuItemLast:hover {
+ cursor: pointer;
+} 
+
+
+div.rightMenuItemLast {
+height: 20px;
+border-bottom: 1px solid #ccc;
+border-top: 1px solid #ccc;
+}
+
+div.rightMenuItem p, div.rightMenuItemLast p {
+display: inline;
+float: left;
+}
+
+
+div.rightListToggle { height: 20px; width: 253px; background: transparent; color: #333; float: left; }
+div.rightListToggle:hover { color: #8dc63f; background: #fff;}
+div.rightListToggle p { font-weight: bold; padding-left: 4px; display: inline; float: left;}
+div.rightListToggle p.italic {display: inline; float: left; font-style: italic; font-weight: normal; color: #666; margin-left: 4px;}
+
+div.rightListToggle_extend { height: 20px; width: 100%; background: transparent; color: #fff; float: left; }
+div.rightListToggle_extend:hover { color: #333; background: #fff; repeat-x 0 -20px;}
+div.rightListToggle_extend p { font-weight: bold; padding-left: 4px; display: inline; float: left;}
+div.rightListToggle_extend p.italic {display: inline; float: left; font-style: italic; font-weight: normal; color: #eee; margin-left: 4px;}
+
+div.rightPrefToggle { height: 20px; width: 25px; color: #333; float: right; background: #fff;}
+div.rightPrefToggle:hover { color: #8dc63f; background: #fff; repeat-x 0 -20px; }
+div.rightPrefToggle p { font-weight: bold;  padding-left: 7px;}
+
+/*Search Forms */
+
+.menuItem_search { width: 100%; height: 20px; padding: 2px 0; position: relative; }
+.quickToggle { width: 100%; height: 100%; font-weight: bold; padding-top: 3px; }
+	.quickToggle:hover { cursor: pointer; color: #8dc63f; }
+	.quickToggle span { display: inline; padding-left: 5px; }
+		.quickToggle span.status { font-weight: normal; font-style: italic; padding-left: 30%; }
+.quickSearch_outerInput { width: 60%; position: absolute; right: 20px; top: 1px; }
+	.quickSearch_outerInput input { width: 100%; }
+
+
+.searchBarLabel,.quickBarLabel {font-weight: bold; }
+.searchBarLabel,.quickBarLabel {margin-left: 5px;}
+.searchBarLabel:hover {color:  #8dc63f; cursor: pointer;}
+
+	
+a.submit {margin-bottom: -30px; }
+	
+
+/*surface IDs */
+
+#quickBar_left { width: 140px; float: left;}
+#quickBar_right { width: 140px; float: left; }
+#search {width: 50%; }
+#mainSearch_button {
+width: 30px !important;
+height: 18px !important;
+padding-bottom: 1px;
+}
+/*
+
+/*subPanel classes*/
+
+fieldset.searchSubPanelForm {
+clear: both;
+position: relative;
+margin: 2px 0;
+padding: 7px 0;
+}
+
+.subPanelHeader {
+margin: 5px 0;
+}
+
+.subPanelHeader span{
+float: left;
+font-weight: bold;
+}
+
+
+a.right {
+display: inline;
+float: right;
+margin-right: 4px;
+}
+
+
+.searchSubPanel form input.text { width: 68px; }
+
+
+
+.searchSubPanel_optionsBar {height: 20px; margin: 2px auto 0 auto; padding: 2px 0 0 0;}
+.searchSubPanel_optionsBar a {margin: 5px;}
+
+
+img.sortOrder {border: none; margin-bottom: -4px; margin-left: 4px; }
+
+
+#quick input.text { width: 56px; }
+#quickSort input.text { width: 130px; }
+
+#searchSubject_options { width: 80px; padding: 1px 0;}
+input.button_search
+	{	
+	width: 52px;
+	height: 20px;
+	background: #eee;
+	font: 11px 'Tahoma' verdana, sans-serif;
+	color: #008EB0;
+	outline: none;
+	border: 1px solid #666;
+	}
+	
+input.button_search:hover
+	{
+	background: #8dc63f;
+	color: #fff;
+	cursor: pointer;
+	outline: none;
+	}
+
+#savedSearches { width: 100%; }	
+#savedSearches a { margin-right: 6px; }
+
+tr.bg { background: #eee; }
+
+/*Specific form Details */
+
+select#rightSearchToDoLocation, select#rightSearchScheduleLocation, select#rightSearchHistoryLocation {
+width: 80px;
+margin-left: 2px;
+}
+
+input#rightSearchToDoFor, input#rightSearchScheduleFor, input#rightSearchHistoryFor {
+width: 178px;
+}
+
+input#rightSearchToDoFrom, input#rightSearchScheduleFrom, input#rightSearchHistoryFrom {
+width: 60px;
+margin-left: 0;
+}
+
+input#rightSearchToDoTo, input#rightSearchScheduleTo, input#rightSearchHistoryTo {
+width: 60px;
+}
+
+input#rightSearchToDoAmount, input#rightSearchScheduleAmount, input#rightSearchHistoryAmount {
+width: 20px;
+}
+
+
+
+
+
+
+
+/* _____________________________________________________________________________________SubPanels */
+
+div.rightSubPanel {
+ border-top: 1px solid #ddd;
+ border-left: 1px solid #ccc;
+ border-right: 1px solid #ccc;
+ /*padding: 4px;*/
+} 
+
+div.rightSubPanelLast {
+ /*padding 0px 4px;*/
+ border-bottom: 1px solid #ddd;
+}
+
+div.rightSubPanel a, div.rightSubPanel a:visited{
+color: #008eb0;
+text-decoration: underline;
+}
+
+div.rightSubPanel a:hover {
+color: #8dc63f;
+text-decoration: none;
+}
+
+
+/*SubPanel Browse */
+
+div.rightSubPanel .browse  {
+width: 200px;
+margin: 0 auto;
+text-align: center;
+padding: 10px 0px;
+}
+
+div.browse a:link, div.browse a:visited {text-decoration: none; color: #666;}
+div.rightSubPanel .browse ul { list-style: none; font: 120% Verdana; font-weight: bold; whitespace: nowrap; margin: 0px auto;  }
+div.browse ul li { display: inline;}
+div.browse ul li a { padding: 0 8px 2px 8px; color: #666; border: 1px solid #8dc63f; margin: 0px 3px;}
+div.browse ul li a:hover { color: #8dc63f; border: 1px solid #666;}
+div.browse ul li a span { display:none; }
+
+/*SubPanel tables */
+
+table.rightSubPanel {
+ width: 100%;
+ text-align: left;
+}
+
+table.rightSubPanel th {
+ font-weight: normal;
+}
+
+table.rightSubPanel tr.bg {
+ background: #eee;
+}
+
+table.rightSubPanel tr.und th{
+border-bottom: 1px solid #ddd;
+}
+
+table.rightSubPanel td {
+padding: 4px;
+}
+
+table.rightSubPanel td.center {
+ text-align: center;
+}
+
+/*SubPanel Forms */
+
+
+
+.rightSubPanelForm label {
+padding: 0;
+margin-right: 4px;
+margin-left: 4px;
+}
+
+.rightSubPanelForm br {
+clear: both;
+margin: 3px 0;
+}
+
+/* rightMenu Items 01 02_________________________________________________________________ */
+#rightMenuItem01, #rightMenuItem02 {
+	position: relative;
+}
+
+form.quick {
+position: absolute; 
+right: 20px;
+top: 1px;
+}
+
+.rightMenuItemInput form.quick input.text {
+ width: 200px;
+}
+
+/* rightMenu Item 01 SubPanel__________________________________________ Quick Nav Options*/
+
+#quickNavOptions {
+width: 380px;
+padding: 4px;
+border-bottom: 1px solid #ddd;
+margin-bottom: 4px;
+overflow:hidden;
+position: relative;
+}
+
+fieldset.roomySet { margin-bottom: -10px;}
+fieldset.roomySet p.inline{ float: left; margin-left: 12px; padding-top: 2px;}
+fieldset.roomySet p.exclude {position: absolute; right: 26px;}
+input#preNavItemStartsWith, input#preNavItemEndsWith, input#preNavItemContains {
+float:left;
+}
+
+input#navItemStartsWith, input#navItemEndsWith, input#navItemContains {
+position: absolute;
+right: 86px;
+}
+
+form#quickNavOptionsTable input.text {
+ width: 100px;
+}
+
+#quickNavOptionsTable input.box { position: absolute; right: 4px; margin-top: 2px;}
+
+/* right Menu item 02 Sub Panel_________________________________________ QUick Sort Options*/
+
+#quickSortOptions {
+padding: 4px;
+}
+
+form#quickSortOptionsTable fieldset {
+padding: 0;
+margin: 0;
+}
+
+form#quickSortOptionsTable input.text {
+width: 300px;
+margin-bottom: 4px;
+}
+
+#quickSortOptions img.sortOrder {
+margin-bottom: -5px;
+margin-left: 10px;
+padding: 2px;
+border: 1px solid #ddd;
+}
+
+
+/* rightMenu Item 04 Header _____________________________________________________________ */
+
+.rightMenuItemHeader p {
+color: #333;
+font-style: italic;
+font-weight: bold;
+padding: 3px 7px;
+border-top: 1px solid #ccc;
+}
+
+/* subPanel 05 _____________________________________________________________to Do,schedule, history, options */
+
+#rightToDoOptions, #rightScheduleOptions, #rightHistoryOptions {
+padding: 4px;
+}
+
+
+
+/* SubPanel 11 ____________________________________________________________ History List View */
+
+#rightMenuItem11b, #rightMenuItem11a {
+ border-top: none;
+ border-bottom: 1px solid #ddd;
+ }
+
+

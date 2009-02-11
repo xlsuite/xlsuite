@@ -1,0 +1,8 @@
+rets.yml
+database.yml
+s3.yml
+ferret_server.yml
+apache.conf
+future.yml
+*.swp
+

@@ -1,0 +1,13 @@
+<h1>Thank you for your purchase</h1>
+<% if @new_account then -%>
+<p>We have received your payment, and have opened an account for you.  The
+  details of your account have been forwarded to
+  <strong><%= h(@customer.email) %></strong>.</p>
+<% else -%>
+<p>We have received your payment.</p>
+<% end -%>
+<p>Your <%= @payment.method_name %> account is being processed as it is.</p>
+<p>Below is a copy of your invoice and payment details, for your records.</p>
+
+<h2>Invoice</h2>
+<%= render :file => 'admin/invoices/view', :locals => {:pdf => false} %>

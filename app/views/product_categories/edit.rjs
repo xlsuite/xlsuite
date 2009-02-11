@@ -1,0 +1,121 @@
+cat = @product_category
+form = %Q`{url: #{async_update_product_category_path(:id => cat.id).to_json}, object: 'product_category'}`
+afteredit = %Q`function(oldValue, decodedResponse, responseText, cpt){
+  if(decodedResponse.success){
+    Ext.get('product_category_#{cat.id}_error_messages').dom.innerHTML = "";
+  }else{
+    Ext.get('product_category_#{cat.id}_error_messages').dom.innerHTML = decodedResponse.errors[0];
+  }
+}`
+filenameRegExp = '/\.(\w+)$/'
+
+page << %Q`
+{
+  'xtype': 'panel',
+  'layout': 'table',
+  'layoutConfig': { 'columns': 2 },
+  'items': [
+    {
+      html: "<div id='product_category_#{cat.id}_error_messages'></div>",
+      colspan: 2
+    },
+    {
+     layout: 'form',
+     labelAlign: 'right',
+     items: [
+       xl.widget.InlineActiveField({
+         form: #{form},
+         field: {value: #{cat.name.to_json}, width: 300, name: 'name', fieldLabel: 'Name'},
+         afteredit: function(oldValue, newValue, rawJSON) {
+           xl.log('Afteredit');
+           try {
+             var treePanel = Ext.StoreMgr.get('product_categories_treePanel_piggyback');
+             treePanel.getNodeById(#{cat.id}).setText(newValue);
+           } catch(e) {
+             xl.log(e);
+           }
+         }
+       }),
+       xl.widget.InlineActiveField({ form: #{form}, afteredit: #{afteredit}, field: {xtype: 'textfield', width: 300, value: #{cat.label.to_json}, name: 'label', fieldLabel: 'Label'} }),
+       xl.widget.InlineActiveField({ form: #{form}, afteredit: #{afteredit}, field: {xtype: 'textarea', width: 300, height: 75, value: #{cat.description.to_json}, name: 'description', fieldLabel: 'Description'} }),
+       xl.widget.InlineActiveField({ form: #{form}, afteredit: #{afteredit}, field: {xtype: 'textarea', width: 300, height: 75, value: #{cat.web_copy.to_json}, name: 'web_copy', fieldLabel: 'Web Copy'} }),
+       xl.widget.InlineActiveField({ form: #{form}, afteredit: #{afteredit}, field: {xtype: 'checkbox', width: 25, height: 20, value: #{cat.private.to_json}, name: 'private', fieldLabel: 'Private'} }),
+       {html: "<div id='product_category_#{cat.id}_tags_panel_wrapper'></div>"},
+       {
+         xtype: 'hidden',
+         id: 'product_category_#{cat.id}.hidden.product_ids',
+         value: #{cat.product_ids.to_json}
+       }
+     ]
+    },
+    
+    {
+      bbar: [{
+        text: 'Upload/Change Image',
+        handler: function(button, event) {
+          var swfu = new SWFUpload({
+          	// Backend Settings
+          	flash_url : "/javascripts/swfupload/swfupload_f9.swf",	// Relative to this file
+          	upload_url: #{async_upload_image_product_category_path(:id => cat.id).to_json},
+            file_post_name: "file",
+
+          	// File Upload Settings
+          	file_size_limit : "2048",	// 2MB
+          	file_types : "*.*",
+          	file_types_description : "Images",
+          	file_upload_limit : "0",
+
+          	// Open the upload window as soon as the
+          	// file is loaded
+          	swfupload_loaded_handler: function() {
+          	  this.selectFile();
+          	},
+          	file_dialog_complete_handler: function(n) {
+          	  this.startUpload();
+          	},
+          	upload_start_handler: function(file) {
+          	  // Erb has to write the value for the RegExp in here;
+          	  // Not really sure why, but it's the only thing that works.
+          	  // The regexp is: \.(\w+)$
+          	  var md = file.name.match(#{filenameRegExp});
+              var contentType = 'image/' + md[1];
+              if (contentType.include('jpg')) contentType = 'image/jpeg';
+
+              this.setPostParams({'content_type': contentType});
+          	  return true;
+          	},
+          	upload_error_handler : function(file, errorCode, message) {
+          	  xl.log('Upload Error Handler: file, errorCode, message:');
+          	  xl.log(file);
+          	  xl.log(errorCode);
+          	  xl.log(message);
+          	},
+          	// This is the only handler that returns
+          	// the JSON data
+          	upload_success_handler : function(file, data) {
+          	  xl.log('Upload Success Handler: file, data, result:');
+          	  var result = Ext.util.JSON.decode(data);
+          	  
+          	  // Cmp is actually this containting panel
+              var panel = Ext.getCmp('product_category_#{cat.id}_img_wrapper_panel');
+              var downloadUrl = #{download_asset_path(:id => '__ID__').to_json}.sub('__ID__', result.picture_id);
+              panel.remove(panel.getComponent(0), true);
+              panel.add({ html: '<img src="' + downloadUrl + '?size=small" height="140" />' });
+              panel.doLayout();
+              xl.log('<img src=\"' + downloadUrl + '?size=mini\" />');
+          	},
+
+          	// Debug Settings
+          	debug: false
+          });
+        }
+      }],
+      id: 'product_category_#{cat.id}_img_wrapper_panel',
+      items: [{
+        'html': '#{render_img_tag_or_none(cat.avatar_id)}'
+      }],
+      'rowspan': 3 
+    },
+  ]
+}
+`

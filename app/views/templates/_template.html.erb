@@ -1,0 +1,8 @@
+<tr>
+  <td><%= check_box_tag "template_ids[]", template.id, false, :onclick => "processCheckBoxClick(this)", :id => "template_#{template.id}" %></td>
+  <td><%= link_to h(template.label), edit_template_path(template) %></td>
+  <td><%= template.description ? truncate(sanitize(h(template.description))) : "" %></td>
+  <td><%= template.created_at.strftime("%I:%M %p, %Y/%m/%d") %></td>
+  <td><%= template.updated_at.strftime("%I:%M %p, %Y/%m/%d") %></td>
+  <td><%= template.party.name.to_s %></td>
+</tr>

@@ -1,0 +1,6 @@
+              <td>
+                <label><%= radio_button 'estimate', 'default_light_style_id', style.id %> <%= h style.name %></label><br/>
+                <label for="estimate_default_light_style_id_<%= style.id %>">
+                  <%= style.picture.nil? ? '&nbsp;' : image_tag(picture_url(:id => style.picture), :width => 130, :alt => style.name, :class => 'framed') %>
+                </label>
+              </td>

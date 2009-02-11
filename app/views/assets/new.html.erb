@@ -1,0 +1,8 @@
+<div class="ipage">
+<% form_for(:asset, :url => assets_path, :html => {:id => dom_id(@asset), :multipart => true}) do |f| %>
+  <p class="save_options"><%= submit_tag "Upload", :class=> "button" %> or <%= link_to "Cancel", assets_path %></p>
+  <%= error_messages_for :asset %>
+  <%= render :partial => "form" %>
+  <p class="save_options"><%= submit_tag "Upload", :class=> "button" %> or <%= link_to "Cancel", assets_path %></p>
+<% end -%>
+</div>

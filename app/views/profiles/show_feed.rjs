@@ -1,0 +1,1 @@
+page.replace_html "feed_content", :partial => "profiles/feed_content", :locals => {:feed => @feed}

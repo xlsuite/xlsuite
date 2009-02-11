@@ -1,0 +1,152 @@
+account_owner_phrase = "and #{current_account.owner.full_name} " if current_user.id != current_account.owner.id
+help_message = "You #{account_owner_phrase}will also be copied over to the new account, along with your passwords."
+
+page << create_tab_using_ajax_response("Create Listings Website") do
+%Q`
+  
+  var formButtons = [{
+        text: 'Create',
+        handler: function(me, event){
+            if (formPanel.getForm().isValid()){
+              formPanel.getForm().doAction('submit',
+                {
+                  url: #{do_create_listings_website_cms_path.to_json},
+                  success: function(form, action) {
+                    xl.log('SUCCESS: ' + action.result);
+                    response = action.result;
+                      formPanel.el.unmask();
+                      xl.maskedPanels.remove(formPanel);
+                    if(typeof(response)=="undefined")
+                    {
+                      Ext.Msg.alert("Saving failed", "Proper connection with the server cannot be established");
+                    }
+                    else
+                    {
+                      if(response.message)
+                      {
+                        xl.openNewTabPanel("create_website_success_#{params[:ids].split(',').to_a.join('_')}", 
+                            #{create_website_success_cms_path(:title => "__TITLE__").to_json}.gsub("__TITLE__", response.account_title));
+                        xl.closeTabPanel('cms_create_listings_website_#{params[:ids].split(',').to_a.join('_')}');                      
+                      }
+                      else if(response.google_maps)
+                      {
+                        var accountTitle = response.account_title;
+                        var promptMessage = 'Please enter the google map api key for ' + response.account_title + '.';
+                        promptMessage += "<br />You may generate a key from <a href='http://code.google.com/apis/maps/signup.html' target='_blank'>http://code.google.com/apis/maps/signup.html</a>";
+                        Ext.Msg.prompt('Google Map Api', promptMessage, function(btn, text){
+                          if (btn == 'ok'){
+                            Ext.Ajax.request({
+                              url: #{save_google_map_api_cms_path.to_json},
+                              params: {api_key: text, account_id: response.account_id},
+                              success: function(transport) {
+                                response = Ext.util.JSON.decode(transport.responseText);
+                                var api_msg = "";
+                                if(typeof(response)=="undefined"){
+                                  api_msg = "Google map api key could not be saved. Please enter the CMS of the new account and change the 'google_api_key' snippet.";
+                                }
+                                xl.openNewTabPanel("create_website_success_#{params[:ids].split(',').to_a.join('_')}", 
+                                  #{create_website_success_cms_path(:title => "__TITLE__", :api_msg => "__API_MSG__").to_json}.gsub("__TITLE__", accountTitle).gsub("__API_MSG__", api_msg));
+                                xl.closeTabPanel('cms_create_listings_website_#{params[:ids].split(',').to_a.join('_')}');
+                              },
+                              failure: function(transport) {
+                                xl.openNewTabPanel("create_website_success_#{params[:ids].split(',').to_a.join('_')}", 
+                                  #{create_website_success_cms_path(:title => "__TITLE__", :api_msg => "Google map api key could not be saved. Please add the key to the snippet 'google_api_key' in the new account.").to_json}.gsub("__TITLE__", accountTitle));
+                                xl.closeTabPanel('cms_create_listings_website_#{params[:ids].split(',').to_a.join('_')}');
+                              }
+                            });
+                          }
+                          else
+                          {
+                            xl.openNewTabPanel("create_website_success_#{params[:ids].split(',').to_a.join('_')}", 
+                              #{create_website_success_cms_path(:title => "__TITLE__", :api_msg => "Google map api key not saved. You may add the Google map api key to the snippet 'google_api_key' in the new account.").to_json}.gsub("__TITLE__", accountTitle));
+                            xl.closeTabPanel('cms_create_listings_website_#{params[:ids].split(',').to_a.join('_')}');
+                          }
+                        });
+                      }
+                      else 
+                        Ext.Msg.alert("Unknown response", "Cannot handle response");
+                    }
+                  },
+                  failure: function(form, action){
+                    formPanel.el.unmask();
+                    xl.maskedPanels.remove(formPanel);
+                    response = action.result;
+                    if(response.error)
+                      Ext.Msg.alert("Failure", response.error);
+                    else
+                      Ext.Msg.alert("Saving Failed", "An error prevented the action");
+                  }
+                });
+              formPanel.el.mask("Creating. This may take a minute...");
+              xl.maskedPanels.push(formPanel);
+            }
+            else {
+              formPanel.el.mask("Please check the required fields");
+              var tempFunction = function() {formPanel.el.unmask()};
+              tempFunction.defer(1500);
+            }
+          }
+      },{
+        text: "Cancel",
+        handler: function(me, event){
+            xl.closeTabPanel('cms_create_listings_website_nil')
+          }
+      }];
+  
+  // set up connection and data store of autocomplete field
+  var partyNameAutoCompleteRecord = new Ext.data.Record.create([
+    {name: 'display', mapping: 'display'},
+    {name: 'value', mapping: 'value'},
+    {name: 'id', mapping: 'id'}
+  ]);
+  
+  var partyNameAutoCompleteReader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, partyNameAutoCompleteRecord)
+  var partyNameAutoCompleteConnection = new Ext.data.Connection({url: #{formatted_auto_complete_party_field_listings_path(:format => :json).to_json}, method: 'get'});
+  var partyNameAutoCompleteProxy = new Ext.data.HttpProxy(partyNameAutoCompleteConnection)
+  var partyNameAutoCompleteStore = new Ext.data.Store({proxy: partyNameAutoCompleteProxy, reader: partyNameAutoCompleteReader});
+
+  var partyNameCombobox = new Ext.form.ComboBox({
+        store: partyNameAutoCompleteStore,
+        fieldLabel: "Include party in new account",
+        displayField: 'display',
+        valueField: 'id',
+        name: 'contact_email',
+        hiddenName: 'contact_id',
+        triggerAction: 'all',
+        forceSelection: true,
+        minChars: 0,
+        width: 480
+      })
+
+  var formPanel = new Ext.form.FormPanel({
+    autoScroll: true,
+    tbar: formButtons,
+    bbar: formButtons,
+    labelWidth: 200,
+    items: [
+      { autoScroll: true, html: #{help_message.to_json}, height: 30 },
+      { autoScroll: true, html: #{render(:partial => 'create_listings_website').to_json} },
+      new Ext.form.Hidden({name: "domain_id", value: #{@_template.id.to_json}}),
+      new Ext.form.Hidden({name: "listing_ids", value: #{@listings.map(&:id).join(',').to_json}}),
+      partyNameCombobox,
+      {
+        layout: 'table',
+        layoutConfig: {
+          columns: 3
+        },
+        items: [
+          {
+            html: "Reset password?",
+            style: "padding-right: 100px"
+          },
+          new Ext.form.Radio({name: "reset", inputValue: true, fieldLabel: "Reset password", boxLabel: "Yes"}),
+          new Ext.form.Radio({name: "reset", inputValue: false, fieldLabel: "Keep original password", boxLabel: "No", checked: true, style: "margin-left: 40px"}),
+        ]
+      },
+      new Ext.form.TextField({fieldLabel: "New account url", name: "account_title", allowBlank: false, value: #{@account_title.to_json}, width: 250})
+    ]
+  });
+  
+  newPanel.add(formPanel);
+`
+end

@@ -1,0 +1,357 @@
+page << create_tab_using_ajax_response("Sale Event | #{@sale_event.name}") do
+%Q`
+  var wrapperPanel = new Ext.Panel({
+    cls: 'IAmAPanelWithBorderLayoutContainer',
+    region: 'center',
+    layout: "border"
+  });
+
+  var formPanel = new Ext.Panel({
+    autoScroll: true,
+    region: 'center',
+    html: #{render(:partial => "edit").to_json}
+  });
+  wrapperPanel.add(formPanel);
+
+  var gridContainerPanel = new Ext.Panel({
+    autoScroll: false,
+    split: true,
+    region: 'south',
+    height: #{get_half_height_size_of_tabpanel}
+  });
+
+  wrapperPanel.add(gridContainerPanel);
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Sale Event Items Grid
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // define sale event record
+  var SaleEventItemRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'target_id', mapping: 'target_id'},
+    {name: 'name', mapping: 'name'},
+    {name: 'wholesale_price', mapping: 'wholesale_price'},
+    {name: 'retail_price', mapping: 'retail_price'},
+    {name: 'sale_price', mapping: 'sale_price'},
+    {name: 'discount', mapping: 'discount'},
+    {name: 'margin', mapping: 'margin'}
+  ]);
+
+  // data reader to parse the json response
+  var saleEventItemReader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, SaleEventItemRecord);
+
+  // set up connection of the data
+  var saleEventItemConnection = new Ext.data.Connection({url: #{formatted_sale_event_items_path(:format => :json, :sale_event_id => @sale_event.id).to_json}, method: 'get'});
+  var saleEventItemProxy = new Ext.data.HttpProxy(saleEventItemConnection);
+
+  // set up the data store and then send request to the server
+  var saleEventItemDataStore = new Ext.data.Store({proxy: saleEventItemProxy, reader: saleEventItemReader});
+  saleEventItemDataStore.load();
+
+  // set up connection and data store of autocomplete field
+  var SaleEventAutoCompleteRecord = new Ext.data.Record.create([
+    {name: 'display', mapping: 'display'},
+    {name: 'value', mapping: 'value'},
+    {name: 'id', mapping: 'id'}
+  ]);
+
+  var saleEventAutoCompleteReader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, SaleEventAutoCompleteRecord)
+  var saleEventAutoCompleteConnection = new Ext.data.Connection({url: #{formatted_auto_complete_sale_events_path(:format => :json).to_json}, method: 'get'});
+  var saleEventAutoCompleteProxy = new Ext.data.HttpProxy(saleEventAutoCompleteConnection)
+  var saleEventAutoCompleteStore = new Ext.data.Store({proxy: saleEventAutoCompleteProxy, reader: saleEventAutoCompleteReader});
+
+  var saleEventItemSelModel = new Ext.grid.RowSelectionModel();
+
+  var productNameComboBox = new Ext.form.ComboBox({
+    store: saleEventAutoCompleteStore,
+    displayField: 'display',
+    valueField: 'value',
+    triggerAction: 'all',
+    forceSelection: true,
+    minChars: 0,
+    allowBlank: false});
+
+  var saleEventItemGrid = new Ext.grid.EditorGridPanel({
+    store: saleEventItemDataStore,
+    cm: new Ext.grid.ColumnModel([
+        { id: "saleeventitemname-editorgridpanel-column",
+          header: "Product Name (#{@sale_event.items.count})",
+          width: 125,
+          dataIndex: "name",
+          sortable: true,
+          editor: productNameComboBox
+        },{
+          header: "ID",
+          dataIndex: "target_id",
+          width: 100,
+          sortable: true
+        },{
+          header: "Wholesale",
+          dataIndex: "wholesale_price",
+          width: 100,
+          sortable: true
+        },{
+          header: "Retail",
+          dataIndex: "retail_price",
+          width: 100,
+          sortable: true
+        },{
+          header: "Sale Price",
+          dataIndex: "sale_price",
+          width: 100,
+          sortable: true,
+          editor: new Ext.form.NumberField({allowNegative: false, allowBlank: false})
+        },{
+          header: "Discount(%)",
+          dataIndex: "discount",
+          sortable: true,
+          width: 80,
+          editor: new Ext.form.NumberField({allowNegative: false, allowBlank: false})
+        },{
+          header: "Sale Margin(%)",
+          dataIndex: "margin",
+          sortable: true,
+          width: 80
+        },{
+          header: "Value Id",
+          dataIndex: "target_id",
+          sortable: true,
+          hidden: true,
+          hideable: false,
+          width: 50
+        }
+      ]),
+    selModel: saleEventItemSelModel,
+    tbar: [
+      "Choose Product(s) For Sales Event",
+      {
+        text: 'Add Line',
+        handler : function(){
+            var se = new SaleEventItemRecord({
+                name: 'New Product 1',
+                id: "",
+                target_id: "",
+                wholesale_price: 0,
+                retail_price: 0,
+                sale_price: 0,
+                discount: 0,
+                margin: 0
+            });
+            saleEventItemGrid.stopEditing();
+            saleEventItemDataStore.insert(0, se);
+            saleEventItemGrid.startEditing(0, 0);
+          }
+      }
+    ],
+    autoScroll: true,
+    autoWidth: true,
+    autoExpandColumn: 'saleeventitemname-editorgridpanel-column',
+    height: #{get_half_height_size_of_tabpanel}
+  });
+
+  var tempTargetId = null;
+  productNameComboBox.on("beforeselect", function(comboBox, targetRecord, index){
+    tempTargetId = targetRecord.id;
+  });
+
+  productNameComboBox.on("valid", function(comboBox){
+    var temp = comboBox.getRawValue().stripTags().gsub("&nbsp;", "");
+    comboBox.setRawValue(temp);
+  });
+
+  productNameComboBox.on("focus", function(comboBox){
+    var temp = comboBox.getRawValue().stripTags().gsub("&nbsp;", "");
+    comboBox.setRawValue(temp);
+  });
+
+  var saleEventItemPath = #{sale_event_item_path(:sale_event_id => @sale_event, :id => "__ID__").to_json};
+
+  saleEventItemGrid.on("validateedit", function(event){
+    var record = event.record;
+    var editedFieldName = event.field;
+
+    record.set(editedFieldName, event.value);
+
+    if(tempTargetId){
+      record.set("target_id", tempTargetId);
+      tempTargetId = null;
+    };
+
+    var method = "put";
+    var objectId = record.get("id");
+
+    var params = {};
+    params["sale_event_item[discount]"] = record.get("discount");
+    params["sale_event_item[sale_price]"] = record.get("sale_price");
+    params["sale_event_item[target]"] = record.get("target_id");
+
+    if(objectId == ""){
+      method = "post";
+      new Ajax.Request(#{sale_event_items_path(:sale_event_id => @sale_event).to_json},{
+        method: method,
+        parameters: params,
+        onSuccess: function(transport){
+          response = Ext.util.JSON.decode(transport.responseText);
+          record.set("id", response.id);
+          record.set("target_id", response.target_id);
+          record.set("wholesale_price", response.wholesale_price);
+          record.set("retail_price", response.retail_price);
+          record.set("sale_price", response.sale_price);
+          record.set("discount", response.discount);
+          record.set("margin", response.margin);
+        }
+      });
+    }
+    else{
+      new Ajax.Request(saleEventItemPath.sub("__ID__", objectId),{
+        method: method,
+        parameters: params,
+        onSuccess: function(transport){
+          response = Ext.util.JSON.decode(transport.responseText);
+          record.set("id", response.id);
+          record.set("target_id", response.target_id);
+          record.set("wholesale_price", response.wholesale_price);
+          record.set("retail_price", response.retail_price);
+          record.set("sale_price", response.sale_price);
+          record.set("discount", response.discount);
+          record.set("margin", response.margin);
+        }
+      });
+    };
+    return true;
+  });
+
+  gridContainerPanel.add(saleEventItemGrid);
+  gridContainerPanel.on("resize", function(){
+    saleEventItemGrid.setSize(gridContainerPanel.getInnerWidth(), gridContainerPanel.getInnerHeight());
+  });
+
+  newPanel.add(wrapperPanel);
+
+  var selectedIds = null;
+
+  var selectAllAction = new Ext.Action({
+    text: "Select all",
+    iconCls: "display_none"
+  });
+
+  var clearAllAction = new Ext.Action({
+    text: "Clear all",
+    iconCls: "display_none",
+    disabled: true
+  });
+
+  var setDiscountAction = new Ext.Action({
+    text: "Set Discount",
+    iconCls: "display_none",
+    disabled: true
+  });
+
+  var setMarginAction = new Ext.Action({
+    text: "Set Margin",
+    iconCls: "display_none",
+    disabled: true
+  });
+
+  var deleteAction = new Ext.Action({
+    text: "Delete",
+    iconCls: "display_none",
+    disabled: true
+  });
+
+  var selectionMenu =  new Ext.menu.Menu({
+    items: [selectAllAction, clearAllAction]
+  });
+  selectionMenu.addSeparator();
+  selectionMenu.add(setDiscountAction, setMarginAction);
+  selectionMenu.addSeparator();
+  selectionMenu.add(deleteAction);
+
+  xl.viewport.render();
+  saleEventItemGrid.getTopToolbar().add({ text: "Actions", menu: selectionMenu });
+
+  clearAllAction.setHandler(function(e) {
+    saleEventItemGrid.getSelectionModel().clearSelections();
+    selectedIds = [];
+    e.disable();
+  });
+
+  selectAllAction.setHandler(function(e) {
+    saleEventItemGrid.getSelectionModel().selectAll();
+    e.disable();
+  });
+
+  saleEventItemGrid.getSelectionModel().on("selectionchange", function(){
+    records = saleEventItemGrid.getSelectionModel().getSelections();
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    selectedIds = ids;
+
+    if(ids.length>0){
+      selectionMenu.items.each(function(e) {e.enable();});
+    }
+    else{
+      selectionMenu.items.each(function(e) {e.disable();});
+      selectAllAction.enable();
+    }
+  });
+  
+  deleteAction.setHandler(function(e){
+    var params = {};
+    params["ids"] = selectedIds.toString();
+    new Ajax.Request(#{destroy_collection_sale_event_items_path(:sale_event_id => @sale_event.id).to_json},{
+      method: "post",
+      parameters: params,
+      onSuccess: function(response){
+        saleEventItemDataStore.reload();
+      }
+    });
+  });
+
+  setDiscountAction.setHandler(function(e){
+    Ext.Msg.prompt("Change discount to", "", function(btn, text){
+      if ( btn.match(new RegExp("ok","i")) ) { 
+        var params = {};
+        params["ids"] = selectedIds.toString();
+        params["new_value"] = text;
+        params["attribute"] = "discount";
+        new Ajax.Request(#{set_attribute_collection_sale_event_items_path(:sale_event_id => @sale_event.id).to_json},{
+          method: "post",
+          parameters: params,
+          onSuccess: function(response){
+            saleEventItemDataStore.reload();
+          }
+        });
+      }
+    });
+  });
+
+  setMarginAction.setHandler(function(e){
+    Ext.Msg.prompt("Set margin to", "", function(btn, text){
+      if ( btn.match(new RegExp("ok","i")) ) { 
+        var params = {};
+        params["ids"] = selectedIds.toString();
+        params["new_value"] = text;
+        params["attribute"] = "margin";
+        new Ajax.Request(#{set_attribute_collection_sale_event_items_path(:sale_event_id => @sale_event.id).to_json},{
+          method: "post",
+          parameters: params,
+          onSuccess: function(response){
+            saleEventItemDataStore.reload();
+          }
+        });
+      }
+    });
+  });
+`
+end
+
+page << render_starts_at_and_ends_at
+
+page << %Q`
+  new XlSuite.FormHandler("#{dom_id(@sale_event)}_form", {now:true, defaultValue:"N/A"});
+  new XlSuite.AuthorizationHandler(#{typed_dom_id(@sale_event, :authorizations).to_json}, #{sale_event_path(@sale_event).to_json}, {now:true});
+`

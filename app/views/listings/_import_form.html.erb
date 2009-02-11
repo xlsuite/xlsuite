@@ -1,0 +1,10 @@
+<% form_for :import, :url => import_listings_url, :html => {:method => :post} do |f| %>
+  <h3>Import Listing</h3>
+  <fieldset>
+    <label for="mls_no">MLS No:</label>
+    <%= f.text_field :mls_no, :size => 12 %>
+  </fieldset>
+  <fieldset class="actions">
+    <%= submit_tag 'Import' %>
+  </fieldset>
+<% end %>

@@ -1,0 +1,15 @@
+<h2 class="page_header">New Entity</h2>
+<div class="ipage entity_new">
+<% inline_remote_form_for(:entity, @entity, :url => entities_path) do |f| %>
+  <div class="entity_form_buttons">
+    <%= submit_tag "Create", :class=> "button" %>
+    <%= link_to_function "Cancel", "xl.closeTabPanel('entities_new_nil')" %>
+  </div>
+  <%= render_inside_panel_notifications_container %>
+  <%= render :partial => "form", :locals => {:f => f, :show_editor => true} %>  
+  <div class="entity_form_buttons">
+    <%= submit_tag "Create", :class=> "button" %>
+    <%= link_to_function "Cancel", "xl.closeTabPanel('entities_new_nil')" %>
+  </div>
+<% end %>
+</div>

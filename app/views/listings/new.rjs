@@ -1,0 +1,76 @@
+page << create_tab_using_ajax_response("New Listing", "wrapperPanel.syncSize()") do
+%Q`
+  #{render_listing_address_panel(@listing)}
+  #{render_listing_detail(@listing)}
+  #{render_listing_extras(@listing)}
+  #{render_tags_panel("listing[tag_list]", @listing, current_account.listings.tags)}
+  
+  var openHousePanel = new Ext.Panel({
+    collapsible: true,
+    title: "OPEN HOUSE",
+    items: [new Ext.form.TextArea({
+      width: 505,
+      name: "listing[open_house_text]"
+    })]
+  });
+  
+  var notCreatorListingHiddenField =  new Ext.form.Hidden({
+    name: "not_creator_listing",
+    value: 1
+  });    
+  
+  var infoPanel = new Ext.Panel({
+    items: [notCreatorListingHiddenField, addressPanel, listingDetailPanel]
+  });
+  
+  var otherPanel = new Ext.Panel({
+    items: [openHousePanel, tagsPanel, listingExtrasPanel]
+  });
+  
+  var wrapperPanel = new Ext.TabPanel({
+
+      split: false,
+      defaults: { autoHeight: false, autoScroll: false },
+      border: false,
+      deferredRender: false,
+      
+    activeTab: 0,
+    tabPosition: "bottom",
+    items: [
+      {title: "Detail", autoScroll: true, items: [infoPanel], listeners: {show: function(panel){xl.viewport.render();panel.setHeight(500);panel.ownerCt.setHeight(500);}}},
+      {title: "Other", autoScroll: true, items: [otherPanel], listeners: {show: function(panel){xl.viewport.render();panel.setHeight(500);panel.ownerCt.setHeight(500);}}}
+    ]
+  });
+
+  var formButtons = [{
+        text: 'Create',
+        handler: function(me, event){
+            if (formPanel.getForm().isValid()){
+              formPanel.getForm().doAction('submit',
+                {url: #{listings_path.to_json}});
+              formPanel.el.mask("Creating...");
+              xl.maskedPanels.push(formPanel);
+            }
+            else {
+              formPanel.el.mask("Please check the required fields");
+              var tempFunction = function() {formPanel.el.unmask()};
+              tempFunction.defer(1500);
+            }
+          }
+      },{
+        text: "Cancel",
+        handler: function(me, event){
+            xl.closeTabPanel('listings_new_nil')
+          }
+      }];
+  
+  var formPanel = new Ext.form.FormPanel({
+    autoScroll: true,
+    tbar: formButtons,
+    bbar: formButtons,
+    items: [wrapperPanel]
+  });
+
+  newPanel.add(formPanel);
+`
+end

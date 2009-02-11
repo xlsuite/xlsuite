@@ -1,0 +1,380 @@
+limit = params[:limit] || 250
+
+after_render = %Q`
+  ds.load({params: {start: 0, limit: #{limit} }});
+`
+
+page << create_tab_using_ajax_response("Redirects", after_render) do
+%Q`
+
+  var selectedIds = null;
+  
+  var redirectPath = #{redirect_path("__ID__").to_json};
+  
+  var domainStore = new Ext.data.SimpleStore({
+    fields: ['value'],
+    data: #{([["All"]] + @source_domains.map{|domain| [domain.name]}).to_json}
+  });
+  
+  var domainSelection = xl.widget.FormField({
+      displayField: 'value', 
+      valueField: 'value',
+      fieldLabel: 'Status',
+      value: 'All', 
+      name: 'domain', 
+      type: 'combobox', 
+      store: domainStore, 
+      editable : false,
+      triggerAction: 'all',
+      mode: 'local'
+  });
+  
+  var RedirectRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'fullslug', mapping: 'fullslug'}, 
+    {name: 'target', mapping: 'target'},
+    {name: 'status', mapping: 'status'}, 
+    {name: 'domain_patterns', mapping: 'domain_patterns'},
+    {name: 'http_code_status', mapping: 'http_code_status'}
+  ]);
+  // data reader to parse the json response
+  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, RedirectRecord);
+  
+  // set up connection of the data
+  var connection = new Ext.data.Connection({url: #{formatted_redirects_path(:format => :json).to_json}, method: 'get'});
+  var proxy = new Ext.data.HttpProxy(connection);
+
+  // set up the data store and then send request to the server
+  var ds = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+  
+    // define paging toolbar that is going to be appended to the footer of the grid panel
+  var paging = new Ext.PagingToolbar({
+    store: ds,
+    pageSize: #{limit},
+    displayInfo: true,
+    displayMsg: 'Displaying {0} to {1} of {2}',
+    emptyMsg: "No record to display",
+    cls: "bottom-toolbar paging-toolbar-bottom",
+    plugins: [new Ext.ux.PageSizePlugin]
+  });
+  
+  domainSelection.on('select', function(el, newValue, oldValue){
+    ds.baseParams['domain'] = newValue.data.value;
+    ds.reload({params: {start: 0, limit: ds.lastOptions.params.limit}});
+  });
+  
+  #{create_grid_tbar_filter_field}
+  
+  #{create_grid_tbar_clear_button}
+  
+  var redirectsImportFormPanel = new Ext.form.FormPanel({
+    items:[
+      new Ext.form.TextField({
+        fieldLabel: "URL",
+        name: "site[root]"
+      }),
+      new Ext.form.TextArea({
+        fieldLabel: "Domain patterns",
+        name: "site[domain_patterns]",
+        height: 50,
+        width: "90%",
+        value: "**"
+      })
+    ],
+    listeners: {render: function(cpt){xl.fitToOwnerCt(cpt);}}
+  });
+  
+  var redirectsImportWindow = null;
+  var generateRedirectsImportWindow = function(){  
+    var temp = new Ext.Window({
+      title: "Importing redirects from a site",
+      items: [redirectsImportFormPanel],
+      width: 300,
+      height: 150,
+      resizable: false,
+      closeAction: "hide",
+      bbar: [
+        new Ext.Toolbar.Button({
+          text: "Import",
+          handler: function(btn, e){
+            var temp = redirectsImportFormPanel.getForm().getValues(false);
+            Ext.Ajax.request({
+              method: "POST",
+              params: temp,
+              url: #{import_redirects_path.to_json},
+              success: function(response, options){
+                var response = Ext.util.JSON.decode(response.responseText);
+                if (response.success){
+                  Ext.Msg.alert("Redirects Import", "Your request has been put on the queue. Please check the redirects list after 1 hour. Please also note that the duration of import will be dependent on the target site.")
+                }
+                else {
+                  Ext.Msg.alert("Redirects Import", "Invalid URL, URL has to contain http://")
+                }
+              }
+            });
+          }
+        }),
+        new Ext.Toolbar.Button({
+          text: "Close",
+          handler: function(btn, e){
+            redirectsImportWindow.hide();
+          }
+        })
+      ]
+    });
+    return temp;
+  };
+  
+  var redirectsImportButton = new Ext.Toolbar.Button({
+    text: "Import",
+    handler: function(){
+      if (!(redirectsImportWindow)){
+        redirectsImportWindow = generateRedirectsImportWindow();
+      }
+      redirectsImportWindow.show();
+    }
+  });
+  
+  var gridTopToolbar = new Ext.Toolbar({
+    cls: "top-toolbar",
+    items: [
+        {text: "Show Domain:"}, domainSelection, 
+        {text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton,
+        redirectsImportButton
+      ]
+  });
+
+  var statusStore = new Ext.data.SimpleStore({
+    fields: ['value','id'],
+    data: #{Redirect::STATUSES_FOR_SELECT.map(&:to_a).to_json}
+  });
+  
+  var statusComboBox = new Ext.form.ComboBox({
+    store: statusStore,
+    displayField: 'value',
+    valueField: 'id',
+    triggerAction: 'all',
+    minChars: 0,
+    allowBlank: false, 
+    editable: false,
+    mode: 'local'
+  });
+  
+  var httpCodeStore = new Ext.data.SimpleStore({
+    fields: ['status'],
+    data: #{Redirect::TYPES_FOR_SELECT.map {|e| [e.first]}.to_json}
+  });
+  
+  var httpCodeComboBox = new Ext.form.ComboBox({
+    store: httpCodeStore,
+    displayField: 'status',
+    valueField: 'status',
+    triggerAction: 'all',
+    allowBlank: false,
+    editable: false,
+    mode: 'local'
+  });
+  
+  var editRenderer = function(value, cell, record) {
+    return '<div class="icon_pencilGo pointerOnHover"/>';
+  };
+  
+  var grid = new Ext.grid.EditorGridPanel({
+      store: ds,
+      cm: new Ext.grid.ColumnModel([
+          {id: "edit", width: 30, dataIndex: 'id', renderer: editRenderer, sortable: false, menuDisabled: true, hideable: false, tooltip: "Click here to go to full edit mode" },
+          {id: "fullslug", header: "From", width: 200, sortable: true, dataIndex: "fullslug", editor: new Ext.form.TextField()},
+          {id: "target", header: "To", width: 200, sortable: true, dataIndex: "target", editor: new Ext.form.TextField()},
+          {id: "http_code_status", header: "Type", width: 200, sortable: true, dataIndex: "http_code_status", editor: httpCodeComboBox},
+          {id: "status", header: "Status", width: 70, sortable: true, dataIndex: 'status', editor: statusComboBox},
+          {id: "domain_patterns", width: 120, header: "Domain Pattern", sortable: true, dataIndex: 'domain_patterns', editor: new Ext.form.TextArea({listeners: {'focus': function(me){me.setWidth(250);}}})}
+        ]),
+      autoScroll: true,
+      autoExpandMin: 150,
+      autoWidth: true,
+      height: #{get_default_grid_height(nil)},
+      clicksToEdit:1,
+      tbar: gridTopToolbar, 
+      bbar: paging,
+      loadMask: true,
+      selModel: new Ext.grid.RowSelectionModel
+  });
+  
+  var selectAllAction = new Ext.Action({
+    text: "Select all",
+    iconCls: "display_none"
+  });
+
+  var clearAllAction = new Ext.Action({
+    text: "Clear all",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var deleteAction = new Ext.Action({
+    text: "Delete",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var duplicateAction = new Ext.Action({
+    text: "Duplicate",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var setDomainPatternsAction = new Ext.Action({
+    text: "Set Domain Patterns",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var selectionMenu =  new Ext.menu.Menu({
+    items: [selectAllAction, clearAllAction]
+  });
+  
+  selectionMenu.addSeparator();
+  selectionMenu.add(setDomainPatternsAction);
+  selectionMenu.add(duplicateAction);
+  selectionMenu.addSeparator();
+  selectionMenu.add(deleteAction);
+  
+  clearAllAction.setHandler(function(e) {
+    grid.getSelectionModel().clearSelections();
+    selectedIds = [];
+    e.disable();
+  });
+
+  selectAllAction.setHandler(function(e) {
+    grid.getSelectionModel().selectAll();
+    e.disable();
+  });
+  
+  duplicateAction.setHandler(function(e) {
+    var params = {};
+    params['id'] = selectedIds.toString();
+    new Ajax.Request(#{new_redirect_path.to_json}, {
+      method: 'get',
+      parameters: params
+    });
+  });
+  
+  setDomainPatternsAction.setHandler(function(e) {
+    Ext.Msg.prompt('New Domain Patterns', 'Enter the new domain patterns for the selected redirects:', function(btn, text) {
+        if (btn == 'ok'){
+          new Ajax.Request(#{update_collection_redirects_path.to_json}, {
+            method: 'put',
+            parameters: {"redirect[domain_patterns]": text, ids: selectedIds.toString()}
+          })
+        }
+    });
+  });
+  
+  deleteAction.setHandler(function(e) {
+    Ext.Msg.confirm("", "Delete selected redirects permanently?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        params['ids'] = selectedIds.toString();
+        new Ajax.Request(#{destroy_collection_redirects_path.to_json}, {
+          method: 'post',
+          parameters: params
+        });
+      }
+    });
+  });
+  
+  newPanel.add(grid);
+  xl.runningGrids.set("redirect", grid);
+  newPanel.on("destroy", function(){
+    xl.runningGrids.unset("redirect");
+  });
+    
+  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
+  extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('redirects_new_nil', #{new_redirect_path.to_json})").to_json});
+
+  var editRedirectUrl = #{edit_redirect_path(:id => "__ID__").to_json};
+  grid.on("cellclick", function(gr, rowIndex, columnIndex, e) {
+    var record = ds.getAt(rowIndex);
+    var id = record.data.id;
+    switch(columnIndex){
+      case grid.getColumnModel().getIndexById("edit"):
+        xl.openNewTabPanel('redirects_edit_'+id, editRedirectUrl.sub("__ID__", id));
+        break;
+      default:
+        break;
+    }
+  });
+
+  xl.viewport.render();
+  
+  grid.getTopToolbar().add({ text: "Actions", menu: selectionMenu });
+  
+  grid.getSelectionModel().on("selectionchange", function(){
+    records = grid.getSelectionModel().getSelections();
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    selectedIds = ids;
+
+    if(ids.length>0){
+      clearAllAction.enable();
+      setDomainPatternsAction.enable();
+      deleteAction.enable();
+      if(ids.length==1) {
+        duplicateAction.enable();
+      }
+      else{
+        duplicateAction.disable();
+      }
+    }
+    else{
+      deleteAction.disable();
+      selectAllAction.enable();
+      duplicateAction.disable();
+      setDomainPatternsAction.disable();
+    }
+  });
+
+  grid.on("validateedit", function(event){
+    var record = event.record;
+    var editedFieldName = event.field;
+    
+    record.set(editedFieldName, event.value);
+    var method = "put";
+    var objectId = record.get("id");
+
+    var params = {};
+    if(editedFieldName == "fullslug")
+      params["refresh"] = "true";
+    params["from_index"] = "true";
+    params["redirect[status]"] = record.get("status");
+    params["redirect[fullslug]"] = record.get("fullslug");
+    params["redirect[target]"] = record.get("target");
+    params["redirect[domain_patterns]"] = record.get("domain_patterns");
+    params["redirect[http_code_status]"] = record.get("http_code_status");
+    
+    new Ajax.Request(redirectPath.sub("__ID__", objectId),{
+      method: method,
+      parameters: params,
+      onSuccess: function(transport){
+        response = Ext.util.JSON.decode(transport.responseText);
+        record.set('id', response.id);
+        record.set('status', response.status);
+        record.set('fullslug', response.fullslug);
+        record.set('target', response.target);
+        record.set('domain_patterns', response.domain_patterns);
+        record.set('http_code_status', response.http_code_status);
+        $("status-bar-notifications").innerHTML = response.flash;
+        if(response.flash.include('Error:'))
+          event.grid.getView().getCell(event.row, event.column).highlight({startcolor: "FF5721"});
+        else
+          event.grid.getView().getCell(event.row, event.column).highlight();
+        if(response.refresh)
+          grid.getStore().reload();
+      }
+    });
+
+  });
+`
+end

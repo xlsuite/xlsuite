@@ -1,0 +1,112 @@
+
+actionGridKey = "action_grid_task_#{@task.id}"
+tasksGridKey = "tasks_grid_#{@task.step.id}"
+
+afteredit_function = %Q`
+  function(oldValue, decodedResponse, plainResponse){
+    xl.updateStatusBar(decodedResponse.flash);
+    if(decodedResponse.success){
+      #{refresh_grid_datastore_with_key(actionGridKey)};
+      #{refresh_grid_datastore_with_key(tasksGridKey)};
+    }    
+  }
+`
+
+def generate_hidden_name(obj_type, field_name)
+  field_name = field_name + "_id" if obj_type.classify.constantize.respond_to?(:content_columns)
+  return ("_action["+field_name+"]").to_json
+end
+
+def generate_default_value(param_hash)
+  if param_hash.values.first[:default_value]
+    return eval(param_hash.values.first[:default_value]).to_json
+  end
+  
+  obj_type = param_hash.values.first[:type].to_s
+  field_name = param_hash.keys.first.to_s
+  field_name = field_name + "_id" if obj_type.classify.constantize.respond_to?(:content_columns)
+  return @action.send(field_name).to_json
+end
+
+def generate_mode(param_hash)
+  if param_hash.values.first[:mode]
+    return param_hash.values.first[:mode].to_json
+  else
+    return "local".to_json
+  end
+end
+
+def generate_store(param_hash)
+  if param_hash.values.first[:store][:helper]
+    return eval(param_hash.values.first[:store][:helper])
+  else
+    return %Q`
+      new Ext.data.SimpleStore({
+        fields: ['display', 'value'],
+        data: #{eval(param_hash.values.first[:store]).to_json}
+      })
+    `
+  end
+end
+
+def generate_width(param_hash)
+  if param_hash.values.first[:width]
+    return param_hash.values.first[:width]
+  else
+    return 200
+  end
+end
+
+page << create_tab_using_ajax_response("Action | Edit") do
+out = ""
+out << %Q`
+
+  var form = {url: #{action_path(:task_id => @task.id, :id => @position).to_json}, object: '_action'};
+  
+  //------------------------------- GENERAL PANEL ---------------------------//
+  var generalPanel = new Ext.Panel({
+    layout: 'form',
+    items: [
+`
+items = []
+@action.class.parameters.each do |param_hash|
+items << if param_hash.values.first[:field] =~ /selection/i
+    [%Q`
+    
+      xl.widget.InlineActiveField({ form: form, afteredit: #{afteredit_function}, field: {
+          fieldLabel: #{(param_hash.values.first[:label] || param_hash.keys.first.to_s.humanize).to_json},
+          hiddenName: #{generate_hidden_name(param_hash.values.first[:type].to_s, param_hash.keys.first.to_s)},
+          name: #{("name"+param_hash.keys.first.to_s).to_json},
+          displayField: 'display',
+          valueField: 'value',
+          mode: #{generate_mode(param_hash)},
+          store: #{generate_store(param_hash)},
+          width: #{generate_width(param_hash)},
+          minChars: 0,
+          type: "combobox",
+          triggerAction: 'all',
+          editable: true,
+          value: #{generate_default_value(param_hash)}
+        }})
+    `]
+  else
+    [%Q`
+      xl.widget.InlineActiveField({ form: form, afteredit: #{afteredit_function}, field: {
+          width: 350,
+          fieldLabel: #{(param_hash.values.first[:label] || param_hash.keys.first.to_s.humanize).to_json},
+          name: #{param_hash.keys.first.to_json},
+          value: #{(@action.send(param_hash.keys.first)).to_json}
+        }})
+    `]
+  end
+end
+out << items.join(",")
+out << %Q`
+    ],
+    height: 100
+  });
+  
+  newPanel.add(generalPanel);
+`
+out
+end

@@ -1,0 +1,193 @@
+bob_email_address:
+  id: 7801
+  type: EmailContactRoute
+  routable_type: Party
+  routable_id: 1000001 # Bob
+  position: 1
+  email_address: bob@test.com
+  account_id: 1
+  name: Main
+
+mary_email_address:
+  id: 7802
+  type: EmailContactRoute
+  routable_type: Party
+  routable_id: 51 # Mary
+  position: 1
+  email_address: mary@goodjob.com
+  account_id: 1
+  name: Main
+
+john_email_address:
+  id: 7803
+  type: EmailContactRoute
+  routable_type: Party
+  routable_id: 52 # John
+  position: 1
+  email_address: john@simplejob.com
+  account_id: 1
+  name: Main
+
+peter_email_address:
+  id: 7804
+  type: EmailContactRoute
+  routable_type: Party
+  routable_id: 53 # Peter
+  position: 1
+  email_address: peter@simplejob.com
+  account_id: 1
+  name: Main
+
+existingbob_email_address:
+  id: 7805
+  type: EmailContactRoute
+  routable_type: Party
+  routable_id: 1000002 # existingbob
+  position: 1
+  email_address: existingbob@test.com
+  account_id: 1
+  name: Main
+
+longbob_email_address:
+  id: 7806
+  type: EmailContactRoute
+  routable_type: Party
+  routable_id: 1000003 # longbob
+  position: 1
+  email_address: longbob@test.com
+  account_id: 1
+  name: Main
+
+mary_home_phone:
+  id: 12101
+  type: PhoneContactRoute
+  name: home
+  number: (604) 411-6554
+  position: 2
+  routable_type: Party
+  routable_id: 51 # Mary
+  account_id: 1
+  name: Main
+
+mary_office_phone:
+  id: 12102
+  type: PhoneContactRoute
+  name: office
+  number: (609) 411-6554
+  position: 3
+  routable_type: Party
+  routable_id:     51 # Mary
+  account_id: 1
+  name: Main
+
+peter_office_phone:
+  id: 12103
+  type: PhoneContactRoute
+  name: home
+  number: (705) 411-6554
+  position: 2
+  routable_type: Party
+  routable_id:     52 # Peter
+  account_id: 1
+  name: Main
+
+john_office_phone:
+  id: 12104
+  type: PhoneContactRoute
+  name: home
+  number: (498) 411-6554
+  position: 2
+  routable_type: Party
+  routable_id:     53 # John
+  account_id: 1
+  name: Main
+
+john_mobile_phone:
+  id: 12105
+  type: PhoneContactRoute
+  name: home
+  number: (705) 411-6554
+  position: 3
+  routable_type: Party
+  routable_id:     53 # John
+  account_id: 1
+  name: Main
+
+john_fax_phone:
+  id: 12106
+  type: PhoneContactRoute
+  name: home
+  number: (604) 411-6554
+  position: 4
+  routable_type: Party
+  routable_id:     53 # John
+  account_id: 1
+  name: Main
+
+bobs_phone:
+  id: 20113
+  type: PhoneContactRoute
+  name: office
+  number: 123-456-7890
+  position: 2
+  routable_type: Party
+  routable_id: 1000001 # Bob
+  account_id: 1
+  name: Main
+
+bobs_address:
+  id: 20112
+  type: AddressContactRoute
+  position: 3
+  routable_id: 1000001 # Bob
+  name: Main
+  routable_type: Party
+  line1: 1021 Some St
+  city: Somewhere
+  state: QC
+  zip: A1B2C3
+  country:  CAN
+  name: Office
+  account_id: 1
+
+owner_address:
+  id: 20114
+  type: AddressContactRoute
+  position: 1
+  routable_id: 56 # Company Owner
+  name: Main
+  routable_type: Party
+  name: main office
+  country:  CAN
+  account_id: 1
+
+johns_invoice_address:
+  id: 20115
+  type: AddressContactRoute
+  position: 1
+  routable_id:   1661 # johns_invoice
+  name: Main
+  routable_type: Invoice
+  line1:    300 West St
+  city:     Vancouver
+  state:    BC
+  zip:      N5WM3K
+  country:  CAN
+  name:     office
+  account_id: 1
+
+bobs_estimate_address:
+  id: 20116
+  type: AddressContactRoute
+  position: 1
+  routable_id:   9210 # bobs_estimate
+  name: Main
+  routable_type: Estimate
+  name: Home
+  line1: 20 Beach Rd.
+  line2:
+  city: Beverly Hills
+  state: CA
+  zip: 90210
+  country: USA
+  account_id: 1

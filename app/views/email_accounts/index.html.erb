@@ -1,0 +1,27 @@
+<div id='email-accounts-panel-content'>
+  <div class="error-messages">
+    <%= error_messages_for :email_account %>
+  </div>
+  
+  <table id="email_accounts_list">
+    <thead>
+      <tr class="tableHeader">
+        <th>Name</th>
+        <th>Type</th>
+        <th class="lastHeader">Actions</th>
+      </tr>    
+    </thead>
+    <tbody>
+      <%= render :partial => 'email_account', :collection => @email_accounts %>
+    </tbody>
+  </table>
+  
+  <%= link_to "+Add New Email Account", party_new_email_account_path(@party), :onclick => "$('email_account_create_form').toggle(); return false" %>
+  <div id="email_account_create_form" style="display: none">
+    <% form_for :email_account, :url => party_email_accounts_path(:party_id => @party.id) do |f| %>
+      <%= render :partial => "/email_accounts/form", :locals => {:f => f} %>
+      <%= submit_tag "Create", :class => 'button' %>
+      <%= link_to_function "Cancel", "$('email_account_create_form').hide()", :class => 'link_button' %>
+    <% end %>
+  </div>
+</div>

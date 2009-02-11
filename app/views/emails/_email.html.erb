@@ -1,0 +1,17 @@
+<tr class="<%= cycle('', 'bg') %>">
+  <td><%= link_to h(email.formatted_sender_name),new_email_path(:email_tos => email.sender.address) %></td>
+  <td><%= link_to truncated_mail_text(email), params[:folder] =~ /draft/i ? edit_email_path(email) : email_path(email) %></td>
+  <% 
+    time = nil
+    if params[:folder] =~ /sent/i 
+      time = email.sent_at
+    elsif params[:folder] =~ /outbox/i 
+      time = email.released_at || email.scheduled_at
+    elsif params[:folder] =~ /draft/i
+      time = email.updated_at
+    else
+      time = email.received_at 
+    end 
+  %>
+  <td><%= time.yday == Time.now.yday ? time.strftime("%a, %I:%M%p") : time.strftime("%b %d") %></td>
+</tr>

@@ -1,0 +1,5 @@
+page << create_tab_using_ajax_response("Edit Destination") do
+%Q`
+newPanel.add({ autoScroll: true, html: #{render(:partial => 'edit').to_json} });
+`
+end

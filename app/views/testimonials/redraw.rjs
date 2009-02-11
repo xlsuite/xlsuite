@@ -1,0 +1,3 @@
+page.replace dom_id(@testimonial), :partial => @testimonial
+page.visual_effect :highlight, dom_id(@testimonial)
+page.visual_effect :fade, typed_dom_id(@testimonial, :throbber)

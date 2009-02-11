@@ -1,0 +1,2 @@
+page.hide "permission_set_details"
+page.hide "permission_set_details_actions"

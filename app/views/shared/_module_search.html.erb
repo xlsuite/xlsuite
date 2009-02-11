@@ -1,0 +1,23 @@
+<div id="module_search">
+
+  <% if current_user? %>
+  <!-- Saved Searches rightMenuItem03 -->
+  <div id="savedSearches_right" class="menuItem_search">
+    <div class="quickToggle" onclick="Element.toggle('savedSearches_subPanel')" title="List" >
+      <span>Saved Searches</span>
+      <span id="savedSearchesStatus" class="status"><%= current_user.searches.size %> Defined</span>
+    </div>
+  </div>
+
+  <!-- SubMenus 03 -->
+  <div id="savedSearches_subPanel" class="searchSubPanel" style="display:none;">
+    <!--Dynamic table listing saved search items -->
+    <table id="savedSearches">
+      <%= render :partial => '/search/saved_searches' %>
+    </table>
+  </div>
+  <% end %>
+
+</div>
+
+

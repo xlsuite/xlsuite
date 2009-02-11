@@ -1,0 +1,358 @@
+<form class="listCombinedView">
+        <ul id="topPanel">
+                <li><a class="HRmargin1" href="">Listings Search</a></li>
+                <li><a class="HRmargin1" href="">Targeted MLS# Import</a></li>
+                <li><label>QuickNav:</label><input class="inline text" size="30" /></li>
+        </ul>
+        <div class="tableheader">
+        <h2>Search Listings</h2>
+        <ul id="listings_searchOptions">
+                <li class="small"><a href="">Save</a></li>
+                <li class="small"><a href="">Cancel</a></li>
+        </ul>
+        </div>
+        <br class="clear" />
+        <table class="se_small">
+                <tr class="tableheader">
+                <th scope="col" width="50%" align="left"></th>
+                        <th scope="col" width="50%" align="right"></th>
+                </tr>
+                <tr>
+                        <td class="bold">Table</td>
+                        <td>
+                                <select>
+                                        <option>Agent/User</option>
+                                        <option selected="selected">MLS Properties</option>
+                                        <option>Office/Broker</option>
+                                        <option>Open House/Tour</option>
+                                        <option>Archives</option>
+                                </select>
+                        </td>
+                </tr>
+                <tr>
+                        <td class="bold">Class</td>
+                        <td>
+                                <select>
+                                        <option>Business</option>
+                                        <option selected="selected">Cross Property</option>
+                                        <option>Farm</option>
+                                        <option>Industrial</option>
+                                        <option>Land Only</option>
+                                        <option>Rental</option>
+                                        <option>Residential Attached</option>
+                                        <option>Residential Detached</option>
+                                </select>
+                        </td>
+                </tr>
+                <tr>
+                        <td class="bold">Measurement System</td>
+                        <td>
+                                <select>
+                                        <option>Metric</option>
+                                        <option selected="selected">Imperial</option>
+                                </select>
+                        </td>
+                </tr>
+                <tr>
+                        <td class="bold">Search Results Limit</td>
+                        <td>
+                                <input class="text int_small" />
+                        </td>
+                </tr>
+        </table>
+        <br class="clear" />
+        <table class="">
+                <tr class="tableheader">
+                <th scope="col" width="30%" align="left"></th>
+                        <th scope="col" width="10%"></th>
+                        <th scope="col" width="60%" align="right"></th>
+                </tr>
+                <tr>
+                        <td class="bold">MLS Number</td>
+                        <td>
+                                <select class="operator_med">
+                                        <option selected="selected">Equals</option>
+                                        <option>Starts with</option>
+                                        <option>Contains</option>
+                                        <!-- selecting 'Between' causes additional input to appear -->
+                                        <option onclick="Element.toggle ('between1')">Between</option>
+                                        <option>Greater than</option>
+                                        <option>Less than</option>
+                                </select>
+                        </td>
+                        <td>
+                                <input class="text" />&nbsp;<span id="between1" style="display:none;">and:&nbsp;<input class="text inline" /></span>
+                        </td>
+                </tr>
+                <tr>
+                        <td class="bold">List Date</td>
+                        <td>
+                                <select class="operator_med">
+                                        <option selected="selected">Equals</option>
+                                        <option>Starts with</option>
+                                        <option>Contains</option>
+                                        <option onclick="Element.toggle ('between2')">Between</option>
+                                        <option>Greater than</option>
+                                        <option>Less than</option>
+                                </select>
+                        </td>
+                        <td>
+                                <input class="text" />&nbsp;<span id="between2" style="display:none;">and:&nbsp;<input class="text inline" /></span>
+                        </td>
+                </tr>
+                <tr>
+                        <td class="bold">Status</td>
+                        <td colspan="2">
+                                <select>
+                                        <option selected="selected">Active</option>
+                                        <option>Cancel Protected</option>
+                                        <option>Collapsed</option>
+                                        <option>Expired</option>
+                                        <option>Expired History</option>
+                                        <option>For Approval</option>
+                                        <option>Hold all action</option>
+                                        <option>Private</option>
+                                        <option>Rented</option>
+                                        <option>Sold</option>
+                                        <option>Sold History</option>
+                                        <option>Terminated</option>
+                                        <option>Terminated History</option>
+                                        <option>*** Any Value</option>
+                                        <option>*** No Value</option>
+                                </select>
+                        </td>
+                </tr>
+                <tr>
+                        <td class="bold">City</td>
+                        <td>
+                                <select class="operator_med">
+                                        <option selected="selected">Equals</option>
+                                        <option>Starts with</option>
+                                        <option>Contains</option>
+                                </select>
+                        </td>
+                        <td>
+                                <input class="text" />
+                        </td>
+                </tr>
+                <tr>
+                        <td class="bold">Area</td>
+                        <td>
+                                <select class="operator_med">
+                                        <option selected="selected">Equals</option>
+                                        <option>Starts with</option>
+                                        <option>Contains</option>
+                                </select>
+                        </td>
+                        <td>
+                                <input class="text" />
+                        </td>
+                </tr>
+                <tr>
+                        <td class="bold">Street Address</td>
+                        <td>
+                                <select class="operator_med">
+                                        <option selected="selected">Equals</option>
+                                        <option>Starts with</option>
+                                        <option>Contains</option>
+                                </select>
+                        </td>
+                        <td>
+                                <input class="text" />
+                        </td>
+                </tr>
+                <tr>
+                        <td class="bold">Postal Code</td>
+                        <td>
+                                <select class="operator_med">
+                                        <option selected="selected">Equals</option>
+                                        <option>Starts with</option>
+                                        <option>Contains</option>
+                                </select>
+                        </td>
+                        <td>
+                                <input class="text" />
+                        </td>
+                </tr>
+                <tr>
+                        <td class="bold">List Price</td>
+                        <td>
+                                <select class="operator_med">
+                                        <option selected="selected">Equals</option>
+                                        <option>Starts with</option>
+                                        <option>Contains</option>
+                                        <option onclick="Element.toggle ('between3')">Between</option>
+                                        <option>Greater than</option>
+                                        <option>Less than</option>
+                                </select>
+                        </td>
+                        <td>
+                                <input class="text" />&nbsp;<span id="between3" style="display:none;">and:&nbsp;<input class="text inline" /></span>
+                        </td>
+                </tr>
+                <tr>
+                        <td class="bold">List Address</td>
+                        <td>
+                                <select class="operator_med">
+                                        <option selected="selected">Equals</option>
+                                        <option>Starts with</option>
+                                        <option>Contains</option>
+                                </select>
+                        </td>
+                        <td>
+                                <input class="text" />
+                        </td>
+                </tr>
+                <tr>
+                        <td class="bold">Dwelling Style</td>
+                        <td colspan="2">
+                                <select>
+                                        <option selected="selected">2 Storey</option>
+                                        <option>2 Storey w/Basement</option>
+                                        <option>3 Level Split</option>
+                                        <option>4 Level Split</option>
+                                        <option>5 Plus Level</option>
+                                        <option>Corner Unit</option>
+                                        <option>End Unit</option>
+                                        <option>Floating Home</option>
+                                        <option>Ground Level Unit</option>
+                                        <option>Inside Unit</option>
+                                        <option>Live/Work Studio</option>
+                                        <option>Loft/Warehouse Conv.</option>
+                                        <option>Manufactured/Mobile</option>
+                                        <option>Other</option>
+                                        <option>Penthouse</option>
+                                        <option>Rancher/Bungalow</option>
+                                        <option>Rancher/Bungalow w/Basement</option>
+                                        <option>Rancher/Bungalow w/Loft</option>
+                                        <option>Split Entry</option>
+                                        <option>Upper Unit</option>
+                                        <option>*** Any Value</option>
+                                        <option>*** No Value</option>
+                                </select>
+                        </td>
+                </tr>
+                <tr>
+                        <td class="bold">Dwelling Type</td>
+                        <td colspan="2">
+                                <select>
+                                        <option>&frac12; Duplex</option>
+                                        <option>Apartment</option>
+                                        <option>Duplex</option>
+                                        <option>Fourplex</option>
+                                        <option>House with Acreage</option>
+                                        <option>House Single Family</option>
+                                        <option>Manufactured</option>
+                                        <option>Manufactured with Land</option>
+                                        <option>Other</option>
+                                        <option>Recreational</option>
+                                        <option>Townhouse</option>
+                                        <option>Triplex</option>
+                                        <option>*** Any Value</option>
+                                        <option>*** No Value</option>
+                                </select>
+                        </td>
+                </tr>
+                <tr>
+                        <td class="bold">Dwelling Class</td>
+                        <td colspan="2">
+                                <select>
+                                        <option>Attached</option>
+                                        <option>Detached</option>
+                                        <option>Multi-Family Revenue</option>
+                                        <option>*** Any Value</option>
+                                        <option>*** No Value</option>
+                                </select>
+                        </td>
+                </tr>
+                <tr>
+                        <td class="bold">Title of Land</td>
+                        <td colspan="2">
+                                <select>
+                                        <option>Freehold Non Strata</option>
+                                        <option>Freehold Strata</option>
+                                        <option>Leasehold not prepaid - Non Strata</option>
+                                        <option>Leasehold not prepaid - Strata</option>
+                                        <option>Leasehold prepaid - Non Strata</option>
+                                        <option>Leasehold prepaid - Strata</option>
+                                        <option>Other</option>
+                                        <option>Shares in Co-Operative</option>
+                                        <option>Time Share</option>
+                                        <option>Undivided Interest</option>
+                                        <option>*** Any Value</option>
+                                        <option>*** No Value</option>
+                                </select>
+                        </td>
+                </tr>
+                <tr>
+                        <td class="bold">Bedrooms</td>
+                        <td>
+                                <select class="operator_med">
+                                        <option selected="selected">Equals</option>
+                                        <option>Starts with</option>
+                                        <option>Contains</option>
+                                        <option onclick="Element.toggle ('between4')">Between</option>
+                                        <option>Greater than</option>
+                                        <option>Less than</option>
+                                </select>
+                        </td>
+                        <td>
+                                <input class="text" />&nbsp;<span id="between4" style="display:none;">and:&nbsp;<input class="text inline" /></span>
+                        </td>
+                </tr>
+                <tr>
+                        <td class="bold">Bathrooms</td>
+                        <td>
+                                <select class="operator_med">
+                                        <option selected="selected">Equals</option>
+                                        <option>Starts with</option>
+                                        <option>Contains</option>
+                                        <option onclick="Element.toggle ('between5')">Between</option>
+                                        <option>Greater than</option>
+                                        <option>Less than</option>
+                                </select>
+                        </td>
+                        <td>
+                                <input class="text" />&nbsp;<span id="between5" style="display:none;">and:&nbsp;<input class="text inline" /></span>
+                        </td>
+                </tr>
+                <tr>
+                        <!-- Clicking Link adds new 'Search Parameter' line -->
+                        <td colspan="3"><a href="#" onclick="Element.toggle('newSearchParam'); return false;">Add Search Parameter</a> </td>
+                </tr>
+                <tr>
+                        <td><input class="text med" /></td>
+                        <td>
+                                <select class="operator_med">
+                                        <option selected="selected">Equals</option>
+                                        <option>Starts with</option>
+                                        <option>Contains</option>
+                                        <option onclick="Element.toggle ('between6')">Between</option>
+                                        <option>Greater than</option>
+                                        <option>Less than</option>
+                                </select>
+                        </td>
+                        <td><input class="text" />&nbsp;<span id="between6" style="display:none;">and:&nbsp;<input class="text inline" /></span></td>
+                </tr>
+                <tr id="newSearchParam" style="display:none;">
+                <td><input class="text med" /></td>
+                        <td>
+                                <select class="operator_med">
+                                        <option selected="selected">Equals</option>
+                                        <option>Starts with</option>
+                                        <option>Contains</option>
+                                        <option onclick="Element.toggle ('between7')">Between</option>
+                                        <option>Greater than</option>
+                                        <option>Less than</option>
+                                </select>
+                        </td>
+                        <td><input class="text" />&nbsp;<span id="between7" style="display:none;">and:&nbsp;<input class="text inline" /></span></td>
+                </tr>
+                <tr>
+                        <td class="submit" colspan="3">
+                        <input class="button inline" value="submit"/>
+                        </td>
+                </tr>
+        </table>
+        <br class="clear" />
+</form>

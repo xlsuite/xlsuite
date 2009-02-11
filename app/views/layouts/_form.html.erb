@@ -1,0 +1,30 @@
+<% labelled_fields_for(:layout, @layout) do |form| %>
+  <div id="errorMessages">
+    <%= error_messages_for :layout %>
+  </div>
+  <input id='save_or_close_<%=dom_id(@layout)%>' class="text" type="text" value="" name="commit_type" style="display:none"/>
+  <p class="save_options"> <%= submit_tag "Save", :name => "_save", :class => "button", :onclick=>"$('save_or_close_#{dom_id(@layout)}').value='save';" %> 
+    <%= submit_tag "Close", :name => "_close", :class => "button", :onclick=>"$('save_or_close_#{dom_id(@layout)}').value='close';"%> 
+    <%= link_to_function "Cancel", @layout.new_record? ? "xl.closeTabs('layouts_new_nil')" : "xl.closeTabs('layouts_edit_#{@layout.id}')"%> <%= throbber("save_indicator") %></p>
+  <div id="layout_edit_options">
+   <%= form.text_field :title, :size => 60, :class => "text" %>
+    <div id="x_rename_pages" style="display:none">
+     <%= form.check_box :rename_pages, :label => "Rename pages that use this layout to the new title ?", :checked => true %>
+    </div>
+   <%= form.text_field :content_type, :size => 20, :class => "text" %>
+   <%= form.text_field :encoding, :size => 10, :class => "text" %>
+  </div>
+  <div id="layout_edit_body">
+   <%= form.text_area :body, :size => "80x20" %>
+  </div>
+  <div id="layout_edit_mdomain">
+   <%= render :partial => 'shared/multi_domain', :object => @layout, :locals => {:form => form} %>
+  </div>
+  <div id="layout_edit_auth">
+   <%= authorization_fields_for(:layout) %>
+  </div>
+  <p class="save_options"> <%= submit_tag "Save", :name => "_save", :class => "button", :onclick=>"$('save_or_close_#{dom_id(@layout)}').value='save';" %> 
+    <%= submit_tag "Close", :name => "_close", :class => "button", :onclick=>"$('save_or_close_#{dom_id(@layout)}').value='close';"%> 
+    <%= link_to_function "Cancel", @layout.new_record? ? "xl.closeTabs('layouts_new_nil')" : "xl.closeTabs('layouts_edit_#{@layout.id}')"%> <%= throbber("save_indicator") %></p>
+<% end -%>
+  

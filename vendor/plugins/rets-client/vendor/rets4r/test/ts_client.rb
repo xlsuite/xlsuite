@@ -1,0 +1,1 @@
+require 'test/client/ts_all'

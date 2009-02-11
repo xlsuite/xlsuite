@@ -1,0 +1,14 @@
+<div id="newForum" class="newTopic forumInput" style="display: none;">
+  <div class="threadSubject">
+    <h2>New Forum in <span class="title"></span></h2>
+  </div>
+  <div class="left">
+  <% form_for :forum, :url => "" do |f| -%>
+    <%= render :partial => "forums/form", :locals => { :f => f } %>
+    <p class="clear">
+    <%= submit_tag 'Create', :id => "topicPost", :class => "button", :onclick => "return checkIfForumNameIsBlank()" %> 
+    <%= link_to_function('Cancel', "$('newForum').hide()", :class => "link_button")%>
+    </p>
+  <% end -%>
+  </div>
+</div>

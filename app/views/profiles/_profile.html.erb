@@ -1,0 +1,5 @@
+<% if profile %>
+  <% name = profile.alias.blank? ? profile.display_name : profile.alias %>
+  
+  <li><%= link_to name.blank? ? "Anonymous" : name, show_profile_path(profile)%></li>
+<% end -%>

@@ -1,0 +1,55 @@
+page << %Q`
+  var editWorkflowPath = #{edit_workflow_path(:id => "__ID__").to_json};
+  
+  var newWorkflowTitleField = new Ext.form.TextField({
+    name: "workflow[title]",
+    fieldLabel: "Title" 
+  });
+  
+  var newWorkflowFormPanel = new Ext.form.FormPanel({
+    items: [newWorkflowTitleField]
+  });
+
+  var newWorkflowWindow = new Ext.Window({
+    title: "Please input a title for the new workflow",
+    resizable: false,
+    width: 300,
+    height: 92,
+    items: [newWorkflowFormPanel],
+    buttons:[
+        {
+          text: "OK",
+          handler: function() {
+              newWorkflowFormPanel.el.mask();
+              newWorkflowFormPanel.getForm().doAction("submit",
+                {
+                  url: #{workflows_path.to_json},
+                  method: "POST",
+                  success: function(form, action){
+                    newWorkflowFormPanel.el.unmask();
+                    response = action.result;
+                    $("status-bar-notifications").innerHTML = response.flash;
+                    newWorkflowWindow.hide();
+                    newWorkflowWindow.close();
+                    #{refresh_grid_datastore_of("workflow")};
+                    xl.openNewTabPanel('workflows_edit_'+response.id, editWorkflowPath.sub("__ID__", response.id));
+                  }, 
+                  failure: function(form, action){
+                    newWorkflowFormPanel.el.unmask();
+                    response = action.result;
+                    Ext.Msg.alert("Saving failed", response.errors);
+                    $("status-bar-notifications").innerHTML = response.flash;
+                  }
+                }
+              );
+            }
+        },
+        {
+          text: 'Cancel',
+          handler: function() { newWorkflowWindow.hide(); newWorkflowWindow.close(); }
+        }
+      ]
+  });
+  
+  newWorkflowWindow.show();
+`

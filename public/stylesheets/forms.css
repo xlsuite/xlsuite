@@ -1,0 +1,175 @@
+/* XLsuite  CSS > forms
+
+created: 2007-03-21 | by: jstubbs@weputuplights.com
+updated: 2007-06-23 | by: imaxim@gmail.com 
+purpose: forms
+details: 
+
+*/
+
+/*
+  > > > > > > elements - - - - - - -
+*/
+
+input.text                                  { padding: 2px; }
+input.text, 
+textarea, 
+input.button, 
+select                                      { background: #fff; 
+                                              font: 10px Verdana; 
+											  color: #666; 
+											  border: 1px solid #8dc63f; }
+textarea                                    { padding: 2px; }
+input:hover, 
+input:focus, 
+textarea:hover, 
+textarea:focus, 
+select:hover                                { border: 1px solid #666; }
+select                                      { padding: 1px; }
+/* select box widths */
+select.title                                { width: 200px; }
+select.integer                              { width: 50px; }
+label.left                                  { float: left; }
+input.hidden                                { display:none;}
+span.hidden                                 { display: none; }
+span.label                                  { }
+span.inline                                 { display:inline}
+a.hidden                                    { display: inline;
+                                              float: left;
+											  margin-left: -10000px;
+											  background: green; }
+
+/*
+  > > > > > > classes - - - - - - -
+*/
+
+.disabled, .disabled:hover {border: 1px solid #C4EF86 !important; background: #F5F5DB !important;}
+
+      .blank                          { display:none; }
+      .subtleField                    { padding: 1px; 
+	                                    display: inline; 
+										background: transparent; 
+										color: #333; 
+										border: 1px solid #8dc63f; 
+										font: 11px Verdana, sans-serif; }
+ input.subtleField                    { margin-top: 1px; width: 92px; }
+select.subtleField                    { border: 1px solid #8dc63f;padding: 0; margin-top:1px; }
+	  .subtleField:hover              { border: 1px solid #666; }
+	  .subtleField:focus              { background: #eee; color: #666; border: 1px solid #008eb0; cursor: default;}
+      .subtleTextField                { display: block; background: transparent; color: #333; border: 1px solid #008eb0; font: 11px Verdana, sans-serif;}
+	  .subtleTextField:hover          { border: 1px solid #189dbd;	cursor: pointer;	}
+      .subtleTextField:focus          { background: #eee; color: #666; border: 1px solid #ddd; cursor: default;}
+      .subtleSelect                   { margin-bottom: -3px; margin-left: -3px; padding: 0px; 
+							            display: inline; 
+							            background: transparent; color: #333;
+						   	            border: 1px solid #008eb0; 
+							            font: 11px Verdana, sans-serif;}
+      .subtleSelect:hover             { border: 1px solid #189dbd; cursor: pointer;}
+      .subtleSelect:focus             { background: #eee; color: #666; border: 1px solid #ddd; cursor: default; }
+
+      .inline.show                    { float: left; padding: 2px 2px 3px 3px;/*border: 1px solid #fff;*/}
+      .inline.show:hover, 
+	  .block.show:hover               { background: #eee; cursor: pointer;}
+      .inlineShow_bold                { font-weight: bold; 
+	                                    display:inline; 
+							            float: left; 
+							            padding: 2px 2px 3px 3px; 
+							            margin-top: 1px; margin-bottom: 1px;
+							            /*border: 1px solid #fff;*/ }
+      .inlineShow_bold:hover          { 	background: #eee; 	cursor: pointer;	}
+      .block.show                     { padding: 4px; }
+      .inlineShow_img                 { display: inline; float:left;
+	                                    margin-top: 2px;margin-right: 2px;
+										border: 1px solid #fff;
+										/*border: 1px solid #fff;*/ }
+      .inlineShow_img:hover           { border: 1px solid #ddd;cursor: pointer;}
+      .inlineShow_img img             { height: 16px;width: 16px;padding: 0 2px;margin-bottom: -2px;}
+      .inlineShow_img img:hover       { }
+      .inline.edit                    { margin-left: 1px;display: inline;float: left;}
+      .inlineEditCR                   { display: inline;float: left;}
+      .inlineEditCR input.subtleField { margin-left: 1px;}
+      .addressForm                    { margin-left: 24px;position: relative;}
+
+
+
+/*
+  > > > > > > contacts - specific classes - - - - - - -
+*/
+   input.company_name, input.position { width: 240px; }
+   input.honorific, 
+   input.first_name, 
+   input.middle_name, 
+   input.last_name                    { width: 100px; }
+   input.phone_contact_route          { width: 80px !important; }
+   input.link_contact_route           { width: 180px !important; }
+   input.address_contact_route        { width: 390px; }
+   input.email_contact_route          { width: 180px !important; }
+   input.referrer                     { width: 282px; }
+textarea.notes                        { width: 120px;}
+
+/* Contacts (new) specific fields */
+
+/*#new_address_contact_route_name_field { width: 373px !important; }*/
+
+/* specifics _____________________________________________________*/
+
+ .personal_name_group,
+ .personal_name_group input { font-weight: bold; }
+
+#generalComments_edit      { display: block; 
+                             width: 162px; height: 314px; line-height: 17px; 
+					         overflow: hidden; 
+						     padding: 3px; }
+
+/*Buttons */
+
+a.link_button, 
+a.link_button:visited      { font: 10px Verdana, sans-serif; 
+                             color: #666;
+							 text-decoration: none;
+							 background: #fff;
+							 border: 1px solid #8DC63F;
+							 padding: 1px 3px; }
+a.link_button:hover        { color: #8dc63f; border: 1px solid #666; }
+
+
+
+/* adjust input field width */
+
+#contactName_edit_title                        { width: 210px; }
+#generalContactRoutes input                    { width: 190px; }
+#generalContactAddress_01_edit_province select { width: 120px; }
+#referredBy_edit_name input                    { margin-bottom: 16px; width: 190px; }
+
+/*line-based forms*/
+
+.line-based p label                            { margin-bottom: 4px; }
+
+/*
+Max's proposals
+
+
+.it  { background-color: #333; color: white; border:1px solid gray; padding:0px 0px 0px 0px; }
+.ta  { background-color: #333; color: white; border:1px solid gray; padding:0px 0px 0px 0px; }
+.sel { background-color: #333; color: white; border:1px solid gray; padding:0px 0px 0px 0px; }
+.opt { background-color: #333; color: white; border:1px solid gray; padding:0px 0px 0px 0px; }
+
+input:focus    { background-color: #333; color: white; }
+textarea:focus { background-color: #333; color: white; }
+select:focus   { background-color: #333; color: white; }
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+

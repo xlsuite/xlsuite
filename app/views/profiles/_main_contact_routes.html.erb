@@ -1,0 +1,8 @@
+<p><%= link_to_function @profile.main_email.email_address, "xl.openNewTabPanel('emails_new_nil', #{sandbox_new_emails_path(:email_tos => @profile.main_email.email_address).to_json})" %></p>
+<p><%= @profile.main_phone.formatted_number_with_extension %></p>
+<p><a href='#' onclick="window.open('<%= @profile.main_link.formatted_url %>', '_blank');"><%=@profile.main_link.url%></a></p>
+<p><%= @profile.main_address.line1 %></p>
+<p><%= @profile.main_address.line2 %></p>
+<p><%= @profile.main_address.line3 %></p>
+<p><%= @profile.main_address.city %><%= ", " if !@profile.main_address.city.blank? && (!@profile.main_address.state.blank? || !@profile.main_address.country.blank?)%><%= @profile.main_address.state %><%= ", " if (!@profile.main_address.city.blank? || !@profile.main_address.state.blank?) && !@profile.main_address.country.blank?%><%= @profile.main_address.country %></p>
+<p><%= @profile.main_address.zip %></p>

@@ -1,0 +1,5 @@
+<div class="ipage">
+  <% inline_remote_form_for :order, @order, :url => orders_path do |f| %>
+    <%= render :partial => "form", :locals => {:f => f} %>
+  <% end %>
+</div>

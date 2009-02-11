@@ -1,0 +1,50 @@
+RoutingTricks
+=============
+
+This is a collection of hacks and tricks that may or may not actually be
+useful. It is intended more as a tool for exploring (and teaching) the
+internals of Rails' routing implementation.
+
+
+map.redirect
+------------
+
+This is a tool for specifying a redirect from one route to another. Any
+request matching the route will emit a 302 response that redirects to the
+target route. It requires that the target be a named route. Consider:
+
+  ActionController::Routing::Routes.draw do |map|
+    map.resources :things
+    map.redirect  "/", :things
+  end
+
+By default, the map.resources command does not map anything to the root URL,
+"/". We can use map.redirect to easily cause requests for "/" to be redirected to the things url, "/things".
+
+If a route has parameters, those will be passed to the destination route as well:
+
+  ActionController::Routing::Routes.draw do |map|
+    map.resources :things
+    map.redirect  "/:id", :thing
+  end
+
+In this case, a request for "/15" would be redirected to "/thing/15", automatically.
+
+
+Recognition based on host/domain/subdomain
+------------------------------------------
+
+This allows you to specify the host, domain, or subdomain as a condition for
+recogizing the request. For instance, you can have two identical paths that
+route to different controllers and actions, depending on what the subdomain
+is:
+
+  ActionController::Routing::Routes.draw do |map|
+    map.connect "/", :controller => "admin", :conditions => { :subdomain => "admin" }
+    map.connect "/", :controller => "public"
+  end
+
+Then, "admin.foo.com" would go to the admin controller, while "www.foo.com"
+and "123.foo.com" will go to the public controller.
+
+Similarly, you can specify :host and :domain in the conditions hash. The values can be either strings (for exact matches) or regular expressions (for more dynamic matching).

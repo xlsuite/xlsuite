@@ -1,0 +1,41 @@
+<div>
+<% form_tag(domains_path, :method => "get") do %>
+  <p>
+  <label>Show roles: <%= select_tag "role", options_for_select([["All", ""]] + Domain::AvailableRoles.map(&:titleize), @role) %></label>
+  <%= submit_tag "Search", :name => nil %>
+  </p>
+<% end %>
+
+<p><%= link_to "New domain", new_domain_path %></p>
+<table border="1" cellspacing="0" cellpadding="3">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Role</th>
+      <th>Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= render :partial => "domain", :collection => @domains %>
+  </tbody>
+</table>
+
+<%= render :partial => "shared/paginator", :locals => {:page => @page, :paginator => @paginator} %>
+</div>
+
+<div>
+  <table border="1" cellspacing="0" cellpadding="3">
+    <thead>
+      <tr>
+        <th>Domains</th>
+        <th>Status</th>
+        <th>Bundle</th>
+        <th>Cost</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= render :partial => "domain_subscriptions/domain_subscription", :collection => @domain_subscriptions %>
+    </tbody>
+  </table>
+</div>

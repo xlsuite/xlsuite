@@ -1,0 +1,12 @@
+<h1>Editing Mapper</h1>
+<%= form_tag mapper_path(@mapper), :method => :put %>
+  <%= render :partial => "form" %>
+  <p>
+    <label>Number of header lines:</label>
+    <%= text_field_tag "mappings[header_lines_count]", (@mapper && @mapper.mappings ? (@mapper.mappings[:header_lines_count] || 0) : 0) %>
+  </p>
+  
+  <%= render :partial => "mappings" %>
+  <%= submit_tag "Save" %>
+  <%= link_to "Cancel", mappers_path %>
+</form>

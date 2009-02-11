@@ -1,0 +1,6 @@
+<% content_for(:js) do %>
+  <%= javascript_include_tag "fckeditor/fckeditor", "fckcustom" %>
+<% end -%>
+
+<p class="description">Presents the contents of this field directly to the user.  Use either <%= link_to("Textile", "http://textism.com/tools/textile/") %> formatting, or the full rich text editor.</p>
+<%= fckeditor_textarea("behavior_values", "text", :toolbarSet => 'Simple', :height => '500px', :cols => '60', :rows => '30') %> 

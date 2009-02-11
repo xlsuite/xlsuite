@@ -1,0 +1,10 @@
+<h2 class="page_header">Edit Sale Event</h2>
+<div class="ipage">
+  <% inline_remote_form_for :sale_event, @sale_event, :url => sale_event_path(@sale_event), :html => {:method => :put, :id => (dom_id(@sale_event) + "_form")} do |f| %>
+    <%= render_inside_panel_notifications_container %>
+    <%= render :partial => "form", :locals => {:f => f} %>
+  <% end %>
+  <div id="<%= typed_dom_id(@sale_event, :timestamps) %>" class='sale_event_footer clear'>
+    <%= render_object_timestamps(@sale_event) %>
+  </div>
+</div>

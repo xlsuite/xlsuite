@@ -1,0 +1,258 @@
+.wrap-general { background: transparent url(../../images/general.png) no-repeat 90% 30px; }
+
+
+/* Browse Records (not implemented yet)________________________________________________________________________________ */
+
+#mainBrowseRecords {
+display: block;
+text-align: center;
+position: absolute;
+top: 90px;
+right: 24px;
+width: 120px;
+}
+
+#mainBrowseRecords ul {
+ margin: 0;
+ padding: 0;
+ list-style: none;
+}
+
+#mainBrowseRecords ul li {
+ display: inline;
+}
+
+#mainBrowseRecords a, #MainBrowseRecords a:visited {
+ width: 16px;
+ margin-bottom: -2px;
+ padding: 2px ;
+ padding-top: 6px;
+ border: 1px solid #ccc;
+ color: #333;
+ text-decoration: none;
+}
+
+
+
+#mainBrowseRecords a:hover	{
+	background: #E6E8FA;
+	color: #008eb0;
+}
+
+
+/* menu ___________________________________________________________________________ */
+
+span#generalFunctionsMenu { text-align: center; }
+
+span#generalFunctionsMenu ul {display: inline; }
+
+span#generalFunctionsMenu ul li { margin: 0; padding: 0; display: inline;}
+
+span#generalFunctionsMenu ul li a, #mainFunctionsMenu ul li a:visited {
+ color: #008eb0 !important;
+ font-size: 10px;
+ margin: 0 2px;
+ padding: 2px 2px;
+ background: transparent;
+}
+
+#generalFunctionsMenu ul li a:hover {
+ color: #8dc63f !important;
+}
+
+#optionsToggle, #contactOptions {
+display: inline;
+}
+
+#optionsToggle {
+padding-left: 5px;
+padding-top: 2px;
+height: 24px;
+}
+
+#contactOptions { height: 26px; }
+
+#optionsToggle a {
+font-size: 10px;
+}
+
+
+
+
+
+
+/* Contact - Main Info (name,company) */
+
+.wrap-contact { margin-left: 124px; }
+
+/* .contact_main {
+float: left;
+margin-top:52px;
+} */
+
+/* .contact_data {
+width: 80%;
+display: block;
+margin: 60px auto 20px auto;
+padding: 10px 0px 20px 80px;
+} */
+
+.contact_section {
+width: 87%;
+display: block;
+margin: 20px auto 20px auto;
+padding: 10px 0px 20px 0px;
+}
+
+.contact_section h2 {
+font-weight: bold;
+display: block;
+border-bottom: 1px solid #ddd;
+margin-bottom: 10px;
+}
+
+.contact_data_column {
+width: 50%;
+float: right;
+}
+.contact_data_column_left {
+float: left;
+padding-left: 20px;
+}
+
+.mapIcon {margin-left: 4px;}
+/*contact route image */ .CR_img {float: left; margin-right: .6em;}
+
+
+input.state { width: 30px !important; }
+input.country {width: 90px !important; }
+input.zip { width: 30px !important; }
+
+.address_type_select_nudge {margin-left: 20px;}
+
+/* spacing	____________________________________________________*/
+
+.ref, .comts { padding: 20px;  }
+
+
+/*Contact Photo_______________________________________________________________*/
+
+#contactPhoto {
+border: 1px solid #DDDDDD;
+float: left;
+margin-bottom: 10px;
+padding: 4px;
+padding-bottom: 3px !important;
+margin-right: 6px;
+}
+
+#contactPhoto img {
+ border: 1px solid #ddd;
+ margin-bottom: -1px;
+ }
+
+/*Comments Feed__________________________________________________________*/
+
+#generalComments {
+}
+
+#generalComments_edit_comments {
+}
+
+/* Profile *__________________________________________________________________________________________________*/
+
+.showFormInfo {
+padding: 10px;
+margin-top: 1px;
+}
+
+.showFormInfo br { margin-bottom: 10px;}
+
+#profileContentLeft {
+width: 300px;
+float: left;
+}
+
+#profileContentRight {
+width: 200px;
+float: right;
+}
+
+#profileContentFooter {
+text-align: center;
+padding: 10px;
+clear: both;
+font-size: 80%;
+border-top: 1px solid #fff;
+}
+
+#profileContactSettings p {
+ display: inline;
+}
+
+
+
+/*Odds n ends ___________________________________________________________________________________________________*/
+
+.deleteAddress { padding-left: 2px; margin-bottom: 24px; }
+
+#deleteRecord {
+position: absolute;
+bottom: 10px;
+right: 10px;
+color: #333;
+border: 1px solid #fff;
+padding: 3px 4px;
+}
+
+#deleteRecord a:hover {
+color: #008eb0;
+}
+
+#deleteRecord:hover {
+background: #E6E8FA;
+color: #008eb0;
+}
+
+#load {
+height: 16px;
+width: 16px;
+position: absolute;
+top: 94px;
+left: 40px;
+}
+
+/* Contact options */
+
+
+
+#contactOptions_values {
+}
+
+/*New Party*/
+
+div.wrap-contact {width: 70%; margin: 0px auto;}
+
+/*_________________________________*/
+
+.haulInline {}
+.haulInline div {clear:none;}
+.haulInline div.show {margin-top: 8px;}
+.haulInline input {margin-top: 8px; margin-bottom: 1px;}
+
+
+
+
+
+
+
+
+/* Max edits @ 07.08.2007 */
+
+/*-------------------------------*/
+
+#party_14_company_name_field                           {width: 150px !important;}
+#party_14_first_name_edit                              {width: 100px !important;}
+input.subtleField                                      {width: 150px !important;}
+
+#iamthetabpanel { border: 2px solid #FF8000; }

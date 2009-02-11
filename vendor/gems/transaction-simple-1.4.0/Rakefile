@@ -1,0 +1,122 @@
+#! /usr/bin/env rake
+#--
+# Transaction::Simple
+# Simple object transaction support for Ruby
+# http://rubyforge.org/projects/trans-simple/
+#   Version 1.4.0
+#
+# Licensed under a MIT-style licence. See Licence.txt in the main
+# distribution for full licensing information.
+#
+# Copyright (c) 2003 - 2007 Austin Ziegler
+#
+# $Id: Rakefile 51 2007-02-03 21:45:27Z austin $
+#++
+
+require 'rubygems'
+require 'hoe'
+
+$LOAD_PATH.unshift('lib')
+
+require 'transaction/simple'
+
+TSVER     = Transaction::Simple::TRANSACTION_SIMPLE_VERSION
+DISTDIR   = "transaction-simple-#{TSVER}"
+TARFILE   = "pkg/#{DISTDIR}.tar.gz"
+MANIFEST  = File.read("Manifest.txt").split
+
+Hoe.new "transaction-simple", TSVER do |p|
+  p.rubyforge_name  = "trans-simple"
+  # This is a lie becasue I will continue to use Archive::Tar::Minitar.
+  p.need_tar        = false
+  # need_zip - Should package create a zipfile? [default: false]
+
+  p.author          = "Austin Ziegler"
+  p.email           = "austin@rubyforge.org"
+  p.url             = "http://rubyforge.org/projects/trans-simple"
+  p.summary         = "Simple object transaction support for Ruby."
+  p.changes         = p.paragraphs_of("History.txt", 0..1).join("\n\n")
+  p.description     = p.paragraphs_of("Readme.txt", 1..1).join("\n\n")
+
+  p.spec_extras[:required_ruby_version] = ">=1.8.2"
+  p.spec_extras[:extra_rdoc_files] = MANIFEST.grep(/txt$/) -
+    ["Manifest.txt"]
+  p.clean_globs     << "./**/log"
+
+  # extra_deps - An array of rubygem dependencies.
+  # clean_globs - An array of file patterns to delete on clean.
+  # rdoc_pattern - A regexp to match documentation files against the manifest.
+  # spec_extras - A hash of extra values to set in the gemspec.
+  # test_globs - An array of test file patterns [default: test/**/test_*.rb]
+
+  # bin_files
+  # lib_files
+  # spec
+  # test_files
+end
+
+desc "Build a Transaction::Simple .tar.gz distribution."
+task :tar => [ TARFILE ]
+file TARFILE => [ :test ] do |t|
+  require 'archive/tar/minitar'
+  require 'zlib'
+  files = MANIFEST.map { |f|
+    fn = File.join(DISTDIR, f)
+    tm = File.stat(f).mtime
+
+    if File.directory?(f)
+      { :name => fn, :mode => 0755, :dir => true, :mtime => tm }
+    else
+      mode = if f =~ %r{^bin}
+               0755
+             else
+               0644
+             end
+      data = File.read(f)
+      { :name => fn, :mode => mode, :data => data, :size => data.size,
+        :mtime => tm }
+    end
+  }
+
+  begin
+    unless File.directory?(File.dirname(t.name))
+      require 'fileutils'
+      File.mkdir_p File.dirname(t.name)
+    end
+    tf = File.open(t.name, 'wb')
+    gz = Zlib::GzipWriter.new(tf)
+    tw = Archive::Tar::Minitar::Writer.new(gz)
+
+    files.each do |entry|
+      if entry[:dir]
+        tw.mkdir(entry[:name], entry)
+      else
+        tw.add_file_simple(entry[:name], entry) { |os|
+          os.write(entry[:data])
+        }
+      end
+    end
+  ensure
+    tw.close if tw
+    gz.close if gz
+  end
+end
+task :package => [ TARFILE ]
+
+task :build_manifest do |t|
+  require 'find'
+
+  paths = []
+  Find.find(".") do |path|
+    next if File.directory?(path)
+    next if path =~ /\.svn/
+    next if path =~ %r{/research/}
+    next if path =~ /\.swp$/
+    next if path =~ /~$/
+    paths << path.sub(%r{^\./}, '')
+  end
+
+  File.open("Manifest.txt", "w") do |f|
+    f.puts paths.sort.join("\n")
+  end
+end

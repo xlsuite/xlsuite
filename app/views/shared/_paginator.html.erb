@@ -1,0 +1,22 @@
+<div id="paginator">
+
+ <%
+   selection_hash = %w(5 10 20 50 100 200 500 All) unless selection_hash 
+   default_selected = "10" unless default_selected
+   uri = request.request_uri 
+ %>
+
+
+ <p class="inline left">Show:&nbsp;</p>
+ <select class="integer left pager" value="<%= default_selected %>">
+  <%= options_for_select(selection_hash, params[:show] || default_selected) %>    
+ </select>
+
+ <div class="pageViewer">
+ <% if paginator.number_of_pages > 1 then %>
+   <%= link_to("<", "#{process_show_and_page_params_from_uri(uri, params[:show], page.number - 1)}") if page.prev? %>
+   <%= generate_links_of_paginator_pages(page) %>
+   <%= link_to(">", "#{process_show_and_page_params_from_uri(uri, params[:show], page.number + 1)}") if page.next? %>
+ <% end %>
+ </div>
+</div>

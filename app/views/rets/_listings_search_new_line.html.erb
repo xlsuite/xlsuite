@@ -1,0 +1,21 @@
+<% complete_operator_selections = options_for_select([
+     ["Equals", "eq"], ["Starts with", "start"], ["Contains", "contain"],
+     ["Between", "between"], ["Greater than", "greater"], ["Less than", "less"]
+   ], "eq") %>
+
+    <tr id="line_<%= index %>_parameters">
+      <td class="bold">
+        <%= link_to_function "Delete Row", "removeThisSearchLine(this)", :class => "deleteRow" %>
+        <%= select_tag "line[#{index}][field]", (render :partial => "field", :collection => @fields), :onchange => "updateFieldValues(this)", :class => "operator_med" %>
+        <%= throbber("line_#{index}_indicator") %>
+      </td>
+      <td>
+        <%= select_tag "line[#{index}][operator]", complete_operator_selections, :onchange => "showLineToInputField(this)", :class => "operator_med" %>
+      </td>
+      <td>
+        <span id="line_<%= index %>_from">
+          <%= text_field_tag "line[#{index}][from]", "", :class => "text" %>
+        </span>&nbsp;
+        <span style="display:none;">and:&nbsp;<%= text_field_tag "line[#{index}][to]", "", :class => "inline text" %></span>
+      </td>
+    </tr>

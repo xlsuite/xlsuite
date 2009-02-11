@@ -1,0 +1,82 @@
+<script type="text/javascript">
+function displayOverwriteConfirmationBox(msg) {
+  message = msg + "\nWould you like to overwrite?"
+  var win = window.confirm(message)
+  if (win) {
+    <%= remote_function(:url => {:controller => 'search', :action => 'save_search'}, :submit => 'searchConsole', :before => "$('button_clicked').value = 'overwrite'") %>
+    return true;
+  }
+  return false;
+}
+</script>
+      <!-- Search Bar (Face) -->
+      <div id="searchBar" class="menuItem_search">
+        <%= form_remote_tag({:url => {:controller => 'search', :action => "perform_quick_search"}, :method => :get}) %>  
+          <a href="#" class="searchBarLabel" onclick="Element.toggle('searchConsole'); Element.hide('saved_advanced_search_dialog')">Search:</a>
+          <%= text_field_tag :search_text, @search_text, :id => "search", :class => "text" %>
+          <%= submit_tag("Go", {:class=>"button"})%>
+        </form>
+      </div>
+
+      <!-- Quick Search SubPanel -->
+      <div id="searchConsole" style="display:none;" class="searchSubPanel">
+        <%= form_remote_tag({:url => {:controller => 'search', :action => "perform_advanced_search"}, :method => :get}) %>  
+          <div class="subPanelSection">
+            <div class="subPanelHeader">
+              <span>Advanced Search:</span>
+              <%= hidden_field_tag :num_of_search_line, ((@search_params && @search_params.respond_to?(:size)) ? @search_params.size : 1) %>
+              <%= link_to_function "Add 'Search' line", "addSearchLine()", :class => 'right' %>
+            </div>
+            <div id="search_line_fieldsets">
+              <% unless @search_params.blank? %>
+              <% i = 0%>
+              <% for sp in @search_params %>
+              <% i += 1 %>
+              <%= render :partial => '/search/search_line', :object => sp, :locals => {:search_line_index => i} %>
+              <% end %>
+              <% else %>
+              <%= render :partial => '/search/search_line', :locals => {:search_line_index => 1} %>
+              <% end %>
+            </div>  
+          </div>
+          <div id="quickSort" class="subPanelSection">
+            <div class="subPanelHeader">
+              <span>Advanced Sort by:</span>
+              <%= hidden_field_tag :num_of_sort_by_line, ((@sort_params && @sort_params.respond_to?(:size)) ? @sort_params.size : 1) %>
+              <%= link_to_function "Add 'Sort by' line", "addSortByLine()", :class => 'right' %>
+            </div>
+            <div id="sort_by_line_fieldsets">
+              <% unless @sort_params.blank? %>
+              <% i = 0%>
+              <% for sp in @sort_params %>
+              <% i += 1 %>
+              <%= render :partial => '/search/sort_by_line', :object => sp, :locals => {:sort_by_line_index => i} %>
+              <% end %>
+              <% else %>
+              <%= render :partial => '/search/sort_by_line', :locals => {:sort_by_line_index => 1} %>
+              <% end %>
+            </div>  
+          </div>
+          <div class="subPanelSection">
+            <%= submit_tag( "Search", {:class=>"button"})%>
+            <%= link_to_function 'Save Search', "Element.show('saved_advanced_search_dialog')", :class => "link_button" %>
+            <%= link_to_function 'Clear', "clearAdvancedSearchForm()" %>
+          </div>
+        </form>
+
+        <!-- Hidden div form for saved advanced search -->
+        <div id="saved_advanced_search_dialog" style="display:none;">
+          <h2>Save Search:</h2>
+          <form onsubmit="$('save_search').onclick(); return false;">
+          <% labelled_fields_for(:saved_search) do |f| -%>         
+          <p class="label_over"><%= f.text_field :name, :label => "Name", :size => 40, :class => 'text' %></p>
+          <p class="label_over"><%= f.text_area :description, :value => "", :label => 'Description', :size => "40x5" %></p>
+          <% end -%>
+          <%= hidden_field_tag "button_clicked", "", :id => 'button_clicked' %>
+          <p class="buttonRow">
+          <%= submit_to_remote "save_search", "Save", :url => {:controller => 'search', :action => 'save_search'}, :submit => 'searchConsole', :before => "$('button_clicked').value = 'save_search'", :loading => 'Element.show("saveSearch_throbber")', :loaded => 'Element.hide("saveSearch_throbber")', :html => {:class => 'button', :id => 'save_search'} %>
+          <%= throbber("saveSearch_throbber") %>
+          <%= link_to_function "Cancel", "Element.hide('saved_advanced_search_dialog')", :class => 'link_button' %></p>
+          </form>
+        </div>        
+      </div>      

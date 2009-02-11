@@ -1,0 +1,9 @@
+<%= render :partial => "menu" %>
+
+<form id="listingIndexForm" action="">
+<%= render :partial => "listing_short", :collection => @listings %>
+</form>
+
+<div><%= paginator_on(@page) %></div>
+
+<%= render :partial => "bottom_menu" %>

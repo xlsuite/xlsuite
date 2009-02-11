@@ -1,0 +1,8 @@
+<div class='estimate_tags'>
+  <label>Tags:</label>
+  <%= f.tags_field :tag_list, :use_default_value => false %>
+  <ul class="taglist">
+    <%= render :partial => "tags/tag", :collection => @common_estimate_tags[0..19], :spacer_template => "shared/list_comma",
+      :locals => {:apply_to => [typed_dom_id(@estimate, :tag_list, :field)], :after_update => estimate_tag_after_update} %>
+  </ul>
+</div>

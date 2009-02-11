@@ -1,0 +1,18 @@
+<tr id="<%= dom_id(page) %>" class="<%= page.status %> <%= cycle("", "bg") %> page" url="<%=h page.to_url %>">
+  <td>
+    <p class="title" style="margin-left: <%= page.depth %>em">
+      <%= link_to_function(h(page.title), "parent.xl.createTab(#{edit_page_path(page).to_json})", :href => edit_page_path(page)) %>
+    </p>
+  </td>
+  <td><p id="<%= dom_id(page) %>_status" class="status"><%= page.status.titleize %></p></td>
+  <td><p class="behavior"><%= page.behavior.titleize %></p></td>
+  <td><p title="<%=page.fullslug%>"><%= truncate(page.fullslug, 35) %></p></td>
+  <td>
+    <p class="actions">
+      <%= link_to_function("Add child", "parent.xl.createTab(#{new_page_path(:parent_id => page.id).to_json}, 'new_page_with_parent#{page.id}')", :icon => :page_add, :href => new_page_path(:parent_id => page.id)) %>
+      <%= link_to_remote("Destroy", :url => page_path(page), :confirm => "Are you sure ?",
+                         :method => :delete, :icon => "page_delete") %>
+      <%= view_link_on(page) %>
+    </p>
+  </td>
+</tr>

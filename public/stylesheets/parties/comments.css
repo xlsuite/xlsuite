@@ -1,0 +1,8 @@
+.wrap-comments { background: transparent url(../../images/comments.png) no-repeat 556px 60px; text-align: center; min-height: 250px; position: relative; padding-bottom: 60px; }
+.wrap-comments .tabHeader {text-align: left;}
+
+.wrap-comments .parties_footer {}
+
+.commentsArea {min-height: 250px; display: block;}
+.commentsArea fieldset { width: 98%; padding: 10px; text-align: left; }
+.commentsArea fieldset textarea.notes {width: 70%;}

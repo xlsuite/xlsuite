@@ -1,0 +1,14 @@
+page << create_tab_using_ajax_response("Edit Comment | #{dom_id(@commentable)}") do
+%Q`
+  #{generate_save_close_cancel_toolbar(@comment, @toolbar_url, @toolbar_close_url)}
+  
+  var formPanel = new Ext.form.FormPanel({
+    autoScroll: true,
+    tbar: tbarbbarButtons,
+    bbar: tbarbbarButtons,
+    items: [#{render_form_panel_items}]
+  });
+
+  newPanel.add(formPanel);
+`
+end

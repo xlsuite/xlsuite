@@ -1,0 +1,9 @@
+page << %Q($("#{typed_dom_id(@link, :anchor)}").setAttribute("href", "#{@link.formatted_url}"))
+%w(name formatted_url).each do |attribute|
+  value = @link.send(attribute)
+  element_name = typed_dom_id(@link, attribute.gsub("formatted_", ""), :show)
+  method = value.blank? ? "addClassName" : "removeClassName"
+
+  page.replace_html element_name, value
+  page << %Q($("#{element_name}").#{method}("blank");)
+end

@@ -1,0 +1,6 @@
+To run the unit tests, you will need the sqlite3-ruby (1.2.1) gem.
+
+You must also checkout/export Rails' active support and active record to
+vendor like this:
+ svn co http://dev.rubyonrails.org/svn/rails/branches/1-2-stable/activesupport vendor/activesupport
+ svn co http://dev.rubyonrails.org/svn/rails/branches/1-2-stable/activerecord vendor/activerecord

@@ -1,0 +1,9 @@
+if params[:ids].blank?
+page << "$('recordMessagesPanel').childElements().each(function(e){e.hide();});"
+end
+unless params[:ids].blank? || @record_emails.blank?
+page << "$('recordMessagesPanel').childElements().each(function(e){e.hide();});"  
+page.insert_html :top, "recordMessagesPanel", "<div id='party_#{params[:ids]}_messages' style='height:100%; overflow-x:hidden; overflow-y:auto'><ul id='recordMessagesList#{params[:ids]}'></ul></div>"
+page.replace_html "recordMessagesList#{params[:ids]}", :partial => "list_record_emails", :collection =>@record_emails 
+end
+

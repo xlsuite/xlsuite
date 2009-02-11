@@ -1,0 +1,34 @@
+<div id="network-panel-content">
+  <div class="wrap-general"> 
+    <% inline_fields_for(:party, @party) do |f| %>
+    
+    <div id="<%= typed_dom_id(@party, :references) %>" class="contact_section clear">
+      <h2>References</h2>          
+      <div class="ref">
+      <% if current_user.can?(:edit_party) then -%>
+        <span class="bold">&nbsp;Referred by:&nbsp;</span>
+        <span class="haulInline">
+        <%= link_to(icon_tag(:user, :alt => "Referred By", :class=> "inline left refdBy"),
+              @party.referred_by ? party_path(@party.referred_by) : "#",
+              :id => typed_dom_id(@party, :referred_by, :link), :tabindex => "-1") %> 
+                 
+        <%= f.text_field_with_auto_complete :referred_by_id, :url => auto_complete_parties_path,
+            :value =>  @party.referred_by.blank? ? "None" : @party.referred_by.name.to_s,
+            :wrap => true %>
+        </span>        
+      <% else -%>
+        <%= f.view_field :referred_by, :wrap => true,
+            :value =>  @party.referred_by.blank? ? "None" : @party.referred_by.name.to_s %>
+      <% end -%>
+      </div>
+    
+      <div class="ref"> 
+        <span class="left bold">Referrals:&nbsp;</span><br />
+        <span class="pad3"><%= @party.referrals.blank? ? "None" : @party.referrals.map {|party| link_to_party(party)}.join(", ") %></span>
+      </div>
+    </div>
+    
+    <% end -%>
+  </div>
+</div> <!-- div#network -->
+

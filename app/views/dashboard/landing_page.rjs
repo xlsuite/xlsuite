@@ -1,0 +1,16 @@
+after_render = %Q`
+  wrapperPanel.body.update(#{@landing_page_html.to_json}, true);
+  wrapperPanel.body.parent().show();
+`
+
+page << create_tab_using_ajax_response("Landing Page", after_render) do
+%Q`
+  var wrapperPanel = new Ext.Panel({
+    html: "", 
+    autoScroll: true
+  });
+  
+  newPanel.add(wrapperPanel);
+  
+`  
+end

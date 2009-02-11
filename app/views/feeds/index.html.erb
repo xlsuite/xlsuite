@@ -1,0 +1,41 @@
+<div class="ipage">
+  <div class="list-actions top-actions">
+    <% when_user_can(:edit_feeds) do %>
+    <%= link_to("New feed", new_feed_url, :icon => "feed_add", :class => "new") %> <%= link_to("Refresh all", refresh_all_feeds_url, :confirm => "This operation might take a while. Are you sure?") %>
+    <% end -%>
+    <div class="spacer">&nbsp;</div>
+  </div>
+  <% form_tag(update_feeds_party_path(current_user), :method => :put, :id => "feeds_checkbox_form") do %>
+  <%= check_box_tag "party[feed_ids][]", "", true, :style => "display:none"%>
+  <table class="list gridded feeds" border="0" cellspacing="0" cellpadding="0" width="100%">
+    <thead class="tableheader">
+      <tr>
+        <th>Action</th>
+        <th>Label</th>
+        <th>Feed URL</th>
+        <th>Tags</th>
+        <th>Show in My Feeds</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= render :partial => "feed", :collection => @feeds %>
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td><%= throbber("updating_feeds_throbber")%></td>
+      </tr>
+    </tbody>
+  </table>
+  <% end -%>
+  <div><%= paginator_on(@page) %></div>
+  <%= observe_form "feeds_checkbox_form", :url => update_feeds_party_path(current_user), :method => :put, 
+        :before => "$('updating_feeds_throbber').show()",
+        :complete => "$('updating_feeds_throbber').hide()",
+        :with => "party[feed_ids]" %>
+</div>
+
+<script>
+  parent.myFeedsShow();
+</script>

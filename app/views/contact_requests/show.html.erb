@@ -1,0 +1,17 @@
+<h1><%=h @contact_request.name %>'s Contact Request</h1>
+<h2><%=h @contact_request.subject %></h2>
+<%= simple_format(h(@contact_request.body)) %>
+<p>
+  <span title="<%= @contact_request.created_at.xmlschema %>">Created <%= time_ago_in_words(@contact_request.created_at) %></span>
+<% if @contact_request.completed? then -%>
+  <span title="<%= @contact_request.completed_at.to_s(:db) %>">Completed <%= time_ago_in_words(@contact_request.completed_at) %></span>
+<% end -%>
+</p>
+<p>
+  <%= link_to_party(@contact_request.party) %>
+  <%= link_to_remote("Complete", :icon => :lightning,
+      :method => :put, :url => complete_contact_request_path(@contact_request),
+      :loading => visual_effect(:appear, typed_dom_id(@contact_request, :indicator))) \
+      if current_user? && current_user.can?(:edit_contact_requests) %>
+  <%= throbber(typed_dom_id(@contact_request, :indicator)) %>
+</p>

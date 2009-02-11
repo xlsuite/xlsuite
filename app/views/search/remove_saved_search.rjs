@@ -1,0 +1,5 @@
+
+page.visual_effect :highlight, "saved_search#{@id}", {:duration => 1.5}
+page.delay(1.5) do
+  page.replace_html "mySavedSearchesPanel", :partial => '/search/saved_searches'
+end

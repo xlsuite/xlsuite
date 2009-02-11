@@ -1,0 +1,87 @@
+
+/*RETS Listing pages*/
+
+/* Created: 2007-07-30
+Update: 2007-08-05
+Author: james@xlsuite.com */
+
+.smaller {font-size: .85em;}
+
+.HRmargin1 {
+  margin-right: 1em;
+}
+
+div.bg {background: #F5F5DC}
+ 
+#topPanel {display: block; height: 30px; font-size: .85em;}
+#topPanel li {display: inline;}
+#topPanel li.hAlignR {margin-left: 10em;}
+#topPanel label {margin-right: 1em;}
+
+h2.listingHeader {font-size: 1em; font-weight: bold;}
+h3.listingHeader {font-size: 1em;}
+
+table.fullWidth {width:100%;}
+
+div.tableHeader {
+  background:transparent url(../../images/table_headerBg.png) repeat-x scroll 0%;
+  height:30px;
+  color: #fafafa;
+  font-weight: bold;
+  display: block;
+  width: 100%;
+}
+  
+.tableHeader h2 {
+  font-weight: bold;
+  font-size: 1em;
+  margin-left: 5px;
+  float:left;
+  margin-top: 5px;
+}
+ 
+#listings_searchOptions {float: right; margin-right: 1em; margin-top: 5px;}
+#listings_searchOptions li {
+  display: inline;
+  float: left;
+  margin: 0 1em;
+}
+ 
+#listings_searchOptions li a {color: #fff; font-weight: normal;}
+
+.tableheader th {padding: 3px 3px 3px 5px; font-weight: bold; border: 1px solid #fff;}
+/*td {padding: 3px; border-right: 1px solid #fff;}*/
+td.mlsImportLabels {vertical-align: top}
+
+td.submit input.button {width: 50px; padding: 2px; float:right; margin-right: 308px;}
+td.submit input.button:hover {cursor: pointer;}
+
+table.lp {width: 60%; float: left;}
+table.lp tr.spacer {height: 1em;}
+table.lp th.leftColumn {width: 40%;}
+table.lp th.rightColumn {width: 60%;}
+table.lp td, table.lp th {padding: .5em 0; border: none; vertical-align: top;}
+
+table.se_small {width: 70%; float: left;}
+table.se_small td select {width: 200px;}
+table.se_small td input.text {width: 200px;}
+
+table.imp {width: 80%; float:left; }
+
+input.int_small {width: 40px !important;}
+input.med {width: 120px !important;}
+select.operator_med {width: 120px !important;}
+
+a.deleteRow {
+  display: block;
+  width: 16px;
+  height: 16px;
+  float: left; 
+  overflow: hidden;
+  background: url(../../images/new_icons/delete.png) no-repeat 0 0;
+  text-indent: -99999px;
+  margin-top: 2px;
+  margin-right: 6px;
+}
+
+a.deleteRow:hover { background: url(../../images/new_icons/delete.png) no-repeat 0 -16px; }

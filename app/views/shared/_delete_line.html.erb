@@ -1,0 +1,14 @@
+<%
+  raise "Missing line" unless line
+  raise "Missing index" unless index
+  raise "Missing fields (must be Array instance)" unless fields and fields.kind_of?(Array)
+  raise "Missing url" unless url
+-%>
+<% if line.new_record? then -%>
+<%= link_to_function image_tag('icons/delete.png', :size => '16x16', :alt => 'Remove'),
+        visual_effect(:fade, "line_#{index}") +
+        %Q(setTimeout(function() {#{fields.map {|field| "Element.remove('line_#{index}_#{field}')"}.join(';')}}, 1000)),
+        :title => 'Remove this line' -%>
+<% else -%>
+<%= link_to_remote image_tag('icons/delete.png', :size => '16x16', :alt => 'Remove'), :url => url, :html => {:title => 'Remove'} -%>
+<% end -%>

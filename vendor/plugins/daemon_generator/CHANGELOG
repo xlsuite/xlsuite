@@ -1,0 +1,7 @@
+Trunk
+* 
+Release 0.5.1 -- Feb 3 2007
+* Rails 1.2.1 compatibility
+* Remove active_support dependency
+Release 0.5 
+* Initial release

@@ -1,0 +1,7 @@
+<div id="listing_<%= @id %>_picture" class="main">
+  <%= render :partial => "rets/thumbnail", :object => thumbnails.first, :locals => {:size => :small, :selected => false, :fullsize => :small} %>
+</div>
+<div id="listing_<%= @id %>_thumbnails" class="thumbnails">
+  <%= render :partial => "rets/thumbnail", :object => thumbnails.first, :locals => {:size => :square, :selected => true, :fullsize => :small} %>
+  <%= render :partial => "rets/thumbnail", :collection => thumbnails[1..-1], :locals => {:size => :square, :selected => false, :fullsize => :small} %>
+</div>

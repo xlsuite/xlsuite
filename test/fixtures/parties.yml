@@ -1,0 +1,130 @@
+admin:
+  id: 1000000
+  confirmed: 1
+  login: admin
+  password_hash: 27b60664ea7cf798b414446027e7f9f6aea9a1ef # password
+  password_salt: 1cc4f201a1f4f68838d7af3f6d4c5b2adee66b8d
+  last_name: 
+  first_name: Administrator
+  company_name: Example Company
+  staff_agreement_version: 1
+  staff_agreement_date: 2005-09-01 14:00
+  on_tour: true
+  created_at: <%= Time.now.to_formatted_s(:db) %>
+  updated_at: <%= Time.now.to_formatted_s(:db) %>
+  display_name: Example Company, Administrator
+  posts_count: 0
+  account_id: 1 # WPUL
+  
+bob:
+  id: 1000001
+  confirmed: 1
+  login: bob
+  password_hash: 70a58c2f392868bb7d9659a1591f98b3cf829d98 # test
+  password_salt: 1cc4f201a1f4f68838d7af3f6d4c5b2adee66b8d
+  last_name: Henry
+  first_name: Bob
+  company_name: Bob's Company
+  staff_agreement_version: 1
+  staff_agreement_date: 2005-09-01 14:00
+  on_tour: 1
+  created_at: <%= Time.now.to_formatted_s(:db) %>
+  updated_at: <%= Time.now.to_formatted_s(:db) %>
+  display_name: Bob's Company, Henry, Bob
+  posts_count: 2
+  account_id: 1 # WPUL
+
+existingbob:
+  id: 1000002
+  confirmed: 1
+  login: existingbob
+  password_hash: 70a58c2f392868bb7d9659a1591f98b3cf829d98 # test
+  password_salt: 1cc4f201a1f4f68838d7af3f6d4c5b2adee66b8d
+  created_at: 2006-04-30 00:01:00
+  updated_at: 2006-04-30 00:01:00
+  display_name: Anonymous
+  account_id: 1 # WPUL
+
+longbob:
+  id: 1000003
+  confirmed: 1
+  login: longbob
+  password_hash: 8420be41f4f8794af323c882528521b43d571fe9 # longtest
+  password_salt: 1cc4f201a1f4f68838d7af3f6d4c5b2adee66b8d
+  created_at: 2006-04-30 00:01:00
+  updated_at: 2006-04-30 00:01:00
+  display_name: Anonymous
+  account_id: 1 # WPUL
+
+mary:
+  id: 51
+  confirmed: 1
+  first_name: Mary
+  login: mary
+  password_hash: 70a58c2f392868bb7d9659a1591f98b3cf829d98 # test
+  password_salt: 1cc4f201a1f4f68838d7af3f6d4c5b2adee66b8d
+  created_at: <%= Time.now.to_formatted_s(:db) %>
+  updated_at: <%= Time.now.to_formatted_s(:db) %>
+  display_name: Mary
+  account_id: 1 # WPUL
+
+
+john:
+  id: 52
+  confirmed: 1
+  first_name: John
+  login: john
+  password_hash: 70a58c2f392868bb7d9659a1591f98b3cf829d98 # test
+  password_salt: 1cc4f201a1f4f68838d7af3f6d4c5b2adee66b8d
+  created_at: 2006-04-30 00:01:00
+  updated_at: 2006-04-30 00:01:00
+  display_name: John
+  account_id: 1 # WPUL
+
+peter:
+  id: 53
+  confirmed: 1
+  first_name: Peter
+  login: peter
+  created_at: 2006-04-30 00:01:00
+  updated_at: 2006-04-30 00:01:00
+  display_name: Peter
+  account_id: 1 # WPUL
+
+tom:
+  id: 54
+  confirmed: 1
+  first_name: Tom
+  created_at: 2006-04-30 00:01:00
+  updated_at: 2006-04-30 00:01:00
+  display_name: Tom
+  account_id: 1 # WPUL
+
+jerry:
+  id: 55
+  confirmed: 1
+  first_name: Jerry
+  created_at: 2006-04-30 00:01:00
+  updated_at: 2006-04-30 00:01:00
+  display_name: Jerry
+  account_id: 1 # WPUL
+
+owner:
+  id: 56
+  confirmed: 1
+  first_name: Owner
+  company_name: Company Owner
+  created_at: 2006-04-30 00:01:00
+  updated_at: 2006-04-30 00:01:00
+  display_name: Company Owner, Owner
+  account_id: 1 # WPUL
+
+destroyed_sam:
+  id: 57
+  confirmed: 1
+  first_name: Sam
+  archived_at: 2006-02-01 0:00:00
+  created_at: 2006-04-30 00:01:00
+  updated_at: 2006-04-30 00:01:00
+  display_name: Sam
+  account_id: 1 # WPUL

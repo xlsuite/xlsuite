@@ -1,0 +1,3 @@
+<%= text_field_tag_with_auto_complete "text_field_recipient[#{count}][#{recipient_count}]", "", 
+    :url => auto_complete_parties_path, :class => "inline text", :size => 50, :after_update => "updateRecipientHiddenField"%>
+<%= hidden_field_tag "recipient[#{count}][#{recipient_count}]", "", :class => "auto_complete_hidden_field" %>

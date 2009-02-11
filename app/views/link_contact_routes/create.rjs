@@ -1,0 +1,3 @@
+page.remove dom_id(LinkContactRoute.new)
+page.insert_html :bottom, typed_dom_id(@party, :routes_group), :partial => @link, :object => @link
+page.visual_effect :highlight, dom_id(@link)

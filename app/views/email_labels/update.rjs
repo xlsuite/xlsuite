@@ -1,0 +1,5 @@
+page << update_notices_using_ajax_response(:on_root => true)
+page << "myEmailLabelsRefresh();"
+if @updated
+  page << refresh_grid_datastore_of("email_label")
+end

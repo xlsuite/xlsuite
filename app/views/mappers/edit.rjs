@@ -1,0 +1,13 @@
+page.call("clearAllMappings")
+mappings = @mappings[:map]
+for i in 0..mappings.size-1
+  next if mappings[i].blank?
+  page << "if ($(\"mappings[map][#{i+1}][model]\")){"
+  page["mappings[map][#{i+1}][model]"].value = mappings[i][:model]
+  page["mappings[map][#{i+1}][field]"].value = mappings[i][:field]
+  page["mappings[map][#{i+1}][name]"].value = mappings[i][:name]
+  page.call("changeSelectedTransformationTo", mappings[i][:tr], i+1)  
+  page << "}"
+end
+page.call("initializeMappingColumns", false)
+page.hide("defaultMapperSelection_throbber")

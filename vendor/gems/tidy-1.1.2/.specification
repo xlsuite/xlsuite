@@ -1,0 +1,70 @@
+--- !ruby/object:Gem::Specification 
+name: tidy
+version: !ruby/object:Gem::Version 
+  version: 1.1.2
+platform: ruby
+authors: 
+- Kevin Howe
+autorequire: 
+bindir: bin
+cert_chain: 
+date: 2005-03-14 00:00:00 -05:00
+default_executable: 
+dependencies: []
+
+description: 
+email: kh@newclear.ca
+executables: []
+
+extensions: []
+
+extra_rdoc_files: []
+
+files: 
+- test
+- lib
+- VERSION
+- MANIFEST
+- CHANGES
+- tidy.gemspec
+- README.txt.en
+- install.rb
+- test/usage.rb
+- lib/tidy
+- lib/tidy.rb
+- lib/tidy/tidyerr.rb
+- lib/tidy/tidyopt.rb
+- lib/tidy/tidyobj.rb
+- lib/tidy/tidybuf.rb
+- lib/tidy/tidylib.rb
+has_rdoc: true
+homepage: tidy.rubyforge.org
+post_install_message: 
+rdoc_options: 
+- --all
+- --inline-source
+- --main
+- lib/tidy.rb
+require_paths: 
+- lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">"
+    - !ruby/object:Gem::Version 
+      version: 0.0.0
+  version: 
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+requirements: []
+
+rubyforge_project: tidy
+rubygems_version: 1.2.0
+signing_key: 
+specification_version: 1
+summary: Ruby interface to HTML Tidy Library Project
+test_files: []
+

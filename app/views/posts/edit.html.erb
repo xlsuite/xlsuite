@@ -1,0 +1,24 @@
+<!-- Edit post form -->
+<div class="postEdit">
+  <div class="threadSubject"><h2>Edit</h2></div>
+  <%= content_tag 'p', h(flash[:bad_reply]), :class => 'notice' if flash[:bad_reply] %>
+  <p class="userPostHeading">You are editing a post in
+    <span class="bold">
+      <%= @topic.title %>
+    </span>
+  </p>
+  <br />
+  <% form_for :post, @post, :url => forum_category_forum_topic_post_path(:forum_category_id => @forum_category.id, :forum_id => @forum.id, :topic_id => @topic.id, :id => @post.id, 
+      :page => params[:page], :show => params[:show], :sort => params[:sort], :escape => false), :html => {:method => :put} do |f| -%>  
+    <%= render :partial => "posts/form", :locals => { :f => f } %>
+    <%= render_textile_help_box %>
+      <br class="clear" /> 
+      <div class="postButtons">
+        <%= submit_tag "Save", :class => "button" %> 
+        <%= link_to 'Cancel', forum_category_forum_topic_path(:forum_category_id => @forum_category.id, :forum_id => @forum.id, :id => @topic.id, 
+            :page => params[:page], :show => params[:show], :sort => params[:sort], :escape => false),
+            :class => "link_button" %>
+      </div>    
+  <% end -%>
+ <br class="clear" />
+</div>

@@ -1,0 +1,55 @@
+  <tr>
+    <td class="authorInfo">
+      <%= render_forum_name(post.user) %>
+      
+      <!-- avatar example -->
+      <!-- NO AVATAR FOR NOW <%= image_tag "logo-amex.gif", :class => "avatar" %>-->
+      <ul class="authorStats">
+        <% if post.user %>
+          <li class="authorStatus"><%= post.user.honorific if post.user %></li>
+          <li>Joined: <span class="memberJoined"><%= post.user.created_at.strftime("%Y-%m-%d") if post.user %></span></li>
+          <li><%= link_to_function pluralize(post.user.posts_count, 'Post'), "" %></li>
+          <!--THIS NEEDS TO BE IMPLEMENTED FIRST: NEED A TABLE TO KEEP TRACKS OF ONLINE USERS -->
+          <!--<li>Status:&nbsp;<span class="authorActivity">Online OR Offline</span></li>-->
+        <% else %>
+          <li class="authorStatus">Author Deleted</li>
+        <% end %>
+      </ul>
+    </td>
+    
+    <td class="post">
+      <p class="postTimeStamp">
+        <a href="#<%= post.dom_id %>" rel="bookmark" class="authorName" id="<%= post.dom_id %>">
+          Posted on:&nbsp;<span class="thisPostTimeStamp"><%= post.created_at.getlocal.strftime("%a %b %d %Y %I:%M%p") %></span>
+        </a>
+        <!-- Current User can edit or delete this post, as well as admins -->  
+        <span class="forum_post_options">
+        <% if current_user? && post.editable_by?(current_user) %>
+          <!-- Current User Options -->
+            <%= link_to(image_tag("forum_edit.png", :class => "editEdit"), 
+              edit_forum_category_forum_topic_post_url(:forum_category_id => post.forum_category, :forum_id => post.forum, :topic_id => post.topic, 
+                  :id => post, :page => params[:page], :show => params[:show], :sort => params[:sort], :escape => false)) %>
+            <%= link_to(image_tag("forum_delete.png", :class => "editDelete"), 
+              forum_category_forum_topic_post_url(:forum_category_id => post.forum_category.id, :forum_id => post.forum.id, :topic_id => post.topic.id, :id => post.id,
+                :page => params[:page] || "1", :show => params[:show], :sort => params[:sort], :escape => false), :method => :delete, :confirm => "Are you sure you want to delete the post permanently?") %>          
+          <!-- Post Options -->
+            <%= link_to_function(image_tag("forum_quote.png"), "
+              quote = $('contentOf#{post.dom_id}').innerHTML;
+              $('newReply').down('form').action = #{forum_category_forum_topic_posts_path(:forum_category_id => @forum_category.id, :forum_id => @forum.id, :topic_id => @topic.id, :show => params[:show], :sort => params[:sort], :escape => false).inspect};
+              $('newReply').down('form').down('.forumPost').value = $('newReply').down('form').down('.forumPost').value + '<blockquote>' + quote + '</blockquote>';
+              $('newReply').show();
+              return false;", 
+              :class => "editQuote") if current_user? %>
+            <!-- reply to THIS post, not to the thread: ie: this reply becomes a child of this post. -->
+            <%= link_to( image_tag("forum_reply.png", :class => "editReply"), new_forum_category_forum_topic_post_path(post.forum_category, post.forum, post.topic), 
+              :onclick => "$('newReply').down('.userPostHeading').down('.bold').innerHTML = #{post.topic.title.inspect};
+              $('newReply').down('form').action = #{forum_category_forum_topic_posts_path(:forum_category_id => @forum_category.id, :forum_id => @forum.id, :topic_id => @topic.id, :show => params[:show], :sort => params[:sort], :escape => false).inspect};
+              $('newReply').toggle();
+              $('post_body').focus();
+              return false;" ) if current_user? %>          
+        <% end %>
+        </span>
+      </p>
+      <div id="contentOf<%= post.dom_id %>" class="postContent"><%= post.rendered_body %></div>
+    </td>
+  </tr>

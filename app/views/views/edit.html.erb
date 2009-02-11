@@ -1,0 +1,17 @@
+<%= stylesheet_link_tag 'listings/index'%>
+<%= javascript_include_tag 'multifile' %>
+<h1 style='font-size: 14px; font-weight: bold; padding: 5px;'>Listings - <%= @listing.address.line1 %> Editing View  - <%= @pic.name %></h1>
+<%= error_messages_for  'pic' %>
+<% form_for :view, @pic, :url => view_path(@listing, @pic), :html => {:method => :put} do |f| %>
+<dl>
+  <dt>Thumbnail:</dt>
+  <dd><%= image_tag thumb_picture_url(:id => @pic.picture.id) %></dd>
+  <dt>Name:</dt>
+  <dd><%= f.text_field :name %></dd>
+  <dt>Description:</dt>
+  <dd><%= f.text_area :description, :rows => 4, :cols => 60 %></dd>
+</dl>
+<div id="bottom-actions" class="form-actions bottom-actions">
+  <%= submit_tag "Save" %> or <%= link_to "Cancel", views_path(@listing) %>
+</div>
+<% end %>

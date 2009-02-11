@@ -1,0 +1,5 @@
+page.visual_effect :fade, dom_id(@email_address)
+page.delay(2) do
+  page.remove dom_id(@email_address)
+end
+

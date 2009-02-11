@@ -1,0 +1,119 @@
+/* Contact - Main Info (name,company) */
+
+#new_contact {width: 90%; margin: 3em auto;}
+#contactPhoto {border: 1px solid #ddd; float: left; clear: left; margin-left: 4px; padding: 4px;}
+#new_party_name_group {width: 300px; height: 180px; float: left; position: relative;}
+	#new_party_name_group input {width: 100%; margin-bottom: 2px;}
+	#new_party_name_group .throbber {right: 0; top: 0; float: none; position: absolute;}
+#cgroup {display: block; float: left; margin-left: 4px; width: 204px;}
+#new_party_routes_group {float: left; width: 300px; height: 180px; position: relative;}
+	#new_party_routes_group input { margin-bottom: 2px;}
+	#new_party_routes_group .throbber {right: 0; top: 0; float: none;}
+#new_party_addresses_group {width: 300px; height: 180px; float: left; position: relative;}
+	#new_party_addresses_group input { width:288px; margin-bottom: 2px; margin-left: 4px;}
+	#new_party_addresses_group .throbber {right: 0; top: 0; float: none;}
+#new_address_contact_route_name_field {width: 150px !important;}
+#generalContactRoutes {margin-left: 20px;}
+#generalContactRoutes .row {position: relative;}
+#generalContactRoutes .CR_img {position: absolute; top: 2px; left: -18px; display: block; width: 16px;}
+
+.parties_footer  {width: 100%; clear: both;}
+.parties_footer input.submit {}
+.parties_footer p.recordStatus {text-align: center; font-size: x-small;}
+p.recordStatus span.createdBy_date, p.recordStatus span#modifiedBy_date {background: #BCDBF6;}
+
+/*phone numbers - email - addresses - specific widths*/	
+#new_contact .name{width: 86px !important; margin-bottom: 2px;}
+#new_contact .number{width: 114px !important; margin-bottom: 2px;}
+#new_contact .extension{width: 56px !important; margin-bottom: 2px;}
+#new_contact .url{width: 178px !important; margin-bottom: 2px;}
+#new_contact .email_address{width: 178px !important; margin-bottom: 2px;}
+#new_party_addresses_group .name {width: 150px !important; margin-bottom: 2px;}
+
+/*other elements*/
+.adressContactRoute1{position:relative;} /*to help position map link*/
+.mapLink {font-size: x-small; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; line-height: 15px; position: absolute; top: 1px; right: 4px;}
+input.state {width: 110px !important; margin-right: -4px;}
+input.country{ width: 118px !important; margin-right: -4px;}
+input.zip { width: 44px !important;}
+
+/*references */
+#new_party_references {width: 300px; height: 180px; float: left;}
+#new_party_referred_by_field  {width: 288px; margin-left: 4px;}
+
+/*comments*/
+
+#generalComments {width: 300px; float: left; height: 180px;}
+#new_party_notes_field  {width: 284px; margin-left: 4px; height: 120px; overflow: auto; }
+
+/*tags*/
+#generalTags {display: inline; width: 300px; height: 180px; float: left; position: relative;}
+	#generalTags .throbber {right: 0; top: 0; float: none;}
+#new_party_tag_list_field {width: 100%; height: 120px; margin: 0 4px; overflow: auto; }
+#tag_cloud {width: 600px; height: 180px; float: left;}
+#new_party_tag_cloud {width: 576px; height: 114px; margin: 0 12px; overflow: auto;}
+
+
+
+/* Profile *__________________________________________________________________________________________________*/
+
+.showFormInfo {
+padding: 10px;
+margin-top: 1px;
+}
+
+.showFormInfo br { margin-bottom: 10px;}
+
+#profileContentLeft {
+width: 300px;
+float: left;
+}
+
+#profileContentRight {
+width: 200px;
+float: right;
+}
+
+#profileContentFooter {
+text-align: center;
+padding: 10px;
+clear: both;
+font-size: 80%;
+border-top: 1px solid #fff;
+}
+
+#profileContactSettings p {
+ display: inline;
+}
+
+
+
+/*Odds n ends ___________________________________________________________________________________________________*/
+
+.deleteAddress { padding-left: 2px; margin-bottom: 24px; }
+
+#deleteRecord {
+position: absolute;
+bottom: 10px;
+right: 10px;
+color: #333;
+border: 1px solid #fff;
+padding: 3px 4px;
+}
+
+#deleteRecord a:hover {
+color: #008eb0;
+}
+
+#deleteRecord:hover {
+background: #E6E8FA;
+color: #008eb0;
+}
+
+#load {
+height: 16px;
+width: 16px;
+position: absolute;
+top: 94px;
+left: 40px;
+}

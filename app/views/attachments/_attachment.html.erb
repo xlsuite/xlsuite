@@ -1,0 +1,5 @@
+<li id="<%= attachment.dom_id %>">
+  <%= hidden_field_tag "assets[][id]", attachment.asset_id %>
+  <%= link_to(h(attachment.filename), download_asset_path(attachment.asset)) %> (<%= number_to_human_size(attachment.size) %>)
+  <%= link_to("Remove", attachment_path(attachment.email, attachment), :class => "remove", :icon => :delete) unless @hide_remove_link %>
+</li>

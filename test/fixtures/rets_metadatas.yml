@@ -1,0 +1,132 @@
+resources:
+  name: METADATA-RESOURCE
+  date: "2008-10-09"
+  values: |
+    --- !seq:RETS4R::Client::Metadata 
+    - !map:RETS4R::Client::Data 
+      ValidationExpressionVersion: 
+      ClassVersion: 19.80.60444
+      LookupDate: Thu, 09 Oct 2008 15:47:24 GMT
+      LookupVersion: 3.75.35871
+      ValidationExternalVersion: 
+      ValidationExpressionDate: 
+      UpdateHelpDate: 
+      EditMaskVersion: ""
+      ObjectDate: Mon, 08 Sep 2003 17:37:50 GMT
+      ResourceID: Property
+      UpdateHelpVersion: 
+      ObjectVersion: 3.75.35870
+      EditMaskDate: "                             "
+      ValidationLookupDate: 
+      SearchHelpDate: "                             "
+      ClassCount: "9"
+      ClassDate: Thu, 09 Oct 2008 15:47:24 GMT
+      ValidationExternalDate: 
+      VisibleName: Property
+      SearchHelpVersion: ""
+      StandardName: Property
+      ValidationLookupVersion: 
+      KeyField: sysid
+      Description: MLS Property Table
+
+  version: 19.80.60444
+
+properties:
+  name: METADATA-CLASS:Property
+  date: "2008-10-09"
+  values: |
+    --- !seq:RETS4R::Client::Metadata 
+    - !map:RETS4R::Client::Data 
+      UpdateDate: 
+      TableVersion: 19.80.60444
+      ClassName: "1"
+      VisibleName: RED
+      UpdateVersion: 
+      StandardName: ResidentialProperty
+      TableDate: Thu, 09 Oct 2008 15:47:24 GMT
+      Description: Residential Detached
+
+  version: 19.80.60444
+
+fields:
+  name: METADATA-TABLE:Property:1
+  date: "2008-10-09"
+  values: |
+    --- !seq:RETS4R::Client::Metadata 
+    - !map:RETS4R::Client::Data 
+      Index: "0"
+      MaxSelect: "0"
+      ShortName: Postal Code
+      MetadataEntryID: 11-11
+      Precision: "0"
+      Required: "0"
+      DBName: ZipCode_11
+      Alignment: ""
+      Maximum: " "
+      Default: "0"
+      Searchable: "1"
+      MaximumLength: "12"
+      Minimum: " "
+      LongName: Postal Code
+      SearchHelpID: ""
+      Units: ""
+      UseSeparator: "0"
+      Interpretation: ""
+      DataType: Character
+      StandardName: PostalCode
+      SystemName: "11"
+      LookupName: ""
+      Unique: "0"
+      EditMaskID: ""
+    - !map:RETS4R::Client::Data 
+      Index: "0"
+      MaxSelect: "0"
+      ShortName: Address
+      MetadataEntryID: 11-14
+      Precision: "0"
+      Required: "0"
+      DBName: Address_14
+      Alignment: ""
+      Maximum: " "
+      Default: "0"
+      Searchable: "0"
+      MaximumLength: "100"
+      Minimum: " "
+      LongName: Address
+      SearchHelpID: ""
+      Units: ""
+      UseSeparator: "0"
+      Interpretation: ""
+      DataType: Character
+      StandardName: ""
+      SystemName: "14"
+      LookupName: ""
+      Unique: "0"
+      EditMaskID: ""
+    - !map:RETS4R::Client::Data 
+      Index: "0"
+      MaxSelect: "0"
+      ShortName: MLS Number
+      MetadataEntryID: 11-14
+      Precision: "0"
+      Required: "0"
+      DBName: MLS_Number
+      Alignment: ""
+      Maximum: " "
+      Default: "0"
+      Searchable: "0"
+      MaximumLength: "100"
+      Minimum: " "
+      LongName: MLS Number
+      SearchHelpID: ""
+      Units: ""
+      UseSeparator: "0"
+      Interpretation: ""
+      DataType: Character
+      StandardName: ""
+      SystemName: "1211"
+      LookupName: ""
+      Unique: "0"
+      EditMaskID: ""
+
+  version: 19.80.60444

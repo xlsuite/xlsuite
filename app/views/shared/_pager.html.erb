@@ -1,0 +1,9 @@
+<% page = pager # Legacy, must remove when we rework the pagination -%>
+<% if page && (page.next? || page.prev?) -%>
+<div class="pager">
+  Navigate:&emsp;
+  <%= link_to "Previous page", { :icon => 'resultset_previous', :page => page.prev.number } if page.prev? %>
+  <%= page.number %>
+  <%= link_to "Next page", { :icon => 'resultset_next', :page => page.next.number } if page.next? %>
+</div>
+<% end -%>

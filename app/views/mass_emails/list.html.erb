@@ -1,0 +1,17 @@
+<%= stylesheet_link_tag "mass_emails/list" %>
+
+<table id="emails_list">
+  <thead>
+    <tr>
+      <th>Subject</th>
+      <th>To</th>
+      <th>Status</th>
+      <th>Created by</th>
+      <th>Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= render :partial => "mass_email_list", :collection => @mass_emails %>
+  </tbody>
+</table>
+<div><%= paginator_on(@page) %></div>

@@ -1,0 +1,11 @@
+if @created
+  # update notices
+  page << update_notices_using_ajax_response(:on_root => true)
+  # close the current new product tab
+  page << close_tab_panel("products_new_nil")
+  # open a new edit tab with the saved product
+  page << send_default_get_ajax_request(edit_product_path(@product))
+  page << refresh_grid_datastore_of("Product")
+else
+  page << update_inside_panel_notifications("products_new_nil")
+end

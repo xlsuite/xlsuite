@@ -1,0 +1,37 @@
+<%= error_messages_for(:group) %>
+<% labelled_fields_for(:group) do |f| %>
+  <%= f.hidden_field(:id) if @group_id %>
+  <%= f.text_field :name, :class => 'text' %>
+
+ 
+  <div id="permissions">
+  <h2>Permissions</h2>
+    <%= render :partial => "permissions" %>
+    <p class="select_clear">
+      <%= link_to_function("Select All", "selectAll('permissions')") %>
+      <%= link_to_function("Clear All", "deselectAll('permissions')") %>
+    </p>
+  </div>
+
+  
+  <div id="subgroups">
+  <h2>Groups and Permission Sets</h2>
+    <%= render :partial => "groups" %>
+    <p class="select_clear">
+      <%= link_to_function("Select All", "selectAll('subgroups')") %>
+      <%= link_to_function("Clear All", "deselectAll('subgroups')") %>
+    </p>
+  </div>
+
+  
+  <div id="members">
+  <h2>Parties</h2>
+    <%= render :partial => "members" %>
+    <p class="select_clear">
+      <%= link_to_function("Select All", "selectAll('members')") %>
+      <%= link_to_function("Clear All", "deselectAll('members')") %>
+    </p>
+  </div>
+
+  <%= submit_tag "Save", :name => nil, :class => 'button' %>
+<% end -%>

@@ -1,0 +1,1 @@
+page.remove("file"+@asset.id.to_s, "ajaxViewFile"+@asset.id.to_s)

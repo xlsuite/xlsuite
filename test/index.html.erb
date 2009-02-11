@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <title>Test Report Summary</title>
+    <style type="text/css">
+      html, body { font-family: Arial, sans-serif; }
+      img { display: block; float: left; margin: .5em; border-bottom: 2px solid #333; border-right: 2px solid #333; } 
+      dl { clear: both; }
+      dt { font-weight: bold; }
+      #links ul, #links li { display: block; margin: 0; padding: 0; }
+      #links li { display: inline; }
+    </style>
+  </head>
+  <body>
+    <img id="coverage" src="coverage-stats.png" alt="Test Coverage Statistics"/>
+    <img id="base" src="base-stats.png" alt="Base Test Statistics"/>
+    <img id="loc" src="loc-stats.png" alt="Lines/LOC Statistics"/>
+    <img id="runtime" src="runtime-stats.png" alt="Total Runtime Statistics"/>
+    <dl>
+      <dt>Revision</dt>
+      <dd><%= revision %></dd>
+      <dt>Date</dt>
+      <dd><%= datetime.to_s(:long) %> UTC</dd>
+      <dt>Links</dt>
+      <dd id="links">
+        <ul>
+          <li><a href="../">Build</a></li>
+          <li><a href="/">CruiseControl.rb</a></li>
+        </ul>
+      </dd>
+    </dl>
+  </body>
+</html>

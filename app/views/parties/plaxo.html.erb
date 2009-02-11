@@ -1,0 +1,20 @@
+<% content_for(:js) do -%>
+<%= javascript_include_tag "http://www.plaxo.com/css/m/js/util.js", "http://www.plaxo.com/css/m/js/basic.js", "http://www.plaxo.com/css/m/js/abc_launcher.js" %>
+<%= javascript_tag %Q(
+function onABCommComplete() {
+  console.log("data added");
+}
+) %>
+<% end -%>
+<% form_for :import, :url => imports_path do |f| %>
+<p>
+<textarea id="recipient_list" name="import[csv]" style="width:400px; height: 200px"></textarea>
+<input name="plaxo" style="display:none" value="plaxo">
+<input name="import[filename]" style="display:none" value="plaxo-<%=Date.today.to_s%>">
+</p>
+<p><a href="#" onclick="showPlaxoABChooser('recipient_list', '<%= address_book_parties_path %>'); return false"><img src="http://www.plaxo.com/images/abc/buttons/add_button.gif" alt="Add from my address book" /></a></p>
+  <p>
+    <%= submit_tag "Upload", :class =>"button" %>
+    <%= link_to "Cancel", imports_path %>
+  </p>
+<% end %>

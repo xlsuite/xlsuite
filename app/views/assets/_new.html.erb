@@ -1,0 +1,5 @@
+<h1>Upload an asset</h1>
+<% form_for(:asset, :url => assets_path, :html => {:id => dom_id(@asset), :multipart => true}) do |f| %>
+  <%= render :partial => "assets/form" %>
+  <span class="actions" id="new_file_action"><%= submit_tag "Upload" %> or 
+<% end -%>

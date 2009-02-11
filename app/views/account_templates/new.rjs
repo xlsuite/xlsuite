@@ -1,0 +1,7 @@
+page << create_tab_using_ajax_response("Account Template") do
+%Q`
+  #{self.generate_form_panel}
+
+  newPanel.add(formPanel);
+`
+end

@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+
+require "fileutils"
+
+ARGV.each do |fname|
+  puts fname
+  state = :skipping_comments
+  File.open(fname, "rb") do |fin|
+    File.open(fname + ".tmp", "wb") do |fout|
+      fin.each_line do |line|
+        if state == :skipping_comments then
+          print '#'
+          if line =~ /^\s*#/ then
+            next
+          else
+            state = :skipping_whitespace
+          end
+        end
+
+        if state == :skipping_whitespace then
+          print '.'
+          if line =~ /^\s*$/
+            next
+          else
+            state = :writing
+          end
+        end
+
+        fout.puts line if state == :writing
+      end
+    end
+
+    puts
+  end
+
+  FileUtils.rm(fname)
+  FileUtils.mv(fname + ".tmp", fname)
+end

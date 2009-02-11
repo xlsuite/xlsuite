@@ -1,0 +1,121 @@
+afteredit_function = %Q`
+  function(oldValue, decodedResponse, plainResponse, me){
+  xl.updateStatusBar(decodedResponse.flash);
+    if (decodedResponse.success){
+      if(xl.categoriesTreePanel){
+        xl.categoriesTreePanel.getRootNode().reload();
+      }
+    }
+    else{
+      me.getEl().setStyle('background-color', '#FFA091');
+      Ext.Msg.alert("Error:", decodedResponse.errors);
+    }
+  }
+`
+
+after_render = if @current_user_can_edit_party_security
+    %Q`
+      effectivePermissionsDataStore.load();
+      selectPermissionsDataStore.load();
+      deniedPermissionsDataStore.load();
+      membersStore.load({params: {start: 0, limit: 50 }});
+    `
+  else 
+    ""
+  end
+
+avatar_path = nil
+if @category.avatar
+  avatar_path = download_asset_path(:id => @category.avatar.id, :size => "mini")
+else
+  avatar_path = "/images/Mr-Smith.jpg"
+end
+
+avatar_image_tag = %Q`<img src="#{avatar_path}" id="#{typed_dom_id(@category, :avatar_img_tag)}"/>`
+
+page << create_tab_using_ajax_response("Category | #{@category.label}", after_render) do
+%Q`
+  var updateCategoryForm = {
+    url: #{category_path(@category).to_json}, 
+    object: 'category',
+    callback: function(options, success, response){
+      var response = Ext.util.JSON.decode(response.responseText);
+    },
+    failure: function(response, options){
+      #{self.connection_error_message}
+    }    
+  };
+
+  #{render_tags_panel("category[tag_list]", @category, current_account.categories.tags, {:inline_form => "updateCategoryForm"}, {:collapsible => false, :title => "Tags"})}  
+  
+  var avatarPanel = new Ext.Panel({
+    height: 170,
+    width: 150,
+    style: "padding:10px",
+    items: {html: "<center>" + #{avatar_image_tag.to_json}},
+    bbar:[
+      {
+        text: "Change/Upload picture",
+        listeners: {
+          click: function(button, event){
+            xl.widget.OpenSingleImagePicker(#{typed_dom_id(@category, :avatar_img_tag).to_json}, #{formatted_image_picker_assets_path(:format => :json).to_json}, "Category", #{@category.id}, {
+              setAvatar: true,
+              setRelation: true,
+              windowTitle: "Please select the category main picture...",
+              beforeSelect: function(window){
+                window.el.mask("Processing...");
+              },
+              afterSelect: function(selectedRecord, window){
+                var params = {};
+                params["category[avatar_id]"] = selectedRecord.id;
+                Ext.Ajax.request({
+                  url: #{category_path(@category).to_json},
+                  method: "PUT",
+                  params: params,
+                  success: function(response, options){
+                    window.el.unmask();
+                  }
+                });
+                Ext.Ajax.request({
+                  url: #{add_views_path.to_json},
+                  params: {id: selectedRecord.get("id"), classification: "Image", object_type: "Category", object_id: #{@category.id}},
+                  method: "POST"//,
+/* THIS EVENT IS NOT USEFUL AT THE MOMENT, BUT REMEMBER TO UNCOMMENT 
+THESE LINES LATER ON AFTER THE PICTURES PANEL FOR THE GROUP IS IMPLEMENTED
+                  success: function(response, options){
+                      picturePanelStore.reload();
+                  }
+*/
+                });
+              }
+            });
+          }
+        }
+      }
+    ]
+  });
+
+  var mainInfoPanel = new Ext.form.FormPanel({
+    autoScroll: true,
+    items: [
+      {
+        layout: "column",
+        items: [
+          {items: [avatarPanel], columnWidth: 0.4},
+          {
+            layout: "form",
+            items: [
+              xl.widget.InlineActiveField({ form: updateCategoryForm, afteredit: #{afteredit_function}, field: {width: 200, value: #{@category.label.to_json}, name: 'label', fieldLabel: 'Label', id: #{typed_dom_id(@category, :label).to_json}}}),
+              xl.widget.InlineActiveField({ form: updateCategoryForm, afteredit: #{afteredit_function}, field: {width: 200, value: #{@category.name.to_json}, name: 'name', fieldLabel: 'Name', id: #{typed_dom_id(@category, :name).to_json}}}),
+              xl.widget.InlineActiveField({ form: updateCategoryForm, field: {type: "textarea", width: 200, value: #{@category.description.to_json}, name: 'description', fieldLabel: 'Description', id: #{typed_dom_id(@category, :description).to_json}}}),
+            ]
+          }
+        ]
+      },
+      tagsPanel
+    ]
+  });
+  
+  newPanel.add(mainInfoPanel);
+`
+end

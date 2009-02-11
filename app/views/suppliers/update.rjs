@@ -1,0 +1,6 @@
+if @updated
+  page << refresh_grid_datastore_of("suppliers") if params[:supplier][:name] || params[:supplier][:classification]
+  page.replace_html(typed_dom_id(@supplier, :timestamps), render_object_timestamps(@supplier))
+end
+
+page << update_inside_panel_notifications("suppliers_edit_#{@supplier.id}")

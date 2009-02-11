@@ -1,0 +1,7 @@
+<tr>
+  <td><%= link_to h(mass_recipient.email.sender.name), show_recipient_mass_email_path(:id => mass_recipient.email.id, :recipient_id => mass_recipient.id) %></td>
+  <td><%= link_to h(mass_recipient.address), show_recipient_mass_email_path(:id => mass_recipient.email.id, :recipient_id => mass_recipient.id) %><td>
+  <td><%= truncate(h((mass_recipient.generated_subject.blank? ? "(no subject)" : mass_recipient.generated_subject ) << ' - ' << mass_recipient.generated_body),60) %></td>
+  <% time = mass_recipient.sent_at %>
+  <td><%= time.yday == Time.now.yday ? time.strftime("%a, %I:%M%p") : time.strftime("%b %d") %></td>
+</tr>

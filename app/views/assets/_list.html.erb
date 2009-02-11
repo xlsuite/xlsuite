@@ -1,0 +1,15 @@
+
+<%= "<tr id = 'file#{list.id}' class="+cycle("", "bg", :name => "list_background_class")+">"-%>
+  <td><%= check_box_tag "assets[]", list.id %></td>
+<% if list.writeable_by?(@current_user)%>
+  <td><%= link_to list.filename, "#", :onclick => 'toggleEditFileView('+list.id.to_s+')' %></td>
+<% else %>
+  <td><%= link_to list.filename, "#", :onclick => 'alert("You can\'t edit this file")' %></td>
+<% end %>
+  <td><%= truncate(list.content_type, 30) %></td>
+  <td><%= number_to_human_size(list.size)%></td>
+  <% path = "Root/"
+     list.folder.self_and_ancestors.each{|f| path.concat(f.name+"/")} if list.folder %>
+  <td><%= link_to(download_asset_path(list), download_asset_path(list), :title=>"In folder: "+path) %></td>    
+</tr>
+</span>

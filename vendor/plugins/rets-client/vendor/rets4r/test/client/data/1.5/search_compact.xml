@@ -1,0 +1,8 @@
+<RETS ReplyCode="0" ReplyText="SUCCESS">
+<COUNT Records="4"/>
+<DELIMITER value="09" />
+<COLUMNS>	First	Second	Third	</COLUMNS>
+<DATA>	Datum1	Datum2	Datum3</DATA>
+<DATA>	Datum4	Datum5	Datum6</DATA>
+<MAXROWS/>
+</RETS>

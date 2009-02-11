@@ -1,0 +1,9 @@
+<%= "<td colspan=5 id='ajaxViewFile#{params[:id]}'>" -%>
+
+<% params[:id] = @asset.folder_id %>
+
+<% form_for(:asset, @asset, :url => asset_path(@asset), :html => {:id => @asset.dom_id, :method => :put, :multipart => true}) do |f| %>
+  <%= render :partial => "ajax_edit_form" %>
+<% end -%>
+
+</td>

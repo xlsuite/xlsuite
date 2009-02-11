@@ -1,0 +1,2 @@
+page.visual_effect :blind_up, dom_id(@address),
+    :afterFinish => %Q(function() {Element.remove("#{dom_id(@address)}");})

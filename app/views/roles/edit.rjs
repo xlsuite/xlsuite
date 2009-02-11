@@ -1,0 +1,51 @@
+after_render = "effectivePermissionsDataStore.load();"
+after_render << if @current_user_can_edit_party_security
+  %Q`
+    selectPermissionsDataStore.load();
+    deniedPermissionsDataStore.load();
+  `
+else
+  ""
+end
+
+main_info_panel_height = if @current_user_can_edit_party_security
+    "((#{get_default_grid_height(nil)}-35)/2-1)"
+  else
+    "((#{get_default_grid_height(nil)}-35)-1)"
+  end
+
+page << create_tab_using_ajax_response("Roles | #{@role.name}", after_render) do
+%Q`
+  var updateRoleForm = {url: #{role_path(@role).to_json}, object: 'role'};
+
+  var mainInfoPanel = new Ext.form.FormPanel({
+    title: "Main Info",
+    height: #{main_info_panel_height},
+    width: (#{self.get_center_panel_width}/2-9),
+    items: [
+      xl.widget.InlineActiveField({ form: updateRoleForm, field: {value: #{@role.name.to_json}, name: 'name', fieldLabel: 'Label', id: #{typed_dom_id(@role, :first_name).to_json}}}),
+    ]
+  });
+
+  #{self.initialize_effective_permissions_grid_panel}
+  #{self.initialize_selected_permissions_grid_panel}
+  #{self.initialize_denied_permissions_grid_panel}
+
+  var infoPanel = new Ext.Panel({
+    layout: "table",
+    layoutConfig: {columns: 2},
+    items:[#{self.info_panel_items}]
+  });
+
+  var tabPanel = new Ext.TabPanel({
+    activeTab: 0,
+    tabPosition: "bottom",
+    items:[
+      {title: "Info", items: infoPanel},
+      {title: "Contacts", html: "Page under development"}
+    ]
+  });
+
+  newPanel.add(tabPanel);
+`
+end

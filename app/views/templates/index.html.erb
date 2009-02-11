@@ -1,0 +1,32 @@
+<div><%= link_to "Add a Template", new_template_path %></div>
+
+<div>
+  <select id="selectionMenu" onChange="executeSelectedAction(this)">
+    <option>Action for marked...</option>
+    <option disabled="">----------------</option>
+    <option id="selectionMenu_deleteOption" disabled="" value="delete">Delete</option>
+  </select>
+  <%= javascript_tag "changeSelectedIndexToZero('selectionMenu')" %>
+</div>
+
+<%= form_tag nil, :id => "templateIndexForm" %>
+  <table id="templateIndexTable">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Label</th>
+        <th>Description</th>
+        <th>Created at</th>
+        <th>Updated at</th>
+        <th>Last modified by</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= render :partial => "template", :collection => @templates %>
+    </tbody>
+  </table>
+</form>
+
+<%= paginator_on(@page) %>
+<%= hidden_field_tag :num_of_checked_items, 0 %>
+<%= javascript_tag "uncheckAllCheckBoxes()" %>

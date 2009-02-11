@@ -1,0 +1,2 @@
+page.replace_html @root, :partial => "rets/thumbnails", :object => @photos
+page << %Q(attachGalleryHandlers($$("\##{@root} .thumbnails img")))

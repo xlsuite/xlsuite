@@ -1,0 +1,20 @@
+
+<%= render :partial => "shared/doctype" %>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <%= render :partial => "shared/head" %>
+    <%= javascript_include_tag "window.js" %>
+    <%= stylesheet_link_tag "themes/default.css", "themes/alphacube.css", "folders/show_collection.css" %>
+    <%= render_using_extjs_layout %>
+    <%= update_notices %>
+    <%= extjs_layout_setup %>
+  </head>
+  <body>
+    <div id="list-of-files">
+      <%= yield %>      
+    </div>
+    <div id="list-of-folders" style="display:none">
+      <%= render :partial => "folders/directory_menu" %>
+    </div>
+  </body>
+</html>

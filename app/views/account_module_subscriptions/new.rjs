@@ -1,0 +1,16 @@
+page << create_tab_using_ajax_response("New XLsuite subscription") do
+%Q`
+  #{self.initialize_module_selections}
+  
+  var wrapperPanel = new Ext.Panel({
+    html: "This feature has not been implemented yet",
+    listeners: {
+      render: function(cpt){
+        xl.fitToOwnerCt(cpt);
+      }
+    }
+  });
+
+  newPanel.add(wrapperPanel);
+`
+end

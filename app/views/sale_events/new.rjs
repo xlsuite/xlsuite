@@ -1,0 +1,19 @@
+page << create_tab_using_ajax_response("Sale Event | New") do
+%Q`
+  var wrapperPanel = new Ext.Panel({
+    cls: 'IAmAPanelWithBorderLayoutContainer',
+    region: 'center',
+    autoScroll: true
+  });
+  
+  var formPanel = new Ext.Panel({
+    region: 'center',
+    html: #{render(:partial => "new").to_json}
+  });
+  wrapperPanel.add(formPanel);
+  
+  newPanel.add(wrapperPanel);
+`
+end
+
+page << render_starts_at_and_ends_at

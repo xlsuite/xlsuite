@@ -1,0 +1,1 @@
+require 'rets4r/client'

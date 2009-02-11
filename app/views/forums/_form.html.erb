@@ -1,0 +1,32 @@
+<p class="inputArea">
+  <span class="label">Title:</span><br />
+  <%= f.text_field :name, :class => "text topic_title" %>
+</p>
+<p class="inputArea">
+  <span class="inline">Position:</span>
+  <%= f.text_field :position, :size => 5, :class => "text inline" %>
+</p><br />
+<p class="inputArea">
+  <span class="label">Description:</span><br />
+  <%= f.text_area :description, :rows => 6, :cols => "100", :class => "text" %>
+</p>
+<div class="inputAreaLeft">
+  <span class="label">These groups can read this forum:</span><br/>
+  <%= collection_multiple_select(:forum, :reader_ids, @available_groups,
+      :id, :to_s, :selected_items => f.object ? f.object.readers : nil)  %>
+</div>
+<div class="inputAreaLeft">
+  <span class="label">These groups can write in this forum:</span><br/>
+  <%= collection_multiple_select(:forum, :writer_ids, @available_groups,
+      :id, :to_s, :selected_items => f.object ? f.object.writers : nil) %>
+</div>
+<script>
+  function checkIfForumNameIsBlank(){
+  if($('forum_name').value == "")
+  {
+    alert("Please enter a forum name");
+    return false;
+  }
+  return true;
+}
+</script>

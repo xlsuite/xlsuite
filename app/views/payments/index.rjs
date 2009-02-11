@@ -1,0 +1,81 @@
+limit = params[:limit] || 50
+
+after_render = %Q`
+  payments.store.load({params: { start: 0, limit: #{limit} }});
+`
+
+page << create_tab_using_ajax_response("Payments", after_render) do
+%Q`
+  var payments = xl.widget.SimpleJSONStore({
+    url: #{formatted_payments_path(:format => :json).to_json},
+    doSmartMappings: true,
+    fields: [
+      'id', 'object_id', 'amount', 'state', 'payment_method',
+      'ever_failed', 'created_at', 'updated_at'
+    ]
+  });
+
+  // define paging toolbar that is going to be appended to the footer of the grid panel
+  var paging = new Ext.PagingToolbar({
+    store: payments.store,
+    pageSize: #{limit},
+    displayInfo: true,
+    displayMsg: 'Displaying {0} to {1} of {2}',
+    emptyMsg: "No payments to display",
+    cls: "bottom-toolbar paging-toolbar-bottom",
+    plugins: [new Ext.ux.PageSizePlugin]
+  });
+  
+  #{create_grid_tbar_filter_field("payments.store")}
+  
+  #{create_grid_tbar_clear_button("payments.store")}
+
+  // create GridPanel object
+  var gridPanel = new Ext.grid.GridPanel({
+    store: payments.store,
+    cm: new Ext.grid.ColumnModel([
+      {header: "ID", width: 100, sortable: false, dataIndex: 'object_id'},
+      {header: "Amount", width: 150, sortable: true, dataIndex: 'amount'},
+      {header: "State", width: 150, sortable: true, dataIndex: 'state'},
+      {header: "Method", width: 55, sortable: true, dataIndex: 'payment_method'},
+      {header: "Has Failed", width: 55, sortable: true, dataIndex: 'ever_failed'},
+      {header: "Last Updated", width: 75, sortable: true, dataIndex: 'updated_at'}
+    ]),
+      
+    viewConfig: { forceFit: true },
+    autoScroll: true,
+    autoWidth: true,
+    height: #{get_default_grid_height(nil)},
+    tbar: [{text: "Filter:"}, filterField, clearButton],
+    bbar: paging,
+    footer: true,
+    loadMask: true,
+    iconCls: 'icon-grid'
+  });
+
+  newPanel.add(gridPanel);
+  xl.runningGrids.set("payments", gridPanel);
+  newPanel.on("destroy", function(){
+    xl.runningGrids.unset("payments");
+  });
+
+  // add extra links to the header
+  newPanel.getTopToolbar().add({
+    text: 'New',
+  });
+  //var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
+  //extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('products_new_nil', #{new_product_path.to_json})").to_json});
+
+  //var editProductUrl = #{edit_product_path(:id => "__ID__").to_json};
+  // set double click action on grid cells
+  gridPanel.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
+    /*var record = ds.getAt(rowIndex);
+    var id = record.data.id.split("_").last();
+
+    switch(columnIndex){
+      default:
+        xl.openNewTabPanel(('products_edit_'+id), editProductUrl.sub("__ID__", id));
+    }*/
+  });
+`
+end

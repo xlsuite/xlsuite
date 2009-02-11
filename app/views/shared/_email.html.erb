@@ -1,0 +1,7 @@
+<tr>
+  <td><%= email.received_at.yday == Time.now.yday ? email.received_at.strftime("%a, %I:%M%p") : email.received_at.strftime("%b %d") %></td>
+  <td><%= link_to email.sender.name, email_path(email) %></td>
+</tr>
+<tr>
+  <td class="bg" colspan="3"><%= link_to (email.subject.blank? ? "" : truncate(email.subject)), email_path(email) %></td>
+</tr>

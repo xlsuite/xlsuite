@@ -1,0 +1,17 @@
+panel_title = "New comment"
+
+page << create_tab_using_ajax_response("New Comment") do
+%Q`
+  #{generate_save_close_cancel_toolbar(@comment, @toolbar_url, @toolbar_close_url, {:page_to_open_after_new => @toolbar_page_to_open_after_new_url})}
+  
+  var formPanel = new Ext.form.FormPanel({
+    autoScroll: true,
+    tbar: tbarbbarButtons,
+    bbar: tbarbbarButtons,
+    title: #{panel_title.to_json},
+    items: [#{render_form_panel_items}]
+  });
+
+  newPanel.add(formPanel);
+`
+end

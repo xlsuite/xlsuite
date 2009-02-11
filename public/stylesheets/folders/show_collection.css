@@ -1,0 +1,7 @@
+h1 { font-weight: bold; font-size: 2em; }
+tr.tableHeader { height: 30px; padding: 6px; background: url(../../images/table_headerBg.png) repeat-x; }
+tr.tableHeader th, tr.tableHeader th a {font: 11px Verdana, sans-serif; font-weight: bold;  padding: 4px; color: #fff;}
+.bg { background: #F5F5DC; }
+.groupBoxLeft { float: left; }
+.groupBoxRight { float: right;}
+.thumbs {float : left; width: 14em; height: 10em; overflow: hidden; position: relative; margin: 1em;}

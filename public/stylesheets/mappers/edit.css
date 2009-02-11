@@ -1,0 +1,52 @@
+.draggable { cursor: move; }
+
+#listOfImportColumns { border: thin solid #8CA076; }
+#listOfImportColumns dt { font-weight: bold; }
+#listOfImportColumns dd { margin-left: 1em; }
+#listOfImportColumns dd > dl { margin-left: 1em; }
+#listOfImportColumns h2 { font-size:110%; font-weight:bold;}
+
+#partyImportColumns { overflow: auto; height: 100%; }
+
+#mappingsTable { width: 100%; border: 1px solid #8CA076; }
+#mappingsTable tr, #mappingsTable td, #mappingsTable th { border: thin solid #8CA076; }
+#mappingsTable tr.odd { background: #eee; }
+
+#mappingsTable .mappingsTableTransformColumn { width: 5% }
+#mappingsTable .mappingsTableIndexColumn { width: 5% }
+
+
+.header_lines_count                            {width: 70px !important; }
+
+     #mappingsTable                            {border: 1px solid white;}
+table#mappingsTable td                         {border: 1px solid white;}
+
+#mappingsTable th {
+background:transparent url(../../images/table_headerBg.png) repeat-x scroll 0%;
+border-right:1px solid #FFFFFF;
+color:#FFFFFF;
+font-weight:bold;
+height:30px;
+padding-left:6px;
+}
+
+
+
+
+#mappingsTable th { 
+height: 30px; 
+background: url(../../images/table_headerBg.png) repeat-x; 
+border-right: 1px solid #fff; 
+font-weight: bold; 
+color: #fff;
+text-align: center; }
+#mappingsTable th.last {border-right: 1px solid #8CA076;}
+#mappingsTable tr, #importIndexTable td { border: 0 solid #8CA076; }
+#mappingsTable td {padding: 2px;}
+#mappingsTable td.options a {display:block;} 
+
+
+
+    
+#import_form                        {margin: 0px 0px 10px 0px;}
+div#import_and_mapper_form p                      {display: inline;}

@@ -1,0 +1,20 @@
+<% if target then -%>
+<div>
+  <%= link_to_when_can('New Payment', payment_new_url(:type => target.class.name.underscore, :id => target.id), {:icon => 'money_add.png', :style => 'display: block; float: right;'}, [:edit_payment]) %>
+  <div style="clear:both; height: .1em;">&nbsp;</div>
+</div>
+<% end -%>
+<table class="list" border="0" cellspacing="0" cellpadding="0" align="center" width="100%">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Method</th>
+      <th>Reason</th>
+      <th>Status</th>
+      <th>Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+<%= render :partial => 'shared/payment', :collection => payments %>
+  </tbody>
+</table>

@@ -1,0 +1,547 @@
+overall_fudge_factor_config:
+  id:           408
+  type:         FloatConfiguration
+  name:         overall_fudge_factor
+  float_value:  1.1
+
+state_config:
+  id:           409
+  type:         StringConfiguration
+  name:         default_state
+  str_value:    QC
+
+country_config:
+  id:           410
+  type:         StringConfiguration
+  name:         default_country
+  str_value:    CAN
+
+fst_config:
+  id:           411
+  type:         BooleanConfiguration
+  name:         fst_active
+  int_value:    1
+
+fst_name_config:
+  id:           412
+  type:         StringConfiguration
+  name:         fst_name
+  str_value:    LKK
+
+fst_rate_config:
+  id:           413
+  type:         FloatConfiguration
+  name:         fst_rate
+  float_value:  1.00
+
+pst_config:
+  id:           414
+  type:         BooleanConfiguration
+  name:         pst_active
+  int_value:    1
+
+pst_name_config:
+  id:           415
+  type:         StringConfiguration
+  name:         pst_name
+  str_value:    KLL
+
+pst_rate_config:
+  id:           416
+  type:         FloatConfiguration
+  name:         pst_rate
+  float_value:  2.00
+
+transpot_config:
+  id:           417
+  type:         FloatConfiguration
+  name:         default_transport_fee
+  float_value:  100.0
+
+equipment_config:
+  id:           418
+  type:         FloatConfiguration
+  name:         default_equipment_fee
+  float_value:  100.0
+
+customer_estimate_picture_geometry_config:
+  id:         422
+  type:       StringConfiguration
+  name:       customer_estimate_picture_geometry
+  str_value:  64x48
+
+small_bushes_length_config:
+  id:         423
+  type:       IntegerConfiguration
+  name:       small_bushes_length
+  int_value:  20
+
+small_trees_length_config:
+  id:         424
+  type:       IntegerConfiguration
+  name:       small_trees_length
+  int_value:  30
+
+swoop_tree_wrap_style_factor_config:
+  id:           425
+  type:         FloatConfiguration
+  name:         swoop_tree_wrap_style_factor
+  float_value:  1
+
+wrap_tree_wrap_style_factor_config:
+  id:           426
+  type:         FloatConfiguration
+  name:         wrap_tree_wrap_style_factor
+  float_value:  5
+
+garage_doors_avg_width_config:
+  id:           427
+  type:         IntegerConfiguration
+  name:         garage_doors_avg_width
+  int_value:    8
+
+garage_doors_avg_height_config:
+  id:           428
+  type:         IntegerConfiguration
+  name:         garage_doors_avg_height
+  int_value:    7
+
+extension_cord_long_config:
+  id:         429
+  type:       ProductConfiguration
+  name:       extension_cord_long
+  product_id: 112 # med extension power cord
+
+extension_cord_med_config:
+  id:         430
+  type:       ProductConfiguration
+  name:       extension_cord_med
+  product_id: 113 # long extension power cord
+
+extension_cord_short_config:
+  id:         431
+  type:       ProductConfiguration
+  name:       extension_cord_short
+  product_id: 111 # long extension power cord
+
+mounting_hardware_ropelight_config:
+  id:         432
+  type:       ProductConfiguration
+  name:       mounting_hardware_ropelight
+  product_id: 115 # mounting hardware
+
+mounting_hardware_regular_config:
+  id:         433
+  type:       ProductConfiguration
+  name:       mounting_hardware_regular
+  product_id: 114 # mounting hardware
+
+mounting_hardware_wreaths_config:
+  id:         434
+  type:       ProductConfiguration
+  name:       mounting_hardware_wreaths
+  product_id: 114 # mounting hardware
+
+base_install_cost_per_foot_config:
+  id:           435
+  type:         FloatConfiguration
+  name:         base_install_cost_per_foot
+  float_value:  1.00
+
+roof_factor_flat_config:
+  id:           436
+  type:         FloatConfiguration
+  name:         roof_factor_flat
+  float_value:  1.0
+
+roof_factor_moderate_config:
+  id:           437
+  type:         FloatConfiguration
+  name:         roof_factor_moderate
+  float_value:  2.0
+
+roof_factor_steep_config:
+  id:           438
+  type:         FloatConfiguration
+  name:         roof_factor_steep
+  float_value:  4.0
+
+roof_factor_low_config:
+  id:           439
+  type:         FloatConfiguration
+  name:         roof_factor_low
+  float_value:  0.0
+
+roof_factor_medium_config:
+  id:           440
+  type:         FloatConfiguration
+  name:         roof_factor_medium
+  float_value:  1.0
+
+roof_factor_high_config:
+  id:           441
+  type:         FloatConfiguration
+  name:         roof_factor_high
+  float_value:  1.5
+
+roof_factor_ropelight_config:
+  id:           442
+  type:         FloatConfiguration
+  name:         roof_factor_ropelight
+  float_value:  2.5
+
+roof_factor_walk_yes_config:
+  id:           443
+  type:         FloatConfiguration
+  name:         roof_factor_walk_yes
+  float_value:  0.0
+
+roof_factor_walk_no_config:
+  id:           444
+  type:         FloatConfiguration
+  name:         roof_factor_walk_no
+  float_value:  1.0
+
+base_install_cost_inflatables_config:
+  id:           445
+  type:         FloatConfiguration
+  name:         base_install_cost_inflatables
+  float_value:  40.0
+
+base_install_cost_ropelight_sculptures_config:
+  id:           446
+  type:         FloatConfiguration
+  name:         base_install_cost_ropelight_sculptures
+  float_value:  40.0
+
+base_install_cost_wreaths_config:
+  id:           447
+  type:         FloatConfiguration
+  name:         base_install_cost_wreaths
+  float_value:  5.0
+
+base_install_cost_animate_config:
+  id:           448
+  type:         FloatConfiguration
+  name:         base_install_cost_animate
+  float_value:  50.0
+
+base_install_cost_trees_config:
+  id:           449
+  type:         FloatConfiguration
+  name:         base_install_cost_trees
+  float_value:  1.0
+
+base_install_cost_bushes_config:
+  id:           450
+  type:         FloatConfiguration
+  name:         base_install_cost_bushes
+  float_value:  1.0
+
+base_install_cost_garlands_config:
+  id:           451
+  type:         FloatConfiguration
+  name:         base_install_cost_garlands
+  float_value:  1.0
+
+base_install_cost_windows_config:
+  id:           452
+  type:         FloatConfiguration
+  name:         base_install_cost_windows
+  float_value:  1.0
+
+base_install_cost_garage_doors_config:
+  id:           453
+  type:         FloatConfiguration
+  name:         base_install_cost_garage_doors
+  float_value:  1.0
+
+base_install_cost_paths_config:
+  id:           454
+  type:         FloatConfiguration
+  name:         base_install_cost_paths
+  float_value:  1.0
+
+base_install_cost_fences_and_gates_config:
+  id:           455
+  type:         FloatConfiguration
+  name:         base_install_cost_fences_and_gates
+  float_value:  1.0
+
+deposit_percentage_config:
+  id:           456
+  type:         IntegerConfiguration
+  name:         deposit_percentage
+  int_value:    50
+
+lights_product_category_config:
+  id:           457
+  type:         ProductCategoryConfiguration
+  name:         lights_product_category
+  product_category_id: 1 # Lights
+
+animate_product_category_config:
+  id:           458
+  type:         ProductCategoryConfiguration
+  name:         animate_product_category
+  product_category_id: 6 # Animation
+
+inflatables_product_category_config:
+  id:           459
+  type:         ProductCategoryConfiguration
+  name:         inflatables_product_category
+  product_category_id: 4 # Inflatables
+
+ropelight_sculptures_product_category_config:
+  id:           460
+  type:         ProductCategoryConfiguration
+  name:         ropelight_sculptures_product_category
+  product_category_id: 3 # Sculptures
+
+garlands_product_category_config:
+  id:           461
+  type:         ProductCategoryConfiguration
+  name:         garlands_product_category
+  product_category_id: 5 # Garlands
+
+wreaths_product_category_config:
+  id:           462
+  type:         ProductCategoryConfiguration
+  name:         wreaths_product_category
+  product_category_id: 2 # Wreaths
+
+payment_protocol_config:
+  id:           463
+  type:         StringConfiguration
+  name:         payment_protocol
+  str_value:    http
+
+default_style_config:
+  id:                   464
+  type:                 ProductCategoryConfiguration
+  name:                 default_style
+  product_category_id:  1 # Lights
+
+styles_master_category_config:
+  id:                   465
+  type:                 ProductCategoryConfiguration
+  name:                 styles_master_category
+  product_category_id:  1 # Lights
+
+default_shipping_fee_config:
+  id:                   466
+  type:                 FloatConfiguration
+  name:                 default_shipping_fee
+  float_value:          25.0
+
+tree_lights_product_category_config:
+  id:           467
+  type:         ProductCategoryConfiguration
+  name:         tree_lights_product_category
+  product_category_id: 1 # Lights
+
+first_invoice_no_config:
+  id:           468
+  type:         IntegerConfiguration
+  name:         first_invoice_no
+  int_value:    1001
+
+paypal_sandbox?_config:
+  id:           469
+  type:         BooleanConfiguration
+  name:         paypal_sandbox?
+  int_value:    1
+
+paypal_sandbox_payment_url_config:
+  id:           470
+  type:         StringConfiguration
+  name:         paypal_sandbox_payment_url
+  str_value:    http://sandbox.paypal.com/
+
+paypal_sandbox_business_config:
+  id:           471
+  type:         StringConfiguration
+  name:         paypal_sandbox_business
+  str_value:    bob@goodenow.com
+
+company_gst_number_config:
+  id:           472
+  type:         StringConfiguration
+  name:         company_gst_number
+  str_value:    4981657985
+
+company_pst_number_config:
+  id:           473
+  type:         StringConfiguration
+  name:         company_pst_number
+  str_value:    123456979
+
+owner_config:
+  id:           474
+  type:         PartyConfiguration
+  name:         owner
+  party_id:     56 # Company Owner
+
+card_processor_sandbox?_config:
+  id:           475
+  type:         BooleanConfiguration
+  name:         card_processor_sandbox?
+  int_value:    1
+
+card_processor_sandbox_url_config:
+  id:           476
+  type:         StringConfiguration
+  name:         card_processor_sandbox_url
+  str_value:    http://sandbox.card-processor.com/
+
+card_processor_sandbox_merchant_id_config:
+  id:           477
+  type:         StringConfiguration
+  name:         card_processor_sandbox_merchant_id
+  str_value:    65778
+
+staff_agreement_version_config:
+  id:           478
+  type:         IntegerConfiguration
+  name:         staff_agreement_version
+  int_value:    1
+
+mounting_hardware_paths_config:
+  id:           479
+  type:         ProductConfiguration
+  name:         mounting_hardware_paths
+  product_id:   120 # mounting_hardware_stakes
+
+apply_fst_on_products_config:
+  id:           480
+  type:         BooleanConfiguration
+  name:         apply_fst_on_products
+  int_value:    1
+
+apply_fst_on_labor_config:
+  id:           481
+  type:         BooleanConfiguration
+  name:         apply_fst_on_labor
+  int_value:    1
+
+apply_pst_on_products_config:
+  id:           482
+  type:         BooleanConfiguration
+  name:         apply_pst_on_products
+  int_value:    1
+
+apply_pst_on_labor_config:
+  id:           483
+  type:         BooleanConfiguration
+  name:         apply_pst_on_labor
+  int_value:    1
+
+city_config:
+  id:           484
+  type:         StringConfiguration
+  name:         default_city
+  str_value:    J81
+
+public_root_category_config:
+  id:           485
+  type:         ProductCategoryConfiguration
+  name:         public_root_category
+  product_category_id: 1 # Lights
+
+account_expiration_duration_in_seconds_config:
+  id:           486
+  type:         IntegerConfiguration
+  name:         account_expiration_duration_in_seconds
+  int_value:    <%= 1.year %>
+
+account_base_cost_config:
+  id:           487
+  type:         FloatConfiguration
+  name:         account_base_cost
+  float_value:  0.00
+
+questionnaire_recipient_emails_config:
+  id:           488
+  type:         StringConfiguration
+  name:         questionnaire_recipient_emails
+  str_value:    "nyampoo@gmail.com"
+  
+confirmation_token_duration_in_seconds_config:
+  id:           489
+  type:         IntegerConfiguration
+  name:         confirmation_token_duration_in_seconds
+  int_value:    <%= 24.hours %>
+
+logo_url_config:
+  id:           490
+  type:         StringConfiguration
+  name:         logo_url
+  str_value:    somewhere.png
+
+favicon_url_config:
+  id:           491
+  type:         StringConfiguration
+  name:         favicon_url
+  str_value:    "/images/favicon.ico"
+  
+default_request_contact:
+  id:           492
+  type:         StringConfiguration
+  name:         default_request_contact
+  str_value:    "bob@test.com"
+
+notify_order_email_config:
+  id:           493
+  account_id:   1
+  type:         StringConfiguration
+  name:         notify_order_email
+  str_value:    "bob@test.com"
+
+notify_order_email_global_config:
+  id:           494
+  type:         StringConfiguration
+  name:         notify_order_email
+  str_value:    "bob@test.com"  
+
+default_payment_term_config:
+  id:           495
+  account_id:   1
+  type:         StringConfiguration
+  name:         default_payment_term
+  str_value:    "n/0"
+
+default_payment_term_global_config:
+  id:           496
+  type:         StringConfiguration
+  name:         default_payment_term
+  str_value:    n/0
+
+paypal_payment_url_global_config:
+  id:           497
+  type:         StringConfiguration
+  name:         paypal_payment_url
+  str_value:    https://www.sandbox.paypal.com
+  
+paypal_business_global_config:
+  id:           498
+  type:         StringConfiguration
+  name:         paypal_business
+  str_value:    hsandj_1202255071_biz@xlsuite.com 
+
+add_to_group_on_signup_config:
+  id:           499
+  type:         StringConfiguration
+  name:         add_to_group_on_signup
+  str_value:    Access
+
+estimate_labor_percentage_config:
+  id:           500
+  type:         IntegerConfiguration
+  name:         estimate_labor_percentage
+  int_value:    50
+
+estimate_supplies_percentage_config:
+  id:           501
+  type:         IntegerConfiguration
+  name:         estimate_supplies_percentage
+  int_value:    50

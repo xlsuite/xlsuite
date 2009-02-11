@@ -1,0 +1,25 @@
+<% form_tag(do_search_rets_path, :html => {:method => :post}) do %>
+  <div><label>Resource: <%= select_tag("search[resource]", options_for_select(@resources, @search[:resource]), :id => "search_resource") %></label><%= throbber(:search_resource_indicator) %></div>
+  <div><label>Class: <%= select_tag("search[class]", options_for_select(@classes, @search[:class]), :id => "search_class") %></label><%= throbber(:search_class_indicator) %></div>
+
+  <fieldset id="query-component">
+    <div><label>Field: <%= select_tag("field", render(:partial => "field", :collection => @fields), :id => "field") %></label><%= throbber(:field_indicator) %></div>
+    <div><label>Operator: <%= select_tag("operator", options_for_select(@operators)) %></label></div>
+    <div><label>Value: <span id="from"><%= text_field_tag("value_from", "") %></span></label>
+      <label style="display:none" id="to_value">And: <%= text_field_tag("value_to", "") %></label></div>
+    <input type="button" id="add_query_component" value="Add"/>
+  </fieldset>
+
+  <ul id="query">
+  </ul>
+
+  <div><label>Limit: <%= text_field_tag("search[limit]", @search[:limit], :size => 3) %></label></div>
+  <div>
+    <label for="search_tag_list">Tag found listings with:</label>
+    <%= text_area_tag "search[tag_list]", nil, :id => :search_tag_list %>
+    <%= throbber :search_tag_list_indicator %>
+    <div id="search_tag_list_auto_complete" class="auto_complete" style="display:none"></div>
+    <%= tag_cloud(@common_tags, :apply_to => :search_tag_list) %>
+  </div>
+  <div><%= submit_tag("Submit", :name => nil) %></div>
+<% end -%>

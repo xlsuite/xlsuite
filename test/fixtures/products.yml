@@ -1,0 +1,46 @@
+fish:
+  id: 1
+  sku: "F93029"
+  name: my fish
+  description: a fish of mine!
+  account_id: 1
+  wholesale_price_cents: 500
+  wholesale_price_currency: CAD
+  retail_price_cents: 1000
+  retail_price_currency: CAD
+  wholesale_peak_price_cents: 500
+  wholesale_peak_price_currency: CAD
+  wholesale_low_price_cents: 500
+  wholesale_low_price_currency: CAD
+  margin: 100
+
+dog:
+  id: 2
+  sku: "DOGGY0"
+  name: brown doggy
+  description: I've always wanted a dog of my own
+  account_id: 1
+  wholesale_price_cents: 500
+  wholesale_price_currency: CAD
+  retail_price_cents: 1500
+  retail_price_currency: CAD
+  wholesale_peak_price_cents: 1500
+  wholesale_peak_price_currency: CAD
+  wholesale_low_price_cents: 1500
+  wholesale_low_price_currency: CAD
+  margin: 200
+rabbit:
+  id: 3
+  sku: "RABBIT0"
+  name: white bunny
+  description: Munch munch munch
+  account_id: 1
+  wholesale_price_cents: 1000
+  wholesale_price_currency: CAD
+  retail_price_cents: 3000
+  retail_price_currency: CAD
+  wholesale_peak_price_cents: 3000
+  wholesale_peak_price_currency: CAD
+  wholesale_low_price_cents: 3000
+  wholesale_low_price_currency: CAD
+  margin: 200

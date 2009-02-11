@@ -1,0 +1,71 @@
+--- !ruby/object:Gem::Specification 
+name: paginator
+version: !ruby/object:Gem::Version 
+  version: 1.1.1
+platform: ruby
+authors: 
+- Bruce Williams
+autorequire: 
+bindir: bin
+cert_chain: []
+
+date: 2008-06-25 00:00:00 -04:00
+default_executable: paginator
+dependencies: 
+- !ruby/object:Gem::Dependency 
+  name: hoe
+  type: :runtime
+  version_requirement: 
+  version_requirements: !ruby/object:Gem::Requirement 
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        version: 1.6.0
+    version: 
+description: Paginator doesn't make any assumptions as to how data is retrieved; you just have to provide it with the total number of objects and a way to pull a specific set of objects based on the offset and number of objects per page.
+email: bruce@codefluency.com
+executables: 
+- paginator
+extensions: []
+
+extra_rdoc_files: 
+- History.txt
+- Manifest.txt
+- README.txt
+files: 
+- History.txt
+- Manifest.txt
+- README.txt
+- Rakefile
+- bin/paginator
+- lib/paginator.rb
+- test/test_paginator.rb
+has_rdoc: true
+homepage: http://paginator.rubyforge.org
+post_install_message: 
+rdoc_options: 
+- --main
+- README.txt
+require_paths: 
+- lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+requirements: []
+
+rubyforge_project: paginator
+rubygems_version: 1.2.0
+signing_key: 
+specification_version: 2
+summary: A generic paginator object for use in any Ruby program
+test_files: 
+- test/test_paginator.rb

@@ -1,0 +1,45 @@
+<div id="<%=typed_dom_id(@order, :fst_fields)%>">
+  <table>
+    <tr>
+      <td>Fst Active? <%= f.check_box :fst_active, :onclick => order_checkbox_js(:fst_active) %>
+          <%= throbber(typed_dom_id(@order, :fst_active, :indicator)) %></td>
+    </tr>
+    <tr>
+      <td>Fst Name:<%= f.text_field :fst_name, :size => 8, :use_default_value => true %></td>
+    </tr>
+    <tr>
+      <td>Fst Rate:<%= f.text_field :fst_rate, :use_default_value => true %></td>
+    </tr>
+    <tr>
+      <td>Apply Fst on Products? <%= f.check_box :apply_fst_on_products, :onclick => order_checkbox_js(:apply_fst_on_products) %>
+        <%= throbber(typed_dom_id(@order, :apply_fst_on_products, :indicator)) %></td>
+    </tr>  
+    <tr>
+      <td>Apply Fst on Labor? <%= f.check_box :apply_fst_on_labor, :onclick => order_checkbox_js(:apply_fst_on_labor) %>
+        <%= throbber(typed_dom_id(@order, :apply_fst_on_labor, :indicator)) %></td>
+    </tr>
+  </table>
+</div>
+
+<div id="<%=typed_dom_id(@order, :pst_fields)%>">
+  <table>
+    <tr>
+      <td>Pst Active? <%= f.check_box :pst_active, :onclick => order_checkbox_js(:pst_active) %>
+          <%= throbber(typed_dom_id(@order, :pst_active, :indicator)) %></td>
+    </tr>
+    <tr>
+      <td>Pst Name:<%= f.text_field :pst_name, :size => 8 , :use_default_value => true%></td>
+    </tr>
+    <tr>
+      <td>Pst Rate:<%= f.text_field :pst_rate, :use_default_value => true %></td>
+    </tr>
+    <tr>
+      <td>Apply Pst on Products? <%= f.check_box :apply_pst_on_products, :onclick => order_checkbox_js(:apply_pst_on_products) %>
+        <%= throbber(typed_dom_id(@order, :apply_pst_on_products, :indicator)) %></td>
+    </tr>  
+    <tr>
+      <td>Apply Pst on Labor? <%= f.check_box :apply_pst_on_labor, :onclick => order_checkbox_js(:apply_pst_on_labor) %>
+        <%= throbber(typed_dom_id(@order, :apply_pst_on_labor, :indicator)) %></td>
+    </tr>
+  </table>
+</div>

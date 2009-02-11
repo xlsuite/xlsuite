@@ -1,0 +1,7 @@
+<div class="ipage">
+  <h2>Edit Permission Set</h2>
+  <% form_tag(permission_set_path(@permission_set), :method => :put) do %>
+  <%= render :partial => "form" %>
+  <% end %>
+  <p><%= link_to("Back", permission_sets_path, :icon => "permission_set") %></p>
+</div>

@@ -1,0 +1,2 @@
+page << update_totals
+page << update_notices_using_ajax_response

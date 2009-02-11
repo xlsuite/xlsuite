@@ -1,0 +1,3 @@
+
+page.insert_html :after, 'file'+params[:id].to_s, :partial => "display"
+

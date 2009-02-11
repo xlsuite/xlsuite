@@ -1,0 +1,7 @@
+page << update_notices_using_ajax_response
+page.replace_html "#{dom_id(@page)}_errorMessages", @page.errors.full_messages.blank? ? @syntax_error : error_messages_for(:page)
+
+page << refresh_grid_datastore_of("pages")
+if @updated && @close
+  page << "xl.closeTabs('pages_edit_#{@page.id}');"
+end

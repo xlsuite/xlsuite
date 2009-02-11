@@ -1,0 +1,14 @@
+/*
+ * Ext JS Library 2.1
+ * Copyright(c) 2006-2008, Ext JS, LLC.
+ * licensing@extjs.com
+ * 
+ * http://extjs.com/license
+ */
+
+
+Ext.FormPanel=Ext.extend(Ext.Panel,{buttonAlign:'center',minButtonWidth:75,labelAlign:'left',monitorValid:false,monitorPoll:200,layout:'form',initComponent:function(){this.form=this.createForm();Ext.FormPanel.superclass.initComponent.call(this);this.addEvents('clientvalidation');this.relayEvents(this.form,['beforeaction','actionfailed','actioncomplete']);},createForm:function(){delete this.initialConfig.listeners;return new Ext.form.BasicForm(null,this.initialConfig);},initFields:function(){var f=this.form;var formPanel=this;var fn=function(c){if(c.doLayout&&c!=formPanel){Ext.applyIf(c,{labelAlign:c.ownerCt.labelAlign,labelWidth:c.ownerCt.labelWidth,itemCls:c.ownerCt.itemCls});if(c.items){c.items.each(fn);}}else if(c.isFormField){f.add(c);}}
+this.items.each(fn);},getLayoutTarget:function(){return this.form.el;},getForm:function(){return this.form;},onRender:function(ct,position){this.initFields();Ext.FormPanel.superclass.onRender.call(this,ct,position);var o={tag:'form',method:this.method||'POST',id:this.formId||Ext.id()};if(this.fileUpload){o.enctype='multipart/form-data';}
+this.form.initEl(this.body.createChild(o));},beforeDestroy:function(){Ext.FormPanel.superclass.beforeDestroy.call(this);Ext.destroy(this.form);},initEvents:function(){Ext.FormPanel.superclass.initEvents.call(this);this.items.on('remove',this.onRemove,this);this.items.on('add',this.onAdd,this);if(this.monitorValid){this.startMonitoring();}},onAdd:function(ct,c){if(c.isFormField){this.form.add(c);}},onRemove:function(c){if(c.isFormField){Ext.destroy(c.container.up('.x-form-item'));this.form.remove(c);}},startMonitoring:function(){if(!this.bound){this.bound=true;Ext.TaskMgr.start({run:this.bindHandler,interval:this.monitorPoll||200,scope:this});}},stopMonitoring:function(){this.bound=false;},load:function(){this.form.load.apply(this.form,arguments);},onDisable:function(){Ext.FormPanel.superclass.onDisable.call(this);if(this.form){this.form.items.each(function(){this.disable();});}},onEnable:function(){Ext.FormPanel.superclass.onEnable.call(this);if(this.form){this.form.items.each(function(){this.enable();});}},bindHandler:function(){if(!this.bound){return false;}
+var valid=true;this.form.items.each(function(f){if(!f.isValid(true)){valid=false;return false;}});if(this.buttons){for(var i=0,len=this.buttons.length;i<len;i++){var btn=this.buttons[i];if(btn.formBind===true&&btn.disabled===valid){btn.setDisabled(!valid);}}}
+this.fireEvent('clientvalidation',this,valid);}});Ext.reg('form',Ext.FormPanel);Ext.form.FormPanel=Ext.FormPanel;

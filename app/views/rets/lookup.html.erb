@@ -1,0 +1,4 @@
+<%= select_tag(@name,
+    options_for_select(@values) +
+    content_tag(:option, "*** Any Value", :value => ".ANY.") +
+    content_tag(:option, "*** No value", :value => ".EMPTY."), :id => @name) %>

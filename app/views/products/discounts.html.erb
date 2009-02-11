@@ -1,0 +1,206 @@
+<%= content_tag :div, "", :id => typed_dom_id(@product, :discounts) %>
+<%= javascript_tag %Q`
+  function #{typed_dom_id(@product, :discounts)}(){
+    var eastPanel = new Ext.Panel({
+      columnWidth: .35
+    });
+    
+    var westPanel = new Ext.Panel({
+      columnWidth: .65
+    });
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Sale Events Grid
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    // define sale event record
+    var SaleEventRecord = new Ext.data.Record.create([
+      {name: 'id', mapping: 'object_id'},
+      {name: 'name', mapping: 'name'},
+      {name: 'start_date', mapping: 'start_date'},
+      {name: 'end_date', mapping: 'end_date'},
+      {name: 'retail_price', mapping: 'retail_price'},
+      {name: 'discount', mapping: 'average_discount'},
+      {name: 'margin', mapping: 'average_margin'}
+    ]);
+  
+    // data reader to parse the json response
+    var saleEventReader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "object_id"}, SaleEventRecord);
+  
+    // set up connection of the data
+    var saleEventConnection = new Ext.data.Connection({url: #{formatted_sale_events_product_path(:id => @product.id, :format => :json).to_json}, method: 'get'});
+    var saleEventProxy = new Ext.data.HttpProxy(saleEventConnection);
+  
+    // set up the data store and then send request to the server
+    var saleEventDataStore = new Ext.data.Store({proxy: saleEventProxy, reader: saleEventReader});
+    saleEventDataStore.load();
+    
+    var saleEventSelModel = new Ext.grid.RowSelectionModel();
+    
+    var saleEventGrid = new Ext.grid.EditorGridPanel({
+      store: saleEventDataStore,
+      cm: new Ext.grid.ColumnModel([
+          { id: "saleeventname-editorgridpanel-column",
+            header: "Event Name (optional)", 
+            width: 150, 
+            dataIndex: "name", 
+            sortable: true, 
+            editor: new Ext.form.ComboBox({allowBlank: false})
+          },{
+            header: "Start Date", 
+            dataIndex: "start_date", 
+            sortable: true,
+            renderer: xl.formatDate,
+            editor: new Ext.form.DateField({format: "d/m/Y"})
+          },{
+            header: "End Date",
+            dataIndex: "end_date",
+            sortable: true,
+            renderer: xl.formatDate, 
+            editor: new Ext.form.DateField({format: "d/m/Y"})
+          },{
+            header: "Price/Unit",
+            dataIndex: "retail_price",
+            sortable: true, 
+            editor: new Ext.form.NumberField({allowNegative: false, allowBlank: false})
+          },{
+            header: "Discount",
+            dataIndex: "discount",
+            sortable: true, 
+            editor: new Ext.form.NumberField({allowNegative: false, allowBlank: false})
+          },{
+            header: "Margin",
+            dataIndex: "margin",
+            width: 50,
+            sortable: true
+          }
+        ]),
+      selModel: saleEventSelModel,
+      tbar: [
+        "On Sale Dates", 
+        "Create Sales Event", 
+        {
+          text: 'Add Line',
+          handler : function(){
+              var se = new SaleEventRecord({
+                  name: 'New Sale Event 1',
+                  start_date: (new Date()).clearTime(),
+                  end_date: (new Date()).clearTime(),
+                  retail_price: 0,
+                  discount: 0,
+                  margin: 0,
+              });
+              saleEventGrid.stopEditing();
+              saleEventDataStore.insert(0, se);
+              saleEventGrid.startEditing(0, 0);
+            }
+        }
+      ],
+      autoScroll: true,
+      autoWidth: true,
+      autoExpandColumn: 'saleeventname-editorgridpanel-column',
+      height: 200
+    });
+    
+    westPanel.add(saleEventGrid);
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Affiliation Discounts Grid
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // define affiliation discount record
+    var AffiliationDiscountRecord = new Ext.data.Record.create([
+      {name: 'id', mapping: 'object_id'},
+      {name: 'name', mapping: 'name'},
+      {name: 'start_date', mapping: 'start_date'},
+      {name: 'end_date', mapping: 'end_date'},
+      {name: 'retail_price', mapping: 'retail_price'},
+      {name: 'discount', mapping: 'discount'},
+      {name: 'margin', mapping: 'margin'}
+    ]);
+  
+    // data reader to parse the json response
+    var affiliationDiscountReader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, AffiliationDiscountRecord);
+  
+    // set up connection of the data
+    var affiliationDiscountConnection = new Ext.data.Connection({url: #{formatted_products_path(:format => :json).to_json}, method: 'get'});
+    var affiliationDiscountProxy = new Ext.data.HttpProxy(affiliationDiscountConnection);
+  
+    // set up the data store and then send request to the server
+    var affiliationDiscountDataStore = new Ext.data.Store({proxy: affiliationDiscountProxy, reader: affiliationDiscountReader});
+    affiliationDiscountDataStore.load();
+    
+    var affiliationDiscountSelModel = new Ext.grid.RowSelectionModel();
+    
+    var affiliationDiscountGrid = new Ext.grid.EditorGridPanel({
+      store: affiliationDiscountDataStore,
+      cm: new Ext.grid.ColumnModel([
+          {id: "clubname-editorgridpanel-column",
+            header: "Club", 
+            width: 150, 
+            dataIndex: "name", 
+            sortable: true, 
+            editor: new Ext.form.ComboBox({allowBlank: false})
+          },{
+            header: "Price/Unit",
+            dataIndex: "retail_price",
+            sortable: true, 
+            editor: new Ext.form.NumberField({allowNegative: false, allowBlank: false})
+          },{
+            header: "Discount",
+            dataIndex: "discount",
+            sortable: true, 
+            editor: new Ext.form.NumberField({allowNegative: false, allowBlank: false})
+          },{
+            header: "Margin",
+            dataIndex: "margin",
+            width: 50,
+            sortable: true
+          }
+        ]),
+      selModel: affiliationDiscountSelModel,
+      tbar: [
+        "Affiliation Discounts", 
+        "Create Affiliate", 
+        {
+          text: 'Add Line',
+          handler : function(){
+              var ad = new AffiliationDiscountRecord({
+                  name: 'New Club 1',
+                  retail_price: 0,
+                  discount: 0,
+                  margin: 0,
+              });
+              affiliationDiscountGrid.stopEditing();
+              affiliationDiscountDataStore.insert(0, ad);
+              affiliationDiscountGrid.startEditing(0, 0);
+            }
+        }
+      ],
+      autoExpandColumn: 'clubname-editorgridpanel-column',
+      autoScroll: true,
+      autoWidth: true,
+      height: 200
+    });
+    
+    westPanel.add(affiliationDiscountGrid);
+
+    var northEastPanel = new Ext.Panel({
+      html: #{render(:partial => "discounts_form").to_json}
+    });
+    eastPanel.add(northEastPanel);
+
+    var wrapperPanel = new Ext.Panel({
+      region: "center",
+      layout: "column",
+      items: [westPanel, eastPanel],
+      renderTo: #{typed_dom_id(@product, :discounts).to_json}
+    });
+    
+    wrapperPanel.render();
+    new XlSuite.FormHandler("#{dom_id(@product)}_discounts_form", {now:true, defaultValue:"N/A"});
+  };
+  #{typed_dom_id(@product, :discounts)}();
+`
+%>

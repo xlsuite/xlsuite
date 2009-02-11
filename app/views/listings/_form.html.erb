@@ -1,0 +1,63 @@
+<fieldset>
+<h2>Address</h2>
+<% labelled_fields_for(:address, @address) do |f| %>
+  <div id="form-errors">
+    <%= error_messages_for :address %>
+  </div>
+  <%= f.text_field :line1, :label => "Line 1" %>
+  <%= f.text_field :line2, :label => "Line 2" %>
+  <%= f.text_field :line3, :label => "Line 3" %>
+  <%= f.text_field :city %>
+  <%= f.text_field :state, :label => "Province/State" %>
+  <%= f.text_field :country %>
+  <%= f.text_field :zip, :label => "Postal/Zip Code" %>
+<% end -%>
+</fieldset>
+
+<fieldset>
+  <h2>Pictures</h2>
+  <% labelled_fields_for(:asset) do |f| %>
+    <%= f.file_field :uploaded_data, :label => "Filename" %>
+    <%= f.text_field :filename %>
+    <%= f.text_field :title %>
+    <%= f.text_area :description, :style => "height: 3em;" %>
+  <% end -%>
+</fieldset>
+
+<fieldset>
+<h2>Details</h2>
+<% labelled_fields_for(:listing, @listing) do |f| -%>
+  <div id="form-errors">
+    <%= error_messages_for :listing %>
+  </div>
+
+  <%= f.text_field :contact_email, :label => "Contact email"%>
+  <%= f.text_field :mls_no, :label => 'MLS No', :size => 10 %>
+  <%= f.text_field :status, :label => 'Status', :size => 10 %>
+  <%= f.text_field :age, :size => 4, :class => 'number' %>
+  <%= f.text_field :bedrooms, :size => 4, :class => 'number' %>
+  <%= f.text_field :bathrooms, :size => 4, :class => 'number' %>
+
+  <%= f.text_field :house_size, :size => 4 %>
+  <%= f.select :house_size_unit, Listing::UNITS %>
+  <%= text_field :listing, :lot_size, :size => 4 %> 
+  <%= f.select :lot_size_unit, Listing::UNITS %>
+
+  <%= f.text_field :price, :value => @listing.price, :size => 8, :class => 'money' %>
+  <%= f.text_area :features, :rows => 4, :cols => 60 %>
+  <%= f.text_area :description, :rows => 4, :cols => 60 %>
+  <%= f.text_area :extras, :rows => 4, :cols => 60 %>
+
+  <div class="tag_cloud">
+    <%= f.text_area_with_auto_complete :tag_list, :url => auto_complete_tag_listings_path %>
+  </div>
+  <ul id="<%= typed_dom_id(@listing, :tag_cloud) %>" class="tag_cloud">
+    <%= render :partial => "tags/tag", :collection => @common_tags, :spacer_template => "shared/list_comma",
+        :locals => {:apply_to => %w(listing_tag_list)} %>
+  </ul>
+<% end -%>
+</fieldset>
+<%= hidden_field_tag "frontend", @_frontend %>
+<div id="bottom-actions" class="form-actions bottom-actions">
+  <%= submit_tag "Save" %> or  <%= @_frontend ? (link_to "Back", request.env["HTTP_REFERER"]) : (link_to_function "Cancel", "xl.closeTabPanel('listings_new_nil')") %>
+</div>

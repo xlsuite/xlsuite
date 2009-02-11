@@ -1,0 +1,88 @@
+<div class="propListingWrap" style="padding: 10px;">
+  <% inline_form_for(:listing, @listing, :url => listing_path(@listing), :method => :put, :html => {}) do |f| %>
+    <table width="450" height="100%" cellpadding="25" cellspacing="0" border="0" style="display: inline; float: left;">
+      <tr>
+        <td colspan="2">
+          <h2 class="listingHeader"><%= render_listing_address_area_city_and_zip(@listing) %></h2>
+          <h2 class="listingHeader"><%= render_listing_size_style_and_price(@listing) %></h2>
+          <br />
+        </td>
+      </tr>
+      
+      <tr rowspan="15">
+        <td class="summaryLabel">MLS Number:</td>
+        <td class="summaryValue"><%= h(@listing.mls_no) %></td>
+      </tr>
+      
+      <tr>
+        <td class="summaryLabel">List Date:</td>
+        <td class="summaryValue"><%= h(@listing.list_date) %></td>
+      </tr>
+      
+      <tr>
+        <td class="summaryLabel">Last Transaction:</td>
+        <td class="summaryValue"><%= h(@listing.last_transaction) %></td>
+      </tr>
+      
+      <tr>
+        <td class="summaryLabel">Status:</td>
+        <td class="summaryValue"><%= f.text_field :status %></td>
+      </tr>
+      
+      <tr>
+        <td class="summaryLabel">Contact:</td>
+        <td class="summaryValue">
+          <a href="#" onclick="xl.openNewTabPanel('new_email_to_<%=@listing.contact_email%>_nil', '<%=sandbox_new_emails_path%>?to_name_addresses=<%=@listing.contact_email%>')">
+            <%= h(@listing.contact_email) %>
+          </a>
+        </td>
+      </tr>
+      
+      <tr>
+        <td class="summaryLabel">Dwelling Type:</td>
+        <td class="summaryValue"><%= h(@listing.dwelling_type) %></td>
+      </tr>
+      
+      <tr>
+        <td class="summaryLabel">Dwelling Class:</td>
+        <td class="summaryValue"><%= h(@listing.dwelling_class) %></td>
+      </tr>
+      
+      <tr>
+        <td class="summaryLabel">Title of Land:</td>
+        <td class="summaryValue"><%= h(@listing.title_of_land) %></td>
+      </tr>
+      
+      <tr>
+        <td class="summaryLabel">Bedrooms/Bathrooms:</td>
+        <td class="summaryValue"><%= render_listing_column(@listing.bedrooms, @listing.bathrooms) %></td>
+      </tr>
+      
+      <tr>
+        <td class="summaryLabel">Year Built:</td>
+        <td class="summaryValue"><%= h(@listing.year_built) %></td>
+      </tr>
+      
+      <tr>
+        <td class="summaryLabel">Images:</td>
+        <td class="summaryValue"><%= h(@listing.num_of_images) %></td>
+      </tr>
+      
+      <tr>
+        <td class="summaryLabel">Description:</td>
+        <td class="summaryValue"><%= f.text_area :description %></td>
+      </tr>
+      
+      <tr>
+        <td class="summaryLabel">Extras:</td>
+        <td class="summaryValue"><%= f.text_area :extras, :value => @listing.extras.blank? ? "None" : h(@listing.extras) %></td>
+      </tr>
+      
+      <tr>
+        <td class="summaryLabel">Tags:</td>
+        <td class="summaryValue"><%= f.tags_field :tag_list %></td>
+      </tr>
+    </table>
+    <%= render :partial => "thumbnails", :locals => {:listing => @listing} %>
+  <% end -%>
+</div>

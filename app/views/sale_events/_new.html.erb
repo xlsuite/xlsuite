@@ -1,0 +1,15 @@
+<h2 class="page_header">New Sale Event</h2>
+<div id="sale_event_new" class="ipage">
+<% inline_remote_form_for(:sale_event, @sale_event, :url => sale_events_path) do |f| %>
+  <div class="sale_event_form_buttons">
+    <%= submit_tag "Create", :class=> "button" %>
+    <%= link_to_function "Cancel", "xl.closeTabPanel('sale_events_new_nil')" %>
+  </div>
+  <%= render_inside_panel_notifications_container %>
+  <%= render :partial => "form", :locals => {:f => f} %>  
+  <div class="sale_event_form_buttons">
+    <%= submit_tag "Create", :class=> "button" %>
+    <%= link_to_function "Cancel", "xl.closeTabPanel('sale_events_new_nil')" %>
+  </div>
+<% end %>
+</div>

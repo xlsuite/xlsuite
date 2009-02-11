@@ -1,0 +1,23 @@
+<h1 class="compact">Accounts List</h1>
+
+<div>Total Account = <%= @total_accounts_number %></div>
+<div><%= link_to("New account", new_account_path) %></div>
+
+<table class="list" width="100%" cellspacing="0" cellpadding="0">
+  <col/>
+  <thead>
+    <tr>
+      <th></th>
+      <th>Account</th>
+      <th>Domains</th>
+      <th>Due</th>
+      <th>Amount</th>
+      <th>Options</th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= render :partial => 'account', :collection => @accounts %>
+  </tbody>
+</table>
+
+<%= paginator_on(@page) %>

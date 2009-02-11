@@ -1,0 +1,10 @@
+<div id="newCategory" class="forumInput">
+  <div class="threadSubject">
+    <h2>New Category</h2>
+  </div>
+  <% form_for :forum_category, :url => forum_categories_path do |f| -%>
+    <%= render :partial => "forum_categories/form", :locals => { :f => f } %>
+    <%= submit_tag 'Create', :id => "forumPost", :class => "button" %>
+    <%= link_to 'Cancel', forum_categories_path, :class => "link_button" %>
+  <% end -%>
+</div>

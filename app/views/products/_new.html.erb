@@ -1,0 +1,16 @@
+<h2 class="page_header">New Product</h2>
+<div class="ipage product_new">
+  <% inline_remote_form_for(:product, @product, :url => products_path) do |f| %>
+    <div class="product-form-buttons">
+      <%= submit_tag "Create", :class=> "button" %>
+      <%= link_to_function "Cancel", "xl.closeTabPanel('products_new_nil')" %>
+    </div>
+    <%= render_inside_panel_notifications_container %>
+      <%= render :partial => "form", :locals => {:f => f} %>
+      <%= render :partial => "display_info", :locals => {:f => f} %>
+    <div class="product-form-buttons">
+      <%= submit_tag "Create", :class=> "button" %>
+      <%= link_to_function "Cancel", "xl.closeTabPanel('products_new_nil')" %>
+    </div>
+  <% end %>
+</div>

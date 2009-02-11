@@ -1,0 +1,19 @@
+sit:
+  id: 1
+  name: sit
+
+drink:
+  id: 2
+  name: drink
+
+eat:
+  id: 3
+  name: eat
+
+lay:
+  id: 4
+  name: lay
+
+nothing:
+  id: 5
+  name: nothing

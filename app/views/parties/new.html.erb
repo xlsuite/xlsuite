@@ -1,0 +1,88 @@
+<%= update_notices %>
+<% inline_fields_for(:party, @party) do |f| %>
+<div id="new_contact">
+<%= render :partial => "parties/head" %>
+ <div id="<%= typed_dom_id(@party, :name_group) %>"> 
+  <h2 class="ruled">Details</h2>
+  <div id="contactPhoto"> 
+   <img src="<%= @party.avatar ? download_asset_path(:id => @party.avatar, :size => :square) : image_path("Mr-Smith.jpg") %>" width="70" height="108" alt="<%=h @party.name %>"/>
+  </div>
+  <div id="cgroup">
+   <%= f.text_field_with_auto_complete :company_name, :url => auto_complete_parties_path, :with => "field=company_name", :wrap => true %>
+    <div id="<%= typed_dom_id(@party, :personal_name_group) %>" class="row personal_name_group">
+     <fieldset class="bold">
+      <%= f.text_field_with_auto_complete :honorific, :values => %w(Mr. Ms. Mrs. Miss Dr.) %>
+      <%= f.text_field :first_name %>
+      <%= f.text_field :middle_name %>
+      <%= f.text_field :last_name %>
+    </fieldset>
+   </div>
+   <%= f.text_field :position, :wrap => true %>
+  </div>
+ </div>
+ <div id="<%= typed_dom_id(@party, :routes_group) %>">
+  <h2 class="ruled">Contacts</h2>
+  <div id="generalContactRoutes">
+   <%= render :partial => "contact_route", :collection => @party.non_address_contact_routes, :locals => {:show_editor => @party.new_record?} %>
+  </div>
+ </div>
+
+ <div id="<%= typed_dom_id(@party, :addresses_group) %>"> 
+  <h2 class="ruled">Address</h2>
+  <%= render :partial => @party.addresses, :locals => {:show_editor => @party.new_record?} %>
+ </div>
+ <div id="<%= typed_dom_id(@party, :references) %>">
+  <h2 class="ruled">References</h2>
+  <div class="ref">
+   <% if current_user.can?(:edit_party) then -%>
+   <span class="bold">Referred by:</span><br />
+    <!-- <%= link_to(icon_tag(:user, :alt => "Referred By", :class=> "inline left refdBy"), @party.referred_by ? party_path(@party.referred_by) : "#", :id => typed_dom_id(@party, :referred_by, :link), :tabindex => "-1") %> -->
+    <%= f.text_field_with_auto_complete :referred_by_id, :url => auto_complete_parties_path, :value =>  @party.referred_by.blank? ? "None" : @party.referred_by.name.to_s, :wrap => true %>
+   <% else -%>
+   <%= f.view_field :referred_by, :wrap => true, :value =>  @party.referred_by.blank? ? "None" : @party.referred_by.name.to_s %>
+   <% end -%>
+  </div>
+  <div class="ref">
+   <span class="bold">Referrals:&nbsp;</span><br />
+   <%= @party.referrals.blank? ? "None" : @party.referrals.map {|party| link_to_party(party)}.join(", ") %>
+  </div>
+ </div>
+ <div id="generalComments" class="contact_section">
+ <h2 class="ruled">Tags</h2>
+   <% if current_user.can?(:edit_party) then -%>
+   <%= f.tags_field(:tag_list, :use_default_value => false, :persist => true, :value => @_tag_list) %>
+   
+ </div> 
+ <div id="tag_cloud">
+ <h2 class="ruled">Tag Cloud</h2>
+ <ul id="<%= typed_dom_id(@party, :tag_cloud) %>" class="tag_cloud inline">
+    <%= render :partial => "tags/tag", :collection => @common_tags[0..19], :spacer_template => "shared/list_comma",
+:locals => {:apply_to => [typed_dom_id(@party, :tag_list, :field)],
+:after_update => @party.new_record? ? nil : %Q(
+function() {
+$("#{typed_dom_id(@party, :tag_list, :field)}").persist();
+}
+)} %>
+    <% if @common_tags.size >= 20 %>
+    <li id="more_tags_link"><%= link_to_function "(more)", "$('more_tags').show();$('more_tags_link').hide()", :tabindex => "-1" %></li>
+    <span id="more_tags" style="display: none">
+     <%= render :partial => "shared/list_comma" %>
+     <%= render :partial => "tags/tag", :collection => @common_tags[20..-1], :spacer_template => "shared/list_comma",
+:locals => {:apply_to => [typed_dom_id(@party, :tag_list, :field)],
+:after_update => @party.new_record? ? nil : %Q(
+function() {
+$("#{typed_dom_id(@party, :tag_list, :field)}").persist();
+}
+)} %>
+    <li><%= link_to_function "(less)", "$('more_tags').hide();$('more_tags_link').show()", :tabindex => "-1" %></li>
+   </span>
+  <% end %>
+  </ul>
+  <% else -%>
+  <%=  f.view_field(:tag_list) %>
+  <% end -%>
+ </div>
+<%= render :partial => "footer" %>
+<% end -%>
+<br class="clear" />
+</div>

@@ -1,0 +1,5 @@
+<div class = "thumbs">
+  <%= check_box_tag "folders[]", list_thumb.id %>
+  <%= link_to(list_thumb.name, nil, :onClick => "generateEditFolderWindow(#{list_thumb.id}); return false;") %><br />
+  <%= link_to_function(image_tag("icons/folder_thumb.jpg", :border => 0, :width => 75, :height => 75), "multiFolder(this, #{list_thumb.id})") %>
+</div>

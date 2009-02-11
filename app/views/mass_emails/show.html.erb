@@ -1,0 +1,43 @@
+<table>
+  <tr>
+    <td>From:</td>
+    <td><%= h(@email.sender.to_formatted_s) %></td>
+  <tr>  
+  <tr>
+    <td>To:</td>
+    <td><%= h(@email.tos.to_formatted_s) %></td>
+  <tr>
+  <% unless @email.ccs.blank? %>
+  <tr>
+    <td>CC:</td>
+    <td><%= h(@email.ccs.to_formatted_s) %></td>
+  <tr>
+  <% end %>
+  <% if @email.received? %>
+  <tr>
+    <td>Date:</td>
+    <td><%= @email.received_at.strftime("%b %d, %Y %I:%M%p") %></td>
+  <tr>
+  <% elsif @email.sent? %>
+  <tr>
+    <td>Sent at:</td>
+    <td><%= @email.sent_at.strftime("%b %d, %Y %I:%M%p") %></td>
+  <tr>
+  <% elsif @email.ready? %>
+  <tr>
+    <td>Release at:</td>
+    <td><%= @email.released_at.strftime("%b %d, %Y %I:%M%p") %></td>
+  <tr>
+  <% end %>
+  <tr>
+    <td>Subject:</td>
+    <td><%= h(@email.subject) %></td>
+  <tr>
+</table>
+<div>
+  <%= h(@email.body) %>
+</div>
+<p>
+  <%= link_to "Cancel", unrelease_mass_email_path(@email) %>
+  <%= link_to "Back to Outbox", mass_emails_path(:folder => 'outbox') %>
+</p>

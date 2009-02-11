@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+Dir.chdir("/usr/local/www/xltester.com")
+result = `svn update`
+if result =~ /^U/m then
+  `rake RAILS_ENV=production db:migrate`
+  `mongrel_rails restart -p /usr/local/www/xltester.com/log/mongrel.4785.pid`
+  `lib/daemons/futures_runner.rb --chdir /usr/local/www/xltester.com --id 0 stop`
+  `lib/daemons/futures_runner.rb --chdir /usr/local/www/xltester.com --id 0 --sleep_time 30 --user xltester --group xltester --environment production start >log/future_runner.log 2>&1 &`
+end

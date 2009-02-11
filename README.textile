@@ -1,0 +1,95 @@
+Introduction:
+
+Thank you for downloading the XLsuite code base.
+
+XLsuite started it's days in 2005 as a business management platform for my 
+Christmas lighting company weputuplights.com
+
+The goal was to provide a business management system that could be expanded 
+to service installers in other parts of the country as my business grew.
+
+As it evolved, we designed it in a way that was more generic so that it would 
+fit the needs of other businesses outside the scope of just lighting installers.
+
+In 2007, Rick Stonehouse, a Vancouver real estate agent got involved in the 
+project and had us add functionality relating to managing his real estate 
+business, which is where the real estate listings manager came from.
+
+At the time of this writing (Jan 2009) XLsuite runs a growing network of 
+community focused websites for Rick as well as business websites for dozens of 
+clients in multiple business verticals including Fisheries, Contracting, 
+Real Estate, Hospitality, Publishing, Arts, Health, Internet Marketing, 
+Education, Media and Manufacturing.
+
+The platform has been designed to encompass many of the "best practices" around 
+marketing and client management including many social media functions, 
+e-commerce and communications modules.
+
+
+Dual Licenses:
+
+The application is licensed under a dual license, both a GPL v.2 open source 
+license as well as having a commercial license available for those interested 
+in commercializing the application.
+
+This is part of a Win / Win philosophy that encourages benefits for designers 
+and developers who can share in the fruits of our labors as long as they also 
+share their work, or some of the financial gain they derive from our efforts.
+
+We encourage everyone to explore our partner program which is designed to 
+provide a revenue sharing model that pays ongoing dividends from income 
+generating work that you have contributed.
+ 
+The intent of the GPL license is to allow designers and developers to examine 
+the code and it's suitability for a commercial project as well as to encourage 
+the growth of the code base and the number of developers that are familiar 
+with, and available to extend the application for interested clients.
+
+It also allows organizations a way to implement the code on their own servers 
+if they are interested in hosting it outside of our managed environment. 
+This is allowed as long as they are not reselling hosted accounts or repackaging
+the code for sale.  We encourage developers that would like to sell hosted 
+solutions to their clients to explore either our resellers license, or our 
+partnership program which is designed to leverage our experience maintaining 
+the application and the availability of the newest code base as new features 
+are implemented.
+
+Those who would like to extend it's functionality under a suitable open source 
+license are free to do so as long as they maintain an open source license with 
+the new application they've forked and make all their code freely available to 
+the community.
+
+If you derive commercial benefits from this software such as reselling it as is 
+or in an extended or repackaged form, or by operating a software as a service 
+hosting solution with it, we require that you either purchase a commercial 
+license for it, or use our partner program to host your solution on our 
+XLsuite.com service.
+
+You can find out more about our license options by visiting 
+http://xlsuite.com/license
+Information about our partner program can be found at 
+http://xlsuite.com/partners
+
+
+The Company:
+
+XLsuite is a product of iXLd Media Inc, a Vancouver based company whose main 
+focus is developing XLsuite and implementing it in various vertical markets. 
+Besides having a crack team of rails coders we are skilled at product and
+domain development, web strategy and Search Engine Optimization, all of which
+have been "baked in" to the XLsuite foundation.
+
+We believe in Win/Win relationships, the power of open source, clear 
+communication and hard work.  We don't like negative people and we're selective 
+about the projects we take on and the people we work with.
+
+
+Core Team:
+
+The core application was first developed by Francois Beausoleil of Teksol.info
+The other core team members include Harman Sandjaja and Spencer Shek 
+programing with ruby.
+Ionut Maxim working on Design and Madalin Sandu working on CSS and JS 
+implementations.
+
+I am Riel Roussopoulos, CEO of iXLd Media Inc.

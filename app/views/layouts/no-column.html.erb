@@ -1,0 +1,34 @@
+<%= render :partial => "shared/doctype" %>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <%= render :partial => "shared/head" %>
+</head>
+<body>
+<div id="wrap">
+  <%= render :partial => "shared/header_row" %>
+  <%= render :partial => "shared/module_search" %>
+  <div id="content">
+    <div id="contentCenterNoScroll" class="column">
+      <%= render :partial => "shared/notifications" %>
+      <div id="spannedColumns">
+        <%= yield %>      
+      </div>
+      <div id="mainContentArea" style="display:none;"></div>
+    </div>
+    <div id="contentLeft" class="column">
+      <div id="upperLeft">
+        <%= render :partial => "shared/logo" %>
+      </div>
+      <div id="leftConsole" style="display:none;">
+      </div>
+    </div>
+    <div id="contentRight" class="column" style="display:none;">
+      <div id="rightConsole">
+        <%= render :partial => "shared/right_console" %>
+      </div>
+    </div>
+  </div>
+  <%= render :partial => "shared/footer" %>
+</div>
+</body>
+</html>

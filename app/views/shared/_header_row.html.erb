@@ -1,0 +1,11 @@
+<div id="header"  align="center">
+  <div id="leftHeader">
+    <p><%=link_to_function image_tag(render_favicon_url), change_centre_iframe_src("/"), :class=>"favicon", :alt=>"Your company favicon"%><span id="userName"><%= current_user? ? truncate(current_user.name.to_s, 26) : "Anonymous" %></span></p>
+  </div>
+  <div id="horizontalNav">
+    <%= render :partial => 'shared/nav' %>
+  </div>
+  <div id="mainSearchBar">
+    <%= render :partial => "reports/main" %>
+  </div>
+</div>

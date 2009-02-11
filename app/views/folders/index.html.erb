@@ -1,0 +1,6 @@
+<% content_for(:js) do -%>
+  <%= javascript_include_ui %>
+  <%= javascript_include_tag "xl_suite/extjs/RowExpander.js" %>
+  <%= javascript_include_tag "xl_suite/extjs/PageSizePlugin.js" %>
+  <%= disable_iframe_scrolling %>
+<% end -%>

@@ -1,0 +1,6 @@
+<h2>Supplies Used (partial list)</h2>
+<ul>
+<% for item in @lines %>
+  <li><%= number_with_delimiter(item.last) %> &times; <%= link_to(item.first.name, product_details_url(:product_no => item.first.product_no)) %></li>
+<% end %>
+</ul>

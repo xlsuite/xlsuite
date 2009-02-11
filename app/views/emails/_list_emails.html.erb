@@ -1,0 +1,10 @@
+<% email = list_emails %>
+<% sender_name = (email.sender && !email.sender.name.blank?) ? email.sender.name : "Anonymous" %>
+<div class="<%= cycle('mail-column', 'mail-column-bg', :name => 'mail_column_bg_switch') %>"
+  a onclick="emailOnClick(<%=email.id%>, '<%=email.mailbox%>'); return false;" href="#">
+  <b><li><%= truncate(h((email.subject.blank? ? "(no subject)" : email.subject )), 50)%></b>
+  <% time = email.received_at %>
+  <% time_to_print = time.yday == Time.now.yday ? time.strftime("%a, %I:%M%p") : time.strftime("%Y-%m-%d ") %>
+  <li><%= sender_name + " on " + time_to_print.to_s %>
+</div>
+  

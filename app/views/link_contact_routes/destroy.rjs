@@ -1,0 +1,4 @@
+page.visual_effect :fade, dom_id(@link)
+page.delay(2) do
+  page.remove dom_id(@link)
+end

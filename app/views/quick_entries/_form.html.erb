@@ -1,0 +1,11 @@
+<% form_remote_tag({:url => new_quick_entries_path, :method => :post}) do %>
+For: <%= text_field_with_auto_complete(:quick_entry, :for_field, {}, {:url => auto_complete_for_field_quick_entries_path})%>
+<div id="quick-entry-subject-field" style='display: none'>Subject: <%= text_field_tag("quick_entry[subject]", nil )%></div>
+<%= text_area_tag("quick_entry[input]", "", :class => "quickEntry")%>
+<br />
+<% options = options_for_select([["Notes", "notes"], ["Tags", "tags"]], "Notes")%>
+Save to: <%= select_tag("quick_entry[save_to_field]", options, {"onchange" => "showAdditionalQEFields(this)"})%>
+
+<%= submit_tag("Save", {:onclick => "$('quick_entry_save_throbber').show()", :class=> "button"})%>
+<%= throbber("quick_entry_save_throbber")%>
+<% end -%>

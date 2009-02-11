@@ -1,0 +1,3 @@
+<h1><%= h(@picture.title) %></h1>
+<%= image_tag(picture_url(:id => @picture.id), :size => @picture.geometry, :alt => @picture.filename, :class => 'framed standalone') %>
+<%= textilize(@picture.description) if !@picture.description.blank? %>

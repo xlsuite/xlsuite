@@ -1,0 +1,22 @@
+<div id="newTopic" class="newThread forumInput" style="display: none;">
+  <div class="threadSubject">
+    <h2>New Topic in <span class="title">""</span></h2>
+  </div>
+  <div class="left">
+  <%= error_messages_for :topic %>
+  <% form_for :topic, :url  => "" do |f| -%>
+    <%= render :partial => "topics/form", :locals => { :f => f } %>
+    <div class="clear">
+      <p class="inputArea">
+        <label for="topic_body">Body:</label><br />
+        <%= f.text_area :body, :rows => "12", :cols => "90" %>
+      </p>
+    </div>
+      <%= render_textile_help_box %>
+      <p class="clear">
+        <%= submit_tag 'Post', :class => "button", :onclick => "return checkIfTopicTitleIsBlank()" %> 
+        <%= link_to_function('Cancel', "$('newTopic').hide()", :class => "link_button") %>
+      </p>
+  <% end -%>
+  </div>
+</div>

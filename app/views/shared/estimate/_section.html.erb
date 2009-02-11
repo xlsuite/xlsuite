@@ -1,0 +1,13 @@
+    <tr>
+      <td colspan="2">
+        <h3><%= item.humanize.capitalize %></h3>
+      </td>
+    </tr>
+    <tr>
+      <td><%= label 'Length', 'estimate', item + '_length' %></td>
+      <td><%= text_field 'estimate', item + '_length', :size => 4, :class => 'number' %> <%= measurement_unit_name(:long_name, :maxi) %></td>
+    </tr>
+    <tr>
+      <td><%= label 'Lights', 'estimate', item + '_product_id' %></td>
+      <td><%= select_product_categories('estimate', item + '_product_id', @light_choices) %></td>
+    </tr>

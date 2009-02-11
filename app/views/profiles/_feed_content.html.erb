@@ -1,0 +1,4 @@
+<% feed_syntax = "{% render_feed labeled:'#{feed.label}' order:'by_date'%}" %>
+<%@parsed_template ||= Liquid::Template.parse(feed_syntax)%>
+<% text = @parsed_template.render!({}, {:registers => {"domain" => current_domain, "account" => current_account, "user" => current_user}}) %>
+<%= text.blank? ? "Sorry, the feed is unavailable. Please check the feed url." : text %>

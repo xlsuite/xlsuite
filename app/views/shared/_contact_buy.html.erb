@@ -1,0 +1,117 @@
+<table border="0" cellspacing="2" cellpadding="0" width="100%">
+  <col width="49%"/><col width="8"/><col width="49%"/>
+  <tbody>
+    <tr valign="top">
+      <td>
+        <h2>Confirm your name</h2>
+        <table class="form" border="0" cellspacing="0" cellpadding="0" width="100%">
+          <tbody>
+            <tr>
+              <td><%= label 'Company Name', object, :company_name %><br/><span class="note">(if this contact is for a commercial building)</span></td>
+              <td><%= f.text_field :company_name, :size => 30 %></td>
+            </tr>
+            <tr>
+              <td><%= label 'First Name', object, :first_name %></td>
+              <td><%= f.text_field :first_name, :size => 20 %></td>
+            </tr>
+            <tr>
+              <td><%= label 'Last Name', object, :last_name %></td>
+              <td><%= f.text_field :last_name, :size => 20 %></td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td>&nbsp;</td>
+<% if instance_variable_get("@#{object}").respond_to?(:picture) && instance_variable_get("@#{object}").picture.blank? then -%>
+      <td>
+        <h2>Picture of building to light</h2>
+        <p>If you have a picture of the building you would like lit,
+          this will help us give you a better service.</p>
+        <%= label 'Picture of the building', object, :picture %><br/>
+        <%= file_field object, :picture, :size => 30 %>
+      </td>
+<% else -%>
+      <td>&nbsp;</td>
+<% end -%>
+    </tr>
+    <tr valign="top">
+      <td>
+        <table class="form" border="0" cellspacing="0" cellpadding="0" width="100%">
+          <col width="120"/><col/>
+          <tbody>
+            <tr>
+              <td colspan="2">
+                <h2>Confirm your address</h2>
+              </td>
+            </tr>
+            <tr>
+              <td><%= label 'Location', :address, :name %></td>
+              <td><%= select :address, :name, %w(Home Office Other) %></td>
+            </tr>
+            <tr>
+              <td><%= label 'Line 1', :address, :line1 %></td>
+              <td><%= text_field :address, :line1, :size => 20 %></td>
+            </tr>
+            <tr>
+              <td><%= label 'Line 2', :address, :line2 %></td>
+              <td><%= text_field :address, :line2, :size => 20 %></td>
+            </tr>
+            <tr>
+              <td><%= label 'City', :address, :city %></td>
+              <td><%= text_field :address, :city, :size => 20 %></td>
+            </tr>
+            <tr>
+              <td><%= label 'Prov./State', :address, :state %></td>
+              <td><%= select :address, :state, AddressContactRoute::STATES %></td>
+            </tr>
+            <tr>
+              <td><%= label 'Postal/Zip Code', :address, :zip %></td>
+              <td><%= text_field :address, :zip, :size => 10 %></td>
+            </tr>
+            <tr>
+              <td><%= label 'Country', :address, :country %></td>
+              <td><%= select :address, :country, AddressContactRoute::COUNTRIES %></td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td>&nbsp;</td>
+      <td>
+        <table class="form" border="0" cellspacing="0" cellpadding="0" width="100%">
+          <col width="120"/><col/>
+          <tbody>
+            <tr>
+              <td colspan="2">
+                <h2>Confirm your phone</h2>
+              </td>
+            </tr>
+            <tr>
+              <td><%= label 'Location', :phone, :name %></td>
+              <td><%= select :phone, :name, %w(Home Office Cell Mobile Day Night) %></td>
+            </tr>
+            <tr>
+              <td><%= label 'Number', :phone, :number %></td>
+              <td><%= text_field :phone, :number, :size => 12 %></td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <h2>Confirm E-Mail address</h2>
+              </td>
+            </tr>
+            <tr>
+              <td><%= label 'E-Mail', object, :email %></td>
+              <td><%= f.text_field :email, :size => 30 %></td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                We will <strong>never</strong> sell your E-Mail address to
+                anyone.  We only use it so that you may identify yourself at
+                a later stage, and to communicate with you.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+  </tbody>
+</table>

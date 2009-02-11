@@ -1,0 +1,10 @@
+<tr>
+  <td><%= link_to truncate(h(payment_plan.name)), edit_payment_plan_path(payment_plan) %></td>
+  <td><%= truncate(h(payment_plan.description)) %></td>
+  <td><%= payment_plan.price %></td>
+  <td><%= payment_plan.duration_in_seconds %></td>
+  <td><%= payment_plan.disabled_at %></td>
+  <td><%= payment_plan.updated_at %></td>
+  <td><%= payment_plan.created_at %></td>
+  <td><%= link_to "Delete", payment_plan_path(payment_plan), :method => :delete %></td>
+</tr>

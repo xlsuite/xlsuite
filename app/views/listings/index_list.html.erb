@@ -1,0 +1,36 @@
+<% content_for(:js) do -%>
+<%= javascript_include_tag "window.js", "index_menu" %>
+<% end -%>
+
+<% content_for(:js) do -%>
+<%= stylesheet_link_tag "themes/default.css", "themes/alphacube.css" %>
+<% end -%>
+
+<%= javascript_tag "new IndexMenu('indexMenuSelection', 'listingIndexForm');" %>
+
+<%= render :partial => "menu" %>
+<form action="" class="listView" id="listingIndexForm" method="post">
+  <div id="listingIndexDelete" style="display:none">Are you sure you want to delete the selected listings permanently?</div>
+  <table width="100%" cellpadding="0" border="0">
+    <thead>
+      <tr class="tableHeader">
+        <th width="11%" scope="col">MLS #</th>
+        <th scope="col">Address</th>
+        <th scope="col">Area</th>
+        <th scope="col">City</th>
+        <th scope="col">Style</th>
+        <th scope="col">Bed./Bath.</th>
+        <th scope="col">ft<sup>2</sup></th>
+        <th scope="col">Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= render :partial => "listing_list", :collection => @listings %>
+    </tbody>
+  </table>
+</form>
+
+<div><%= paginator_on(@page) %></div>
+
+<%= render :partial => "bottom_menu" %>
+

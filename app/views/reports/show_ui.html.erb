@@ -1,0 +1,135 @@
+<% limit = params[:limit] || 50 %>
+<% reportUrl = report_path(:id => @report.id, :format => :json).to_json %>
+var Example = {
+  init : function(){
+    Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
+  
+    // create object record
+    var ObjectRecord = new Ext.data.Record.create([
+      <%= render_record_mappings(@report.columns) %>
+    ]);
+
+    // data reader to parse the json response
+    var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, ObjectRecord);
+
+    // set up connection of the data
+    var connection = new Ext.data.Connection({url: <%= reportUrl %>, method: 'get'});
+    var proxy = new Ext.data.HttpProxy(connection);
+    
+    // set up the data store and then send request to the server
+    var ds = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+    ds.load({params: {start: 0, limit: <%= limit %> }});
+    
+    // set up the ext grid object
+    var xg = Ext.grid;
+
+    // define paging toolbar that is going to be appended to the footer of the grid panel
+    var paging = new Ext.PagingToolbar({
+      store: ds,
+      pageSize: <%= limit %>,
+      displayInfo: true,
+      displayMsg: 'Displaying {0} to {1} of {2}',
+      emptyMsg: "No record to display",
+      cls: "paging-toolbar-bottom",
+      plugins: [new Ext.ux.PageSizePlugin]
+    });
+
+    // create filter field to be appended as the top grid toolbar
+    var filterField = new Ext.form.TextField({selectOnFocus: true, grow: false, emptyText: "Search"});
+    filterField.on("specialkey",
+      function(field, e) {
+        if (e.getKey() == Ext.EventObject.RETURN || e.getKey() == Ext.EventObject.ENTER) {
+          e.preventDefault();
+          ds.baseParams['q'] = this.getValue();
+          ds.reload({params: {start: 0, limit: <%= limit %>}});
+        }
+      }
+    );      
+
+    // clear button for the filter field
+    var clearButton = new Ext.Toolbar.Button({
+      text: 'Clear', 
+      handler: function() {
+        filterField.setValue("");
+        ds.baseParams['q'] = "";
+        ds.reload();
+      }
+    });
+
+    // create GridPanel object
+    var grid = new Ext.grid.GridPanel({
+      store: ds,
+      cm: new xg.ColumnModel([
+          <%= render_grid_column_model(@report.columns) %>
+        ]),
+      viewConfig: {
+        forceFit: false
+      },
+      autoScroll: true,
+      autoWidth: true,
+      height: <%= get_default_grid_height %>,
+      tbar: [
+        "Filter: ", 
+        filterField, 
+        clearButton
+      ],
+      bbar: [paging],
+      footer: true,
+      iconCls: 'icon-grid',
+      renderTo: document.body
+    });    
+    
+    parent.xl.runningGrids.set(<%= typed_dom_id(@report).to_json %>, grid);
+
+    grid.getTopToolbar().addClass("top-toolbar");
+    grid.getBottomToolbar().addClass("bottom-toolbar");
+    
+    var selectAllAction = new Ext.Action({
+      text: "Select all",
+      iconCls: "display_none",
+      disabled: true
+    });
+
+    var clearAllAction = new Ext.Action({
+      text: "Clear all",
+      iconCls: "display_none",
+      disabled: true
+    });
+
+    var saveAction = new Ext.Action({
+      text: "Save",
+      iconCls: "display_none",
+      disabled: true
+    });    
+
+    var deleteAction = new Ext.Action({
+      text: "Delete",
+      iconCls: "display_none",
+      disabled: true
+    });    
+    
+    var selectionMenu =  new Ext.menu.Menu({
+      items: [selectAllAction, clearAllAction]
+    });
+    selectionMenu.addSeparator();
+    selectionMenu.add(saveAction);
+    selectionMenu.addSeparator();
+    selectionMenu.add(deleteAction);
+    
+    grid.getTopToolbar().add({ id: 'selection-menu', text: "Actions", menu: selectionMenu });    
+
+    var expandAllAction = new Ext.Action({
+      text: "Expand all",
+      disabled: true
+    });    
+
+    var collapseAllAction = new Ext.Action({
+      text: "Collapse all",
+      disabled: true
+    });
+    
+    grid.getTopToolbar().add(expandAllAction, collapseAllAction);
+  }  
+};
+
+Ext.onReady(Example.init, Example);

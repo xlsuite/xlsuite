@@ -1,0 +1,19 @@
+<tr>
+  <td class="authorInfo">
+    <%= link_to post.forum_category.name, forum_category_path(post.forum_category) %> |
+    <%= link_to post.forum.name, forum_category_forum_path(post.forum_category, post.forum)%> |
+    <%= link_to post.topic.title, forum_category_forum_topic_path(post.forum_category, post.forum)%>
+
+  </td>
+  
+  <td class="post">
+    <p class="postTimeStamp">
+      Posted on:&nbsp;<span class="thisPostTimeStamp"><%= post.created_at.getlocal.strftime("%a %b %d %Y %I:%M%p") %></span>
+      <!-- Current User can edit or delete this post, as well as admins -->  
+    </p>
+    <div id="contentOf<%= post.dom_id %>" class="postContent"><%= truncate(post.rendered_body, 100) %></div>
+    <a href="<%= forum_category_forum_topic_path(post.forum_category, post.forum)+"#"+post.dom_id %>">
+      Read More...
+    </a>
+  </td>
+</tr>

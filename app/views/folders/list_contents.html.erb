@@ -1,0 +1,18 @@
+<%= stylesheet_link_tag "fmanager", :media => "all" %>
+
+<% if @folders -%>
+  <% for folder in @folders -%>
+    <ul>
+      <li class = "folderbullet">
+        <%= link_to folder.name, :action => 'index', :id => folder, :foldername => folder.name %>
+        | Type: Folder | <%= link_to 'Edit', :action => 'edit', :id => folder %>
+        | <%= link_to 'New sub-directory', :action => 'new', :id => folder %>
+        | <%= link_to 'New file', :action => 'new', :controller => 'files', :id => folder %>
+        | <%= folder.last_modified %>
+        | <%= link_to 'Delete Folder', {:action => 'destroy', :id => folder}, :confirm => 'Are you sure?', :post => true %>
+      </li>
+      <%= render :partial => 'files/list', :collection => folder.files%>
+      <%= render :partial => 'list', :collection => folder.sub_folders %>
+    </ul>
+  <% end -%>
+<% end -%>

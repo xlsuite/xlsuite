@@ -1,0 +1,3 @@
+<% inline_remote_form_for :listing, @listing, :url => listing_path(@listing), :html => {:method => :put, :id => (dom_id(@listing) + "_main_form")} do |f| %>
+  <%= render :partial => "summary_form", :locals => {:f => f} %>
+<% end %>

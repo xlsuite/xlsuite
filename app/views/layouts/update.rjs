@@ -1,0 +1,7 @@
+page << update_notices_using_ajax_response
+page.replace_html "errorMessages", @layout.errors.full_messages.blank? ? "" : error_messages_for(:layout)
+
+page << refresh_grid_datastore_of("layouts")
+if @updated && @close
+  page << "xl.closeTabs('layouts_edit_#{@layout.id}');"
+end

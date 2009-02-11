@@ -1,0 +1,57 @@
+<% labelled_fields_for(dom_id(@asset), @asset) do |f| %>
+  <%= f.select(:folder_id, folder_selections, :selected => params[:id].to_i, :label => "Directory") %>
+  <%= throbber("select_update_throbber#{@asset.id.to_s}")%>
+  <%= observe_field dom_id(@asset)+'_folder_id', :update => "list_folders", :url => asset_path(@asset), :method => :put, 
+        :before => "$('select_update_throbber#{@asset.id}').show()",
+        :complete => "$('select_update_throbber#{@asset.id}').hide()",
+        :with => "asset[folder_id]", :confirm => "Are you sure?" %>
+  
+  <%= f.file_field :uploaded_data, :label => "File", :size => 80 %>
+  <%= throbber("file_update_throbber#{@asset.id.to_s}")%>
+  <%= observe_field dom_id(@asset)+'_uploaded_data', :frequency => 1, :update => :asset, :url => asset_path(@asset), :method => :put, 
+        :before => "$('file_update_throbber#{@asset.id}').show()",
+        :complete => "$('file_update_throbber#{@asset.id}').hide()",
+        :with => "asset[uploaded_data]", :confirm => "Are you sure?" %>
+  
+  <%= f.text_field :title -%>
+  <%= throbber("title_update_throbber#{@asset.id.to_s}")%>
+  <%= observe_field dom_id(@asset)+'_title', :frequency => 1, :update => :asset, :url => asset_path(@asset), :method => :put, 
+        :before => "$('title_update_throbber#{@asset.id}').show()",
+        :complete => "$('title_update_throbber#{@asset.id}').hide()",
+        :with => "asset[title]" %>
+  
+  <div class="auto_completer">
+    <%= f.text_area_with_auto_complete :tag_list, :url => auto_complete_tag_assets_path, :rows => 3 %>
+    <%= tag_cloud(@asset, @common_tags, :apply_to => "asset_tag_list") %>
+  <%= throbber("tags_update_throbber#{@asset.id.to_s}")%>
+  <%= observe_field dom_id(@asset)+'_tag_list', :frequency => 1, :update => :asset, :url => asset_path(@asset), :method => :put, 
+        :before => "$('tags_update_throbber#{@asset.id}').show()",
+        :complete => "$('tags_update_throbber#{@asset.id}').hide()",
+        :with => "asset[tag_list]" %>
+
+  <%= f.text_area :description, :rows => 5 %>
+  <%= throbber("description_update_throbber#{@asset.id.to_s}")%>
+  <%= observe_field dom_id(@asset)+'_description', :frequency => 1, :update => :asset, :url => asset_path(@asset), :method => :put, 
+        :before => "$('description_update_throbber#{@asset.id}').show()",
+        :complete => "$('description_update_throbber#{@asset.id}').hide()",
+        :with => "asset[description]" %>
+
+  <p><div class="groupBoxLeft" id=<%=dom_id(@asset)+"_readers"%>>
+  <%= throbber("reader_update_throbber#{@asset.id.to_s}")%>
+  <span class="label">These groups can view this folder:</span><br/>
+  <%= collection_multiple_select(dom_id(@asset), :reader_ids, @available_groups,
+      :id, :to_s, :selected_items => f.object ? f.object.readers : nil)  %>
+  </div>
+
+   
+  <div class="groupBoxLeft" id=<%=dom_id(@asset)+"_writers"%>>
+  <%= throbber("writer_update_throbber#{@asset.id.to_s}")%>
+  <span class="label">These groups can edit this folder:</span><br/>
+  <%= collection_multiple_select(:asset, :writer_ids, @available_groups,
+      :id, :to_s, :selected_items => f.object ? f.object.writers : nil)  %>
+  </div></p>
+  
+  <script>
+    new AjaxPermissionCheckbox(<%=@asset.id.to_s%>);
+  </script>
+<% end -%>

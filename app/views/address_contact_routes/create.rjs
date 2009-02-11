@@ -1,0 +1,3 @@
+page.remove dom_id(AddressContactRoute.new)
+page.insert_html :bottom, typed_dom_id(@party, :addresses_group), :partial => @address, :object => @address
+page.visual_effect :highlight, dom_id(@address)

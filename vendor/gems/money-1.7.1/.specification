@@ -1,0 +1,62 @@
+--- !ruby/object:Gem::Specification 
+name: money
+version: !ruby/object:Gem::Version 
+  version: 1.7.1
+platform: ruby
+authors: 
+- Tobias Luetke
+autorequire: money
+bindir: bin
+cert_chain: 
+date: 2006-02-13 00:00:00 -05:00
+default_executable: 
+dependencies: []
+
+description: Class aiding in the handling of Money and Currencies.\nIt supports easy pluggable bank objects for customized exchange strategies.\nCan be used as composite in ActiveRecord tables.
+email: tobi@leetsoft.com
+executables: []
+
+extensions: []
+
+extra_rdoc_files: []
+
+files: 
+- README
+- MIT-LICENSE
+- lib/bank
+- lib/money
+- lib/money.rb
+- lib/support
+- lib/bank/no_exchange_bank.rb
+- lib/bank/variable_exchange_bank.rb
+- lib/money/core_extensions.rb
+- lib/money/money.rb
+- lib/support/cattr_accessor.rb
+has_rdoc: true
+homepage: http://leetsoft.com/rails/money
+post_install_message: 
+rdoc_options: []
+
+require_paths: 
+- lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">"
+    - !ruby/object:Gem::Version 
+      version: 0.0.0
+  version: 
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+requirements: []
+
+rubyforge_project: 
+rubygems_version: 1.2.0
+signing_key: 
+specification_version: 1
+summary: Class aiding in the handling of Money.
+test_files: []
+

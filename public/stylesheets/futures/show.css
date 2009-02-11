@@ -1,0 +1,2 @@
+#progress { border: 1px solid #eee; padding: 2px; width: 200px; background-color: white; }
+#progress > div { background: #8abb46; color: white; padding: 2px; text-align: center; }

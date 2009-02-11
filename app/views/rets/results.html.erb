@@ -1,0 +1,12 @@
+<% content_for(:js) do -%>
+<%= javascript_include_tag "xl_suite/form_handler" %>
+<% end -%>
+<h1>Search Results</h1>
+<% if @future && @future.respond_to?(:query) %>
+<p class="query">RETS Query: <span class="code"><%= @future.query %></span></p>
+<% end %>
+
+<div id="results">
+  <%= render :partial => "listing", :collection => @listings %>
+</div>
+<%= hidden_field_tag :elsewhere, nil %>

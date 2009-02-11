@@ -1,0 +1,8 @@
+%w(name formatted_number extension).each do |attribute|
+  value = @phone.send(attribute)
+  element_name = typed_dom_id(@phone, attribute.gsub("formatted_", ""), :show)
+  method = value.blank? ? "addClassName" : "removeClassName"
+
+  page.replace_html element_name, value
+  page << %Q($("#{element_name}").#{method}("blank");)
+end

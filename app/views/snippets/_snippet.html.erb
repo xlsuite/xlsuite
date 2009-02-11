@@ -1,0 +1,12 @@
+<tr id="<%= dom_id(snippet) %>">
+  <td style="padding-right: 10px">
+    <%= link_to_function(h(snippet.title), "parent.xl.createTab(#{edit_snippet_path(snippet).to_json})", :href => edit_snippet_path(snippet)) %>
+  </td>
+  <td style="padding-right: 10px">
+    <%= h(snippet.domain_patterns) %>
+  </td>
+  <td style="padding-right: 10px">
+    <%= link_to("Destroy", snippet_path(snippet), :method => :delete,
+            :confirm => "Are you sure ?", :icon => :delete) %>
+  </td>
+</tr>

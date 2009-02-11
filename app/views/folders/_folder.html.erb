@@ -1,0 +1,19 @@
+  &nbsp;
+  <% folder.level.downto(1) do %>  
+    &nbsp;
+  <% end %>
+
+  <% unless folder.children.blank? -%>
+    <%= link_to_function image_tag("icons/bullet_toggle_plus.png", :border => 0), "toggleFolder('folder#{folder.id}')", :id => "togglelink_folder#{folder.id}" %>  
+  <% else -%>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+  <% end -%>  
+  
+  <%= image_tag "icons/folder.png", :id => "folderimage#{folder.id.to_s}", :class => "directory_menu_folder_image" -%>
+  <%= link_to_function folder.name, "multiFolder(this, #{folder.id})" %>
+  
+  <br />
+  <div id="folder<%= folder.id %>" style="display:none">
+    <%= render :partial => 'folders/folder', :collection => folder.children(:order => "name") %>
+  </div>
+

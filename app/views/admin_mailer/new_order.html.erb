@@ -1,0 +1,16 @@
+Order Number: <%= @order.number %>
+You may log in to http://<%= @domain.name %>/admin to view this order
+
+Customer:  <%= @customer.name %>
+Customer Link:  http://<%= @domain.name %>/admin/parties/<%= @customer.id %>
+
+Details
+=========================================================================
+<%= "%-46.50s %10.10s %10.14s %14.14s" % ["Product Name", "Unit Price", "Quantity", "Total"] %>
+<% @order.lines.each do |line| %>
+<% if line.quantity then -%>
+<%= "%-50.50s %10.10s %8.3f %14.14s" % [line.main_identifier, line.retail_price.format, line.quantity, line.extension_price.format(:with_currency)] %>
+<% else -%>
+<%= "%-74.74s" % [line.main_identifier] %>
+<% end -%>
+<% end -%>

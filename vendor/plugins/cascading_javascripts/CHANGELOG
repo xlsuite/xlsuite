@@ -1,0 +1,13 @@
+[REVISION 20061202]
+
+[CHANGED] Use Rails 1.2 alias_method_chain.
+
+[CHANGED] Separate modules into individual files.
+
+[REVISION 20060717]
+
+[CHANGED] Placed code into module named after the class to which the mixin will be applied.
+
+[REVISION 20060523]
+
+[NEW] Tests!

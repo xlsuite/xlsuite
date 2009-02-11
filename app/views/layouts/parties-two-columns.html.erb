@@ -1,0 +1,89 @@
+<% content_for(:js) do -%>
+  <%= javascript_include_tag "xl_suite/form_handler" %>
+  <%= javascript_include_tag "parties/show_add_field.js" %>
+  <%= javascript_include_tag "xl_suite/other_name_handler.js" %>
+  <%= javascript_include_tag 'tag_cloud' -%>
+  <%= javascript_include_tag "parties/security.js" %>
+  <%= javascript_include_tag "parties.js" %>
+
+  <%= render_tabpanels_javascript %>
+
+  <%= javascript_tag %Q(
+    var #{typed_dom_id(@party, :form_handler)} = new XlSuite.FormHandler("#{dom_id(@party)}");
+    if (typeof(showAddFieldUpdateMissingFields) == 'function') {
+      #{typed_dom_id(@party, :form_handler)}.registerCallback(showAddFieldUpdateMissingFields);
+    
+      Event.observe(window, "load", function() {
+        Event.observe("show_add_field", "click", showAddField);
+        Event.observe("contactOptions_values", "change", showAddFieldGo.bindAsEventListener(this, #{typed_dom_id(@party, :form_handler)}));
+        Event.observe("contactOptions_values", "blur", showAddFieldCancel);
+        Event.observe("show_add_field_cancel", "click", showAddFieldCancel);
+        showAddFieldUpdateMissingFields();
+      });
+    }
+    var iframe_id = parent.$("current-displayed-iframe-source").value;
+    if(parent.$(iframe_id) && parent.$(iframe_id).id.match("/admin/parties/new"))
+    {
+      parent.xl.createTab("/admin/parties/#{@party.id}/general");
+      parent.xl.closeTabs(iframe_id);
+    }
+  ) %>  
+<% end -%>
+
+<%= render :partial => "shared/doctype" %>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <%= render :partial => "shared/head" %>
+    <%= update_notices %>
+  </head>
+  <body>
+    <div id="viewport"></div>  
+    
+    <!-- need to create an error form place -->
+  
+    <div id="show-add-field-container">
+      <%= render :partial => "parties/show_add_field" %>
+    </div>
+    
+    <div id="party-wrap">
+      <% inline_form_for(:party, @party, :url => @party.new_record? ? parties_path : party_path(@party), :html => {:method => @party.new_record? ? :post : :put, :class => dom_class(@party)}) do |f| %>
+      <div id="general">
+        <table width="98%">
+          <!--<tr>
+            <td colspan="2" style="text-align: center;">
+              <%= render :partial => "parties/head" %>
+              <br />
+            </td>
+          </tr>-->
+          <tr>
+            <td colspan="2">
+            
+              <div id="<%= typed_dom_id(@party, :personal_name_group) %>" class="row personal_name_group fldi contactWho">
+                <fieldset class="bold">
+                <span id="<%= typed_dom_id(@party, :name_group) %>">
+                  <%= f.text_field_with_auto_complete :company_name, :url => auto_complete_parties_path, :with => "field=company_name", :wrap => true %>
+                </span> 
+                  <%= f.text_field_with_auto_complete :honorific, :values => %w(Mr. Ms. Mrs. Miss Dr.) %> <%= f.text_field :first_name %> <%= f.text_field :middle_name %> <%= f.text_field :last_name %>
+                </fieldset>
+                
+                <%= f.text_field :position, :wrap => true %>
+                
+              </div>
+              <div id="contactPhoto" class="fldi"><img src="<%= @party.avatar ? download_asset_path(:id => @party.avatar, :size => :square) : image_path("Mr-Smith.jpg") %>" width="90" height="138" alt="<%=h @party.name %>"/></div>
+              <div id="<%= typed_dom_id(@party, :routes_group) %>"  class="fldi contactAdress">
+                <div id="generalContactRoutes"> <%= render :partial => "parties/contact_route", :collection => @party.non_address_contact_routes, :locals => {:show_editor => @party.new_record?, :f => f} %> </div>
+              </div>
+              <div id="<%= typed_dom_id(@party, :addresses_group) %>"  class="fldi contactInfos"> <%= render :partial => @party.addresses, :locals => {:show_editor => @party.new_record?} %> </div>
+              
+            </td>
+          </tr>
+        </table>
+		<%= render :partial => "parties/footer" %>
+      </div><!-- div#general -->
+      <% end %>
+      
+      <%= yield %> 
+    </div>
+	 
+  </body>
+</html>

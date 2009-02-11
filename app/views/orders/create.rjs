@@ -1,0 +1,8 @@
+if @created
+  page << update_notices_using_ajax_response(:on_root => true)
+  page << close_tab_panel("orders_new_nil")
+  page << "xl.openNewTabPanel('orders_edit_#{@order.id}', #{edit_order_path(@order).to_json})"
+  page << refresh_grid_datastore_of("order")
+else
+  page << update_inside_panel_notifications("orders_new_nil")
+end

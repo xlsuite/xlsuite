@@ -1,0 +1,40 @@
+<span class="returnToIndex">
+  <%= link_to("Back to Index", forum_categories_path, :class => "whiteColorLink") %>
+</span>
+
+<table class="forum">
+  <tbody>
+    <!-- Table header -->
+    <tr>
+      <th class="topicHeader">
+        Forums&nbsp;
+        <%= link_to(icon_tag(:feed), formatted_forum_category_posts_url(@forum_category, :atom), :rel => "alternate", :type => "application/atom+xml") %>
+      </th>
+      <th class="threadHeader">Topics</th>
+      <th class="postHeader">Posts</th>
+      <th class="lastHeader">Last post</th>
+    </tr>
+        
+    <!-- Link to add new category-->
+    <tr colspan="4">
+      <td class="addNew">
+        <%= link_to("+Add New Forum", new_forum_category_forum_path(@forum_category),
+            :onclick => "$('newForum').toggle();
+            $('newForum').down('.threadSubject').down('.title').innerHTML = #{@forum_category.name.inspect};
+            $('newForum').down('form').action = #{forum_category_forums_path(@forum_category.id).inspect};
+            return false;") if current_user? %>
+       </td>
+    </tr>
+    
+    <!-- List of Categories -->
+    <%= render :partial => "forums/forum", :collection => @forums %>
+    <% reset_cycle("forum_background_class") %>
+    
+    <!-- Table footer -->
+    <tr><td class="tableFooter" colspan="4"></td></tr>
+  </tbody>
+</table>
+
+<%= render :partial => "forums/new_forum" %>
+<%= render :partial => "topics/new_forum_topic" %>
+<%= render :partial => "posts/new_forum_post" %>

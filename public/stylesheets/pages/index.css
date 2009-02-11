@@ -1,0 +1,9 @@
+.page {width:100%;}
+.page td { padding: 4px; }
+.page th { border-right: 1px solid #fff; padding-left: 4px; }
+.page th.lastHeader { border-right: none; }
+thead.tableHeader { height: 30px; padding: 6px; background: url(../../images/table_headerBg.png) repeat-x; }
+thead.tableHeader th {font: 11px Verdana, sans-serif; font-weight: bold;  padding: 4px; color: #fff;}
+.page tr.bg { background: #F5F5DC; }
+.page tr.bg td { border-right: 1px solid #fff; }
+.page td a {display:inline;}

@@ -1,0 +1,137 @@
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+<title><%= h(@title) %></title>
+<%= yield(:head) %>
+
+
+<script>
+  updateNotificationBar = function(){
+    $("status-bar-notifications").innerHTML = "<%= e(render_plain_flash_messages) %>";
+  }
+</script>
+
+<%# ExtJS %>
+<%= cached_javascript_include_tag :defaults, 'search_feature.js', 'scriptaculous.js?load=effects', 'lightbox.js' %>
+<%= cached_javascript_include_tag "prototype.js"%>
+<%= cached_javascript_include_tag "controls.js"%>
+<%= cached_javascript_include_tag "effects.js"%>
+<%= cached_javascript_include_tag "extjs/adapter/prototype/ext-prototype-adapter.js" %>
+<%= cached_javascript_include_tag "extjs/ext-all-debug.js" unless RAILS_ENV == "production" %>
+<%= cached_javascript_include_tag "extjs/ext-all.js" if RAILS_ENV == "production" %>
+
+
+<%# XLsuite Javascript files %>
+<%= cached_javascript_include_tag 'multifile.js' %>
+<%= cached_javascript_include_tag 'xl.manager.js' %>
+<%= cached_javascript_include_tag 'xl.debug.js' %>
+<%= cached_javascript_include_tag 'xl.plugin.js' %>
+<%= cached_javascript_include_tag 'xl.js' %>
+<%= cached_javascript_include_tag 'xlsetup.js' %>
+<%= cached_javascript_include_tag 'xl.email.js' %>
+<%= cached_javascript_include_tag 'extjs.js' %>
+<%= cached_javascript_include_tag 'xl.widget.js' %>
+
+<%# Extensions %>
+<%= cached_javascript_include_tag 'Ext.ux.layout.RowFitLayout.js' %>
+<%= cached_javascript_include_tag 'xl_suite/extjs/PageSizePlugin.js' %>
+<%= cached_javascript_include_tag 'xl_suite/extjs/RowExpander.js' %>
+<%= cached_javascript_include_tag 'xl_suite/form_handler' %>
+<%= cached_javascript_include_tag 'Ext.ux.grid.RowAction.js' %>
+<%= cached_javascript_include_tag 'Ext.ux.HtmlEditor.js' %>
+<%= cached_javascript_include_tag 'Ext.grid.GroupSummary.js' %>
+<%= cached_javascript_include_tag 'Ext.ux.dd.GridReorderDropTarget.js' %>
+<%= cached_javascript_include_tag 'swfupload/swfupload.js'%>
+<%= cached_javascript_include_tag 'Ext.ux.tree.TreeCheckNodeUI.js' %>
+<%= cached_javascript_include_tag 'xl_suite/extjs/Ext.grid.CheckColumn.js' %>
+
+<%= cached_javascript_include_tag "filetree/Ext.ux.form.BrowseButton.js" %>
+<%= cached_javascript_include_tag "filetree/Ext.ux.FileUploader.js" %>
+<%= cached_javascript_include_tag "filetree/Ext.ux.UploadPanel.js" %>
+<%= cached_javascript_include_tag "filetree/Ext.ux.FileTreeMenu.js" %>
+<%= cached_javascript_include_tag "filetree/Ext.ux.FileTreePanel.js" %>
+<%= cached_javascript_include_tag "filetree/Ext.ux.ThemeCombo.js" %>
+<%= cached_javascript_include_tag "filetree/Ext.ux.IconCombo.js" %>
+<%= cached_javascript_include_tag "filetree/Ext.ux.LangSelectCombo.js" %>
+
+<%# Rets !! To be removed !! %>
+<%= cached_javascript_include_tag 'rets/listings_import.js' %>
+<%= cached_javascript_include_tag 'rets/listings_search.js' %>
+<%= cached_javascript_include_tag 'rets/results.js' %>
+<%= cached_javascript_include_tag 'rets/search.js' %>
+
+<%= cached_javascript_include_tag 'report_generator.js' %>
+<%= cached_javascript_include_tag 'product_categories.js' %>
+<%= cached_javascript_include_tag 'email_labels/index.js' %>
+<%= cached_javascript_include_tag 'folders/index.js' %>
+<%= cached_javascript_include_tag 'pages/index.js' %>
+<%= cached_javascript_include_tag "parties/show_add_field.js" %>
+
+<!-- google map include -->
+<%= google_map_include_tag %>
+
+<iframe id='file-upload-iframe' name='file-upload-iframe' style="display: none"></iframe>
+
+<script> 
+  //Retreive any new email messages from pop3 and refresh unread messages
+  unreadMailRetrieve = function(){
+    var old_title = $('mail-panel-title').innerHTML;
+    new Ajax.Request("<%=retrieve_all_party_email_accounts_path(:party_id => current_user)%>", {asynchronous:true, evalScripts:true, method:'get', 
+      onCreate: function(){$('mail-panel-title').update("Unread Messages Loading...");}, 
+      onFailure: function(){$('mail-panel-title').update(old_title);}}); 
+  }
+  
+  emailOnClick = function(id, mailbox){
+    if (xl.runningTabs.get("emails_sandbox_nil")) {
+      xl.email.asyncLoadMessage(id, "email_sandbox_message_panel");
+    }
+    else{
+      xl.openNewTabPanel('emails_'+mailbox+'_nil', '<%=sandbox_emails_path%>?mailbox='+mailbox+'&email_to_open='+id);
+    }
+
+  }
+</script>
+
+<%= javascript_tag %Q~
+    function toggleFolder(folder_id) {
+      var ahrefIdName = "togglelink_" + folder_id
+      $(folder_id).toggle();
+      if ($(folder_id).visible())
+        $(ahrefIdName).update("<img src = '/images/icons/bullet_toggle_minus.png' border='0'>");
+      else
+        $(ahrefIdName).update("<img src = '/images/icons/bullet_toggle_plus.png' border='0'>");
+    }
+    
+    function toggleSelectMultipleInIframe(){
+      var checkBox = $("selectMultiple");
+      if (checkBox.checked) {
+        checkBox.checked = false;
+      }
+      else {
+        checkBox.checked = true;
+      }
+    }
+~ %>
+
+<%= yield(:js) %>
+
+<%# ExtJS %>
+<%= cached_stylesheet_link_tag "/javascripts/extjs/resources/css/ext-all.css" %>
+<%= cached_stylesheet_link_tag "/javascripts/extjs/resources/css/xtheme-starter.css" %>
+<%= cached_stylesheet_link_tag "Ext.ux.UploadDialog.css" %>
+
+<%= cached_stylesheet_link_tag :defaults, 'leftConsole.css', 'rightConsole.css', 'layout.css', 'forms.css', 'tabbedNavigation.css', 'type.css', 'reset.css', 'navigation.css', 'blocks.css', 'lightbox.css' %>
+<%= cached_stylesheet_link_tag "/stylesheets/products/new.css" %>
+
+<%= cached_stylesheet_link_tag "rets/results.css" %>
+<%= cached_stylesheet_link_tag "rets/search.css" %>
+<%= cached_stylesheet_link_tag "rets/listings_import.css" %>
+<%= cached_stylesheet_link_tag "rets/listings_search.css" %>
+
+<%= cached_stylesheet_link_tag "filetree/icons.css" %>
+<%= cached_stylesheet_link_tag "filetree/webpage.css" %>
+<%= cached_stylesheet_link_tag "filetree/filetree.css" %>
+<%= cached_stylesheet_link_tag "filetree/filetype.css" %>
+<%= cached_stylesheet_link_tag "filetree/famflag.css" %>
+<%= cached_stylesheet_link_tag "filetree/Ext.ux.IconCombo.css" %>
+<%= cached_stylesheet_link_tag "filetree/empty.css" %>
+
+<%= yield(:css) %>

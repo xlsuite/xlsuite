@@ -1,0 +1,133 @@
+NAME
+  attributes.rb
+
+INSTALL
+  gem install attributes
+
+URIS
+  http://codeforpeople.com/lib/ruby
+  http://rubyforge.org/projects/codeforpeople/
+  http://codeforpeople.rubyforge.org/svn/
+
+SYNOPSIS
+  attributes.rb provides a set of attr_* like method with several user
+  friendly additions.  attributes.rb is similar to the traits.rb package but
+  sacrifices a few features for simplicity of implementation.
+
+  the implementation of attributes.rb borrows many of the best ideas from the
+  metakoans.rb ruby quiz
+
+    http://www.rubyquiz.com/quiz67.html
+
+  in particular the solutions of Christian Neukirchen and Florian Gross along
+  with concepts from the original traits lib
+
+  key features provided by attributes are
+
+    - ability to specify default values for attrs and definition time.  values
+      can be literal objects or blocks, which are evaluated in the context of
+      self to initialize the variable
+
+    - classes remember which attributes they've defined and this information is
+     available to client code
+
+    - a whole suite of methods is defined by calls to #attributes including
+     getter, setter, query (var?) and banger (var! - which forces
+     re-initialization from the default value)
+
+    - ability to define multiple attributes at once using key => value pairs
+
+    - fast lookup of whether or not a class has defined a certain attribute
+
+    - attributes can be defined on objects on a per singleton basis as well
+
+    - getters acts as setters if an argument is given to them
+
+    - block caching, calling an attribute with a block sets the instance
+      variable to that block
+
+  all this in < 100 lines of code
+
+HISTORY
+  5.0.0
+    - added support for block caching. for example
+
+        - simple block caching:
+
+            class Filter 
+              attribute :process
+            end
+
+            filter = Filter.new
+
+            filter.process{|line| line.upcase}
+
+            lines.each do |line|
+              p filter.process.call(line)
+            end
+
+        - using block caching to delay block evaluation/class-factory:
+
+            module MigrationDSL
+              attribute :migration
+
+              def migration_class
+                model = self
+
+                Class.new(::ActiveRecord::Migration) do
+                  singleton_class =
+                    class << self
+                      self
+                    end
+                  singleton_class.module_eval{ attribute :model => model }
+                  singleton_class.module_eval &model.migration
+                end
+              end
+            end
+
+            class Table < ActiveRecord::Base
+              extend MigrationDSL
+            end
+
+            class Jobs < Table
+              migration do
+                def up
+                  create_table model.table_name, :primary_key => model.primary_key do |t|
+                    t.column 'vinyl_shoes', :text
+                  end
+                end
+
+                def down
+                  create_table model.table_name
+                end
+              end
+            end
+
+            ...
+
+            JobsMigration = Jobs.migration_class
+
+  4.1.0
+    - 4.0.0 introduced a bug where a query (foo?) would not initialize a var -
+      4.1.0 fixes that
+
+  4.0.0
+    - removed dependancy on, and bundle of, pervasives
+    - faster.  as fast as normal method definition.
+    - faster lookup for MyClass.attributes.include?('foobar')
+
+  3.7.0
+    small patch to use 'instance_variable_defined?' instead of defined?
+    keyword
+  
+  3.5.0
+    migrated to a pervasives based impl to attributes should work on any
+    object - even blankslate objects
+
+  3.3.0
+
+    moved to an instance variable-less model using an module level closure for
+    the attributes list
+
+SAMPLES
+  @samples

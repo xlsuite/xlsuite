@@ -1,0 +1,10 @@
+
+<div class="template_edit">
+ <div id="acz" class="templates_block sB">
+  	<label class="x-form-item-label" style="width: 100px;">Group Access:</label>
+    <div style="margin-top: -15px; padding-left: 105px;">
+      <%= collection_multiple_select(:_template, :writer_ids, @groups,
+          :id, :to_s, :selected_items => @_template.new_record? ? nil : @_template.writers) %>
+    </div>
+ </div>
+</div>

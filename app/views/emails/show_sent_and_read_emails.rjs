@@ -1,0 +1,4 @@
+
+page.replace_html "myHistoryPanel", "<div id='myHistoryWrapper' style='height:100%; overflow-x:hidden; overflow-y:auto'><ul id='myHistoryList'></ul></div>"
+page.replace_html "myHistoryList", :partial => "list_sent_and_read_emails", :collection =>@emails 
+

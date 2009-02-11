@@ -1,0 +1,10 @@
+<div class="legend">Views Gallery</div>
+<% for view in @listing.views do -%>
+<%= image_tag(picture_url(:id => view.picture.id),
+    :width => view.picture.width > 600 ? 600 : view.picture.width,
+    :style => 'display:none',
+    :alt => view.name, :class => 'blowup', :id => "view_#{view.id}_blowup") -%>
+<%= image_tag(picture_url(:id => view.picture.id),
+    :width => view.picture.width > 120 ? 120 : view.picture.width,
+    :alt => view.name, :class => 'thumbnail', :id => "view_#{view.id}") -%>
+<% end -%>

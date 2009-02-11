@@ -1,0 +1,6 @@
+<% inline_remote_form_for :order, @order, :url => order_path(@order), :html => {:method => :put, :id => (dom_id(@order) + "_tax_fields")} do |f| %>
+  <%= render :partial => "tax_fields", :locals => {:f => f} %>
+<% end %>
+<%= javascript_tag %Q`
+  new XlSuite.FormHandler("#{dom_id(@order)}_tax_fields", {now:true, defaultValue:"N/A"});
+`%>

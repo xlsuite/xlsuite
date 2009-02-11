@@ -1,0 +1,14 @@
+<h1 class="compact" title="Links"><%= image_tag 'header-links.jpg', :alt => 'Links', :size => '744x20' %></h1>
+<%= link_to 'Add a link', :action=>'create_link' %>
+<table style="margin-top: 1em;" border="0" cellspacing="0" cellpadding="0" align="center">
+  <col width="396"/><col width="8"/><col width="340"/>
+  <tbody>
+<% if @links.empty? then -%>
+    <td colspan="3" align="center">
+      We're sorry, but we have no links at the moment.  Please check back often !
+    </td>
+<% else -%>
+<%= render :partial => 'link', :collection => @links %>
+<% end -%>
+  </tbody>
+</table>

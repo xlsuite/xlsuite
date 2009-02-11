@@ -1,0 +1,18 @@
+<% routes = [party.contact_routes.phones + party.contact_routes.emails + party.contact_routes.links].flatten.reject(&:blank?) -%>
+<tr class="<%= cycle("", "bg", :name => "party_background_class") %>" id="<%= dom_id(party) %>">
+  <td><%= check_box_tag "parties[]", party.id %></td>
+  <td><%= link_to_party(party, :text => party.last_name.blank? ? "Anonymous" : truncate(party.last_name, 30)) %></td>
+  <td><%= link_to_party(party, :text => party.first_name.blank? ? "Anonymous" : truncate(party.first_name, 30)) %></td>
+  <td>
+<% if party.company_name.blank? then -%>
+    &nbsp;
+<% else -%>
+    <%= link_to(truncate(party.company_name, 30), params.merge(:q => party.company_name)) %>
+<% end -%>
+    </td>
+  <td>
+    <ul class="inline routes">
+      <%= render :partial => "route", :collection => routes, :spacer_template => "shared/list_comma" %>
+    </ul>
+  </td>
+</tr>

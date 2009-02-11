@@ -1,0 +1,31 @@
+return_url = url_for(:only_path => false, :controller => 'welcome', :action => 'tour-de-noel')
+xml.instruct!
+xml.rss :version => '2.0',
+    'xmlns:geo' => "http://www.w3.org/2003/01/geo/wgs84_pos#",
+    'xmlns:ymaps' => "http://api.maps.yahoo.com/Maps/V1/AnnotatedMaps.xsd" do
+  xml.channel do
+    xml.title 'WePutUpLights.com Tour de Noel'
+    xml.link return_url
+    xml.description 'WePutUpLights.com Tour de Noel'
+    @addresses.each do |address|
+      xml.item do
+        xml.title address.line1
+        xml.link
+        xml.description
+        xml.ymaps :Address, address.line1
+        xml.ymaps :CityState, "#{address.city}, #{address.state}"
+        xml.ymaps(:Zip, address.zip) unless address.zip.blank?
+        xml.ymaps :Country, address.country
+        xml.ymaps :ExtraLink, "Details on #{address.line1}", :href => url_for(:only_path => false, :controller => 'tour', :action => 'details', :id => address.id)
+        picture = address.party.after_pictures.first rescue nil
+        if picture then
+          xml.ymaps :ExtraImage do
+            xml.url thumb_picture_url(:only_path => false, :id => picture.picture.id)
+            xml.title 'After shot'
+            xml.link url_for(:only_path => false, :controller => 'tour', :action => 'details', :id => address.id)
+          end
+        end
+      end
+    end
+  end
+end

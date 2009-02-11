@@ -1,0 +1,12 @@
+<% @force_editor = false %>
+<h2 class="page_header">Edit <%= @entity.classification.humanize %></h2>
+<div class="ipage">
+  <% inline_remote_form_for :entity, @entity, :url => entity_path(@entity), :html => {:method => :put, :id => (dom_id(@entity) + "_form")} do |f| %>
+    <%= render_inside_panel_notifications_container %>
+    <%= render :partial => "form", :locals => {:f => f, :show_editor => false} %>
+  <% end %>
+  <div id="<%= typed_dom_id(@entity, :timestamps) %>" class='entity_footer clear'>
+    <%= render_object_timestamps(@entity) %>
+  </div>
+</div>
+

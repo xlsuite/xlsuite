@@ -1,0 +1,27 @@
+staff_members:
+  id: 1
+  name: Staff Members
+  label: staff_members
+  parent_id:
+  created_at: 2007-04-16 20:50:53
+  created_by_id: 1000000
+  updated_at: 2007-04-16 20:50:53
+  updated_by_id: 1000000
+  account_id: 1
+
+billing:
+  id: 2
+  name: Billing
+  label: billing
+  parent_id:
+  created_at: 2007-04-16 20:50:53
+  created_by_id: 1000000
+  updated_at: 2007-04-16 20:50:53
+  updated_by_id: 1000000
+  account_id: 1
+
+access:
+  id: 3
+  name: Access
+  label: access
+  account_id: 1

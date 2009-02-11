@@ -1,0 +1,15 @@
+<div id="sessions_new">
+<h2>Login:</h2>
+<% labelled_form_for :user, @user, :url => sessions_path do |f| %>
+  <p class="row"><%= f.text_field :email, :class => 'text', :autocomplete => "on" %></p>
+  <p class="row"><%= f.password_field :password, :class => 'text', :autocomplete => "on" %></p>
+  <p class="row">
+    <label><%= check_box_tag :remember_me %> Remember Me ?</label>
+    <%= submit_tag "Login" , :class => 'button'%>
+  </p>
+  <p class="row">
+    <%= link_to("Forgot password ?", forgot_password_parties_path) %><br/>
+    <%= link_to("Register", register_url) %>
+  </p>
+ <% end %>
+</div>

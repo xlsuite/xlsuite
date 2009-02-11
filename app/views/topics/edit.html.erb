@@ -1,0 +1,49 @@
+<div class="threadEdit">
+  <div class="threadSubject">
+    <h2>Editing Topic: <%= @topic.title %></h2>
+  </div>
+  <% form_for :topic,
+      :url  => forum_category_forum_topic_path(:forum_category_id => @forum_category.id, :forum_id => @forum.id, :id => @topic.id, :page => params[:page], :show => params[:show], :escape => false),
+      :html => { :method => :put } do |f| -%>
+    <%= render :partial => "topics/form", :locals => { :f => f } %>
+    <% if current_user? -%>
+    <% if current_user.can?(:admin_forum) -%>
+    <p class="inputArea clear roomy">
+      <span class="left_fauxColumn">Category:</span>
+      <% onclick_text = ""; 
+        @forum_categories.collect {|fc| onclick_text << "$('forum_selection#{fc.dom_id}').hide();"} %>
+      <%= f.select :forum_category_id, @forum_categories.collect{|fc| [fc.name, fc.id]}, {},
+          :class => "title",
+          :onchange => "#{onclick_text} 
+          $('forum_selection'+'forum_category_'+this.options[this.selectedIndex].value).show();
+          forum_selection = $('forum_selection'+'forum_category_'+this.options[this.selectedIndex].value).down('select');
+          if (forum_selection) {
+            $('topic_forum_id').value = forum_selection.options[forum_selection.selectedIndex].value;
+          }
+          else {
+            $('topic_forum_id').value = null;
+          }" %>
+    </p>
+    <%= f.hidden_field :forum_id %>
+    <% for fc in @forum_categories -%>
+    <% forums = fc.forums %>
+    <p class="inputArea roomy" id="forum_selection<%= fc.dom_id %>" <%= 'style="display: none;"' if fc.id != @forum_category.id %>>
+      <span class="left_fauxColumn">Forum:</span>
+      <% if forums.blank? -%>
+      No forum in <%= fc.name %>. Please choose another forum category.
+      <% else -%>
+      <%= select_tag "", options_for_select(forums.collect{|f| [f.name, f.id]}, @forum.id),
+          :class => "title", 
+          :onclick => "$('topic_forum_id').value = this.options[this.selectedIndex].value" %>  
+      <% end -%>
+    </p>
+    <% end -%>
+    <% end -%>
+    <% end -%>
+    <p class="inputArea clear">
+      <%= submit_tag 'Save', :class => "button" %> 
+      <%= link_to('Cancel', forum_categories_path, :class => "link_button") %>
+    </p>
+  <% end -%>
+  <br class="clear" />
+</div>

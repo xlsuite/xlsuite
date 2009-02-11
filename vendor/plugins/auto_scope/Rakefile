@@ -1,0 +1,47 @@
+require "rake"
+require "rake/testtask"
+require "rake/rdoctask"
+require "yaml"
+require "fileutils"
+
+desc "Default: run unit tests."
+task :default => :test
+
+desc "Test the auto_scope plugin."
+Rake::TestTask.new(:test) do |t|
+  t.libs << "lib"
+  t.libs << "vendor/activesupport/lib"
+  t.libs << "vendor/activerecord/lib"
+  t.libs.uniq!
+
+  t.libs = t.libs.select {|lib| File.directory?(lib)}
+  puts "TestTask.libs: #{t.libs.inspect}"
+
+  t.pattern = "test/**/*_test.rb"
+  t.verbose = true
+end
+
+desc "Generate documentation for the auto_scope plugin."
+Rake::RDocTask.new(:rdoc) do |rdoc|
+  rdoc.rdoc_dir = "rdoc"
+  rdoc.title    = "AutoScope"
+  rdoc.options << "--line-numbers" << "--inline-source"
+  rdoc.rdoc_files.include("README")
+  rdoc.rdoc_files.include("lib/**/*.rb")
+end
+
+namespace :svn do
+  task :update do
+    checkout("http://dev.rubyonrails.org/svn/rails/branches/1-2-stable/activesupport", "vendor/activesupport")
+    checkout("http://dev.rubyonrails.org/svn/rails/branches/1-2-stable/activerecord", "vendor/activerecord")
+  end
+end
+
+desc "Runs svn up on vendor/* then calls test"
+task :update_and_test => %w(svn:update test)
+
+def checkout(url, path)
+  FileUtils.rm_rf(path) unless YAML.load(`svn info`)['URL'].chomp == url
+  puts `svn checkout --non-interactive #{url} #{path}`
+  exit $?.exitstatus unless $?.success?
+end

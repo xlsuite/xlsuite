@@ -1,0 +1,17 @@
+<tr <%= cycle("", "bg") %> >
+  <td><%= link_to h(mass_email.sender.name), params[:folder] =~ /draft/i ? edit_mass_email_path(mass_email) : mass_email_path(mass_email) %></td>
+  <td><%= truncate(h((mass_email.subject.blank? ? "(no subject)" : mass_email.subject ) << ' - ' << mass_email.body),60) %></td>
+  <% 
+    time = nil
+    if params[:folder] =~ /sent/i 
+      time = mass_email.sent_at
+    elsif params[:folder] =~ /outbox/i 
+      time = mass_email.released_at || mass_email.scheduled_at
+    elsif params[:folder] =~ /draft/i
+      time = mass_email.updated_at
+    else # this means inbox
+      time = mass_email.sent_at 
+    end 
+  %>
+  <td><%= email_datetime_format(time) %></td>
+</tr>

@@ -1,0 +1,21 @@
+<% if current_user? %>
+
+<%# content_for(:js) do -%>
+  <%= javascript_include_tag "swfupload/SWFUpload" %>
+  <%= javascript_tag %Q(swfuOptions.upload_script = "#{upload_views_path(:listing_id => @listing.id, :session_id => session.session_id)}";
+  swfuOptions.target = "upload";) %>
+<%# end -%>
+
+<% form_for(:asset, :url => upload_views_path(:listing_id => @listing.id), :html => {:id => "upload", :class => "upload", :multipart => true}) do |f| %>
+  <p><label>Picture:</label><%= f.file_field :uploaded_data %></p>
+  <p><label>Filename:</label><%= f.text_field :filename %></p>
+  <p><label>Title:</label><%= f.text_field :title %></p>
+  <p><label>Description:</label><%= f.text_area :description, :style => "height: 4em;" %></p>
+  <%= submit_tag "Upload", :name => "Upload" %>
+<% end %>
+
+<ul id="x_upload_queue" class="upload_queue">
+</ul>
+
+<%#= javascript_tag %Q(swfu = new SWFUpload(swfuOptions);) %>
+<% end %>

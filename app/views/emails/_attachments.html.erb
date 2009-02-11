@@ -1,0 +1,21 @@
+<fieldset id="attachments">
+  <legend>Attachments</legend>
+  <p>Attach file(s) from:</p>
+	<p><label>My Computer (upload):</label><input type="file" id="attachment_file"/></p>
+	<p>
+	  <label>XLsuite Asset manager:</label>
+		<div id="layout"></div>
+	  <%= hidden_field_tag "assets[][id]", nil, :id => "attachment_asset_id" %>
+    <%= text_field_tag "assets[][filename]", nil, :id => "attachment_asset_filename", :class=> "text" %>
+  </p>
+  <p>
+    <label class="check"><%= check_box :email, :inline_attachments %> Send attachments inline</label>
+  </p>
+  <p id="x_att_authz">
+    Authorizations: <span class="normal">Publicly Readable</span>
+    <%= link_to_function "Change", "openAuthorizationsPanel()", :id => "x_open_authz_panel" %>
+  </p>
+  <ul id="x_attachments">
+    <%= render :partial => @email.attachments %>
+  </ul>
+</fieldset>

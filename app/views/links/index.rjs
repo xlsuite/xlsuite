@@ -1,0 +1,255 @@
+limit = params[:limit] || 50
+links_url_json = formatted_links_path(:format => :json).to_json
+
+after_render = %Q`
+  ds.load({params: {start: 0, limit: #{limit} }});
+`
+
+page << create_tab_using_ajax_response("Links | Index", after_render) do
+%Q`
+  var linkPath = #{link_path("__ID__").to_json};
+  
+  // create file record
+  var LinkRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'title', mapping: 'title'},
+    {name: 'description', mapping: 'description'},
+    {name: 'url', mapping: 'url'},
+    {name: 'tag_list', mapping: 'tag_list'},
+    {name: 'active_at', mapping: 'active_at'},
+    {name: 'inactive_at', mapping: 'inactive_at'},
+    {name: 'updated_at', mapping: 'updated_at'},
+    {name: 'approved', mapping: 'approved'}
+  ]);
+  
+  // data reader to parse the json response
+  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, LinkRecord);
+
+  // set up connection of the data
+  var connection = new Ext.data.Connection({url: #{links_url_json}, method: 'get'});
+  var proxy = new Ext.data.HttpProxy(connection);
+
+  // set up the data store and then send request to the server
+  var ds = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+
+  // set up the ext grid object
+  var xg = Ext.grid;
+
+  // define paging toolbar that is going to be appended to the footer of the grid panel
+  var paging = new Ext.PagingToolbar({
+    store: ds,
+    pageSize: #{limit},
+    displayInfo: true,
+    displayMsg: 'Displaying {0} to {1} of {2}',
+    emptyMsg: "No record to display",
+    cls: "bottom-toolbar paging-toolbar-bottom",
+    plugins: [new Ext.ux.PageSizePlugin]
+  });
+  
+  #{create_grid_tbar_filter_field}
+  
+  #{create_grid_tbar_clear_button}
+
+  var gridTopToolbar = new Ext.Toolbar({
+    cls: "top-toolbar",
+    items: [{text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+  });
+  
+  var editRenderer = function(value, cell, record) {
+    return '<div class="icon_pencilGo pointerOnHover"/>';
+  };
+  
+  var approvedRenderer = function(value, cell, record) {
+    if(value === true)
+      return "Yes";
+    if(value === false)
+      return "No";
+    return value;
+  };
+  
+  var grid = new Ext.grid.EditorGridPanel({
+    store: ds,
+    cm: new Ext.grid.ColumnModel([
+        {id: "edit", width: 10, dataIndex: 'id', renderer: editRenderer, sortable: false, menuDisabled: true, hideable: false, tooltip: "Click here to go to full edit mode" },
+        {id: "title", header: "Title", sortable: true, dataIndex: 'title', editor: new Ext.form.TextField()},
+        {id: "url", header: "URL", sortable: true, dataIndex: 'url', editor: new Ext.form.TextField()},
+        {id: "tag_list", header: "Tags", sortable: true, dataIndex: 'tag_list', editor: new Ext.form.TextField()},
+        {id: "description", header: "Description", hidden: true, sortable: true, dataIndex: 'description'},
+        {id: "active_at", width: 40, header: "Activated at", sortable: true, dataIndex: 'active_at', editor: new Ext.form.DateField({
+                  format: 'm/d/Y'})},
+        {id: "inactive_at", width: 45, header: "Deactivation at", sortable: true, dataIndex: 'inactive_at', editor: new Ext.form.DateField({
+                  format: 'm/d/Y'})},
+        {id: "updated_at", width: 65, header: "Updated at", hidden: true, sortable: true, dataIndex: 'updated_at'},
+        {id: "approved", width: 25, header: "Approved", sortable: true, dataIndex: 'approved', renderer: approvedRenderer, editor: new Ext.form.Checkbox()}
+      ]),
+    autoScroll: true,
+    autoWidth: true,
+    autoExpandColumn: 'url',
+    height: #{get_default_grid_height(nil)},
+    clicksToEdit:1,
+    tbar: gridTopToolbar, 
+    bbar: paging,
+    selModel: new Ext.grid.RowSelectionModel,
+    loadMask: true,
+    viewConfig: { autoFill: true, forceFit: true}
+  });
+  
+  newPanel.add(grid);
+  xl.runningGrids.set("links", grid);
+  newPanel.on("destroy", function(){
+    xl.runningGrids.unset("links");
+  });
+  
+  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
+  extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('links_new_nil', #{new_link_path.to_json})").to_json});
+  
+  var newLinkUrl = #{new_link_path(:id => "__ID__").to_json};
+  var editLinkUrl = #{edit_link_path(:id => "__ID__").to_json};
+
+  //set single click action on grid cells
+  grid.on("cellclick", function(gr, rowIndex, columnIndex, e) {
+    var record = ds.getAt(rowIndex);
+    var id = record.data.id;
+
+    switch(columnIndex){
+      case grid.getColumnModel().getIndexById("edit"):
+        xl.openNewTabPanel('links_edit_'+id, editLinkUrl.sub("__ID__", id));
+        break;
+      default:
+        break;
+    }
+  });
+
+  var selectAllAction = new Ext.Action({
+    text: "Select all",
+    iconCls: "display_none"
+  });
+
+  var clearAllAction = new Ext.Action({
+    text: "Clear all",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var deleteAction = new Ext.Action({
+    text: "Delete",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var selectionMenu =  new Ext.menu.Menu({
+    items: [selectAllAction, clearAllAction]
+  });
+  
+  selectionMenu.addSeparator();
+  selectionMenu.add(deleteAction);
+  
+  xl.viewport.render();
+
+  grid.getTopToolbar().add({ text: "Actions", menu: selectionMenu });
+
+  function alertNoLinksSelected() {
+    Ext.Msg.alert('No Links Selected', 'Please select one or more links to perform that action.');
+  }
+
+  function getSelectedIdsString(records){ 
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    return ids.toString()
+  }
+  
+  clearAllAction.setHandler(function(e) {
+    grid.getSelectionModel().clearSelections();
+    e.disable();
+  });
+
+  selectAllAction.setHandler(function(e) {
+    grid.getSelectionModel().selectAll();
+    e.disable();
+  });
+
+  deleteAction.setHandler(function(e) {
+    var records = grid.getSelectionModel().getSelections();
+    if (records.length == 0) {
+      alertNoLinksSelected();
+      return false;
+    }
+    
+    Ext.Msg.confirm("", "Delete selected links permanently?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        grid.disable();
+        params['ids'] = getSelectedIdsString(records);
+        new Ajax.Request(#{destroy_collection_links_path.to_json}, {
+          method: 'post',
+          parameters: params,
+          onSuccess: function(transport){
+            grid.enable();
+          }
+        });
+      }
+    });
+  });
+  
+  grid.getSelectionModel().on("selectionchange", function(){
+    records = grid.getSelectionModel().getSelections();
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    selectedIds = ids;
+    
+    if(ids.length>0){
+      clearAllAction.enable();
+      deleteAction.enable();
+    }
+    else
+      deleteAction.disable();
+      selectAllAction.enable();
+  });
+  
+  grid.on("validateedit", function(event){
+    var record = event.record;
+    var editedFieldName = event.field;
+    
+    record.set(editedFieldName, event.value);
+    var method = "put";
+    var objectId = record.get("id");
+
+    record.get("active_at")
+
+    var params = {};
+    params["from_index"] = "true";
+    params["link[title]"] = record.get("title");
+    params["link[url]"] = record.get("url");
+    params["link[tag_list]"] = record.get("tag_list");
+    params["link[active_at]"] = Ext.util.Format.date(record.get("active_at"), 'm/d/Y');
+    params["link[inactive_at]"] = Ext.util.Format.date(record.get("inactive_at"), 'm/d/Y');
+    params["link[approved]"] = record.get("approved");
+    
+    new Ajax.Request(linkPath.sub("__ID__", objectId),{
+      method: method,
+      parameters: params,
+      onSuccess: function(transport){
+        response = Ext.util.JSON.decode(transport.responseText);
+        record.set('id', response.id);
+        record.set('updated_at', response.updated_at);
+        record.set('active_at', response.active_at);
+        record.set('inactive_at', response.inactive_at);
+        record.set('url', response.url);
+        record.set('tag_list', response.tag_list);
+        record.set('title', response.title);
+        $("status-bar-notifications").innerHTML = response.flash;
+        if(response.flash.include('Error saving link:'))
+          event.grid.getView().getCell(event.row, event.column).highlight({startcolor: "FF5721"});
+        else
+          event.grid.getView().getCell(event.row, event.column).highlight();
+      }
+    });
+
+  });
+  
+`
+end

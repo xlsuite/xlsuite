@@ -1,0 +1,5 @@
+page << %Q(if ($("#{dom_id(@contact_request)}")) {)
+page.visual_effect :fade, dom_id(@contact_request)
+page << "} else {"
+page.redirect_to contact_requests_path
+page << "}"

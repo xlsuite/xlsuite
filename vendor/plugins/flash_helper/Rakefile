@@ -1,0 +1,20 @@
+require 'rake'
+require 'rake/testtask'
+require 'rake/rdoctask'
+
+task :default => :test_units
+
+desc "Run the unit tests in test/unit"
+Rake::TestTask.new("test_units") do |t|
+  t.pattern = 'test/unit/**/*_test.rb'
+  t.verbose = true
+end
+
+desc "Generates documents for this plugin"
+Rake::RDocTask.new("doc") do |rdoc|
+  rdoc.rdoc_dir = 'doc/plugin'
+  rdoc.title    = "Flash Helper PLugin Documentation"
+  rdoc.options << '--line-numbers --inline-source'
+  rdoc.rdoc_files.include('README')
+  rdoc.rdoc_files.include('lib/**/*.rb')
+end

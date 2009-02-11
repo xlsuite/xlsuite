@@ -1,0 +1,38 @@
+<% pictures = listing.pictures %>
+<% if !pictures.blank? %>
+
+<% onclick = "xl.createTab('#{download_asset_url(:id => pictures.first.id)}', 'listing_#{listing.id.to_s}_picture_#{pictures.first.id.to_s}')" %>
+<table width="240" cellpadding="0" cellspacing="0" border="0" style="display: inline; float: right;">
+  <tr>
+    <td colspan="2">
+      <a id="listing_<%= listing.id %>_picture" class="main" href="#" onclick="<%=onclick%>" rel="lightbox[<%= listing.id %>]">
+        <img src="<%= download_asset_url(:id => pictures.first.id, :size => :small) %>" alt="Main image for Listing #<%=listing.id%>" />
+      </a>
+    </td>
+    
+    <% nRows = (pictures.length / 2).to_f.ceil %>
+    <% i = 1 %>
+    <% for row in 0..nRows %>
+    <tr>
+      <% 2.times do |j| %>
+        <td align="center">
+        <% if i < pictures.length %>
+          <% thumbnail = pictures[i] %>
+          <% thumbnailOnclick = "xl.createTab('#{download_asset_url(:id => thumbnail)}', 'listing_#{listing.id.to_s}_picture_#{thumbnail.id.to_s}')" %>
+
+          <a rel="lightbox[<%= listing.id %>]" href="#" onclick="<%=thumbnailOnclick%>">
+            <img src="<%= download_asset_url(:id => thumbnail, :size => 'mini') %>" alt="Thumbnail for Listing #<%=listing.id%>" />
+          </a>
+          <% i+= 1 %>
+        <% end #if %>
+      <% end #2.times %>
+      </td>
+    </tr>
+    <% end #for %>
+</table>
+
+<% else %>
+<div id="listing_#{listing.id}_picture" class="main" href="#">
+  <img src="/images/no-image_small.jpg" alt="no description" />
+</div>
+<% end -%>

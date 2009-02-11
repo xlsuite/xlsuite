@@ -1,0 +1,26 @@
+page << update_notices_using_ajax_response(:on_root => true)
+page << "xl.email.refreshMailboxes();"  
+
+@refresh_interval = 2
+
+page << create_tab_using_ajax_response("Generating email recipients...") do
+%Q`
+var panel = new Ext.Panel({
+  autoScroll: true,
+  items: [
+    {
+      html: #{render(:partial => 'futures/show_extjs').to_json}
+    }
+  ]
+});
+
+newPanel.add(panel);
+
+var _afterRenderCallback = function() {
+  // Set up the refresher
+  xl.createIntervalForFutureUpdater('#{async_get_future_as_json_future_path(:id => @future.id)}', #{@refresh_interval});
+};
+`
+end
+page << "xl.closeTabPanel('recipients_index_#{@email.id}');"
+page << "xl.tabPanel.activate('recipients_rebuild_nil');"

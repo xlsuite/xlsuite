@@ -1,0 +1,1 @@
+page.visual_effect :fade, @pic.dom_id

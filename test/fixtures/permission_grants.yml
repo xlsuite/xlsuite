@@ -1,0 +1,15 @@
+<% (9012...9063).each do |id| %>
+admin_perms_<%= id %>:
+  assignee_id: 1000000 # admin
+  assignee_type: Party
+  subject_type: Permission
+  subject_id: <%= id %> # all permissions
+<% end %>
+
+<% (9012...9063).each do |id| %>
+bob_perms_<%= id %>:
+  assignee_id: 1000001 # Bob
+  assignee_type: Party
+  subject_type: Permission
+  subject_id: <%= id %> # edit_perms
+<% end %>

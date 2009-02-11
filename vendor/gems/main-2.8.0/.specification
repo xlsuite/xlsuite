@@ -1,0 +1,100 @@
+--- !ruby/object:Gem::Specification 
+name: main
+version: !ruby/object:Gem::Version 
+  version: 2.8.0
+platform: ruby
+authors: 
+- Ara T. Howard
+autorequire: main
+bindir: bin
+cert_chain: 
+date: 2007-12-23 00:00:00 -05:00
+default_executable: 
+dependencies: 
+- !ruby/object:Gem::Dependency 
+  name: attributes
+  type: :runtime
+  version_requirement: 
+  version_requirements: !ruby/object:Gem::Requirement 
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        version: 5.0.0
+    version: 
+- !ruby/object:Gem::Dependency 
+  name: arrayfields
+  type: :runtime
+  version_requirement: 
+  version_requirements: !ruby/object:Gem::Requirement 
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        version: 4.5.0
+    version: 
+description: 
+email: ara.t.howard@gmail.com
+executables: []
+
+extensions: []
+
+extra_rdoc_files: []
+
+files: 
+- a.rb
+- gemspec.rb
+- gen_readme.rb
+- install.rb
+- lib
+- lib/main
+- lib/main/base.rb
+- lib/main/cast.rb
+- lib/main/factories.rb
+- lib/main/getoptlong.rb
+- lib/main/logger.rb
+- lib/main/mode.rb
+- lib/main/parameter.rb
+- lib/main/softspoken.rb
+- lib/main/stdext.rb
+- lib/main/usage.rb
+- lib/main/util.rb
+- lib/main.rb
+- README
+- samples
+- samples/a.rb
+- samples/b.rb
+- samples/c.rb
+- samples/d.rb
+- samples/e.rb
+- samples/f.rb
+- test
+- test/main.rb
+- test/main.rb.bak
+- TODO
+has_rdoc: false
+homepage: http://codeforpeople.com/lib/ruby/main/
+post_install_message: 
+rdoc_options: []
+
+require_paths: 
+- lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">"
+    - !ruby/object:Gem::Version 
+      version: 0.0.0
+  version: 
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+requirements: []
+
+rubyforge_project: 
+rubygems_version: 1.2.0
+signing_key: 
+specification_version: 1
+summary: main
+test_files: 
+- test/main.rb

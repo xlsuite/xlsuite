@@ -1,0 +1,8 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+empty_mapper:
+  id: 1
+  account_id: 1
+  name: "Empty"
+  description: "This is an empty mapper"
+  updated_at: <%= Time.now.to_formatted_s(:db) %>
+  created_at: <%= Time.now.to_formatted_s(:db) %>

@@ -1,0 +1,9 @@
+if params[:ids].blank?
+page << "$('recordFilesPanel').childElements().each(function(e){e.hide();});"
+end
+unless params[:ids].blank? || @record_files.blank?
+page << "$('recordFilesPanel').childElements().each(function(e){e.hide();});"  
+page.insert_html :top, "recordFilesPanel", "<div id='party_#{params[:ids]}_files' style='height:100%; overflow-x:hidden; overflow-y:auto'><ul id='recordFilesList#{params[:ids]}'></ul></div>"
+page.replace_html "recordFilesList#{params[:ids]}", :partial => "list_record_files", :collection =>@record_files 
+end
+

@@ -1,0 +1,53 @@
+Caught:
+  Class:    <%= @exception.class.name %>
+  Message:  <%= @exception.message %>
+<% if @domain then -%>
+  Domain:   <%= @domain.name %>
+<% end -%>
+
+Backtrace:
+  <%= @backtrace.join("  \n") %>
+<% if @current_user then -%>
+
+Current User:
+  Login:  <%= @current_user.login %>
+  Email:  <%= @current_user.email %>
+  URL:    <%= @domain %>/admin/parties/<%= @current_user.id %>/edit
+<% end -%>
+<% if @request_env || @request_params then -%>
+
+Request:
+<% if @request_env then -%>
+  URL:    <%= @domain %><%= @request_env['REQUEST_URI'] %>
+  From:   <%= @request_env['REMOTE_ADDR'] %>
+  Method: <%= @request_env['REQUEST_METHOD'] %>
+<% end -%>
+
+<% if @request_params then%>
+Parameters:
+<%= @request_params.to_yaml %>
+<% end -%>
+<% end -%>
+<% if @incoming_requests then -%>
+
+Browsing History
+More recent
+<% @incoming_requests.each do |uri| -%>
+  <%= @domain %><%=h uri %>
+<% end -%>
+Older
+<% end -%>
+
+<% if @response then -%>
+Temporary Response:
+  Headers:
+<%= @response.headers.to_yaml %>
+
+  Body:
+<%= @response.body %>
+<% end -%>
+
+<% if @session then -%>
+Session:
+<%= @session.to_yaml %>
+<% end -%>

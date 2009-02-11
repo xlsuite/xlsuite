@@ -1,0 +1,286 @@
+page << create_tab_using_ajax_response("New Post") do
+%Q`
+  #{render_tags_panel("blog_post[tag_list]", @blog_post, current_account.blog_posts.tags, {}, {:collapsible => false, :title => ""})}
+
+  #{generate_save_close_cancel_toolbar(@blog_post, blog_posts_path, blog_posts_path(:commit_type => "close"), {:page_to_open_after_new => edit_blog_post_path(:id => "__ID__")})}
+  
+  var tagsPanelWrapper = new Ext.Panel({
+    title: "Tags",
+    items: [tagsPanel]
+  });
+  
+  var permalinkField = new Ext.form.TextField({
+    fieldLabel: "Permalink",
+    labelSeparator: ":",
+    grow: true,
+    growMin: 150,
+    name: "blog_post[permalink]",
+    value: #{@blog_post.permalink.to_json}    
+  });
+  
+  var excerptField = new Ext.form.TextArea({
+    hideLabel: true,
+    name: 'blog_post[excerpt]',
+    width: '99%',
+    height: 150,
+    value: #{@blog_post.excerpt.to_json},
+    listeners: {
+      'show': function(component){
+        var size = component.ownerCt.body.getSize();
+        component.suspendEvents();
+        component.setSize(size.width-20, 150);
+        component.resumeEvents();
+      }
+    }, 
+    style: "font-family:monospace"
+  });
+  
+  var bodyField = new Ext.ux.HtmlEditor({
+    hideLabel: true,
+    name: 'blog_post[body]',
+    width: '99%',
+    height: 500,
+    value: #{@blog_post.body.to_json},
+      listeners: {
+        'resize': function(component){
+          var size = component.ownerCt.body.getSize();
+          component.suspendEvents();
+          component.setSize(size.width-20, 500);
+          component.resumeEvents();
+        },
+        'render': function(component){
+          component.getToolbar().insertButton(16, #{html_editor_image_video_embed_button(@blog_post)});
+        }
+      }
+  });
+
+  var blogSelectionStore = new Ext.data.SimpleStore({
+    fields: ['display', 'value'],
+    data: #{@blogs.map{|e| [e.title, e.id]}.to_json}
+  });
+
+  var blogSelectionField = new Ext.form.ComboBox({
+    name: "",
+    hiddenName: "blog_id",
+    displayField: 'display',
+    valueField: 'value',
+    fieldLabel: 'Blog',
+    triggerAction: 'all',
+    mode: 'local',
+    allowBlank: false,
+    forceSelection: true,
+    store: blogSelectionStore,
+    value: #{@default_blog ? @default_blog.id : ""}    
+  });
+  
+var publishedCheckbox = new Ext.form.Checkbox({
+    fieldLabel: "Published",
+    name: "publish",
+    checked: #{!@blog_post.published_at.nil?},
+    listeners: {
+      'check': function(me, checked){
+        if(checked){
+          publishedDateField.enable();
+          publishedAMPMField.enable();
+          publishedHourField.enable();
+          publishedMinuteField.enable();
+        }else{
+          publishedDateField.disable();
+          publishedAMPMField.disable();
+          publishedHourField.disable();
+          publishedMinuteField.disable();
+        }
+      }
+    }
+  });
+  
+  var publishedDateField = new Ext.form.DateField({
+    fieldLabel: "on",
+    name: "blog_post[published_at]",
+    format: 'F j, Y',
+    width: 155,
+    allowBlank: true,
+    value: #{(@blog_post.published_at ? @blog_post.published_at.strftime("%Y-%m-%d") : Date.today.to_s).to_json},
+    disabled: #{@blog_post.published_at.blank?}
+  });
+  
+  var publishedHourField = new Ext.form.ComboBox({
+    fieldLabel: 'at',
+    labelSeparator: '',
+    name: 'published_at[hour]',
+    allowBlank: true,
+    width: 55,
+    store: xl.generateMemoryArrayStore({
+      records: xl.generateIdStringRecordsForRange($R(0, 11)),
+      idPos: 0,
+      mappings: [{name: 'text', mapping: 1}],
+      doLoad: true
+    }),
+    mode: 'local',
+    value: #{(@blog_post.published_at ? @blog_post.published_at.strftime("%I").to_i%12 : Time.now.utc.strftime("%I").to_i%12).to_json},
+    displayField: 'text',
+    editable: true,
+    valueField: 'text',
+    triggerAction: 'all',
+    disabled: #{@blog_post.published_at.blank?}
+  });
+  
+  var publishedMinuteField = new Ext.form.ComboBox({
+    fieldLabel: ':',
+    labelSeparator: '',
+    name: 'published_at[min]',
+    allowBlank: true,
+    width: 55,
+    store: xl.generateMemoryArrayStore({
+      records: xl.generateIdStringRecordsForRange($R(0, 55), 5, {pad: 2}),
+      idPos: 0,
+      mappings: [{name: 'text', mapping: 1}],
+      doLoad: true
+    }),
+    mode: 'local',
+    value: #{(@blog_post.published_at ? @blog_post.published_at.strftime("%M") : Time.now.utc.strftime("%M")).to_json},
+    displayField: 'text',
+    editable: true,
+    valueField: 'text',
+    triggerAction: 'all',
+    disabled: #{@blog_post.published_at.blank?}
+  });
+  
+  var publishedAMPMField = new Ext.form.ComboBox({
+    labelSeparator: '',
+    name: 'published_at[ampm]',
+    allowBlank: true,
+    width: 45,
+    store: xl.generateMemoryArrayStore({
+      records: [ [0, 'AM'], [1, 'PM'] ],
+      idPos: 0,
+      mappings: [{name: 'text', mapping: 1}],
+      doLoad: true
+    }),
+    mode: 'local',
+    value: #{(@blog_post.published_at ? @blog_post.published_at.strftime("%p") : Time.now.utc.strftime("%p")).to_json},
+    selectOnFocus: true,
+    displayField: 'text',
+    editable: false,
+    hideLabel: true,
+    valueField: 'text',
+    triggerAction: 'all',
+    disabled: #{@blog_post.published_at.blank?}
+  });
+  
+  var disableCommentsCheckbox = new Ext.form.Checkbox({
+    fieldLabel: "Disable Commenting",
+    name: "disable_comments",
+    value: #{@blog_post.deactivate_commenting_on.to_json},
+    listeners: {
+      'check': function(me, checked){
+        if(checked)
+          disableCommentsDateField.enable();
+        else
+          disableCommentsDateField.disable();
+      }
+    }
+  });
+  
+  var disableCommentsDateField = new Ext.form.DateField({
+    fieldLabel: "on",
+    name: "blog_post[deactivate_commenting_on]",
+    format: 'F j, Y',
+    width: 155,
+    allowBlank: true,
+    minValue: #{Date.today.to_s.to_json},
+    value: #{30.days.from_now.to_date.to_s.to_json},
+    disabled: true
+  });
+
+  var formPanel = new Ext.form.FormPanel({
+    autoScroll: true,
+    tbar: tbarbbarButtons,
+    bbar: tbarbbarButtons,
+    labelWidth: 125,
+    items: [
+      {html: '<div class="notices" id="#{dom_id(@blog_post)}_errorMessages"/>'},
+      blogSelectionField,
+      new Ext.form.TextField({
+        fieldLabel: "Title",
+        labelSeparator: ":",
+        grow: true,
+        growMin: 150,
+        name: "blog_post[title]",
+        value: #{@blog_post.title.to_json}
+      }),
+      new Ext.form.TextField({
+        fieldLabel: "Link",
+        labelSeparator: ":",
+        grow: true,
+        growMin: 150,
+        name: "blog_post[link]",
+        value: ""
+      }),
+      {
+        layout: 'column',
+        items: [{
+          layout: 'form',
+          items: [
+            publishedCheckbox
+          ]
+        },{ // TableLayout
+          layout: 'column',
+          defaults: {
+            layout: 'form',
+            labelWidth: 65,
+            labelAlign: 'right'
+          },
+          items: [
+            { // Column 1
+              width: 195,
+              labelWidth: 35,
+              items: [publishedDateField]
+            },{ // Column 2
+              width: 83,
+              labelWidth: 20,
+              items: [publishedHourField]
+            },{ // Column 3
+              width: 70,
+              labelWidth: 5,
+              items: [publishedMinuteField]
+            },{ // Column 4
+              width: 55,
+              items: [publishedAMPMField]
+            },{ // end Column 5
+              html: "UTC"
+            }
+          ] // end ColumnLayout.items
+        }]
+      },
+      new Ext.form.Checkbox({
+        fieldLabel: "Hide Comments",
+        name: "blog_post[hide_comments]"
+      }),
+      {
+        layout: 'column',
+        items: [{
+          layout: 'form',
+          items: [
+            disableCommentsCheckbox
+          ]
+        },{
+          layout: 'form',
+          style: 'margin-left: 10px;',
+          labelWidth: 20,
+          items: [
+            disableCommentsDateField
+          ]}
+        ]
+      },
+      {html: "Body/Content"},
+      bodyField,
+      {title: "Excerpt/Summary", collapsed: true, collapsible: true, items:[excerptField]},
+      tagsPanelWrapper,
+      {layout: "form", title: "Advanced", collapsible: true, collapsed: true, items:[permalinkField]}
+    ]
+  });
+
+  newPanel.add(formPanel);
+`
+end

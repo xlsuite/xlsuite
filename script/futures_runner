@@ -1,0 +1,65 @@
+#!/usr/bin/env ruby
+require File.dirname(__FILE__) + "/../config/boot"
+require "time"
+require "yaml"
+
+instance_id = $0[/(\d+)/, 1].to_i
+pid_file = RAILS_ROOT + "/log/futures_runner.#{instance_id}.pid"
+
+args = ARGV.inject([]) do |args, arg|
+  case arg
+  when /^([-_A-Z]+)=(.*)$/
+    ENV[$1] = $2.empty? ? nil : $2
+    Object.const_set($1, ENV[$1])
+  else
+    args << arg
+  end
+
+  args
+end
+
+begin
+  case args.first
+  when "start"
+    File.open(pid_file, "wb") {|io| io.puts Process.pid}
+    begin
+      require RAILS_ROOT + "/config/environment"
+      FuturesRunner.start(instance_id)
+    ensure
+      File.unlink(pid_file)
+    end
+
+  when "stop"
+    pid = File.read(pid_file).to_i
+    Process.kill("TERM", pid) if pid.nonzero?
+
+  else
+    raise ArgumentError, "Missing start/stop command"
+  end
+rescue Object, Exception
+  begin
+    require "net/smtp"
+
+    from = "#{ENV['FORGET_NAME']}.future#{instance_id}@xlsuite.com"
+    data = {"ARGV" => ARGV, "Backtrace" => $!.backtrace, "Process-Id" => Process.pid,
+      "Instance-Id" => instance_id, "Node-Name" => ENV["FORGET_NAME"], "ENV" => ENV.to_hash}
+      msgstr = <<EOM
+From: #{from}
+To: monit@xlsuite.com
+Subject: #{$!.message}
+Date: #{Time.now.utc.httpdate}
+
+#{data.to_yaml}
+EOM
+
+    $stderr.puts msgstr rescue nil
+    Net::SMTP.start(ENV["SMTP"] || "127.0.0.1", 25) do |smtp|
+      smtp.send_message msgstr, from, "monit@xlsuite.com"
+      exit 123
+    end
+  rescue Object, Exception
+    $stderr.puts $!.message rescue nil
+    $stderr.puts $!.backtrace.join("\n") rescue nil
+    exit 124
+  end
+end

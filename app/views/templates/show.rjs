@@ -1,0 +1,2 @@
+page['email_body'].value = @_template.body + "\n\nIf you feel you have received this email in error, or would like to remove yourself from future mailings. Simply opt out here : {% opt_out_url %}, Thank you."
+page['email_subject'].value = @_template.subject

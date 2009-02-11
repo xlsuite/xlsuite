@@ -1,0 +1,28 @@
+<p class="inputArea">
+  <label>Title:</label><br />
+  <%= f.text_field :name, :class => "text forum_title", :width => "90" %><br/>
+</p>
+<p class="inputArea">  
+  <label>Description:</label><br />
+  <%= f.text_area :description, :class => "forum_desc", :cols => "100", :rows => "6" %><br/>
+</p>
+<div class="inputAreaLeft">
+  <span class="label">These groups can read this forum:</span><br/>
+  <%= collection_multiple_select(:forum_category, :reader_ids, @available_groups,
+      :id, :to_s, :selected_items => f.object ? f.object.readers : nil)  %>
+</div>
+<div class="inputAreaLeft">
+  <span class="label">These groups can write in this forum:</span><br/>
+  <%= collection_multiple_select(:forum_category, :writer_ids, @available_groups,
+      :id, :to_s, :selected_items => f.object ? f.object.writers : nil) %>
+</div>
+<script>
+  function checkIfForumCategoryNameIsBlank(){
+  if($('forum_category_name').value == "")
+  {
+    alert("Please enter a forum category title");
+    return false;
+  }
+  return true;
+}
+</script>

@@ -1,0 +1,627 @@
+limit = params[:limit] || 50
+
+after_render = %Q`
+  ds.load({params: {start: 0, limit: #{limit} }});
+  taskStore.load({params: {start: 0, limit: #{limit} }});
+`
+
+afteredit_function = %Q`
+  function(oldValue, decodedResponse, plainResponse){
+    $("#{dom_id(@step)}_errorMessages").innerHTML = decodedResponse.errors;
+    xl.updateStatusBar(decodedResponse.flash);
+    if(decodedResponse.success){
+      #{refresh_grid_datastore_of("step")};
+    }    
+  }
+`
+  
+renderTextFieldEditor =
+  %Q`
+    new Ext.form.TextField({
+      selectOnFocus: true
+    })
+  `
+page << create_tab_using_ajax_response("Step | Edit", after_render) do
+%Q`
+
+  var form = {url: #{workflow_step_path(:workflow => @workflow, :step => @step).to_json}, object: 'step'};
+  
+  //------------------------------- GENERAL PANEL ---------------------------//
+  var generalPanel = new Ext.Panel({
+    layout: 'form',
+    items: [
+      xl.widget.InlineActiveField({ form: form, afteredit: #{afteredit_function}, field: {
+        width: 350,
+        fieldLabel: 'Title',
+        name: 'title',
+        value: #{(@step.title || "").to_json}
+      }}),
+      xl.widget.InlineActiveField({ form: form, afteredit: #{afteredit_function}, field: {
+        width: 350,
+        fieldLabel: 'Description',
+        name: 'description',
+        value: #{(@step.description || "").to_json},
+        type: 'textarea'
+      }})
+    ],
+    height: 100
+  });
+
+  //------------------------------- TRIGGER LINES ---------------------------//
+  var triggerLineRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'field', mapping: 'field'},
+    {name: 'operator', mapping: 'operator'},
+    {name: 'value', mapping: 'value'},
+    {name: 'excluded', mapping: 'excluded'},
+    {name: 'display', mapping: 'display'},
+    {name: 'order', mapping: 'order'}
+  ]);
+
+  // data reader to parse the json response
+  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, triggerLineRecord);
+
+  // set up connection of the data
+  var connection = new Ext.data.Connection({url: #{lines_step_path(:id => @step.id, :format => :json).to_json}, method: 'get'});
+  var proxy = new Ext.data.HttpProxy(connection);
+
+  // set up the data store and then send request to the server
+  var ds = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+ 
+  var addTriggerLineButton = new Ext.Toolbar.Button({
+    text: "Add Trigger Line",
+    iconCls: "display_none",
+    handler: function(button, event){
+      triggerLinesGridPanel.disable();
+      createTriggerLineWindow.show();
+    }
+  });
+  
+  var fieldsStore = new Ext.data.SimpleStore({
+    fields: ['display', 'value'],
+    data: #{@step.model_class_name.constantize.report_columns.sort_by{|rc| rc.human_name}.map{|rc| [rc.human_name, rc.name]}.to_json}
+  });
+  
+  var operatorsStore = new Ext.data.SimpleStore({
+    fields: ['display', 'value'],
+    data: [["Starts with", "ReportStartsWithLine"], ["Ends with", "ReportEndsWithLine"], 
+           ["Contains", "ReportContainsLine"], ["Equals", "ReportEqualsLine"], ["Display only", "ReportDisplayOnlyLine"], 
+           ["Greater than", "ReportGreaterThanLine"], ["Less than", "ReportLessThanLine"]]
+  });
+  
+  var createTriggerLineFormPanel = new Ext.form.FormPanel({
+    items: [
+      new Ext.form.ComboBox({
+        fieldLabel: "Field",
+        labelSeparator: ":",
+        hiddenName: "line[field]",
+        store: fieldsStore,
+        displayField: 'display',
+        valueField: 'value',
+        triggerAction: 'all',
+        minChars: 0,
+        allowBlank: false,
+        editable: true,
+        mode: 'local'
+      }),
+      new Ext.form.ComboBox({
+        fieldLabel: "Operator",
+        labelSeparator: ":",
+        hiddenName: "line[operator]",
+        store: operatorsStore,
+        displayField: 'display',
+        valueField: 'value',
+        triggerAction: 'all',
+        minChars: 0,
+        allowBlank: false,
+        editable: true,
+        mode: 'local'
+      }),
+      new Ext.form.TextField({
+        fieldLabel: "Value",
+        labelSeparator: ":",
+        name: "line[value]"
+      }),
+      new Ext.form.Checkbox({
+        fieldLabel: "Exclude?",
+        labelSeparator: ":",
+        name: "line[excluded]",
+        inputValue: 1
+      })
+    ]
+  });
+  
+  var createTriggerLineWindow = new Ext.Window({
+    title: "Create new trigger line",
+    items: [createTriggerLineFormPanel],
+    height: 165,
+    width: 350,
+    resizable: false,
+    closeAction: 'hide',
+    listeners:{hide: function(panel){triggerLinesGridPanel.enable();}},
+    buttons:[
+        {
+          text: "Create",
+          handler: function() {
+              createTriggerLineFormPanel.getForm().doAction("submit",
+                {
+                  url: #{create_line_step_path(:id => @step.id).to_json},
+                  method: "POST",
+                  success: function(form, action){
+                    triggerLinesGridPanel.getStore().reload();
+                  },
+                  failure: function(form, action){
+                    response = action.result
+                    Ext.Msg.show({
+                      title: "Saving failed",
+                      msg: response.messages,
+                      buttons: Ext.Msg.OK,
+                      minWidth: 750
+                    })
+                  }
+                }
+              )
+              if(createTriggerLineFormPanel.getForm().isValid()) {
+                triggerLinesGridPanel.enable();
+                createTriggerLineWindow.hide();
+              }
+            }
+        },
+        {
+          text: 'Cancel',
+          handler: function() {
+            triggerLinesGridPanel.enable();
+            createTriggerLineWindow.hide();
+          }
+        }
+      ]
+  });
+  
+
+  var excludedCheckColumn = new Ext.grid.CheckColumn({
+    id: 'excluded', 
+    header: "Exclude?",
+    dataIndex: 'excluded',
+    width: 60,
+    fixed: true,
+    inputValue: 1
+  });
+
+  var deleteRenderer = function(value, cell, record) {
+    return '<div class="icon_delete pointerOnHover"/>';
+  };
+
+  var ddTextRenderer = function(value, cell, record) {
+    var i = 0
+    for(i; i < 30; i++)
+      value = value.concat("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+    return value;
+  };
+  
+  var triggerLinesActionsMenu = new Ext.menu.Menu({});
+  var triggerLinesGridPanel = new Ext.grid.EditorGridPanel({
+    tbar: [{text: "Trigger Lines"}, addTriggerLineButton],
+    store: ds,
+    cm: new Ext.grid.ColumnModel([
+      {
+        id: "delete", 
+        width: 30, 
+        fixed: true,
+        dataIndex: 'id', 
+        renderer: deleteRenderer, 
+        sortable: false, 
+        menuDisabled: true, 
+        hideable: false, 
+        tooltip: "Delete row" 
+      },
+      { 
+        id: "field",
+        header: "Field",
+        dataIndex: "field",
+        editor: new Ext.form.ComboBox({
+                  fieldLabel: "Field",
+                  labelSeparator: ":",
+                  hiddenName: "line[field]",
+                  store: fieldsStore,
+                  displayField: 'display',
+                  valueField: 'value',
+                  triggerAction: 'all',
+                  minChars: 0,
+                  allowBlank: false,
+                  editable: true,
+                  mode: 'local',
+                  selectOnFocus: true,
+                  forceSelection: true,
+                  listeners: {focus: function(combobox){
+                      var temp = combobox.getRawValue().stripTags().gsub("&nbsp;", "");
+                      combobox.setRawValue(temp);
+                    },
+                    valid: function(combobox){
+                      var temp = combobox.getRawValue().stripTags().gsub("&nbsp;", "");
+                      combobox.setRawValue(temp);
+                    }
+                  }
+                }),
+         renderer: function(v, meta, record){
+           return fieldsStore.getAt(fieldsStore.find('value', v)).get('display');
+         }
+      },
+      { 
+        id: "operator",
+        header: "Operator",
+        dataIndex: "operator",
+        editor: new Ext.form.ComboBox({
+                  fieldLabel: "Operator",
+                  labelSeparator: ":",
+                  hiddenName: "line[operator]",
+                  store: operatorsStore,
+                  displayField: 'display',
+                  valueField: 'value',
+                  triggerAction: 'all',
+                  minChars: 0,
+                  allowBlank: false,
+                  editable: true,
+                  mode: 'local',
+                  selectOnFocus: true,
+                  listeners: {focus: function(combobox){
+                      var temp = combobox.getRawValue().stripTags().gsub("&nbsp;", "");
+                      combobox.setRawValue(temp);
+                    },
+                    valid: function(combobox){
+                      var temp = combobox.getRawValue().stripTags().gsub("&nbsp;", "");
+                      combobox.setRawValue(temp);
+                    }
+                  }
+                }),
+         renderer: function(v, meta, record){
+           return operatorsStore.getAt(operatorsStore.find('value', v)).get('display');
+         }
+      },
+      { 
+        id: "value",
+        header: "Value",
+        dataIndex: "value",
+        editor: #{renderTextFieldEditor}
+      },
+      excludedCheckColumn
+    ]),    
+    viewConfig: {autoFill: true, forceFit: true},
+    autoWidth: true,
+    autoExpandColumn: 'value', 
+    clicksToEdit: 1,
+    loadMask: true,
+    selModel: new Ext.grid.RowSelectionModel,
+    plugins: excludedCheckColumn
+  });
+  
+  triggerLinesGridPanel.on("cellclick", function(gr, rowIndex, columnIndex, e) {
+    var record = gr.getStore().getAt(rowIndex);
+    var id = record.data.id;
+
+    switch(columnIndex){
+      case gr.getColumnModel().getIndexById("delete"):
+        Ext.Msg.confirm("", "Delete Trigger Line permanently?", function(btn){
+          if ( btn.match(new RegExp("yes","i")) ) {
+            var params = {};
+            Ext.Ajax.request({
+              url: #{destroy_line_step_path(@step.id).to_json},
+              params: {position: rowIndex},
+              method: "DELETE",
+              success: function(transport, options){
+                triggerLinesGridPanel.getStore().reload();
+                response = Ext.util.JSON.decode(transport.responseText);
+                xl.updateStatusBar(response.flash);
+              }
+            });
+          }
+        });
+        break;
+      default:
+        break;
+    }
+  });
+
+  xl.runningGrids.set("trigger_lines_#{@step.id}", triggerLinesGridPanel);
+  newPanel.on("destroy", function(){
+    xl.runningGrids.unset("trigger_lines_#{@step.id}");
+  });
+  
+  var selectAllAction = new Ext.Action({
+    text: "Select all",
+    iconCls: "display_none"
+  });
+
+  var clearAllAction = new Ext.Action({
+    text: "Clear all",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var selectionMenu =  new Ext.menu.Menu({
+    items: [selectAllAction, clearAllAction]
+  });
+  
+  selectionMenu.addSeparator();
+  
+  clearAllAction.setHandler(function(e) {
+    triggerLinesGridPanel.getSelectionModel().clearSelections();
+    selectedIds = [];
+    e.disable();
+  });
+
+  selectAllAction.setHandler(function(e) {
+    triggerLinesGridPanel.getSelectionModel().selectAll();
+    e.disable();
+  });
+  
+  
+  var triggerLinesPath = #{update_line_step_path(:id => @step.id).to_json};
+  
+  doUpdate = function(event, data, position, exclude){
+    params = {};
+    params["field"] = data.field;
+    params["operator"] = data.operator;
+    params["value"] = data.value;
+    params["excluded"] = data.excluded;
+
+    params["position"] = position;
+    
+    if(!exclude)
+      params[event.field] = event.value;
+
+    var method = "put";
+    
+    Ext.Ajax.request({
+      url: triggerLinesPath,
+      params: params,
+      method: method,
+      success: function(transport, options){
+        response = Ext.util.JSON.decode(transport.responseText);
+        if(response.success){
+          event.grid.getView().getCell(event.row, event.column).highlight();
+
+          #{update_notices_using_ajax_response}
+          grid.getStore().reload();
+        }
+        else
+          event.grid.getView().getCell(event.row, event.column).highlight({startcolor: "FF5721"});
+
+          #{update_notices_using_ajax_response}
+          Ext.Msg.alert('Failure', response.error);
+      },
+      failure: function(transport, options){
+        Ext.Msg.alert('Failure', "There was an error during execution. #{Time.now()}");
+      }
+    });
+  };
+  
+  excludedCheckColumn.addListener("click", function(element, event, record){
+    doUpdate(event, record.data, ds.indexOf(record), true);
+  });
+  
+  triggerLinesGridPanel.on("validateedit", function(event){
+    var data = new Array();
+    var record = event.record;
+    
+    doUpdate(event, record.data, event.row, false);
+  });
+  
+  //------------------------------- TASKS GRID ---------------------------//
+  var taskRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'title', mapping: 'title'},
+    {name: 'assignees', mapping: 'assignees'},
+    {name: 'description', mapping: 'description'}
+  ]);
+
+  // data reader to parse the json response
+  var taskReader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, taskRecord);
+
+  // set up connection of the data
+  var taskConnection = new Ext.data.Connection({url: #{formatted_tasks_path(:step_id => @step.id, :format => :json).to_json}, method: 'get'});
+  var taskProxy = new Ext.data.HttpProxy(taskConnection);
+
+  // set up the data store and then send request to the server
+  var taskStore = new Ext.data.Store({proxy: taskProxy, reader: taskReader, remoteSort: true, baseParams: {q: ''}});
+  
+  var addTaskButton = new Ext.Toolbar.Button({
+    text: "Add Task",
+    iconCls: "display_none",
+    handler: function(button, event){
+      tasksGridPanel.disable();
+      createTaskWindow.show();
+    }
+  });
+  
+  var createTaskFormPanel = new Ext.form.FormPanel({
+    items: [
+      new Ext.form.TextField({
+        fieldLabel: "Title",
+        labelSeparator: ":",
+        name: "task[title]"
+      })
+    ]
+  });
+
+  var editTaskUrl = #{edit_task_path(:step_id => @step.id, :id => "__ID__").to_json};
+  
+  var createTaskWindow = new Ext.Window({
+    title: "Create new task",
+    items: [createTaskFormPanel],
+    height: 95,
+    width: 350,
+    resizable: false,
+    closeAction: 'hide',
+    listeners:{hide: function(panel){tasksGridPanel.enable();}},
+    buttons:[
+        {
+          text: "Create",
+          handler: function() {
+              createTaskFormPanel.getForm().doAction("submit",
+                {
+                  url: #{tasks_path(@step).to_json},
+                  method: "POST",
+                  success: function(form, action){
+                    response = action.result;
+                    tasksGridPanel.getStore().reload();
+                    xl.openNewTabPanel('tasks_edit_'+response.id, editTaskUrl.sub("__ID__", response.id));
+                  },
+                  failure: function(form, action){
+                    response = action.result
+                    Ext.Msg.show({
+                      title: "Saving failed",
+                      msg: response.errors,
+                      buttons: Ext.Msg.OK,
+                      minWidth: 750
+                    })
+                  }
+                }
+              )
+              if(createTaskFormPanel.getForm().isValid()) {
+                tasksGridPanel.enable();
+                createTaskWindow.hide();
+              }
+            }
+        },
+        {
+          text: 'Cancel',
+          handler: function() {
+            tasksGridPanel.enable();
+            createTaskWindow.hide();
+          }
+        }
+      ]
+  });
+  
+  var tasksGridPanel = new Ext.grid.GridPanel({
+    tbar: [{text: "Tasks"}, addTaskButton],
+    store: taskStore,
+    cm: new Ext.grid.ColumnModel([
+      {
+        id: "delete", 
+        width: 30, 
+        fixed: true,
+        dataIndex: 'id', 
+        renderer: deleteRenderer, 
+        sortable: false, 
+        menuDisabled: true, 
+        hideable: false, 
+        tooltip: "Delete row" 
+      },
+      { 
+        id: "title",
+        header: "Title",
+        dataIndex: "title",
+        renderer: ddTextRenderer
+      },
+      {
+        id: "description",
+        header: "Description",
+        dataIndex: "description",
+        renderer: ddTextRenderer
+      },
+      {
+        id: "assignees",
+        header: "Assignees",
+        dataIndex: "assignees",
+        renderer: ddTextRenderer
+      }
+    ]),
+    viewConfig: {autoFill: true, forceFit: true},
+    autoWidth: true,
+    autoExpandColumn: 'description',
+    loadMask: true,
+    selModel: new Ext.grid.RowSelectionModel,
+    enableDragDrop: true, 
+    ddGroup: 'taskDDGroup'
+  });
+  
+  xl.runningGrids.set("tasks_grid_#{@step.id}", tasksGridPanel);
+  newPanel.on("destroy", function(){
+    xl.runningGrids.unset("tasks_grid_#{@step.id}");
+  });
+  
+  tasksGridPanel.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
+    var record = taskStore.getAt(rowIndex);
+    var id = record.data.id;
+    
+    switch(columnIndex){
+      case gr.getColumnModel().getIndexById("delete"):
+        break;
+      default:
+        xl.openNewTabPanel(('task_edit_'+id), editTaskUrl.sub("__ID__", id));
+    }
+  });
+  
+  tasksGridPanel.on("cellclick", function(gr, rowIndex, columnIndex, e) {
+    var record = gr.getStore().getAt(rowIndex);
+    var id = record.data.id;
+
+    switch(columnIndex){
+      case gr.getColumnModel().getIndexById("delete"):
+        Ext.Msg.confirm("", "Delete Task permanently?", function(btn){
+          if ( btn.match(new RegExp("yes","i")) ) {
+            var params = {};
+            Ext.Ajax.request({
+              url: #{task_path(:step_id => @step.id, :id => "__ID__").to_json}.sub("__ID__", id),
+              method: "DELETE",
+              success: function(transport, options){
+                tasksGridPanel.getStore().reload();
+                response = Ext.util.JSON.decode(transport.responseText);
+                xl.updateStatusBar(response.flash);
+              }
+            });
+          }
+        });
+        break;
+      default:
+        break;
+    }
+  });
+  
+  tasksGridPanel.on("render", function(g) {
+    var ddrow = new Ext.ux.dd.GridReorderDropTarget(g, {
+       copy: false
+       ,listeners: {
+         afterrowmove: function(objThis, oldIndex, newIndex, records) {
+           var ds = tasksGridPanel.getStore();
+           var positions = [];
+           all_records = ds.getRange(0, tasksGridPanel.getStore().getCount()-1);
+           all_records.each(function(record){
+             positions.push(ds.indexOfId(record.id));
+           });
+           tasksGridPanel.stopEditing();
+           new Ajax.Request(#{reposition_tasks_path(:step_id => @step.id).to_json},{
+             method: "POST",
+             parameters: { ids: all_records.invoke("get", "id").join(","), positions: positions.join(",") },
+             onSuccess: function(transport){
+               $("status-bar-notifications").innerHTML = "Task(s) successfully repositioned"
+             }, 
+             onFailure: function(transport){
+               Ext.Msg.alert("Failed", "Task(s) move failed");
+             }
+           });
+         }
+       }
+    });
+  });
+        
+  var wrapperPanel = new Ext.Panel({
+    items: [generalPanel, triggerLinesGridPanel, tasksGridPanel],
+    listeners: {
+      "bodyresize": function(){
+          splitHeight = (triggerLinesGridPanel.ownerCt.getSize().height - 100)/2;
+          if(splitHeight < 100)
+            splitHeight = 100;
+          triggerLinesGridPanel.setWidth(triggerLinesGridPanel.ownerCt.getSize().width);
+          triggerLinesGridPanel.setHeight(splitHeight);
+          tasksGridPanel.setWidth(tasksGridPanel.ownerCt.getSize().width);
+          tasksGridPanel.setHeight(splitHeight);
+        }
+    },
+    autoScroll: true
+  });
+  newPanel.add(wrapperPanel);
+  
+`
+end

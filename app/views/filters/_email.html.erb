@@ -1,0 +1,20 @@
+<tr class="<%= cycle('', 'bg') %>">
+  <% path = params[:folder] =~ /draft/i ? edit_email_path(email) : email_path(email)%>
+  <td><%= link_to_function h(email.sender.address), "parent.xl.createTab('#{path}')" %></td>
+  <td><%= truncate(h(email.subject.blank? ? "(no subject)" : email.subject ), 60)%></td>
+  <td><%= truncate(h(email.body.blank? ? "-" : email.body), 60)%></td>
+  <% 
+    time = nil
+    if params[:folder] =~ /sent/i 
+      time = email.sent_at
+    elsif params[:folder] =~ /outbox/i 
+      time = email.released_at || email.scheduled_at
+    elsif params[:folder] =~ /draft/i
+      time = email.updated_at
+    else
+      time = email.received_at 
+    end 
+  %>
+  <td><% if time %><%= time.yday == Time.now.yday ? time.strftime("%a, %I:%M%p") : time.strftime("%b %d") %>
+      <% else %>-<%end -%></td>
+</tr>

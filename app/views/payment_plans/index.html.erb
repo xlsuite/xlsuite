@@ -1,0 +1,17 @@
+<h2>List of Payment Plans</h2>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Price</th>
+    <th>Duration</th>
+    <th>Disabled at</th>
+    <th>Updated at</th>    
+    <th>Created at</th>
+    <th></th>    
+  </tr>
+  <%= render :partial => "/payment_plans/payment_plan", :collection => @payment_plans %>
+</table>
+
+<%= link_to "Create New Payment Plan", new_payment_plan_path %>

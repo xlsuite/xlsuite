@@ -1,0 +1,7 @@
+<tr>
+  <td><%= recipient.received_at.yday == Time.now.yday ? recipient.received_at.strftime("%a, %I:%M%p") : recipient.received_at.strftime("%b %d") %></td>
+  <td><a href="#"><%= recipient.sender_name %></a></td>
+</tr>
+<tr>
+  <td class="bg" colspan="3"><a href="#"><%= truncate(recipient.subject) unless recipient.subject.blank? %></a></td>
+</tr>

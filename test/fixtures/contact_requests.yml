@@ -1,0 +1,23 @@
+unprocessed_bill_installer:
+  id: 245
+  name: Bill
+  email: bill@test.com
+  phone: 555-222-1234
+  time_to_call: evening
+  subject: "I'm an installer"
+  body: I can install all sorts of things
+  created_at: <%= Time.now.to_formatted_s(:db) %>
+  updated_at: <%= Time.now.to_formatted_s(:db) %>
+  account_id: 1
+
+unprocessed_nick_customer:
+  id: 246
+  name: Nick
+  email: nick@test.com
+  phone: 222-333-4123
+  time_to_call: morning
+  subject: "I don't know any of this - I need help"
+  body: Your stuff is much too complicated
+  created_at: <%= Time.now.to_formatted_s(:db) %>
+  updated_at: <%= Time.now.to_formatted_s(:db) %>
+  account_id: 1

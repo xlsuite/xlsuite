@@ -1,0 +1,85 @@
+<div class='supplier_desc'>
+  <p>
+    <label>Name:</label>
+    <%= f.text_field :name, :use_default_value => false %>
+  </p>
+  <p>
+    <label>Description:</label>
+    <%= f.text_area :description, :use_default_value => false %>
+  </p>
+</div>
+
+<div class='supplier_phone'>
+  <p>
+    <label>Phone</label>
+    <% inline_fields_for("supplier[phone]", @supplier.phone) do |phone| %>
+      <%= phone.text_field :number, :show_editor => show_editor %>
+      <%= phone.text_field :extension, :show_editor => show_editor %>
+    <% end %>
+  </p>
+</div>
+
+<div class='supplier_link'>
+  <p>
+    <label>Website</label>
+    <% inline_fields_for("supplier[link]", @supplier.link) do |link| %>
+      <%= link.text_field :url, :show_editor => show_editor %>
+    <% end %>
+  </p>
+</div>
+
+<div class='supplier_email'>
+  <p>
+    <label>Email</label>
+    <% inline_fields_for("supplier[email]", @supplier.email) do |email| %>
+      <%= email.text_field :email_address, :show_editor => show_editor %>
+    <% end %>
+  </p>
+</div>
+
+<div class='supplier_address'>
+  <p>Address</p>
+  <% inline_fields_for("supplier[address]", @supplier.address) do |address| %>
+    <p>
+      <label>Line 1</label>
+      <%= address.text_field :line1 %>
+    </p>
+    <p>
+      <label>Line 2</label>
+      <%= address.text_field :line2 %>
+    </p>
+    <p>
+      <label>Line 3</label>
+      <%= address.text_field :line3 %>
+    </p>
+    <p>
+      <label>City</label>
+      <%= address.text_field :city %>
+    </p>
+    <p>
+      <label>State</label>
+      <%= address.text_field :state %>
+    </p>
+    <p>
+      <label>Country</label>
+      <%= address.text_field :country %>
+    </p>
+    <p>
+      <label>Zip</label>
+      <%= address.text_field :zip %>
+    </p>
+  <% end %>
+</div>
+
+<div class='supplier_tags'>
+  Tags:
+  <%= f.tags_field :tag_list, :use_default_value => false %>
+  <ul class="taglist">
+    <%= render :partial => "tags/tag", :collection => @common_tags[0..19], :spacer_template => "shared/list_comma",
+      :locals => {:apply_to => [typed_dom_id(@supplier, :tag_list, :field)], :after_update => supplier_tag_after_update} %>
+  </ul>
+</div>
+
+<div id="<%= typed_dom_id(@supplier, :authorizations) %>" class='product_permissions'>
+ <%= authorization_fields_for :supplier %>
+</div>

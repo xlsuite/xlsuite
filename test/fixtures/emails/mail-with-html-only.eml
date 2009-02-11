@@ -1,0 +1,39 @@
+Return-Path: <francois.beausoleil@gmail.com>
+Received: from mx2.internal (mx2.internal [10.202.2.201])
+	 by imap6m.internal (Cyrus v2.3.7-fmsvn9412) with LMTPA;
+	 Wed, 20 Sep 2006 09:42:43 -0400
+X-Sieve: CMU Sieve 2.3
+X-Spam-score: 1.0
+X-Spam-hits: BAYES_00, DNS_FROM_RFC_ABUSE, HTML_MESSAGE, HTML_SHORT_LENGTH, SPF_PASS
+X-Resolved-to: fbeausoleil@ftml.net
+X-Delivered-to: francois@teksol.info
+X-Mail-from: francois.beausoleil@gmail.com
+Received: from wr-out-0506.google.com (wr-out-0506.google.com [64.233.184.234])
+	by mx2.messagingengine.com (Postfix) with ESMTP id 5C6AD15DC20
+	for <francois@teksol.info>; Wed, 20 Sep 2006 09:42:41 -0400 (EDT)
+Received: by wr-out-0506.google.com with SMTP id i31so79447wra
+        for <francois@teksol.info>; Wed, 20 Sep 2006 06:42:40 -0700 (PDT)
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type;
+        b=ljhFD1uR/p1qYBrerL8trLwmfyhpleJO2yCwtm0Wzf6+uxwnzqhVYgbIlAWRHHItoy0KiwwSb5ef/5JaYqCfh8O0ZgucqMmA8TC6wcah5XTzbBFmx214Tsj+xpMrXT/mF9QDJpO26GhcYZFCPAH4UJn/Ky0Q3TaRak/7N+kdzaY=
+Received: by 10.67.97.7 with SMTP id z7mr8211382ugl;
+        Wed, 20 Sep 2006 06:42:39 -0700 (PDT)
+Received: by 10.67.22.15 with HTTP; Wed, 20 Sep 2006 06:42:39 -0700 (PDT)
+Message-ID: <41d5fadf0609200642u44b2fb9dra88702289641b197@mail.gmail.com>
+Date: Wed, 20 Sep 2006 09:42:39 -0400
+From: "Francois Beausoleil" <francois.beausoleil@gmail.com>
+To: francois@teksol.info
+Subject: multipart email
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_135834_25681869.1158759759205"
+
+------=_Part_135834_25681869.1158759759205
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+<span style="font-weight: bold;">html</span> <span style="font-style: italic;">text</span><br>
+
+------=_Part_135834_25681869.1158759759205--

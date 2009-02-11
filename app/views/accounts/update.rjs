@@ -1,0 +1,3 @@
+%w(title expires_at).each do |attribute|
+  page.replace_html "#{dom_id(@acct)}_#{attribute}_show", @acct.send(attribute)
+end

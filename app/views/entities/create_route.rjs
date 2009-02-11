@@ -1,0 +1,3 @@
+page.remove dom_id(@dom_to_remove)
+page.insert_html :bottom, typed_dom_id(@entity, :routes_group), :partial => "#{@partial}", :object => @object
+page.visual_effect :highlight, dom_id(@object)

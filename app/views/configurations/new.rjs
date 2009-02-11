@@ -1,0 +1,34 @@
+page << create_tab_using_ajax_response("New #{@configuration.name}", "wrapperPanel.syncSize()") do
+%Q`
+  var formButtons = [{
+        text: 'Create',
+        handler: function(me, event){
+            if (formPanel.getForm().isValid()){
+              formPanel.getForm().doAction('submit',
+                {url: #{configurations_path.to_json}});
+              formPanel.el.mask("Creating...");
+              xl.maskedPanels.push(formPanel);
+            }
+            else {
+              formPanel.el.mask("Please check the required fields");
+              var tempFunction = function() {formPanel.el.unmask()};
+              tempFunction.defer(1500);
+            }
+          }
+      },{
+        text: "Cancel",
+        handler: function(me, event){
+            xl.closeTabPanel('configurations_new_nil')
+          }
+      }];
+
+  var formPanel = new Ext.form.FormPanel({
+    autoScroll: true,
+    tbar: formButtons,
+    bbar: formButtons,
+    items: [#{render_form_panel_items}]
+  });
+
+  newPanel.add(formPanel);
+`
+end

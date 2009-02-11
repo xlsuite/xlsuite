@@ -1,0 +1,27 @@
+xm.entry do
+  xm.id "tag:post#{forum_post.id},#{Time.now.year}:XLsuite"
+  xm.title "#{h(sanitize(forum_post.topic.title))} - #{h(sanitize(forum_post.forum.name))}"
+  xm.updated "#{forum_post.updated_at.xmlschema}" 
+  xm.link "rel" => "alternate", "type" => "text/html", "href" => forum_category_forum_topic_url(:forum_category_id => forum_post.forum_category, :forum_id => forum_post.forum, :id => forum_post.topic)
+  xm.author do
+    xm.name h(sanitize(forum_post.user.display_name)) if forum_post.user
+  end
+  
+  xm.content "type" => "html" do
+    x = Builder::XmlMarkup.new
+    x.p << h(sanitize(forum_post.body))
+    x.p do
+      x.text! "Posted "
+      x.abbr time_ago_in_words(forum_post.created_at), :title => forum_post.created_at.xmlschema
+      x.text! ", by "
+      x.text! h(sanitize(forum_post.user.display_name)) if forum_post.user
+    end
+    x.p do
+      x.text! "Reply in the "
+      x.a h(forum_post.topic.title), :href => forum_category_forum_topics_url(:forum_category_id => forum_post.forum_category, :forum_id => forum_post.forum, :id => forum_post.topic, :anchor => "reply")
+      x.text! " topic."
+    end
+
+    xm << h(x.target!)
+  end 
+end

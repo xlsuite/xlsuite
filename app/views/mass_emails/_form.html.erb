@@ -1,0 +1,97 @@
+<% content_for(:js) do -%>
+  <%= javascript_include_tag "emails/form.js" %>
+  <%= javascript_include_tag "emails/menu.js" %>
+  <%= javascript_include_tag "multifile" %>
+<% end -%>
+
+<%= error_messages_for :email %>
+
+<%= hidden_field_tag :commit, "" %>
+
+<% fields_for(:email, @email) do |f| %>
+<%= hidden_field_tag "email_sender_name", current_user.name.to_forward_s, :name => "email[sender][name]" %>
+<table class="email_new">
+	<tr>
+    <td class="label">
+      <label>From:</label>
+    </td>
+    <td class="input">
+      <%= select_tag "email_sender_address",
+          options_for_select(available_sender_addresses,
+          @email.sender ? @email.sender.address : ""),
+          :name => "email[sender][address]" 
+      %>
+    </td>
+  </tr>
+    <%= render :partial => "menu" %>
+  <tr>
+    <td>&nbsp;</td>
+		<td>		
+      <%= f.text_area :tos, :value => h(@email.tos.to_formatted_s), :size => "60x3" %>
+      <%= f.hidden_field :ccs %>
+      <%= f.hidden_field :bccs %>
+    </td>
+  </tr>
+	<tr>
+    <td> 
+      <label>Use template:</label>
+    </td>
+    <td>
+      <%= select_tag "email_template", 
+          options_for_select(
+          [["Select template", "select"]] + @templates.map {|template| [template.label, template.id]} 
+          ),
+          :onchange => "processEmailTemplateSelection()" 
+      %>
+      <%= throbber("email_template_throbber") %>
+      <%= javascript_tag "changeSelectedIndexToZero('email_template')"%>
+    </td>
+    <%= hidden_field_tag "num_of_inline_attachments", @num_of_inline_attachments.blank? ? 1 : @num_of_inline_attachments.to_i %>
+    <%= hidden_field_tag "num_of_download_links",  @num_of_download_links.blank? ? 1 : @num_of_download_links.to_i  %>
+    <%= javascript_tag "changeSelectedIndexToDefaultSelectedIndex('email_tos_selection')" %>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+		<td>
+      Mail should appear to come from <span class="bold">this domain:</span>
+      <%= f.select :domain, @domains.map {|d| [d.name, d.id]} %>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <label for="email_subject">Subject: </label>
+    </td>
+    <td>
+      <%= f.text_field :subject, :class => "text" %>
+    </td>
+  </tr>
+  <tr>
+    <td class="bodyLabel">
+      <label for="email_body">Body: </label>
+    </td>
+    <td>
+      <%= f.text_area :body, :size => "60x5" %>
+    </td>   
+  </tr>
+</table>
+
+<%= render :partial => 'emails/attachments' %>
+<%= javascript_tag "changeSelectedIndexToDefaultSelectedIndex('email_sender_address')" %>
+
+<fieldset id="optOut">
+  <legend>Opt Out Control</legend>
+	<p>
+    <label>Set unsubscribe page URL:</label>
+	  <%= f.select :opt_out_url, @page_urls %>
+	</p>
+	<p>
+    <label>Set confirmation page URL:></label>
+	  <%= f.select :return_to_url, @page_urls %>
+  </p>
+  <p>
+    <label>Remove tag(s) from unsubscriber:</label>
+    <%= f.select :tags_to_remove, @all_tags.blank? ? @tags : @all_tags %>
+  </p>
+</fieldset>
+<br class="clear" />
+<% end -%>

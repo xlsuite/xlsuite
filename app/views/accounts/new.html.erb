@@ -1,0 +1,38 @@
+<% content_for :css do %>
+  <%= stylesheet_link_tag "register-signup" %>
+<% end %>
+
+<div align="center">
+	<div id="content">
+		<div id="top"><!--<%= error_messages_for(:acct, :domain, :owner, :address, :phone, :email) %>--></div>
+		<div id="left"><h1><%= @_parent_domain.name %></h1></div>
+		
+		<div id="right">
+			<h2>Account Registration</h2>
+			<p>This is a subdomain that has not yet been claimed</p>
+			<p>Don't miss out, it could be yours. All we need is your email address hit [<span>REGISTER NOW</span>] and we'll send you a confirmation link to click and get things going</p>
+			<h2 style="margin-top:20px;">Domain Information</h2>
+			<h1><%= @domain.name %></h1>
+			
+			<h2>Account Owner</h2>
+			<%= form_tag accounts_path %>
+			  <span style="display: none;"><%= hidden_field_tag "domain[name]", @domain.name %></span>
+			  <label>Email:</label>
+			  <%= text_field_tag "email[email_address]", "" %>
+			  <%= submit_tag "register now" %>
+			</form>
+		</div>
+		<div id="footer">
+		  <div id="leftFooter">
+		  <p>Copyrights 2008 XLsuite.com. All rights reserved</p>
+		  </div>
+		  <div id="rightFooter">
+		  <a class="footerLink" target="_blank" href="http://xlsuite.com/help">Help</a> | 
+		  <a class="footerLink" href="http://xlsuite.com/terms_of_services" target="_blank">Terms of services</a> | 
+		  <%= link_to("User Agreement", user_agreement_url, :class => "footerLink", :target => "_blank") %> | 
+		  <%= link_to("Privacy Policy", privacy_policy_url, :target => "_blank", :class => "footerLink") %>
+		  </div>
+		</div>
+
+	</div>
+</div>

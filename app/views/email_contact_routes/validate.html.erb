@@ -1,0 +1,5 @@
+<ul>
+<% [@route.errors.on(:email_address)].flatten.reject(&:blank?).each do |error| -%>
+  <%= content_tag(:li, error) %>
+<% end -%>
+</ul>

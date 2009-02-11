@@ -1,0 +1,25 @@
+<div id="signup_errors"><%= @error %></div>
+
+<div id="new_users">
+  <h3>If you are a new user...</h3>
+  <p>Please enter your email</p>
+  <% form_tag(signup_profiles_path, :method => :post) do%>
+  
+    Email: <%= text_field_tag("email_address[email_address]", nil)%>
+    <br />
+    <%= submit_tag "Next", :class => ""%>
+  <% end -%>
+</div>
+
+<div id="existing_users">
+  <h3>If you are a returning user...</h3>
+  <p>Please enter your email and your password:</p>
+  <% form_tag(login_profiles_path, :method => :post) do %>
+  
+    Email: <%= text_field_tag("email_address[email_address]", nil)%>
+    <br/>
+    Password: <%= password_field_tag("password", nil)%>
+    <br />
+    <%= submit_tag "Next", :class => ""%>
+  <% end -%>
+</div>

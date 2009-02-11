@@ -1,0 +1,367 @@
+NAME
+  arrayfields.rb
+
+URIS
+  http://www.codeforpeople.com/lib/ruby/
+  http://rubyforge.org/projects/codeforpeople/
+
+SYNOPSIS
+    require 'arrayfields'
+
+    a = Arrayfields.new :k, :v, :a, :b
+
+    p a[:k]        #=> :v
+    p a[:a]        #=> :b
+    p a.fields     #=> [:k, :a]
+    p a.values     #=> [:v, :b]
+    p a            #=> [:v, :b]
+    p a.to_hash    #=> {:k => :v, :a => :b} 
+    p a.pairs      #=> [[:k, :v], [:a, :b]]
+
+    a[:foo] = :bar
+
+    p a[:foo]      #=> :bar
+    p a.fields     #=> [:k, :a, :foo]
+
+ AND
+
+    require 'arrayfields'  
+
+    fields = 'name', 'age'
+    a = [ 'zaphod', 42 ]
+
+    a.fields = fields
+
+    a['name']                #=> 'zaphod'
+    a[:name ]                #=> 'zaphod'
+    a.indices 'name', 'age'  #=> [ 'zaphod', 42 ]
+
+DESCRIPTION
+  allow keyword access to array instances.  arrayfields works by adding only a
+  few methods to arrays, namely #fields= and fields, but the #fields= method is
+  hooked to extend an array on a per object basis.  in otherwords __only__ those
+  arrays whose fields are set will have auto-magical keyword access bestowed on
+  them - all other arrays remain unaffected.  arrays with keyword access require
+  much less memory when compared to hashes/objects and yet still provide fast
+  lookup and preserve data order.
+
+LIST OF OVERRIDDEN METHODS
+  Array#[]
+  Array#slice
+  Array#[]=
+  Array#at
+  Array#delete_at
+  Array#fill
+  Array#values_at
+  Array#indices
+  Array#indexes
+  Array#slice!
+
+LIST OF HASH-LIKE METHODS
+  Array#each_with_field
+  Array#each_pair
+  Array#each_key
+  Array#each_value
+  Array#fetch
+  Array#has_key?
+  Array#member?
+  Array#key?
+  Array#has_value?
+  Array#value?
+  Array#keys
+  Array#store
+  Array#values
+  Array#to_hash
+  Array#to_h
+  Array#update
+  Array#replace
+  Array#invert
+  Array#pairs
+
+LIST OF ADDED Array METHODS
+  Array#fields=
+  Array#fields
+
+LIST OF ADDED Array CLASS METHODS
+  Array.fields/Array.struct
+
+SAMPLES
+
+  <========< sample/a.rb >========>
+
+  ~ > cat sample/a.rb
+
+    require 'arrayfields'
+    #
+    # the class Array has only a few added method, one is for setting the fields,
+    # when the fields are set for an array THIS INSTANCE ONLY will be modified to
+    # allow keyword access.  other arrays will not be affected!
+    #
+      a = [0,1,2]
+      fields = ['zero', 'one', 'two']
+      a.fields = fields                # ONLY the Array 'a' is affected!
+    #
+    # keyword access is now allowed for many methods
+    #
+      p a['zero']                        #=> 0
+      p a['one']                         #=> 1
+      p a['two']                         #=> 2
+      p a.at('one')                      #=> 1
+      p a.values_at('zero', 'two')       #=> [0, 2]
+    #
+    # assigmnet is allowed
+    #
+      a['zero'] = 42
+      p a['zero']                        #=> 42 
+    #
+    # assignment to non-fields results in the element being appended and the field
+    # being added for future use (also appended)
+    #
+      p(a.fields.join(','))                 #=> "zero, one, two"
+      p a['three']                          #=> nil
+      a['three'] = 3
+      p(a.fields.join(','))                 #=> "zero, one, two, three"
+      p a['three']                          #=> 3 
+    #
+    # other detructive methods are also keyword enabled
+    #
+      a.fill 42, 'zero', len = a.size
+      p(a.values_at(a.fields))              #=> [42, 42, 42, 42]
+      a.replace [0,1,2,3]
+    
+      a.slice! 'two', 2 
+      p a                                   #=> [0,1] 
+
+  ~ > ruby sample/a.rb
+
+    0
+    1
+    2
+    1
+    [0, 2]
+    42
+    "zero,one,two"
+    nil
+    "zero,one,two,three"
+    3
+    [42, 42, 42, 42]
+    [0, 1]
+
+
+  <========< sample/b.rb >========>
+
+  ~ > cat sample/b.rb
+
+    require 'arrayfields'
+    #
+    # the struct class factory method can be used in much the same way as ruby's
+    # own struct generators and is useful when the fields for a set of arrays is
+    # known apriori
+    #
+      c = Array.struct :a, :b, :c  # class generator 
+      a = c.new [42, nil, nil]
+      a[:c] = 42
+      p a                          #=> [42, nil, 42]
+    #
+    # of course we can append too
+    #
+      a[:d] = 42.0
+      p a[:d]                      #=> 42.0
+      p a                          #=> [42, nil, 42, 42.0]
+
+  ~ > ruby sample/b.rb
+
+    [42, nil, 42]
+    42.0
+    [42, nil, 42, 42.0]
+
+
+  <========< sample/c.rb >========>
+
+  ~ > cat sample/c.rb
+
+    require 'arrayfields'
+    #
+    # the Array.fields methods generates an instance with those fields
+    #
+      a = Array.fields :a, :b, :c
+      a[:a] = a[:c] = 42
+      p a                           #=> [42, nil, 42]
+      p a.fields                    #=> [:a, :b, :c]
+      p a.values                    #=> [42, nil, 42]
+
+  ~ > ruby sample/c.rb
+
+    [42, nil, 42]
+    [:a, :b, :c]
+    [42, nil, 42]
+
+
+  <========< sample/d.rb >========>
+
+  ~ > cat sample/d.rb
+
+    require 'arrayfields'
+    #
+    # the Arrayfields.new method is a contruct that takes evenly numbered pairs of
+    # arbitrary objects and builds up a fielded array
+    #
+      a = Arrayfields.new :key, :value, :a, :b
+      p a.fields                                     #=> [:key, :a]
+      p a.values                                     #=> [:value, :b]
+    #
+    # you can use a hash - but of course the ordering gets lost in the initial
+    # hash creation.  aka the order of fields get horked by the unorderedness of
+    # ruby's hash iteration.  it's okay for some purposes though
+    #
+      a = Arrayfields.new :key => :value, :a => :b
+      p a.fields                                     #=> [:key, :a]
+      p a.values                                     #=> [:value, :b]
+    #
+    # lists of pairs get flattened - the argument simply has to be evenly numbered
+    # afterwards.
+    #
+      a = Arrayfields.new [[:key, :value], [:a, :b]]
+      p a.fields                                     #=> [:key, :a]
+      p a.values                                     #=> [:value, :b]
+      p a.pairs                                      #=> [[:key, :value], [:a, :b]]
+      
+
+  ~ > ruby sample/d.rb
+
+    [:key, :a]
+    [:value, :b]
+    [:key, :a]
+    [:value, :b]
+    [:key, :a]
+    [:value, :b]
+    [[:key, :value], [:a, :b]]
+
+
+  <========< sample/e.rb >========>
+
+  ~ > cat sample/e.rb
+
+    require 'arrayfields'
+    
+    Entry = Array.struct :path, :stat
+    
+    entry = Entry[ File.basename(__FILE__), File.stat(__FILE__) ]
+    p entry[:path]   #=> "e.rb"
+    p entry.path     #=> "e.rb"
+    
+    entry.path = 'foo'
+    p entry[:path]   #=> "foo"
+    p entry.path     #=> "foo"
+    
+    entry.path 'bar' # getter acts as setter without args
+    p entry['path']  #=> "bar"
+    p entry.path     #=> "bar"
+
+  ~ > ruby sample/e.rb
+
+    "e.rb"
+    "e.rb"
+    "foo"
+    "foo"
+    "bar"
+    "bar"
+
+
+AUTHOR
+  ara.t.howard@gmail.com
+
+HISTORY
+  4.4.0:
+    - working dup method worked in, also deepcopy and clone
+
+  4.3.0:
+    - a dup like method, named 'copy' and based on clone, is added to Arrayfields objects
+
+  4.2.0:
+    - a dup impl apparently caused some confusion with both rake and rails, so
+      this release undoes that impl and should be considered a critical bugfix
+      release
+
+  4.1.0:
+    - improved Array.struct method, see sample/e.rb
+
+  4.0.0:
+    - added Arrayfields.new(*arbitrary_evenly_numbered_list_of_objects)
+    - added #to_pairs and #pairs
+    - tried but failed to recall what happend for version 3.8
+    - changed Array.fields to == Arrayfields.new (used to alias Array.struct)
+    - added impl of Fieldable#dup that sets fields in dupped object
+
+  3.7.0:
+    - multiton pattern clean up, thanks gavin kistner!
+    - mods for ruby 1.8.6 (alias bug in 1.8.6 i think)
+    - added PseudoHash class
+    - added Array.struct/fields class generator
+
+  3.6.0:
+    - made string/symbol keys interchangeable
+
+        list = [0, 1, 2]
+        list.fields = %w( a b c )
+        p list['a'] #=> 0
+        p list[:a] #=> 0
+    
+
+  3.5.0:
+    - added more hash-like methods
+      - update
+      - replace
+      - invert
+
+  3.4.0:
+    - added FieldedArray[] ctor
+    - added methods to make Arrays with fields set behave more closely to Hashes
+      - each_pair 
+      - each_key
+      - each_value
+      - fetch
+      - has_key?
+      - member?
+      - key?
+      - has_value?
+      - value?
+      - keys?
+      - store
+      - values
+
+  3.3.0:
+    - added gemspec file - thnx Assaph Mehr
+    - added FieldedArray proxy class which minimizes modifications to class
+      Array and allow ArrayFields to work (potientially) other arraylike object.
+      thnks Sean O'Dell
+    - added ArrayFields#to_hash method - this seems like an obvious one to add!
+    - remedied bug where using append feature of assigning with unknow field
+      appedended but did not append to acutal fields
+    - added samples
+    - created rubyforge accnt @ http://rubyforge.org/projects/arrayfields/ 
+
+  3.2.0:
+    - precedence fix in many methods - thnx. nobu
+    - test for #slice! were not being run - corrected
+    - added test for appeding via "a['new_field'] = 42"
+
+  3.1.0:
+    - added FieldSet class to reduce ram - thnx. Kirk Haines for profiliing
+      memory and prompting this change
+
+    - interface changed every so slightly so
+
+        a.fields = 'a', 'b', 'c'
+
+      is not allowed.  use
+
+        a.fields = %w(a b c) 
+
+      or
+
+        a.fields = ['a', 'b', 'c']
+
+
+  3.0.0:
+    - added unit tests

@@ -1,0 +1,54 @@
+<% if :wplu == @site then -%>
+<p>The transaction will be processed by our parent company,
+  <a href="http://www.weputuplights.com/">We Put Up Lights.com</a>.</p>
+<% end -%>
+<table border="0" cellspacing="4" cellpadding="4" align="center" width="90%">
+  <col valign="middle" align="center" span="2" width="50%"/>
+  <tbody>
+    <tr>
+      <td align="center">
+        <input type="image" src="<%= image_path 'logo-paypal.gif' %>"
+                name="commit" value="Pay using PayPal"
+                onclick="buttonWorkaround(this, 'paypal', 'estimator');"
+                width="113" height="38" alt="Make payments with PayPal - it's fast, free and secure!"/><br/>
+      </td>
+      <td align="center" valign="middle">
+        <input type="image" src="<%= image_path 'logo-visa.gif' %>" alt="Visa"
+               onclick="buttonWorkaround(this, 'credit card', 'estimator');"
+               name="commit" value="Pay using my VISA credit card"/>
+        <input type="image" src="<%= image_path 'logo-mc.gif' %>" alt="MasterCard"
+               onclick="buttonWorkaround(this, 'credit card', 'estimator');"
+               name="commit" value="Pay using my MasterCard credit card"/>
+        <input type="image" src="<%= image_path 'logo-amex.gif' %>" alt="American Express"
+               onclick="buttonWorkaround(this, 'credit card', 'estimator');"
+               name="commit" value="Pay using my American Express credit card"/>
+        <input type="image" src="<%= image_path 'logo-discover.gif' %>" alt="Discover"
+               onclick="buttonWorkaround(this, 'credit card', 'estimator');"
+               name="commit" value="Pay using my Discover credit card"/><br/>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <%= submit_tag "Pay #{number_to_currency(payment_amount.format(:with_currency))} using PayPal", :style => 'width: 100%', :onclick => "buttonWorkaround(this, 'paypal', 'estimator')" %>
+      </td>
+      <td align="center">
+        <%= submit_tag "Pay #{number_to_currency(payment_amount.format(:with_currency))} using my credit card", :style => 'width: 100%', :onclick => "buttonWorkaround(this, 'credit card', 'estimator')" %>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">&nbsp;</td>
+      <td align="center">
+        <a href="https://www.internetsecure.com/cgi-bin/certified.mhtml?merchant_number=9354">
+          <img alt="InternetSecure Certified Merchant" src="http://www.internetsecure.com/images/ismerch.gif" width="134" height="33"/>
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" align="center">
+        Read our <%= link_to 'privacy policy', :controller => 'policies', :action => 'privacy' %>,
+        <%= link_to 'refunds policy', :controller => 'policies', :action => 'refunds' %> and
+        <%= link_to 'delivery policy', :controller => 'policies', :action => 'delivery' %>.
+      </td>
+    </tr>
+  </tbody>
+</table>

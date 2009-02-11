@@ -1,0 +1,18 @@
+<li id="<%= dom_id(article) %>" class="<%= article.status %>">
+  <span class="title"><%= link_to(h(article.title), edit_article_path(article)) %></span>
+  <span id="<%= dom_id(article) %>_status" class="status"><%= article.status.titleize %></span>
+  <%= javascript_tag %Q(new Ajax.InPlaceCollectionEditor("#{dom_id(article)}_status",
+    "#{article_path(article)}", {submitOnBlur: true, collection: XlSuite.valid_statuses,
+    highlightcolor: "#a80000", highlightendcolor: "#000000", value: "#{article.status}",
+    paramName: "article[status]", ajaxOptions: {method: "put"}});) %>
+  <span class="behavior"><%= article.behavior.titleize %></span>
+  <span class="actions">
+    <%= link_to("Add child", new_article_path(:parent_id => article.id), :icon => "page_add") %>
+    <%= link_to_remote("Destroy", :url => article_path(article), :confirm => "Are you sure ?",
+        :method => :delete, :icon => "page_delete") %>
+    <%= link_to("View", article.to_url, :icon => "page") %>
+  </span>
+  <ol id="<%= dom_id(article) %>_children">
+    <%= render :partial => article.children %>
+  </ol>
+</li>

@@ -1,0 +1,931 @@
+@mass = @email.mass_mail?
+page_title = @mass ? 'Mass Mailing | Edit' : 'Email | Edit'
+enable_mass_mail_checkbox = 'isMassMailCheckbox.setValue(true);' if @mass
+
+page << create_tab_using_ajax_response(page_title) do
+%Q`
+// This Manager is used to keep track of all the Ext.form objects
+// since they're not in one Ext.form.Form. This also ensures
+// ID collisions won't occur between New Email Pages
+var manager = new XLManager({});
+
+var appendValueToToArea = function(value) {
+  if (value.toString() == "") return;
+
+  var newValue = toArea.getRawValue() + ", " + value;
+  var normalizedValue = newValue.sub(/^,/, '').sub(/^\s+/, '');
+  toArea.setRawValue(normalizedValue);
+};
+
+var generateSendSaveToolbar = function() {
+  var toolbar = new Ext.Toolbar({
+    //style: 'background-color: white;',
+    //cls: 'darkBlueText',
+    
+    items: [{
+      text: 'Send',
+      handler: function() {
+        var params = {};
+        manager.each(function(pair) {
+          if(pair.value.getXType()=="datefield"){
+            params[pair.value.getName()] = pair.value.value;
+          }else{
+            params[pair.value.getName()] = pair.value.getValue();
+          }
+        });
+        layoutPanel.el.mask('Sending...');
+        xl.maskedPanels.push(layoutPanel);
+        Ext.Ajax.request({
+          url: #{email_path(@email).to_json},
+          params: params,
+          method: 'put',
+          failure: function(request, options) {
+            xl.logXHRFailure;
+            layoutPanel.el.unmask();
+            xl.maskedPanels.remove(layoutPanel);
+            Ext.Msg.alert("Sending failed", "The operation can not be completed at this time.");
+          },
+          success: function(request, options) {
+            xl.log('SUCCESS: ' + request.responseText);
+            layoutPanel.el.unmask();
+            xl.maskedPanels.remove(layoutPanel);
+            response = Ext.util.JSON.decode(request.responseText);
+            if(response.success){
+              xl.updateStatusBar(response.flash);
+              xl.closeTabPanel('emails_edit_'+response.id.toString());
+              new Ajax.Request('/admin/emails/sandbox?mailbox=outbox', {asynchronous:true, evalScripts:true, method:'get'});
+              xl.email.refreshMailboxes();
+              xl.closeTabPanel('recipients_index_'+response.id.toString());
+            }else{
+              Ext.Msg.alert("Sending failed", response.error);
+            }
+          }
+        }); // end Ext.Ajax.request
+      } // end handler
+    },{
+      text: 'Save as Draft',
+      handler: function() {
+        var params = {};
+        manager.each(function(pair) {
+          if(pair.value.getXType()=="datefield"){
+            params[pair.value.getName()] = pair.value.value;
+          }else{
+            params[pair.value.getName()] = pair.value.getValue();
+          }
+        });
+        params["commit"] = "save";
+        params["id"] = #{@email.id};
+        layoutPanel.el.mask('Saving...');
+        
+        Ext.Ajax.request({
+          url: '/admin/emails/save',
+          method: 'POST',
+          params: params,
+          failure: function(request, options) {
+            xl.logXHRFailure;
+            layoutPanel.el.unmask();
+            Ext.Msg.alert("Saving failed", "The operation can not be completed at this time.");
+            xl.maskedPanels.remove(layoutPanel);
+          },
+          success: function(request, options) {
+            xl.log('SUCCESS: ' + request.responseText);
+            layoutPanel.el.unmask();
+            xl.maskedPanels.remove(layoutPanel);
+            response = Ext.util.JSON.decode(request.responseText);
+            if(!response.success)
+              Ext.Msg.alert("Sending failed", response.error);
+          }
+        }); // end Ext.Ajax.request
+      } // end handler
+    },{
+      text: 'Cancel',
+      handler: function() {
+        Ext.Msg.show({
+           title:'Discard Changes?',
+           msg: 'Your are closing a tab that has unsaved changes. Would you like to discard your changes?',
+           buttons: Ext.Msg.OKCANCEL,
+           fn: function(btn){if(btn=="ok") xl.closeTabPanel('#{create_id_from_params}');},
+           icon: Ext.MessageBox.QUESTION
+        });
+      }
+    }]  // end items
+  });
+  return toolbar;
+};  // end generateSendSaveToolbar
+
+// Create Data Stores
+var fromComboBox = new Ext.form.ComboBox({
+  store: xl.generateSimpleHttpJSONStore({
+    url: '#{async_get_account_addresses_emails_path}',
+    fieldNames: ['text', 'address', 'id'],
+    doLoad: true,
+    onLoad: function() {
+      fromComboBox.setValue(fromComboBox.store.getAt(0).get('address'));
+      fromComboBox.mode = 'local';
+    }
+  }),
+  typeAhead: true,
+  mode: 'remote',
+  triggerAction: 'all',
+  fieldLabel: 'From',
+  name: 'email[sender][address]',
+  displayField: 'text',
+  width: 300,
+  editable: false,
+  valueField: 'address',
+  value: #{(@email.sender.blank? ? "" : @email.sender.address).to_json}
+});
+manager.add(fromComboBox);
+
+var fromName = new Ext.form.Hidden({
+  name: 'email[sender][name]',
+  value: #{current_user.name.to_forward_s.to_json}
+});
+manager.add(fromName);
+
+var toArea = new Ext.form.TextArea({
+  fieldLabel: "  ",
+  labelSeparator: ' ',
+  name: 'email[tos]',
+  width: 300,
+  height: 50,
+  grow: true,
+  allowBlank: false,
+  value: #{(@email.tos.blank? ? "" : @email.tos.map(&:to_s).join(",")).to_json }
+});
+manager.add(toArea);
+
+var toGroupComboBox = new Ext.form.ComboBox({
+  emptyText: 'Groups',
+  store: xl.generateSimpleHttpJSONStore({
+    url: '#{async_get_name_id_hashes_groups_path}',
+    fieldNames: ['name', 'id'],
+    doLoad: true
+  }),
+  mode: 'remote',
+  triggerAction: 'all',
+  autoWidth: true,
+  name: 'to_group',
+  displayField: 'name',
+  labelSeparator: '',
+  hideLabel: true,
+  editable: false,
+  allowBlank: true,
+  listeners: {
+    'select': {
+      fn: function() { appendValueToToArea(toGroupComboBox.getRawValue()); },
+      scope: this
+    }
+  }
+});
+var toSavedSearchComboBox = new Ext.form.ComboBox({
+  emptyText: 'Saved Searches',
+  store: xl.generateSimpleHttpJSONStore({
+    url: '#{async_get_searches_emails_path}',
+    fieldNames: ['name', 'id'],
+    doLoad: true
+  }),
+  labelSeparator: '',
+  hideLabel: true,
+  editable: false,
+  allowBlank: true,
+  name: 'to_savedsearch',
+  triggerAction: 'all',
+  valueField: 'id',
+  displayField: 'name',
+  listeners: {
+    'select': {
+      fn: function() { appendValueToToArea('search=' + toSavedSearchComboBox.getRawValue()); },
+      scope: this
+    }
+  }
+});
+var tagStore = xl.generateSimpleHttpJSONStore({
+  url: '#{async_get_tags_emails_path}',
+  fieldNames: ['name', 'id'],
+  doLoad: true
+});
+
+var toTagComboBox = new Ext.form.ComboBox({
+  emptyText: 'Tags',
+  store: tagStore,
+  labelSeparator: '',
+  hideLabel: true,
+  allowBlank: true,
+  triggerAction: 'all',
+  name: 'to_tag',
+  valueField: 'id',
+  displayField: 'name',
+  minChars: 0,
+  listeners: {
+    'select': {
+      fn: function() { appendValueToToArea('tag=' + toTagComboBox.getRawValue()); },
+      scope: this
+    }
+  }
+});
+
+tagStore.on('load', function(){
+  toTagComboBox.mode = 'local';
+});
+
+var toDependency = new XLDependency({
+  actions: [{
+    on: 'select',
+    applyBefore: function(o) { o.hide(); },
+    receivers: new Hash({
+      'g': toGroupComboBox, 's': toSavedSearchComboBox, 't': toTagComboBox
+    }),
+    test: function(self) {
+      switch(self.getRawValue()) {
+        case 'Groups':
+          return 'g';
+        case 'Tags':
+          return 't';
+        case 'Saved Searches':
+          return 's';
+        default:
+          return false;
+      }; // end switch
+    },
+    pass: 'show',
+    fail: 'hide'
+  }]
+});
+
+var processPreview = function(){
+  var params = {};
+  manager.each(function(pair) {
+        if(pair.value.getXType()=="datefield"){
+          params[pair.value.getName()] = pair.value.value;
+        }else{
+          params[pair.value.getName()] = pair.value.getValue();
+        }
+  });
+  params["commit"] = "save";
+  params["preview"] = "true";
+  params["id"] = #{@email.id};
+  layoutPanel.el.mask('Saving as Draft...');
+  
+  Ext.Ajax.request({
+    url: '/admin/emails/save',
+    method: 'POST',
+    params: params,
+    failure: function(request, options) {
+      xl.logXHRFailure;
+      layoutPanel.el.unmask();
+      Ext.Msg.alert("Saving failed", "The operation can not be completed at this time.");
+      xl.maskedPanels.remove(layoutPanel);
+    },
+    success: function(request, options) {
+      xl.log('SUCCESS: ' + request.responseText);
+      layoutPanel.el.unmask();
+      xl.maskedPanels.remove(layoutPanel);
+      response = Ext.util.JSON.decode(request.responseText);
+      if(!response.success)
+        Ext.Msg.alert("Saving failed", response.error);
+    }
+  }); // end Ext.Ajax.request
+};
+
+var processRebuildPopup = function(buttonId){
+  if(buttonId=="yes"){
+    processPreview();
+  }else{
+    xl.closeTabPanel('recipients_index_#{@email.id}');
+    xl.openNewTabPanel('recipients_index_#{@email.id}', #{email_recipients_path(@email).to_json});
+  }
+};
+
+var previewCount = new Ext.Panel({
+  html: "Total: <span id='total_recipients_#{@email.id}'>#{(@email.mass_recipients.count >0 ? @email.mass_recipients.count : 'Unknown')}</span>"
+});
+
+var previewButton = new Ext.Button({
+  text: "Preview Recipients",
+  tooltip: "Only available for mass emails",
+  listeners: {
+    'click': {
+      fn: function() { 
+        Ext.Ajax.request({
+          url: #{async_mass_recipients_count_email_path(@email).to_json},
+          method: 'GET',
+          failure: function(request, options) {
+            xl.logXHRFailure;
+            Ext.Msg.alert("Operation failed", "The operation can not be completed at this time.");
+          },
+          success: function(request, options) {
+            response = Ext.util.JSON.decode(request.responseText);
+            if(response.count < 1)
+              processPreview();
+            else{
+              Ext.Msg.show({title:"Rebuild Recipients?", msg:"Do you want to rebuild recipient list? This will overwrite any changes you made to the list.", buttons:Ext.Msg.YESNO, 
+              fn: processRebuildPopup})
+            }
+          }
+        });  
+      }
+    }
+  }
+});
+
+var toComboBoxStore = xl.generateMemoryArrayStore({
+  records: [ [0, 'Address(es) Listed'], [1, 'Groups'], [2, 'Tags'], [3, 'Saved Searches'] ],
+  idPos: 0,
+  mappings: [{name: 'id', mapping: 0}, {name: 'text', mapping: 1}],
+  onLoad: function() {
+    toComboBox.setValue(0);
+  }
+});
+var toComboBox = new Ext.form.ComboBox({
+  store: toComboBoxStore,
+  mode: 'local',
+  triggerAction: 'all',
+  selectOnFocus: true,
+  fieldLabel: 'To',
+  name: 'to_choice',
+  plugins: [toDependency],
+  displayField: 'text',
+  width: 165,
+  editable: false,
+  valueField: 'id'
+});
+
+/*** BCC & CC ***/
+var bccArea = new Ext.form.TextArea({
+  name: 'email[bccs]',
+  fieldLabel: ' ',
+  labelSeparator: ' ',
+  width: 200,
+  height: 50,
+  allowBlank: true,
+  emptyText: 'BCC',
+  validationEvent: false,
+  //style: 'margin-right: 10px;',
+  hideParent: true,
+  value: #{(@email.bccs.blank? ? "" : @email.bccs.map(&:to_s).join(",")).to_json }
+}); manager.add(bccArea);
+var bccButton = new Ext.Button({
+  fieldLabel: ' ',
+  labelSeparator: ' ',
+  text: 'Add BCC', 
+  enableToggle: true
+});
+bccButton.on('toggle', function(me, pressed) {
+  if (pressed) {
+    bccArea.show();
+    me.setText('Remove BCC');
+  } else {
+    bccArea.hide();
+    me.setText('Add BCC');
+  }
+});
+
+var ccArea = new Ext.form.TextArea({
+  name: 'email[ccs]',
+  hideLabel: true,
+  width: 200,
+  height: 50,
+  allowBlank: true,
+  emptyText: 'CC',
+  validationEvent: false,
+  hideParent: true
+}); manager.add(ccArea);
+var ccButton = new Ext.Button({
+  fieldLabel: ' ',
+  labelSeparator: ' ',
+  text: 'Add CC', 
+  enableToggle: true,
+  value: #{(@email.ccs.blank? ? "" : @email.ccs.map(&:to_s).join(",")).to_json }
+});
+ccButton.on('toggle', function(me, pressed) {
+  if (pressed) {
+    ccArea.show();
+    me.setText('Remove CC');
+  } else {
+    ccArea.hide();
+    me.setText('Add CC');
+  }
+});
+
+/*** SCHEDULED AT ***/
+var scheduledAtDateField = new Ext.form.DateField({
+  fieldLabel: 'Send on',
+  name: 'email[scheduled_at]',
+  format: 'F j, Y',
+  width: 155,
+  allowBlank: true,
+  value: #{(@email.scheduled_at ? @email.scheduled_at.strftime("%Y-%m-%d") : Date.today.to_s).to_json},
+}); manager.add(scheduledAtDateField);
+
+var scheduledAtHourComboBox = new Ext.form.ComboBox({
+  fieldLabel: 'at',
+  labelSeparator: '',
+  name: 'scheduled_at[hr]',
+  allowBlank: true,
+  width: 55,
+  store: xl.generateMemoryArrayStore({
+    records: xl.generateIdStringRecordsForRange($R(1, 12)),
+    idPos: 0,
+    mappings: [{name: 'text', mapping: 1}],
+    doLoad: true
+  }),
+  mode: 'local',
+  displayField: 'text',
+  editable: true,
+  valueField: 'text',
+  triggerAction: 'all',
+  value: #{(@email.scheduled_at ? @email.scheduled_at.strftime("%I").to_i%12 : "0").to_json},  
+}); manager.add(scheduledAtHourComboBox);
+
+var scheduledAtMinuteComboBox = new Ext.form.ComboBox({
+  fieldLabel: ':',
+  labelSeparator: '',
+  name: 'scheduled_at[min]',
+  allowBlank: true,
+  width: 55,
+  store: xl.generateMemoryArrayStore({
+    records: xl.generateIdStringRecordsForRange($R(0, 55), 5, {pad: 2}),
+    idPos: 0,
+    mappings: [{name: 'text', mapping: 1}],
+    doLoad: true
+  }),
+  mode: 'local',
+  displayField: 'text',
+  editable: true,
+  valueField: 'text',
+  triggerAction: 'all',
+  value: #{(@email.scheduled_at ? @email.scheduled_at.strftime("%M") : "00").to_json},
+}); manager.add(scheduledAtMinuteComboBox);
+
+var scheduledAtAMPMComboBox = new Ext.form.ComboBox({
+  labelSeparator: '',
+  name: 'scheduled_at[ampm]',
+  allowBlank: true,
+  width: 45,
+  store: xl.generateMemoryArrayStore({
+    records: [ [0, 'AM'], [1, 'PM'] ],
+    idPos: 0,
+    mappings: [{name: 'text', mapping: 1}],
+    doLoad: true
+  }),
+  mode: 'local',
+  selectOnFocus: true,
+  displayField: 'text',
+  editable: false,
+  hideLabel: true,
+  valueField: 'text',
+  triggerAction: 'all',
+  value: #{(@email.scheduled_at ? @email.scheduled_at.strftime("%p") : "AM").to_json},
+}); manager.add(scheduledAtAMPMComboBox);
+
+var mailTypeComboBox = new Ext.form.ComboBox({
+  fieldLabel: 'Mail type',
+  labelSeparator: ':',
+  name: 'email[mail_type]',
+  mode: 'local',
+  store: new Ext.data.SimpleStore({
+        data: [[0, "html + plain text", "HTML+Plain"], [1, "html mail only", "HTML"], [2, "plain text", "Plain"]],
+        fields: [{name: 'id', mapping: 0}, {name: 'text', mapping: 1}, {name: 'value', mapping: 2}]
+      }),  
+  selectOnFocus: true,
+  displayField: 'text',
+  editable: false,
+  hideLabel: false,
+  valueField: 'value',
+  value: #{(@email.mail_type.blank? ? "HTML+Plain" : @email.mail_type).to_json},
+  triggerAction: 'all'  
+}); manager.add(mailTypeComboBox);
+
+var useTemplateComboBoxStore = xl.generateSimpleHttpJSONStore({
+  url: '#{async_get_template_label_id_hashes_emails_path}',
+  fieldNames: ['name', 'id', 'body', 'subject'],
+  doLoad: true
+});
+
+var useTemplateComboBox = new Ext.form.ComboBox({
+  fieldLabel: 'Template',
+  labelSeparator: ':',
+
+  emptyText: 'Template',
+  allowBlank: true,
+  mode: 'remote',
+  selectOnFocus: true,
+  displayField: 'name',
+  editable: false,
+  valueField: 'id',
+  triggerAction: 'all',
+  disabled: #{@disable_template.to_json},
+  value: #{@template_label.to_json},
+  store: useTemplateComboBoxStore,
+  minListWidth: 350,
+  resizable: true,
+  listeners: {
+    'select': {
+      fn: function(me, record, index) {
+        subjectField.setRawValue(record.get('subject'));
+        
+        var body = bodyEditor.getValue();
+        var index = body.search(optOutRegexp);
+        if (index != -1) {
+          body = record.get('body') + body.slice(index);
+        } else {
+          body = record.get('body');
+        }
+        bodyEditor.setValue(body);
+      }
+    }
+  }
+}); manager.add(useTemplateComboBox);
+
+var useDomainComboBox = new Ext.form.ComboBox({
+  fieldLabel: 'Domain',
+  labelSeparator: ':',
+  emptyText: 'Domains',
+  allowblank: false,
+  mode: 'local',
+  name: 'email[domain_id]',
+  selectOnFocus: true,
+  displayField: 'name',
+  editable: false,
+  valueField: 'id',
+  triggerAction: 'all',
+  store: new Ext.data.SimpleStore({
+    fields: [{name: 'id', mapping: 0}, {name: 'name', mapping: 1}],
+    data: #{@domains.map {|d| [d.id, d.name]}.to_json}
+  }), 
+  value: #{@email.domain_id ? @email.domain_id : current_domain.id}
+ }); manager.add(useDomainComboBox);
+
+var subjectField = new Ext.form.TextField({ // FormLayout
+  fieldLabel: 'Subject',
+  name: 'email[subject]',
+  allowBlank: true,
+  width: '99%',
+  value: #{@email.subject.to_json}
+}); manager.add(subjectField);
+
+var bodyEditor = new Ext.ux.HtmlEditor({
+  fieldLabel: 'Body',
+  name: 'email[body]',
+  width: '99%',
+  height: 250, 
+  value: #{@email.body.to_json},
+  listeners: {
+    'render': function(component){
+      component.getToolbar().insertButton(16, #{html_editor_image_video_embed_button(@email)});
+    }
+  }
+}); manager.add(bodyEditor);
+
+var numInlineAttachmentsHidden = new Ext.form.Hidden({
+  name: 'num_of_inline_attachments',
+  value: "#{@num_of_inline_attachments.blank? ? 1 : @num_of_inline_attachments.to_i}"
+}); manager.add(numInlineAttachmentsHidden);
+
+var numDownloadLinksHidden = new Ext.form.Hidden({
+  name: 'num_of_download_links',
+  value: "#{@num_of_download_links.blank? ? 1 : @num_of_download_links.to_i}"
+}); manager.add(numDownloadLinksHidden);
+
+var pageUrlsStore = xl.generateSimpleHttpJSONStore({
+  url: '#{async_get_page_urls_emails_path}',
+  fieldNames: ['url', 'id'],
+  doLoad: true
+});
+
+var unsubscribePageUrlComboBox = new Ext.form.ComboBox({
+  fieldLabel: 'Set unsubscribe page URL',
+  emptyText: 'URL',
+  allowblank: false,
+  mode: 'remote',
+  name: 'email[opt_out_url]',
+  selectOnFocus: true,
+  displayField: 'url',
+  editable: false,
+  valueField: 'url',
+  triggerAction: 'all',
+  store: pageUrlsStore, 
+  value: #{(@email.opt_out_url ? @email.opt_out_url : "/admin/opt-out").to_json}
+}); manager.add(unsubscribePageUrlComboBox);
+
+var confirmationPageUrlComboBox = new Ext.form.ComboBox({
+  fieldLabel: 'Set confirmation page URL',
+  emptyText: 'URL',
+  allowblank: false,
+  mode: 'remote',
+  name: 'email[return_to_url]',
+  selectOnFocus: true,
+  displayField: 'url',
+  editable: false,
+  valueField: 'url',
+  triggerAction: 'all',
+  store: pageUrlsStore, 
+  value: #{(@email.return_to_url ? @email.return_to_url : "/admin/opt-out/unsubscribed").to_json}
+}); manager.add(confirmationPageUrlComboBox);
+
+var removeTagsComboBox = new Ext.form.ComboBox({
+  fieldLabel: 'Remove tag(s) from unsubscriber',
+  emptyText: 'Tags',
+  allowblank: false,
+  mode: 'remote',
+  name: 'email[tags_to_remove]',
+  selectOnFocus: true,
+  displayField: 'name',
+  editable: false,
+  valueField: 'name',
+  triggerAction: 'all',
+  store: tagStore,
+  value: #{(@email.tags_to_remove ? @email.tags_to_remove : "").to_json}
+}); manager.add(removeTagsComboBox);
+
+var optOutRegexp = new RegExp('<br *\\/*><p class=\\"optOutMessage\\">.+?<\\/p>');
+var optOutMessage = #{(@disable_opt_out ? "" : '<br /><p class="optOutMessage">If you feel you have received this email in error, or would like to remove yourself from future mailings. Simply opt out here : {% opt_out_url %}, Thank you.</p>').to_json};
+
+var optOutPanel = new Ext.form.FieldSet({
+  title: 'Opt Out Control',
+  labelWidth: 150,
+  autoHeight: true,
+  
+  items: [
+    unsubscribePageUrlComboBox,
+    confirmationPageUrlComboBox,
+    removeTagsComboBox
+  ]
+});
+
+var addRemoveOptOutMessage = function(action) {
+  if (action === 'add') {
+    bodyEditor.setValue(bodyEditor.getValue() + optOutMessage);
+  } else {
+    bodyEditor.setValue(bodyEditor.getValue().sub(optOutRegexp, ''));
+  }
+};
+
+var isMassMailDependency = new XLDependency({
+  actions: [{
+    on: 'check',
+    applyBefore: function(set) { set.each(function(o) { o.setDisabled(true); });},
+    receivers: { 'on': [useDomainComboBox, optOutPanel, previewButton, previewCount] },
+    test: function(self) {
+      if(self.getValue())
+        return 'on';
+      else
+        return 'off';
+    },
+    pass: function(set, self) { set.invoke('setDisabled', false);  addRemoveOptOutMessage('add'); },
+    fail: function(set, self) { set.invoke('setDisabled', true);  addRemoveOptOutMessage('remove'); }
+  },
+  {
+    on: 'check',
+    applyBefore: function(set) { [bccArea, ccArea].each(function(o) { o.setDisabled(false); }); },
+    receivers: { 'off': [bccArea, ccArea] },
+    test: function(self) {
+      if(self.getValue())
+        return 'on';
+      else
+        return 'off';
+    },
+    pass: function(set, self) { set.invoke('setDisabled', false);  },
+    fail: function(set, self) { set.invoke('setDisabled', true); }
+  
+  }]
+});
+
+var isMassMailCheckbox = new Ext.form.Checkbox({
+  fieldLabel: ' ',
+  labelSeparator: ' ',
+  boxLabel: '<b>This is a Mass Email</b>',
+  plugins: [isMassMailDependency],
+  name: 'email[mass_mail]', 
+  value: #{@mass.to_json}
+}); manager.add(isMassMailCheckbox);
+
+var assetsIdHidden = new Ext.form.Hidden({
+   //id: 'attachment_asset_id',
+   name: 'assets[][id]',
+   value: ''
+}); manager.add(assetsIdHidden);
+
+var sendInlineCheckbox = new Ext.form.Checkbox({
+  boxLabel: 'Send attachments inline',
+  name: 'email[inline_attachments]',
+  checked: true,
+  fieldLabel: '',
+  labelSeparator: ' '
+}); manager.add(sendInlineCheckbox);
+
+var formDefaults = {
+  layout: 'form',
+  labelWidth: 65,
+  labelAlign: 'right'
+};
+
+var layoutPanel = new Ext.Panel({
+  tbar: generateSendSaveToolbar(),
+  
+  bodyStyle: 'padding: 15px',
+  autoScroll: true,
+  layout: 'table',
+  layoutConfig: { columns: 1 },
+  width: '100%',
+  defaults: formDefaults,
+  
+  items: [
+    { items: [isMassMailCheckbox] },
+    { items: [fromName] },
+    { items: [fromComboBox] },
+    
+    { // ColumnLayout
+      layout: 'column',
+      defaults: formDefaults,
+      items: [  // FormLayouts
+        { width: 250, items: [toComboBox] },
+        { items: [toGroupComboBox] },
+        { items: [toSavedSearchComboBox] },
+        { items: [toTagComboBox] }
+      ]
+    },
+    {
+      layout: 'column',
+      width: 600,
+      defaults: formDefaults,
+      items: [ // 2 Columns
+        { width: 375, items: [toArea] },
+        { width: 125, items: [previewButton, previewCount] }
+      ]
+    },
+    { // ColumnLayout
+      layout: 'column',
+      width: 600,
+      defaults: formDefaults,
+      items: [ // 2 Columns
+        { width: 275, items: [bccArea] },
+        { width: 300, items: [ccArea] }
+      ]
+    },
+    
+    /*{ // ColumnLayout
+      style: 'padding-left: 50px;',
+      layout: 'column',
+      items: [{ // FormLayout
+        items: [bccButton]
+      },{
+        items: [ccButton]
+      }] // ColumnLayout items
+    },*/
+    
+    { // TableLayout
+      layout: 'column',
+      defaults: formDefaults,
+      items: [
+        { // Column 1
+          width: 225,
+          items: [scheduledAtDateField]
+        },{ // Column 2
+          width: 83,
+          labelWidth: 20,
+          items: [scheduledAtHourComboBox]
+        },{ // Column 3
+          width: 70,
+          labelWidth: 5,
+          items: [scheduledAtMinuteComboBox]
+        },{ // Column 4
+          width: 55,
+          items: [scheduledAtAMPMComboBox]
+        } // end Column 5
+      ] // end ColumnLayout.items
+    },
+    
+    { items: [mailTypeComboBox] },
+    
+    { items: [useTemplateComboBox] },
+    
+    { 
+      layout: 'column',
+      defaults: formDefaults,
+      items: [
+        {
+          items: [useDomainComboBox]
+        },{
+          html: '<span>Mail should appear to come from <b>this domain</b></span>'
+        }
+      ]
+    },
+    
+    { items: [subjectField] },
+    
+    { items: [bodyEditor] },
+    
+    { html: '<br />' },
+    
+    { 
+      xtype: 'fieldset',
+      title: 'Attachments',
+      labelWidth: 0,
+      autoHeight: true,
+      
+      items: [
+        {
+          xtype: 'panel',
+          html: '&nbsp;Attach files from:'
+        },
+        {
+          xtype: 'panel',
+          html: '&nbsp;<label>My Computer (upload):</label> <input type="file" id="attachment_file" />'
+        },{
+          xtype: 'panel',
+          html: '&nbsp;<label>XLsuite Asset manager:</label> #{text_field_tag "assets[][filename]", nil, :id => "attachment_asset_filename", :class=> "text"}'
+        },
+        assetsIdHidden,
+        sendInlineCheckbox,
+        {
+          xtype: 'panel',
+          html: '&nbsp;<p id="x_att_authz">Authorizations: <span class="normal">Publicly Readable</span>&nbsp;#{link_to_function "Change", "openAuthorizationsPanel()", :id => "x_open_authz_panel"}</p>'
+        },{
+          xtype: 'panel',
+          html: '&nbsp;<ul id="x_attachments">#{render :partial => @email.attachments}</ul>'
+        }
+      ]
+    },
+    optOutPanel,
+    
+    {
+      html: '<br /><br /><br />'
+    }
+  ] // end layoutPanel.TableLayout.items
+}); // end layoutPanel
+
+//layoutPanel.on('destroy', function() { xl.log('Destroying New Email (Sandbox)!'); });
+
+newPanel.add(layoutPanel);
+
+var _afterRenderCallback = function() {
+  toComboBoxStore.load();
+  //bccArea.hide();
+  //ccArea.hide();
+  // Enable Mass Mail views if necessary
+  #{enable_mass_mail_checkbox}
+
+  addRemoveOptOutMessage('remove');
+  // Business logic for handling attachments
+  var addDownloadLink = function() {
+    var numOfDownloadLinks = parseInt(numDownloadLinksHidden.getRawValue()) + 1;
+    numDownloadLinksHidden.setRawValue(numOfDownloadLinks);
+    new Insertion.Bottom(
+      'collection_of_download_links',
+      '<p><input type="text" value="" name="download_links[' + numOfDownloadLinks + ']" id="download_links[' + numOfDownloadLinks + ']" autocomplete="off" />&nbsp;<a onclick="return false;" href="#">Browse</a></p>'
+    );
+  };
+  
+  var removeAttachment = function(id) {
+    var rowElement = $(id).up('li');
+    if (rowElement) {
+      var fileElement = $(rowElement.id.sub('_row', ''));
+      if (fileElement) fileElement.remove();
+      new Effect.Fade(rowElement, {
+        afterFinish: function() { rowElement.remove(); }
+      });
+    }
+  };
+  
+  var destroyAttachment = function(element, url) {
+    new Ajax.Request(url, {
+      method: 'delete',
+      onLoading: function() {
+        new Effect.Fade(element);
+      },
+      onFailure: function(xhr) {
+        new Effect.Appear(element);
+        alert('Could not destroy ' + element + '. Server said: "' + xhr.status + ' ' + xhr.statusText + '"');
+      }
+    });
+  };
+
+  var attachmentsMultiSelector = new MultiSelector($("x_attachments"), {
+    templateText: '<li id="#{id}">#{page_title} <a href="#" onclick="removeAttachment(this)" class="rm_att">Remove</a></li>',
+    id: function(id) { return "attachments_" + id },
+    name: "attachments[][uploaded_data]"
+  });
+  attachmentsMultiSelector.addElement($("attachment_file"));
+
+  $$("#x_attachments a.remove").each(function(anchor) {
+    anchor.observe("click", function(e) {
+      Event.stop(e);
+      var root = anchor.up("li");
+      new Ajax.Request(anchor.getAttribute("href"), {
+        method: 'delete',
+        onLoading: function() { new Effect.Fade(root) },
+        onFailure: function(xhr) {
+          new Effect.Appear(root);
+          alert("Failed to remove attachment.  Server replied '" + xhr.status + " " + xhr.statusText + "'");
+        }
+      }); // end Ajax.Request
+    }); // end anchor.observe
+  }); // end $$("#x-attachments a.remove").each
+  #{no_permission_warning_message}
+};
+`
+end
+
+page << "xl.tabPanel.activate('emails_save_#{@email.id}');"

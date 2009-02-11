@@ -1,0 +1,9 @@
+<tr>
+  <td><%= h email_account.name %></td>
+  <td><%= h email_account.access_method %></td>
+  <td>
+    <%= link_to "Test", party_retrieve_email_account_path(:party_id => @party, :id => email_account) %>
+    <%= link_to "Edit", party_edit_email_account_path(:party_id => @party, :id => email_account) %>
+    <%= link_to "Destroy", party_email_account_path(:party_id => @party, :id => email_account), :method => :delete, :confirm => "Are you sure?" %> 
+  </td>
+</tr>

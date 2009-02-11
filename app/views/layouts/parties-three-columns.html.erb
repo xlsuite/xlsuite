@@ -1,0 +1,97 @@
+<% content_for(:js) do -%>
+<%= javascript_include_tag "xl_suite/form_handler" %>
+<%= javascript_tag <<EOF
+  var #{typed_dom_id(@party, :form_handler)} = new XlSuite.FormHandler("#{dom_id(@party)}");
+EOF
+%>
+<%= javascript_include_tag "xl_suite/other_name_handler.js" %>
+<%= javascript_tag %Q(
+if (typeof(showAddFieldUpdateMissingFields) == 'function') {
+  #{typed_dom_id(@party, :form_handler)}.registerCallback(showAddFieldUpdateMissingFields);
+
+  Event.observe(window, "load", function() {
+  Event.observe("show_add_field", "click", showAddField);
+  Event.observe("contactOptions_values", "change", showAddFieldGo.bindAsEventListener(this, #{typed_dom_id(@party, :form_handler)}));
+  Event.observe("contactOptions_values", "blur", showAddFieldCancel);
+  Event.observe("show_add_field_cancel", "click", showAddFieldCancel);
+
+  showAddFieldUpdateMissingFields();
+});
+}
+) %>
+<% end -%>
+<%= render :partial => "shared/doctype" %>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <%= render :partial => "shared/head" %>
+</head>
+<body>
+  <div id="wrap">
+    <%= render :partial => "shared/header_row" %>
+    <div id="content">
+      <div id="contentCenter" class="column">
+        <%= render :partial => "shared/notifications" %>
+        <!-- Center Console -->
+        <!-- <div id="mainTabbedNav">
+          Tabs
+          <ul id="mainTabs">
+<% if @party.new_record? then -%>
+            <%= tab "New Contact", new_party_path, :class => "last" %>
+<% else -%>
+            <%= tab "General", general_party_path(@party) %>
+            <%= tab "Profile", profile_party_path(@party) %>
+            <%= tab "Tags", tags_party_path(@party) %>
+            <%= tab "Comments", comments_party_path(@party) %>
+            <%= tab "Security", security_party_path(@party) %>
+            <%= tab "Staff", staff_party_path(@party) %>
+            <%= tab "Testimonials", testimonials_party_path(@party), :class => "last" %>
+<% end -%>
+          </ul>
+        </div> -->
+        <!-- Navigate through records -->
+        <div id="mainBrowseRecords" style="display:none">
+          <ul>
+            <li>
+              <%= link_to(icon_tag(:resultset_first), :id => "mainFirstRecord") %>
+            </li>
+            <li>
+              <%= link_to(icon_tag(:resultset_previous), :id => "mainPreviousRecord") %>
+            </li>
+            <li>
+              <%= link_to(icon_tag(:resultset_next), :id => "mainNextRecord") %>
+            </li>
+            <li>
+              <%= link_to(icon_tag(:resultset_last), :id => "mainLastRecord") %>
+            </li>
+          </ul>
+        </div>
+        <!-- Begin Content Area -->
+        <div id="mainContentArea">
+          <% inline_form_for(:party, @party, :url => @party.new_record? ? parties_path : party_path(@party), :html => {:method => @party.new_record? ? :post : :put, :class => dom_class(@party)}) do |f| %>
+            <div id="generalFunctionsMenu">
+              <ul>
+                <%= content_tag(:li, link_to("New", new_party_path, :id => "generalNewRecord"), :style => @party.new_record? ? "display:none" : nil) %> 
+<% if @party.new_record? then -%>
+                <li>
+                  <%= submit_tag "Save", :name => nil %>
+                </li>
+<% else -%>
+                <li>
+                  <a href="#" id="generalArchiveRecord" tabindex="-1">Archive</a>
+                </li>
+<% end -%>
+              </ul>
+          </div>
+  
+          <!-- Begin Left Content -->
+          <%= yield %>
+<% end -%>
+        </div>
+        <!-- End Content Area -->
+      </div>  
+      <%= render :partial => "shared/consoles" %>
+    </div>
+    <%= render :partial => "shared/footer" %>
+  </div>
+</body>
+</html>

@@ -1,0 +1,4 @@
+<% background = cycle("","bg") %>
+<% content_tag(:li, :class => background, :id => dom_id(permission_set)) do %>
+  <%= link_to_permission_set(permission_set) %>
+<% end -%>

@@ -1,0 +1,275 @@
+limit = params[:limit] || 50
+configurations_url_json = formatted_configurations_path(:format => :json).to_json
+
+after_render = %Q`
+  ds.load({params: {start: 0, limit: #{limit} }});
+`
+
+page << create_tab_using_ajax_response("Configurations | Index", after_render) do
+%Q`
+  var configurationPath = #{configuration_path("__ID__").to_json};
+  
+  // create file record
+  var ConfigurationRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'name', mapping: 'name'},
+    {name: 'group_name', mapping: 'group_name'},
+    {name: 'domain_patterns', mapping: 'domain_patterns'},
+    {name: 'description', mapping: 'description'},
+    {name: 'type', mapping: 'type'},
+    {name: 'value', mapping: 'value'}
+  ]);
+  
+  var domainStore = new Ext.data.SimpleStore({
+    fields: ['value'],
+    data: #{([["All"]] + @source_domains.map{|domain| [domain.name]}).to_json}
+  });
+  
+  var domainSelection = xl.widget.FormField({
+      displayField: 'value', 
+      valueField: 'value',
+      fieldLabel: 'Status',
+      value: 'All', 
+      name: 'domain', 
+      type: 'combobox', 
+      store: domainStore, 
+      editable : false,
+      triggerAction: 'all',
+      mode: 'local'
+  });
+  
+  // data reader to parse the json response
+  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, ConfigurationRecord);
+
+  // set up connection of the data
+  var connection = new Ext.data.Connection({url: #{configurations_url_json}, method: 'get'});
+  var proxy = new Ext.data.HttpProxy(connection);
+
+  // set up the data store and then send request to the server
+  var ds = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+
+  // set up the ext grid object
+  var xg = Ext.grid;
+
+  // define paging toolbar that is going to be appended to the footer of the grid panel
+  var paging = new Ext.PagingToolbar({
+    store: ds,
+    pageSize: #{limit},
+    displayInfo: true,
+    displayMsg: 'Displaying {0} to {1} of {2}',
+    emptyMsg: "No record to display",
+    cls: "bottom-toolbar paging-toolbar-bottom",
+    plugins: [new Ext.ux.PageSizePlugin]
+  });
+  
+  domainSelection.on('select', function(el, newValue, oldValue){
+    ds.baseParams['domain'] = newValue.data.value;
+    ds.reload({params: {start: 0, limit: #{limit}}});
+  });
+  
+  #{create_grid_tbar_filter_field}
+  
+  #{create_grid_tbar_clear_button}
+
+  var gridTopToolbar = new Ext.Toolbar({
+    cls: "top-toolbar",
+    items: [{text: "Show Domain:"}, domainSelection, {text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+  });
+  
+  var editRenderer = function(value, cell, record) {
+    return '<div class="icon_pencilGo pointerOnHover"/>';
+  };
+  
+  var addRenderer = function(value, cell, record) {
+    return '<div class="icon_add pointerOnHover"/>';
+  };
+  
+  var grid = new Ext.grid.EditorGridPanel({
+    store: ds,
+    cm: new Ext.grid.ColumnModel([
+        {id: "add", width: 10, dataIndex: 'id', renderer: addRenderer, sortable: false, menuDisabled: true, hideable: false, tooltip: "Click here to go to add new configuration" },
+        {id: "edit", width: 10, dataIndex: 'id', renderer: editRenderer, sortable: false, menuDisabled: true, hideable: false, tooltip: "Click here to go to full edit mode" },
+        {id: "group_name", width: 40, header: "Group Name", sortable: true, dataIndex: 'group_name'},
+        {id: "name", width: 60, header: "Name", sortable: true, dataIndex: 'name'},
+        {id: "configuration-value", header: "Value", sortable: false, dataIndex: 'value'},
+        {id: "domain_patterns", header: "Domain Pattern", sortable: true, dataIndex: 'domain_patterns', editor: new Ext.form.TextField()},
+        {id: "configuration-description", header: "Description", sortable: true, dataIndex: 'description'}
+      ]),
+    autoScroll: true,
+    autoWidth: true,
+    height: #{get_default_grid_height(nil)},
+    clicksToEdit:1,
+    tbar: gridTopToolbar, 
+    bbar: paging,
+    selModel: new Ext.grid.RowSelectionModel,
+    loadMask: true,
+    viewConfig: { autoFill: true, forceFit: true}
+  });
+  
+  newPanel.add(grid);
+  xl.runningGrids.set("configurations", grid);
+  newPanel.on("destroy", function(){
+    xl.runningGrids.unset("configurations");
+  });
+  
+  var newConfigurationUrl = #{new_configuration_path(:id => "__ID__").to_json};
+  var editConfigurationUrl = #{edit_configuration_path(:id => "__ID__").to_json};
+
+  // set single click action on grid cells
+  grid.on("cellclick", function(gr, rowIndex, columnIndex, e) {
+    var record = ds.getAt(rowIndex);
+    var id = record.data.id;
+
+    switch(columnIndex){
+      case grid.getColumnModel().getIndexById("add"):
+        xl.openNewTabPanel('configurations_new_nil', newConfigurationUrl.sub("__ID__", id));
+        break;
+      case grid.getColumnModel().getIndexById("edit"):
+        xl.openNewTabPanel('configurations_edit_'+id, editConfigurationUrl.sub("__ID__", id));
+        break;
+      default:
+        break;
+    }
+  });
+
+  // set double click action on grid cells
+  grid.on("dblclick", function(gr, rowIndex, columnIndex, e) {
+    var record = ds.getAt(rowIndex);
+    var id = record.data.id;
+
+    switch(columnIndex){
+      case grid.getColumnModel().getIndexById("add"):
+        xl.openNewTabPanel('configurations_new_nil', newConfigurationUrl.sub("__ID__", id));
+        break;
+      case grid.getColumnModel().getIndexById("edit"):
+        xl.openNewTabPanel('configurations_edit_'+id, editConfigurationUrl.sub("__ID__", id));
+        break;
+      default:
+        xl.openNewTabPanel('configurations_edit_'+id, editConfigurationUrl.sub("__ID__", id));
+        break;
+    }
+  });
+  
+  var selectAllAction = new Ext.Action({
+    text: "Select all",
+    iconCls: "display_none"
+  });
+
+  var clearAllAction = new Ext.Action({
+    text: "Clear all",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var deleteAction = new Ext.Action({
+    text: "Delete",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var selectionMenu =  new Ext.menu.Menu({
+    items: [selectAllAction, clearAllAction]
+  });
+  
+  selectionMenu.addSeparator();
+  selectionMenu.add(deleteAction);
+  
+  xl.viewport.render();
+
+  grid.getTopToolbar().add({ text: "Actions", menu: selectionMenu });
+
+  function alertNoConfigurationsSelected() {
+    Ext.Msg.alert('No Configurations Selected', 'Please select one or more configurations to perform that action.');
+  }
+
+  function getSelectedIdsString(records){ 
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    return ids.toString()
+  }
+  
+  clearAllAction.setHandler(function(e) {
+    grid.getSelectionModel().clearSelections();
+    e.disable();
+  });
+
+  selectAllAction.setHandler(function(e) {
+    grid.getSelectionModel().selectAll();
+    e.disable();
+  });
+
+  deleteAction.setHandler(function(e) {
+    var records = grid.getSelectionModel().getSelections();
+    if (records.length == 0) {
+      alertNoConfigurationsSelected();
+      return false;
+    }
+    
+    Ext.Msg.confirm("", "Delete selected configurations permanently?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        grid.disable();
+        params['ids'] = getSelectedIdsString(records);
+        new Ajax.Request(#{destroy_collection_configurations_path.to_json}, {
+          method: 'post',
+          parameters: params,
+          onSuccess: function(transport){
+            grid.enable();
+          }
+        });
+      }
+    });
+  });
+  
+  grid.getSelectionModel().on("selectionchange", function(){
+    records = grid.getSelectionModel().getSelections();
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    selectedIds = ids;
+    
+    if(ids.length>0){
+      clearAllAction.enable();
+      deleteAction.enable();
+    }
+    else
+      deleteAction.disable();
+      selectAllAction.enable();
+  });
+  
+  grid.on("validateedit", function(event){
+    var record = event.record;
+    var editedFieldName = event.field;
+    
+    record.set(editedFieldName, event.value);
+    var method = "put";
+    var objectId = record.get("id");
+
+    var params = {};
+    params["from_index"] = "true";
+    params["configuration[domain_patterns]"] = record.get("domain_patterns");
+    
+    new Ajax.Request(configurationPath.sub("__ID__", objectId),{
+      method: method,
+      parameters: params,
+      onSuccess: function(transport){
+        response = Ext.util.JSON.decode(transport.responseText);
+        record.set('id', response.id);
+        record.set('group_name', response.group_name);
+        record.set('name', response.name);
+        record.set('domain_patterns', response.domain_patterns);
+        $("status-bar-notifications").innerHTML = response.flash;
+        if(response.flash.include('Error saving configuration:'))
+          event.grid.getView().getCell(event.row, event.column).highlight({startcolor: "FF5721"});
+        else
+          event.grid.getView().getCell(event.row, event.column).highlight();
+      }
+    });
+
+  });
+  
+`
+end

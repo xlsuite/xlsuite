@@ -1,0 +1,17 @@
+<p>You are about to subscribe to the following groups at <%= @domain_name %>: </p>
+<ul>
+  <% @groups.each do |group| %>
+  <li>Name: <%= group.name %>
+    <% if group.description %>
+    <ul>
+      <li>Description: <%= group.description %></li>
+    </ul>
+    <% end -%>
+  </li>
+  <% end -%>
+</ul>
+<p>Please follow this link to finish the subscription process: <%= link_to(@confirmation_url, @confirmation_url) %></p>
+<p>
+  If you did not make this request, or if you don't want to sign up for <%= @domain_name %>'s groups, no further action is required. 
+  Please do not respond to this message. If you'd like to contact <%= @domain_name %>, visit our contact page at http://<%= @domain_name %>/contact.
+</p>

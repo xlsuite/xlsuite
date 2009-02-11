@@ -1,0 +1,15 @@
+.mail_user_compose a {
+	padding-left: 18px;
+	background: url(/images/icons/email_edit.png) no-repeat left top;
+}
+
+
+
+#emails_list {width:100%;}
+#emails_list td { padding: 4px; }
+#emails_list th { border-right: 1px solid #fff; padding-left: 4px; }
+#emails_list th.lastHeader { border-right: none; }
+#emails_list tr.bg {background: #eee;}
+tr.tableHeader { height: 30px; padding: 6px; background: url(../../images/table_headerBg.png) repeat-x; }
+tr.tableHeader th, tr.tableHeader th a {font: 11px Verdana, sans-serif; font-weight: bold;  padding: 4px; color: #fff;}
+

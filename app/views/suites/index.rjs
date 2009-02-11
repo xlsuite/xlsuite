@@ -1,0 +1,404 @@
+limit = params[:limit] || 50
+suites_url_json = formatted_public_suites_path(:format => :json).to_json
+
+after_render = %Q`
+  ds.load({params: {start: 0, limit: #{limit} }});
+`
+
+page << create_tab_using_ajax_response("Suites | Index", after_render) do
+%Q`
+  var selectedIds = null;
+  
+  // create file record
+  var SuiteRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'name', mapping: 'name'},
+    {name: 'demo_url', mapping: 'demo_url'},
+    {name: 'setup_fee', mapping: 'setup_fee'},
+    {name: 'subscription_fee', mapping: 'subscription_fee'},
+    {name: 'designer_name', mapping: 'designer_name'},
+    {name: 'installed_count', mapping: 'installed_count'},
+    {name: 'rating', mapping: 'rating'},
+    {name: 'main_image_url', mapping: 'main_image_url'},
+    {name: 'tag_list', mapping: 'tag_list'},
+    {name: 'features_list', mapping: 'features_list'},
+    {name: 'approved', mapping: 'approved'},
+    {name: 'f_blogs', mapping: 'f_blogs'},
+    {name: 'f_directories', mapping: 'f_directories'},
+    {name: 'f_forums', mapping: 'f_forums'},
+    {name: 'f_product_catalog', mapping: 'f_product_catalog'},
+    {name: 'f_profiles', mapping: 'f_profiles'},
+    {name: 'f_real_estate_listings', mapping: 'f_real_estate_listings'},
+    {name: 'f_rss_feeds', mapping: 'f_rss_feeds'},
+    {name: 'f_testimonials', mapping: 'f_testimonials'},
+    {name: 'f_cms', mapping: 'f_cms'},
+    {name: 'f_workflows', mapping: 'f_workflows'}
+  ]);
+  
+  // data reader to parse the json response
+  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, SuiteRecord);
+
+  // set up connection of the data
+  var connection = new Ext.data.Connection({url: #{suites_url_json}, method: 'get'});
+  var proxy = new Ext.data.HttpProxy(connection);
+
+  // set up the data store and then send request to the server
+  var ds = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {query: '', include_unapproved: '1'}});
+
+  // set up the ext grid object
+  var xg = Ext.grid;
+
+  // define paging toolbar that is going to be appended to the footer of the grid panel
+  var paging = new Ext.PagingToolbar({
+    store: ds,
+    pageSize: #{limit},
+    displayInfo: true,
+    displayMsg: 'Displaying {0} to {1} of {2}',
+    emptyMsg: "No record to display",
+    cls: "bottom-toolbar paging-toolbar-bottom",
+    plugins: [new Ext.ux.PageSizePlugin]
+  });
+  
+  #{create_grid_tbar_filter_field}
+  
+  #{create_grid_tbar_clear_button}
+
+  var gridTopToolbar = new Ext.Toolbar({
+    cls: "top-toolbar",
+    items: [{text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+  });
+  
+  var grid = new Ext.grid.GridPanel({
+    store: ds,
+    cm: new Ext.grid.ColumnModel([
+        {id: "suite-name", header: "Name", sortable: true, dataIndex: 'name'},
+        {id: "suite-demo_url", header: "Demo url", sortable: false, dataIndex: 'demo_url'},
+        {id: "suite-subscription_fee", header: "Subscription fee", sortable: false, dataIndex: 'subscription_fee'},
+        {id: "suite-setup_fee", header: "Setup fee", sortable: false, dataIndex: 'setup_fee'},
+        {id: "suite-installed_count", header: "# installed", sortable: false, dataIndex: 'installed_count'},
+        {id: "suite-approved", header: "Approved", sortable: false, dataIndex: 'approved'},
+        {id: "suite-designer_name", header: "Designer", sortable: false, dataIndex: 'designer_name'},
+        {id: "suite-tag_list", header: "Tags", sortable: false, dataIndex: 'tag_list'},
+        {id: "suite-features_list", header: "Features", sortable: false, dataIndex: 'features_list'}
+      ]),
+    autoScroll: true,
+    autoWidth: true,
+    height: #{get_default_grid_height(nil)},
+    tbar: gridTopToolbar, 
+    bbar: paging,
+    selModel: new Ext.grid.RowSelectionModel,
+    loadMask: true,
+    viewConfig: { autoFill: true, forceFit: true}
+  });
+  
+  newPanel.add(grid);
+  xl.runningGrids.set("suites", grid);
+  newPanel.on("destroy", function(){
+    xl.runningGrids.unset("suites");
+  });
+  
+  var selectAllAction = new Ext.Action({
+    text: "Select all",
+    iconCls: "display_none"
+  });
+
+  var clearAllAction = new Ext.Action({
+    text: "Clear all",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var approveAction = new Ext.Action({
+    text: "Approve",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var unapproveAction = new Ext.Action({
+    text: "Unapprove",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var embedCodeAction = new Ext.Action({
+    text: "Embed code",
+    iconCls: "display_none",
+    disabled: false
+  });
+  
+  var deleteAction = new Ext.Action({
+    text: "Delete",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var selectionMenu =  new Ext.menu.Menu({
+    items: [selectAllAction, clearAllAction]
+  });
+  
+  selectionMenu.addSeparator();
+  selectionMenu.add(approveAction);
+  selectionMenu.add(unapproveAction);
+  selectionMenu.add(embedCodeAction);
+  selectionMenu.addSeparator();
+  selectionMenu.add(deleteAction);
+  
+  xl.viewport.render();
+
+  grid.getTopToolbar().add({ text: "Actions", menu: selectionMenu });
+
+  function alertNoSuiteSelected() {
+    Ext.Msg.alert('No Suite Selected', 'Please select one or more suites to perform the action.');
+  }
+
+  function getSelectedIdsString(records){ 
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    return ids.toString()
+  }
+  
+  clearAllAction.setHandler(function(e) {
+    grid.getSelectionModel().clearSelections();
+    e.disable();
+  });
+
+  selectAllAction.setHandler(function(e) {
+    grid.getSelectionModel().selectAll();
+    e.disable();
+  });
+  
+  approveAction.setHandler(function(e) {
+    Ext.Msg.confirm("Suites Manager", "Approve selected suites?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        grid.disable();
+        params['ids'] = selectedIds.join(",");
+        new Ajax.Request(#{approve_collection_suites_path.to_json}, {
+          method: 'put',
+          parameters: params,
+          onSuccess: function(transport){
+            grid.enable();
+          }
+        });
+      }
+    });
+  });
+
+  unapproveAction.setHandler(function(e) {
+    Ext.Msg.confirm("Suites Manager", "Unapproved selected suites?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        grid.disable();
+        params['ids'] = selectedIds.join(",");
+        new Ajax.Request(#{unapprove_collection_suites_path.to_json}, {
+          method: 'put',
+          parameters: params,
+          onSuccess: function(transport){
+            grid.enable();
+          }
+        });
+      }
+    });
+  });
+  
+  var industriesStore = new Ext.data.SimpleStore({
+    fields: ["name", "label"],
+    data: #{([["All", ""]] + AccountTemplate.industry_categories.map{|e| [e.name, e.label]}).to_json}
+  });
+  
+  var mainThemesStore = new Ext.data.SimpleStore({
+    fields: ["name", "label"],
+    data: #{([["All", ""]] + AccountTemplate.main_theme_categories.map{|e| [e.name, e.label]}).to_json}
+  });
+  
+  embedCodeAction.setHandler(function(e) {
+    var modeValue = "Tag list";
+    var tagListValue = "";
+    var idsValue = "";
+    var perPage = 2;
+    var modeStore = ["Tag list"];
+    var includeSearchBar = false;
+    var includeCss = true;
+    
+    if (selectedIds && selectedIds.length > 0){
+      modeStore = ["Selected", "Tag list"];
+      modeValue = "Selected";
+      tagListValue = "";
+      idsValue = selectedIds.join(",");
+    }
+    
+    var parameters = {mode: modeValue, ids: idsValue, tags:tagListValue, include_css: 1, per_page: perPage};
+    if (!selectedIds || selectedIds.length < 1){
+      parameters.include_search_bar = 1;
+      includeSearchBar = true;
+    }
+    
+    Ext.Ajax.request({
+      url: #{embed_code_suites_path.to_json},
+      params: parameters,
+      method: "GET",
+      success: function(response, options){
+        var response = Ext.util.JSON.decode(response.responseText);
+        
+        if (response.success){
+          var embedCodeFormPanel = new Ext.form.FormPanel({
+            items: [
+              new Ext.form.Hidden({
+                name: "ids",
+                value: idsValue
+              }),
+              new Ext.form.ComboBox({
+                fieldLabel: "Mode",
+                name: "mode",
+                store: modeStore,
+                triggerAction: "all",
+                value: modeValue,
+                editable: false,
+                forceSelection: true
+              }),
+              new Ext.form.ComboBox({
+                fieldLabel: "Industry",
+                displayField: "name",
+                valueField: "label",
+                hiddenName: "industry",
+                store: industriesStore,
+                forceSelection: true,
+                mode: "local",
+                triggerAction: "all",
+                value: ""
+              }),
+              new Ext.form.ComboBox({
+                fieldLabel: "Main theme",
+                hiddenName: "main_theme",
+                displayField: "name",
+                valueField: "label",
+                store: mainThemesStore,
+                forceSelection: true,
+                triggerAction: "all",
+                mode: "local",
+                value: ""
+              }),
+              new Ext.form.TextField({
+                fieldLabel: "Tag list",
+                name: "tags",
+                value: tagListValue
+              }),
+              new Ext.form.TextField({
+                name: "per_page",
+                value: perPage,
+                fieldLabel: "Per page"
+              }),
+              new Ext.form.Checkbox({
+                name: "include_css",
+                value: 1,
+                fieldLabel: "Include default styling",
+                checked: includeCss
+              }),
+              new Ext.form.Checkbox({
+                name: "include_search_bar",
+                value: 1,
+                checked: includeSearchBar,
+                fieldLabel: "Include search bar"
+              })
+            ]
+          });
+          
+          var embedCodeTextArea = new Ext.form.TextArea({
+            readOnly: true,
+            value: response.code,
+            listeners: {focus: function(cpt){cpt.selectText();}}
+          });
+
+          var embedCodePanel = new Ext.Panel({
+            title: "Generated code",
+            items: embedCodeTextArea,
+            listeners: {
+              render: function(cpt){
+                xl.fitToOwnerCtWidth(cpt);
+                embedCodeTextArea.setWidth(cpt.getSize().width);
+              }
+            },
+            bbar: [new Ext.Toolbar.Button({
+                text: "Regenerate",
+                handler: function(btn, e){
+                  Ext.Ajax.request({
+                    url: #{embed_code_suites_path.to_json},
+                    params: embedCodeFormPanel.getForm().getValues(false),
+                    method: "get",
+                    success: function(response, options){
+                      var response = Ext.util.JSON.decode(response.responseText);
+                      embedCodeTextArea.setValue(response.code);
+                      embedCodePanel.el.unmask();
+                    }
+                  });
+                  embedCodePanel.el.mask("Generating...");
+                },
+              }),
+              new Ext.Toolbar.Button({
+                text: "Close",
+                handler: function(btn, e){
+                  embedCodeWindow.close();
+                }
+              })
+            ]
+          });
+          
+          var embedCodeWindow = new Ext.Window({
+            title: "Suites catalog embed code",
+            width: 450,
+            height: 350,
+            items: [embedCodeFormPanel, embedCodePanel],
+            resizable: false
+          });
+
+          embedCodeWindow.show();
+        }
+        else{
+          Ext.Msg.alert("XLsuite Embed Code Generator", response.errors);
+        }
+      }
+    });    
+  });
+
+  deleteAction.setHandler(function(e) {
+    Ext.Msg.confirm("", "Delete selected testimonials permanently?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        grid.disable();
+        params['ids'] = selectedIds.join(",");
+        new Ajax.Request(#{destroy_collection_suites_path.to_json}, {
+          method: 'delete',
+          parameters: params,
+          onSuccess: function(transport){
+            grid.enable();
+          }
+        });
+      }
+    });
+  });
+  
+  grid.getSelectionModel().on("selectionchange", function(){
+    records = grid.getSelectionModel().getSelections();
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    selectedIds = ids;
+    
+    if(ids.length>0){
+      clearAllAction.enable();
+      deleteAction.enable();
+      approveAction.enable();
+      unapproveAction.enable();
+    }
+    else {
+      approveAction.disable();
+      unapproveAction.disable();
+      deleteAction.disable();
+      selectAllAction.enable();
+    }
+  });
+`
+end

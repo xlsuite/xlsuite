@@ -1,0 +1,10 @@
+S3
+==========
+Allows you to backup your code, your database, and even your whole SCM repository to Amazon S3.
+Mostly just a wrapper for Adam Greene's excellent S3 Rake task: http://sweetspot.dm/code/s3.rake
+
+HOWTO:
+
+  1) you'll need to edit your config/s3.yml file and add your Amazon Web Services credentials.
+  2) read s3.rake for details on how to use this plugin:
+

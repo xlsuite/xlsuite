@@ -1,0 +1,44 @@
+<div id="security-panel-content">
+  <% inline_form_for(:party, @party, :url => @party.new_record? ? parties_path : party_path(@party), :html => {:id => "secondary_#{dom_id(@party)}", :method => @party.new_record? ? :post : :put, :class => dom_class(@party)}) do |f| %>  
+    <div id="xl-security">
+      <div class="fldi">
+        <% labelled_fields_for(:party, @party) do |f| %>
+        <h2 class="bold">Change password:</h2>
+        <br  />
+        <fieldset>
+        <%= f.password_field(:old_password, :class => "text") %> <%= f.password_field(:password, :label => "New password", :class => "text") %> <%= f.password_field(:password_confirmation, :label => "Confirm the new password", :class => "text") %> <br />
+        <%= submit_tag "Change", :class => 'button' %>
+        </fieldset>
+        <br />
+        <% if current_user.can?(:edit_party) || current_user.id == @party.id %>
+        <!-- reset, send new password -->
+        <%= link_to "Reset/Send New Password", send_new_password_party_path(@party), :confirm => "Are you sure?" %>
+        <% end %>
+        <% end #labelled_fields_for %>
+      </div>
+      <% if current_user.can?(:edit_party_security) then -%>
+      <div class="fldi" id='groups'>
+        <h2 class="bold">Group Memberships:</h2>
+        <%= render :partial => "groups" %>
+        <p> <%= link_to_function("Select All", "selectAll('groups', {callback: massGroupsUpdate, selector: 'input.group[type=checkbox]'})") %> <%= link_to_function("Clear All", "deselectAll('groups', {callback: massGroupsUpdate, selector: 'input.group[type=checkbox]'})") %> <%= throbber(:groups_indicator) %> </p>
+      </div>
+      <% end -%>
+      <% if current_user.can?(:edit_party_security) then -%>
+      <div class="fldi">
+        <h2 class="bold">Effective Permissions:</h2>
+        <ul id="effective_permissions">
+          <%= render :partial => "permission", :collection => @party.effective_permissions %>
+        </ul>
+      </div>
+      <div class="fldi">
+        <div id="permissions">
+          <h2 class="bold">Custom Permissions:</h2>
+          <%= render :partial => "permissions" %>
+          <p> <%= link_to_function("Select All", "selectAll('permissions', {callback: massPermissionsUpdate})") %> <%= link_to_function("Clear All", "deselectAll('permissions', {callback: massPermissionsUpdate})") %> <%= throbber(:permissions_indicator) %> </p>
+        </div>
+      </div>
+      <% end -%>
+    </div>
+  <% end %>
+</div>
+<%= javascript_tag "initializeSecurityFields();" %>

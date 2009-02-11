@@ -1,0 +1,118 @@
+page << create_tab_using_ajax_response("New Blog") do
+%Q`
+  #{render_tags_panel("blog[tag_list]", @blog, current_account.blogs.tags)}
+
+  #{generate_save_close_cancel_toolbar(@blog, blogs_path, blogs_path(:commit_type => "close"), {:page_to_open_after_new => edit_blog_path(:id => "__ID__")})}
+  
+  var tagsPanelWrapper = new Ext.Panel({
+    title: "Tags",
+    items: [tagsPanel]
+  });
+  
+  var authorNameField = new Ext.form.TextField({
+    fieldLabel: "Author name",
+    labelSeparator: ":",
+    name: "blog[author_name]",
+    grow: true,
+    growMin: 150,
+    value: ""
+  });
+
+  // set up connection and data store of autocomplete field
+  var partyNameAutoCompleteRecord = new Ext.data.Record.create([
+    {name: 'display', mapping: 'display'},
+    {name: 'name', mapping: 'value'},
+    {name: 'id', mapping: 'id'}
+  ]);
+
+  var partyNameAutoCompleteReader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, partyNameAutoCompleteRecord)
+  var partyNameAutoCompleteConnection = new Ext.data.Connection({url: #{formatted_auto_complete_party_field_listings_path(:format => :json).to_json}, method: 'get'});
+  var partyNameAutoCompleteProxy = new Ext.data.HttpProxy(partyNameAutoCompleteConnection)
+  var partyNameAutoCompleteStore = new Ext.data.Store({proxy: partyNameAutoCompleteProxy, reader: partyNameAutoCompleteReader});
+  
+  var ownerAutoCompleteField = new Ext.form.ComboBox({
+    store: partyNameAutoCompleteStore,
+    displayField: 'display',
+    valueField: 'id',
+    hiddenName: "blog[owner_id]",
+    fieldLabel: "Owner",
+    triggerAction: 'all',
+    forceSelection: true,
+    emptyText: "Autocomplete field, please start typing",
+    hideTrigger:true,
+    minChars: 0,
+    width: 480,
+    allowBlank: false,
+    listeners: {
+        "change": function(comboBox, newValue, oldValue){
+          var partyName = partyNameAutoCompleteStore.getById(newValue).get("name");
+          authorNameField.setValue(partyName);
+        }
+      }
+  });
+
+  var approvalMethodSelectionStore = new Ext.data.SimpleStore({
+    fields: ['value'],
+    data: [['Always approved'], ['Moderated'], ['No Comments']]
+  });
+
+  var approvalMethodSelectionField = new Ext.form.ComboBox({
+    name: "blog[comment_approval_method]",
+    displayField: 'value',
+    valueField: 'value',
+    fieldLabel: 'Comment Approval Method',
+    triggerAction: 'all',
+    mode: 'local',
+    allowBlank: false,
+    forceSelection: true,
+    editable: false,
+    store: approvalMethodSelectionStore,
+    value: #{(@blog.comment_approval_method || "Moderated").to_json}  
+  });
+
+  var formPanel = new Ext.form.FormPanel({
+    autoScroll: true,
+    tbar: tbarbbarButtons,
+    bbar: tbarbbarButtons,
+    labelWidth: 160,
+    items: [
+        {
+          layout: "form", 
+          items: [
+              {html: '<div class="notices" id="#{dom_id(@blog)}_errorMessages"/>'},
+              new Ext.form.TextField({
+                fieldLabel: "Title",
+                labelSeparator: ":",
+                grow: true,
+                growMin: 150,
+                name: "blog[title]",
+                value: #{@blog.title.to_json}
+              }),
+              new Ext.form.TextField({
+                fieldLabel: "Subtitle",
+                labelSeparator: ":",
+                name: "blog[subtitle]",
+                grow: true,
+                growMin: 150,
+                value: #{@blog.subtitle.to_json}
+              }),
+              new Ext.form.TextField({
+                fieldLabel: "Label",
+                labelSeparator: ":",
+                name: "blog[label]",
+                grow: true,
+                growMin: 150,
+                value: #{@blog.label.to_json}
+              }),
+              ownerAutoCompleteField,
+              authorNameField,
+              approvalMethodSelectionField
+            ]
+        }, 
+        tagsPanelWrapper
+      ]
+  });
+
+  newPanel.add(formPanel);
+`
+end

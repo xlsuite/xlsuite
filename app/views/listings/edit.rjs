@@ -1,0 +1,864 @@
+addr_route = @listing.address
+limit = 50 || params[:limit]
+
+open_house_options = {}
+if @listing.open_house_text.blank?
+  open_house_options.merge!(:value => "Open House")
+else
+  open_house_options.merge!(:value => @listing.open_house_text)
+end
+
+ext_fields_for(:listing, @listing) do |f|
+page << create_tab_using_ajax_response("Edit Listing | #{truncate(@listing.quick_description)}") do
+%Q`
+  #{render_listing_age_year_built_field_calculator}
+
+  #{self.create_countries_and_states_store}
+  var form = {url: #{listing_path(@listing).to_json}, object: 'listing'};
+  var addressForm = {url: #{listing_path(@listing).to_json}, object: 'address'};
+
+  var addressPanel = new Ext.Panel({
+    collapsible: true,
+    layout: "form",
+    title: "ADDRESS",
+    items: [
+        xl.widget.InlineActiveField({ form: addressForm, field: {grow: true, growMin: 148, value: '#{addr_route.line1}', name: 'line1', fieldLabel: 'Line 1', id: '#{typed_dom_id(@listing, :line1)}'}}),
+        xl.widget.InlineActiveField({ form: addressForm, field: {grow: true, growMin: 148, value: '#{addr_route.line2}', name: 'line2', fieldLabel: 'Line 2', id: '#{typed_dom_id(@listing, :line2)}'}}),
+        xl.widget.InlineActiveField({ form: addressForm, field: {grow: true, growMin: 148, value: '#{addr_route.line3}', name: 'line3', fieldLabel: 'Line 3', id: '#{typed_dom_id(@listing, :line3)}' }}),
+        xl.widget.InlineActiveField({ form: addressForm, field: {grow: true, growMin: 148, value: '#{addr_route.city}', name: 'city', fieldLabel: 'City', id: '#{typed_dom_id(@listing, :city)}'}}),
+        xl.widget.InlineActiveField({
+          form: addressForm,
+          field: {
+            value: '#{addr_route.state}',
+            name: 'state',
+            displayField: 'value',
+            valueField: 'value',
+            fieldLabel: 'Prov/State',
+            id: '#{typed_dom_id(@listing, :state)}',
+            type: 'combobox',
+            store: statesStore,
+            triggerAction: 'all',
+            mode: 'local'
+          }
+        }),
+        xl.widget.InlineActiveField({
+          form: addressForm,
+          field: {
+            value: '#{addr_route.country}',
+            name: 'country',
+            displayField: 'value',
+            valueField: 'value',
+            fieldLabel: 'Country',
+            id: '#{typed_dom_id(@listing, :country)}',
+            type: 'combobox',
+            store: countriesStore,
+            triggerAction: 'all',
+            mode: 'local'
+          }
+        }),
+        xl.widget.InlineActiveField({ form: addressForm, field: {grow: true, growMin: 148, value: '#{addr_route.zip}', name: 'zip', fieldLabel: 'Postal Code', id: '#{typed_dom_id(@listing, :zip)}'}})
+      ]
+  });
+  
+  var listingYearBuiltField = xl.widget.InlineActiveField({form: form, 
+    field: {
+      type: "text",
+      fieldLabel: "Year Built",
+      labelSeparator: ":",
+      name: "year_built",
+      value: #{@listing.year_built.to_json}
+    }
+  });
+    
+  var listingAgeField = xl.widget.InlineActiveField({form: form,
+    field: {
+      type: "text",
+      fieldLabel: "Age",
+      labelSeparator: ":",
+      name: "age",
+      value: #{@listing.age.to_json}
+    }
+  });
+  
+  listingAgeField.on("change", function(thisField, newValue, oldValue) {
+    listingYearBuiltField.focus();
+    listingYearBuiltField.setValue(calculateYearBuiltFromAge(newValue));
+    listingYearBuiltField.blur();
+  });
+  
+  listingYearBuiltField.on("change", function(thisField, newValue, oldValue){
+    listingAgeField.focus();
+    listingAgeField.setValue(calculateAgeFromYearBuilt(newValue));
+    listingAgeField.blur();
+  });
+
+  var listingDetailLeftItems = [
+    #{f.text_field(:contact_email, :label => "Listing Owner Email")},
+    listingYearBuiltField,
+    listingAgeField,
+    #{f.text_field(:bedrooms, :label => "Bedrooms")},
+    #{f.text_field(:bathrooms, :label => "Bathrooms")}
+  ];
+
+  var listingDetailRightItems = [
+    #{f.text_field(:mls_no, :label => "MLS #")},
+    #{f.text_field(:region, :label => "Region")},
+    #{f.text_field(:area, :label => "Area")},
+    #{f.text_field(:status, :label => "Status")},
+    #{f.money_field(:price, :label => "Price")}
+  ];
+
+  var listingDetailPanel = new Ext.Panel({
+    collapsible: true,
+    title: "REAL ESTATE DETAIL",
+    layout: "table",
+    layoutConfig: { columns: 2 },
+    items: [
+        {
+          layout: "form",
+          items: listingDetailLeftItems
+        },{
+          layout: "form",
+          items: listingDetailRightItems
+        },{
+          layout: "form",
+          items: [#{f.text_area(:description, :label => "Description", :width => 400)}],
+          colspan: 2
+        }
+      ]
+  });
+
+  var listingExtrasPanel = new Ext.Panel({
+    collapsible: true,
+    title: "EXTRA (optional)",
+    items: [#{f.text_area(:extras, :width => 505)}]
+  });
+  
+  var metaDescriptionPanel = new Ext.Panel({
+    collapsible: true,
+    title: "Meta Description",
+    items: [#{f.text_area(:meta_description, :width => 505)}]
+  });
+  
+  var metaKeywordsPanel = new Ext.Panel({
+    collapsible: true,
+    title: "Meta Keywords",
+    items: [#{f.text_area(:meta_keywords, :width => 505)}]
+  });
+  
+  var openHousePanel = new Ext.Panel({
+    collapsible: true,
+    title: "OPEN HOUSE",
+    items: [#{f.text_area(:open_house_text, open_house_options.merge(:width => 505))}]
+  });
+  
+  #{render_tags_panel("listing[tag_list]", @listing, current_account.listings.tags)}
+
+  var infoPanel = new Ext.Panel({
+    items: [addressPanel, listingDetailPanel]
+  });
+  
+  var otherPanel = new Ext.Panel({
+    items: [openHousePanel, tagsPanel, metaDescriptionPanel, metaKeywordsPanel, listingExtrasPanel]
+  });
+
+  var picturePanelStore = new Ext.data.JsonStore({
+    url: #{images_listing_path(:id => @listing.id, :size => "mini").to_json},
+    root: "collection",
+    fields: ["filename", "url", "id"]
+  });
+
+  picturePanelStore.load();
+
+  var picturePanelTemplate = new Ext.XTemplate(
+    '<tpl for=".">',
+      '<div class="picture-thumb-wrap">',
+        '<div class="picture-thumb"><img src="{url}" title="{filename}"/></div>',
+        '<div class="picture-thumb-filename">{filename}</div>',
+      '</div>',
+    '</tpl>'
+  );
+
+  var picturePanel = new Ext.Panel({
+    title: "PICTURES",
+    items: [new Ext.DataView({
+      store: picturePanelStore,
+      tpl: picturePanelTemplate,
+      overClass: 'x-view-over',
+      itemSelector: 'div.picture-thumb-wrap',
+      emptyText: "No pictures to display"
+    })]
+  });
+
+  var imageViewerResult = xl.widget.ImageViewer({
+    objectId: #{@listing.id},
+    objectType: 'listing',
+    
+    imagesUrl: #{images_listing_path(@listing).to_json}
+  });
+  
+  var picturePanel = imageViewerResult[0];
+  var picturePanelStore = imageViewerResult[1];
+
+  var attachImageButton = new Ext.Button({
+      text: 'Attach image(s)',
+      handler: function(button, event) {
+        xl.widget.OpenImagePicker({
+          showFrom: button.getId(),
+          objectId: #{@listing.id},
+          objectType: 'listing',
+          
+          thisObjectImagesUrl: #{images_listing_path(@listing).to_json},
+          allImagesUrl: #{formatted_image_picker_assets_path(:format => :json).to_json},
+          
+          uploadUrl: #{upload_image_listing_path(:id => @listing.id).to_json},
+          
+          afterUpdate: function(xhr, options, record, allImagesStore, thisObjectImagesStore) {
+            picturePanelStore.reload();
+          }  
+        });
+      }
+  });
+  
+  var picturesPanel = new Ext.Panel({
+    items: [attachImageButton, picturePanel]
+  });
+
+  //--------------------------MULTIMEDIA TAB------------------------------//
+  var multimediaPanelStore = new Ext.data.JsonStore({
+    url: #{images_listing_path(:id => @listing.id, :size => "mini").to_json},
+    root: "collection",
+    fields: ["filename", "url", "id"]
+  });
+
+  multimediaPanelStore.load();
+
+  var multimediaPanelTemplate = new Ext.XTemplate(
+    '<tpl for=".">',
+      '<div class="picture-thumb-wrap">',
+        '<div class="picture-thumb"><img src="{url}" title="{filename}"/></div>',
+        '<div class="picture-thumb-filename">{filename}</div>',
+      '</div>',
+    '</tpl>'
+  );
+
+  var multimediaPanel = new Ext.Panel({
+    title: "MULTIMEDIA",
+    items: [new Ext.DataView({
+      store: multimediaPanelStore,
+      tpl: multimediaPanelTemplate,
+      overClass: 'x-view-over',
+      itemSelector: 'div.picture-thumb-wrap',
+      emptyText: "No pictures to display"
+    })]
+  });
+
+  var multimediaViewerResult = xl.widget.ImageViewer({
+    objectId: #{@listing.id},
+    objectType: 'listing',
+    
+    imagesUrl: #{multimedia_listing_path(@listing).to_json}
+  });
+  
+  var multimediaPanel = multimediaViewerResult[0];
+  var multimediaPanelStore = multimediaViewerResult[1];
+
+  var attachMultimediaButton = new Ext.Button({
+      text: 'Attach file(s)',
+      handler: function(button, event) {
+        xl.widget.OpenImagePicker({
+          showFrom: button.getId(),
+          objectId: #{@listing.id},
+          objectType: 'listing',
+          imageClassification: 'multimedia',
+          windowTitle: "Multimedia Picker",
+          
+          thisObjectImagesUrl: #{multimedia_listing_path(@listing).to_json},
+          allImagesUrl: #{formatted_image_picker_assets_path(:content_type => "multimedia", :format => :json).to_json},
+          
+          afterUpdate: function(xhr, options, record, allImagesStore, thisObjectImagesStore) {
+            multimediaPanelStore.reload();
+          }  
+        });
+      }
+  });
+  
+  var multimediaPanel = new Ext.Panel({
+    items: [attachMultimediaButton, multimediaPanel]
+  });
+
+//--------------------------OTHER FILES TAB------------------------------//
+  var otherFilePanelStore = new Ext.data.JsonStore({
+    url: #{images_listing_path(:id => @listing.id, :size => "mini").to_json},
+    root: "collection",
+    fields: ["filename", "url", "id"]
+  });
+
+  otherFilePanelStore.load();
+
+  var otherFilePanelTemplate = new Ext.XTemplate(
+    '<tpl for=".">',
+      '<div class="picture-thumb-wrap">',
+        '<div class="picture-thumb"><img src="{url}" title="{filename}"/></div>',
+        '<div class="picture-thumb-filename">{filename}</div>',
+      '</div>',
+    '</tpl>'
+  );
+
+  var otherFilePanel = new Ext.Panel({
+    title: "Other Files",
+    items: [new Ext.DataView({
+      store: otherFilePanelStore,
+      tpl: otherFilePanelTemplate,
+      overClass: 'x-view-over',
+      itemSelector: 'div.picture-thumb-wrap',
+      emptyText: "No pictures to display"
+    })]
+  });
+
+  var otherFileViewerResult = xl.widget.ImageViewer({
+    objectId: #{@listing.id},
+    objectType: 'listing',
+    
+    imagesUrl: #{other_files_listing_path(@listing).to_json}
+  });
+  
+  var otherFilePanel = otherFileViewerResult[0];
+  var otherFilePanelStore = otherFileViewerResult[1];
+
+  var attachOtherFileButton = new Ext.Button({
+      text: 'Attach file(s)',
+      handler: function(button, event) {
+        xl.widget.OpenImagePicker({
+          showFrom: button.getId(),
+          objectId: #{@listing.id},
+          objectType: 'listing',
+          imageClassification: 'other_files',
+          windowTitle: "Other Files Picker",
+          
+          thisObjectImagesUrl: #{other_files_listing_path(@listing).to_json},
+          allImagesUrl: #{formatted_image_picker_assets_path(:content_type => "others", :format => :json).to_json},
+          
+          afterUpdate: function(xhr, options, record, allImagesStore, thisObjectImagesStore) {
+            otherFilePanelStore.reload();
+          }  
+        });
+      }
+  });
+  
+  var otherFilesPanel = new Ext.Panel({
+    items: [attachOtherFileButton, otherFilePanel]
+  });
+
+  /////////////////////////////////////// CREATE SETTINGS PANEL ////////////////////////////////////////////
+
+  var disableCommentsCheckbox = new Ext.form.Checkbox({
+    fieldLabel: "Disable Commenting",
+    name: "disable_comments",
+    checked: #{!@listing.deactivate_commenting_on.nil?},
+    listeners: {
+      'check': function(me, checked){
+        var parameters = {};
+        if(checked) {
+          disableCommentsDateField.enable();
+          parameters["listing[deactivate_commenting_on]"] = disableCommentsDateField.getValue().format("F j, Y");
+        }
+        else {
+          disableCommentsDateField.disable();
+          parameters["listing[deactivate_commenting_on]"] = false;
+        }
+        Ext.Ajax.request({
+          url: #{listing_path(@listing).to_json},
+          params: parameters,
+          method: "PUT"
+        });
+      }
+    }
+  });
+  
+  var disableCommentsDateField = new Ext.form.DateField({
+    fieldLabel: "on",
+    name: "listing[deactivate_commenting_on]",
+    format: 'F j, Y',
+    width: 155,
+    allowBlank: true,
+    value: #{(@listing.deactivate_commenting_on ? @listing.deactivate_commenting_on.to_s : Date.today.to_s).to_json},
+    disabled: #{@listing.deactivate_commenting_on.blank?},
+    listeners: {
+      change: function(me, newValue, oldValue){
+        Ext.Ajax.request({
+          url: #{listing_path(@listing).to_json},
+          params: {"listing[deactivate_commenting_on]": newValue.format("F j, Y")},
+          method: "PUT"
+        });
+      }
+    }
+  });
+  
+  var hideCommentsCheckbox = new Ext.form.Checkbox({
+    fieldLabel: "Hide Comments",
+    name: "hide_comments",
+    checked: #{@listing.hide_comments.to_json},
+    type: 'checkbox',
+    listeners: {
+      'check': function(me, checked){
+        var parameters = {};
+        parameters["listing[hide_comments]"] = checked
+        
+        Ext.Ajax.request({
+          url: #{listing_path(@listing).to_json},
+          params: parameters,
+          method: "PUT"
+        });
+      }
+    }
+  });
+
+  var approvalMethodSelectionStore = new Ext.data.SimpleStore({
+    fields: ['value'],
+    data: [['Always approved'], ['Moderated'], ['No Comments']]
+  });
+
+  var approvalMethodSelectionField = new Ext.form.ComboBox({
+    name: "listing[comment_approval_method]",
+    displayField: 'value',
+    valueField: 'value',
+    fieldLabel: 'Comment Approval Method',
+    triggerAction: 'all',
+    mode: 'local',
+    allowBlank: false,
+    forceSelection: true,
+    editable: false,
+    listWidth: 160,
+    store: approvalMethodSelectionStore,
+    value: #{(@listing.read_attribute(:comment_approval_method) || "Moderated").to_json},
+    listeners: {'change': function(component, newValue, oldValue){
+      var parameters = {};
+      parameters["listing[comment_approval_method]"] = newValue
+      
+      Ext.Ajax.request({
+        url: #{listing_path(@listing).to_json},
+        params: parameters,
+        method: "PUT"
+      });
+    }}
+  });
+  
+  var settingsPanel = new Ext.Panel({
+    title: "Comment Settings",
+    layout: 'table',
+    layoutConfig: {
+      columns: 2
+    },
+    defaults: {
+      layout: 'form'
+    },
+    items: [{colspan: 2, labelWidth: 130, items:[hideCommentsCheckbox]}, 
+            {colspan: 2, labelWidth: 130, items:[approvalMethodSelectionField]},
+            {items:[disableCommentsCheckbox], width: 150, labelWidth: 130}, {width: 250, labelWidth:30, items:[disableCommentsDateField]}]
+  });
+  
+  /////////////////////////////////////// CREATE GRID PANEL FOR COMMENTS //////////////////////////////////////////
+  
+  var commentPath = "#{comment_path(:commentable_type => "Listing", :commentable_id => @listing.id, :id => "__ID__")}";
+  
+  // create file record
+  var CommentRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'name', mapping: 'name'},
+    {name: 'url', mapping: 'url'},
+    {name: 'email', mapping: 'email'},
+    {name: 'created_at', mapping: 'created_at'},
+    {name: 'approved_at', mapping: 'approved_at'},
+    {name: 'referrer_url', mapping: 'referrer_url'},
+    {name: 'body', mapping: 'body'},
+    {name: 'user_agent', mapping: 'user_agent'}
+  ]);
+  
+  // data reader to parse the json response
+  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, CommentRecord);
+
+  // set up connection of the data
+  var connection = new Ext.data.Connection({url: #{@formatted_comments_path.to_json}, method: 'get'});
+  var proxy = new Ext.data.HttpProxy(connection);
+
+  // set up the data store and then send request to the server
+  var ds = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+  ds.load({params: {start: 0, limit: #{limit}, listing_id: #{@listing.id} }});
+
+  // set up the ext grid object
+  var xg = Ext.grid;
+
+  // define paging toolbar that is going to be appended to the footer of the grid panel
+  var paging = new Ext.PagingToolbar({
+    store: ds,
+    pageSize: #{limit},
+    displayInfo: true,
+    displayMsg: 'Displaying {0} to {1} of {2}',
+    emptyMsg: "No record to display",
+    cls: "bottom-toolbar paging-toolbar-bottom",
+    plugins: [new Ext.ux.PageSizePlugin]
+  });
+  
+  #{create_grid_tbar_filter_field}
+  
+  #{create_grid_tbar_clear_button}
+  
+  var spamStore = new Ext.data.SimpleStore({
+    fields: ['display', 'value'],
+    data: [['Not spam', 'false'], ['Spam', 'true']]
+  });
+  
+  var spamSelection = xl.widget.FormField({
+    displayField: 'display', 
+    valueField: 'value',
+    hiddenName: 'spam',
+    fieldLabel: 'View',
+    value: 'false', 
+    type: 'combobox', 
+    store: spamStore, 
+    editable : false,
+    triggerAction: 'all',
+    mode: 'local',
+    width:150,
+    listWidth:150
+  });
+  
+  spamSelection.on('select', function(el, newValue, oldValue){
+    ds.baseParams['spam'] = newValue.data.value;
+    ds.reload({params: {start: 0, limit: ds.lastOptions.params.limit}});
+    if(newValue.data.value == "true"){
+      markAsHamAction.enable();
+      markAsSpamAction.disable();
+    }
+    else{
+      markAsHamAction.disable();
+      markAsSpamAction.enable();
+    }
+  });
+
+  var selectAllAction = new Ext.Action({
+    text: "Select all",
+    iconCls: "display_none"
+  });
+
+  var clearAllAction = new Ext.Action({
+    text: "Clear all",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var approveAction = new Ext.Action({
+    text: "Approve",
+    iconCls: "display_none",
+    disabled: true
+  });
+    
+  var unapproveAction = new Ext.Action({
+    text: "Unapprove",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var deleteAction = new Ext.Action({
+    text: "Delete",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var markAsHamCheckboxField = new Ext.form.Checkbox({
+    fieldLabel: "Approve comment as well?",
+    labelSeparator: " ",
+    name: "approve"
+  });
+  
+  var markAsHamFormPanel = new Ext.form.FormPanel({
+    labelWidth: 150,
+    items: [markAsHamCheckboxField]
+  });
+
+  var markAsHamWindow = new Ext.Window({
+    title: "Mark as Not Spam",
+    resizable: false,
+    width: 300,
+    height: 92,
+    items: [markAsHamFormPanel],
+    buttons:[
+        {
+          text: "OK",
+          handler: function() {
+              var records = commentsGrid.getSelectionModel().getSelections();
+              var params = {};
+              params['ids'] = getSelectedIdsString(records);
+              markAsHamFormPanel.getForm().doAction("submit",
+                {
+                  url: #{mark_as_ham_comments_path().to_json},
+                  method: "POST",
+                  params: params
+                }
+              )
+              if(markAsHamFormPanel.getForm().isValid()) {
+                commentsGrid.enable();
+                markAsHamWindow.hide();
+                markAsHamWindow.close();
+              }
+            }
+        },
+        {
+          text: 'Cancel',
+          handler: function() { commentsGrid.enable(); markAsHamWindow.hide(); markAsHamWindow.close(); }
+        }
+      ]
+  });
+
+  var markAsHamAction = new Ext.Action({
+    text: "Mark as Not Spam",
+    iconCls: "display_none",
+    disabled: true,
+    handler: function() {
+      commentsGrid.disable();
+      markAsHamWindow.show();
+    }
+  });
+  
+  var markAsSpamAction = new Ext.Action({
+    text: "Mark as Spam",
+    iconCls: "display_none",
+    disabled: false,
+    handler: function() {
+      var records = commentsGrid.getSelectionModel().getSelections();
+      Ext.Msg.confirm("", "Mark selected comment(s) as spam?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        params['ids'] = getSelectedIdsString(records);
+        new Ajax.Request(#{mark_as_spam_comments_path.to_json}, {
+          method: 'post',
+          parameters: params
+        });
+      }
+    });
+    }
+  });
+  
+  var selectionMenu =  new Ext.menu.Menu({
+    items: [selectAllAction, clearAllAction]
+  });
+  
+  selectionMenu.addSeparator();
+  selectionMenu.add(approveAction, unapproveAction, markAsHamAction, markAsSpamAction);
+  selectionMenu.addSeparator();  
+  selectionMenu.add(deleteAction);
+
+  var gridTopToolbar = new Ext.Toolbar({
+    cls: "top-toolbar",
+    items: [
+      {
+        text: "New Comment", 
+        handler: function(btn, event){
+          Ext.Ajax.request({
+            url: #{new_comment_path(:commentable_type => "Listing", :commentable_id => @listing.id).to_json}.replace("&amp;", "&")
+          });
+        }
+      },
+      {text: "&nbsp;&nbsp;&nbsp;Status:"}, 
+      spamSelection,
+      {text: "#{'&nbsp;'*60}Filter: "}, 
+      filterField, 
+      clearButton,
+      { text: "Actions", menu: selectionMenu }]
+  });
+
+  var editRenderer = function(value, cell, record) {
+    return '<div class="icon_pencilGo pointerOnHover"/>';
+  };
+  
+  var commentsGrid = new Ext.grid.GridPanel({
+      store: ds,
+      title: "Comments Grid",
+      cm: new Ext.grid.ColumnModel([
+          {id: "edit", width: 35, dataIndex: 'id', renderer: editRenderer, sortable: false, menuDisabled: true, hideable: false, tooltip: "Click here to go to full edit mode" },
+          {id: "comment-name", width: 175, header: "Name", sortable: true, dataIndex: 'name', editor: new Ext.form.TextField()},
+          {id: "comment-email", width: 150, header: "Email", sortable: true, dataIndex: 'email'},
+          {id: "comment-body", header: "Body", sortable: true, dataIndex: 'body'},
+          {id: "comment-url", width: 200, header: "URL", sortable: true, dataIndex: 'url'},
+          {id: "comment-approved_at", width: 100, header: "Approved at", sortable: true, dataIndex: 'approved_at'},
+          {id: "comment-created_at", width: 100, header: "Created at", sortable: true, dataIndex: 'created_at'},
+          {id: "comment-referrer_url", width: 100, header: "Referrer url", hidden: true, sortable: true, dataIndex: 'referrer_url'},
+          {id: "comment-user_agent", width: 100, header: "User agent", sortable: true, hidden: true, dataIndex: 'user_agent'}          
+        ]),
+      autoScroll: true,
+      width: "100%",
+      tbar: gridTopToolbar, 
+      bbar: paging,
+      selModel: new Ext.grid.RowSelectionModel,
+      viewConfig: {autoFill: true, forceFit: true},
+      autoExpandColumn: "comment-body",
+      height: #{get_default_grid_height(nil)}-111,
+      loadMask: true
+  });
+  
+  commentsGrid.doNotSyncSize = true;
+  Ext.EventManager.onWindowResize(function() {commentsGrid.setWidth(xl.centerPanel.getInnerWidth());});
+  Ext.EventManager.onWindowResize(function() {commentsGrid.setHeight(xl.centerPanel.getInnerHeight());});
+
+  var commentsPanel = new Ext.Panel({
+    items: [settingsPanel, commentsGrid]
+  });
+
+  var wrapperPanel = new Ext.TabPanel({
+    activeTab: 0,
+    tabPosition: "bottom",
+    deferredRender: false,
+    items: [
+      {title: "Detail", autoScroll: true, items: [infoPanel]},
+      {title: "Other", autoScroll: true, items: [otherPanel]},
+      {title: "Pictures", autoScroll: true, items: [picturesPanel]},
+      {title: "Multimedia", autoScroll: true, items: [multimediaPanel]},
+      {title: "Other Files", autoScroll: true, items: [otherFilesPanel]},
+      {id: #{self.generate_inside_tab_panel_id(:comments).to_json}, title: "Comments", layout: 'ux.rowfit', items: [commentsPanel], listeners: {show: function(panel){xl.viewport.render();}} }
+    ]
+  });
+
+  xl.runningGrids.set("comments_Listing_#{@listing.id}", commentsGrid);
+  wrapperPanel.on("destroy", function(){
+    xl.runningGrids.unset("comments_Listing_#{@listing.id}");
+  });
+  
+  var editCommentUrl = #{@edit_comment_path.to_json};
+  // set double click action on grid cells
+  commentsGrid.on("cellclick", function(gr, rowIndex, columnIndex, e) {
+    var record = ds.getAt(rowIndex);
+    var id = record.data.id;
+
+    switch(columnIndex){
+      case commentsGrid.getColumnModel().getIndexById("edit"):
+        xl.openNewTabPanel('comments_edit_'+id, editCommentUrl.sub("__ID__", id));
+        break;
+      default:
+        break;
+    }
+  });
+  
+  newPanel.add(wrapperPanel);
+
+  function alertNoPostsSelected() {
+    Ext.Msg.alert('No comments Selected', 'Please select one or more comments to perform that action.');
+  }
+
+  function getSelectedIdsString(records){ 
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    return ids.toString()
+  }
+  
+  clearAllAction.setHandler(function(e) {
+    commentsGrid.getSelectionModel().clearSelections();
+    e.disable();
+  });
+
+  selectAllAction.setHandler(function(e) {
+    commentsGrid.getSelectionModel().selectAll();
+    e.disable();
+  });
+
+  deleteAction.setHandler(function(e) {
+    var records = commentsGrid.getSelectionModel().getSelections();
+    if (records.length == 0) {
+      alertNoPostsSelected();
+      return false;
+    }
+    
+    Ext.Msg.confirm("", "Delete selected comments permanently?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        commentsGrid.disable();
+        params['commentable_type'] = 'Listing';
+        params['commentable_id'] = #{@listing.id};
+        params['ids'] = getSelectedIdsString(records);
+        new Ajax.Request("#{destroy_collection_comments_path}", {
+          method: 'post',
+          parameters: params,
+          onSuccess: function(transport){
+            commentsGrid.enable();
+          }
+        });
+      }
+    });
+  });
+
+  approveAction.setHandler(function(e) {
+    var records = commentsGrid.getSelectionModel().getSelections();
+    if (records.length == 0) {
+      alertNoPostsSelected();
+      return false;
+    }
+    
+    Ext.Msg.confirm("", "Approved selected comments?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        commentsGrid.disable();
+        params['commentable_type'] = 'Listing';
+        params['commentable_id'] = #{@listing.id};
+        params['ids'] = getSelectedIdsString(records);
+        new Ajax.Request("#{approve_collection_comments_path}", {
+          method: 'post',
+          parameters: params,
+          onSuccess: function(transport){
+            commentsGrid.enable();
+          }
+        });
+      }
+    });
+  });
+
+  unapproveAction.setHandler(function(e) {
+    var records = commentsGrid.getSelectionModel().getSelections();
+    if (records.length == 0) {
+      alertNoPostsSelected();
+      return false;
+    }
+    
+    Ext.Msg.confirm("", "Unapproved selected comments?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        commentsGrid.disable();
+        params['commentable_type'] = 'Listing';
+        params['commentable_id'] = #{@listing.id};
+        params['ids'] = getSelectedIdsString(records);
+        new Ajax.Request("#{unapprove_collection_comments_path}", {
+          method: 'post',
+          parameters: params,
+          onSuccess: function(transport){
+            commentsGrid.enable();
+          }
+        });
+      }
+    });
+  });
+  
+  commentsGrid.getSelectionModel().on("selectionchange", function(){
+    records = commentsGrid.getSelectionModel().getSelections();
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    
+    if(ids.length>0){
+      clearAllAction.enable();
+      approveAction.enable();
+      unapproveAction.enable();
+      deleteAction.enable();
+    }
+    else {
+      deleteAction.disable();
+      approveAction.disable();
+      unapproveAction.disable();
+      selectAllAction.enable();
+    }
+  });
+`
+end
+
+end

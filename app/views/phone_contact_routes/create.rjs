@@ -1,0 +1,3 @@
+page.remove dom_id(PhoneContactRoute.new)
+page.insert_html :bottom, typed_dom_id(@party, :routes_group), :partial => @phone, :object => @phone
+page.visual_effect :highlight, dom_id(@phone)

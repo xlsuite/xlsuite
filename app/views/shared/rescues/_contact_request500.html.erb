@@ -1,0 +1,25 @@
+<form method="post" action="/admin/contact_requests/bugs" enctype="multipart/form-data">
+  <fieldset>
+    <%= hidden_field_tag "return_to", "/bug-thank-you" %>
+    <p class="bold">Please take a moment to describe the steps that brought you to this internal server error page.</p>
+    <p>
+      <label for="bug_email_address">Your email address:</label>
+      <%= text_field_tag "bug[email_address]", "", :class => "text" %>
+    </p>
+    <p>
+      <label for="bug_subject">Subject:</label>
+      <%= text_field_tag "bug[subject]", "", :class => "text" %>
+    </p>
+    <p>   
+      <label for="bug_body">Description:</label><br />
+      <%= text_area_tag "bug[body]" %>
+    </p>
+    <p>
+      <label for="bug_file">Attachment (screenshot / other, limited to 2 MB):</label><br/>
+      <%= file_field_tag "bug[attachment_data]" %>
+    </p>
+    <p>
+      <%= submit_tag "Submit", :name => nil %>
+    </p>
+  </fieldset>
+</form>

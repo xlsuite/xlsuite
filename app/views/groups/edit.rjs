@@ -1,0 +1,134 @@
+afteredit_function = %Q`
+  function(oldValue, decodedResponse, plainResponse, me){
+  xl.updateStatusBar(decodedResponse.flash);
+    if (decodedResponse.success){
+      if(xl.groupsTreePanel){
+        xl.groupsTreePanel.getRootNode().reload();
+      }
+    }
+    else{
+      me.getEl().setStyle('background-color', '#FFA091');
+      Ext.Msg.alert("Error:", decodedResponse.errors);
+    }
+  }
+`
+
+after_render = if @current_user_can_edit_party_security
+    %Q`
+      effectivePermissionsDataStore.load();
+      selectPermissionsDataStore.load();
+      deniedPermissionsDataStore.load();
+      membersStore.load({params: {start: 0, limit: 50 }});
+    `
+  else 
+    ""
+  end
+
+avatar_path = nil
+if @group.avatar
+  avatar_path = download_asset_path(:id => @group.avatar.id, :size => "mini")
+else
+  avatar_path = "/images/Mr-Smith.jpg"
+end
+
+avatar_image_tag = %Q`<img src="#{avatar_path}" id="#{typed_dom_id(@group, :avatar_img_tag)}"/>`
+
+page << create_tab_using_ajax_response("Group | #{@group.label}", after_render) do
+%Q`
+  var updateGroupForm = {
+    url: #{group_path(@group).to_json}, 
+    object: 'group',
+    callback: function(options, success, response){
+      var response = Ext.util.JSON.decode(response.responseText);
+    },
+    failure: function(response, options){
+      #{self.connection_error_message}
+    }    
+  };
+
+  #{render_tags_panel("group[tag_list]", @group, current_account.groups.tags, {:inline_form => "updateGroupForm"}, {:collapsible => false, :title => "Tags"})}  
+  
+  var avatarPanel = new Ext.Panel({
+    height: 170,
+    width: 150,
+    style: "padding:10px",
+    items: {html: "<center>" + #{avatar_image_tag.to_json}},
+    bbar:[
+      {
+        text: "Change/Upload picture",
+        listeners: {
+          click: function(button, event){
+            xl.widget.OpenSingleImagePicker(#{typed_dom_id(@group, :avatar_img_tag).to_json}, #{formatted_image_picker_assets_path(:format => :json).to_json}, "Group", #{@group.id}, {
+              setAvatar: true,
+              setRelation: true,
+              windowTitle: "Please select the group main picture...",
+              beforeSelect: function(window){
+                window.el.mask("Processing...");
+              },
+              afterSelect: function(selectedRecord, window){
+                var params = {};
+                params["group[avatar_id]"] = selectedRecord.id;
+                Ext.Ajax.request({
+                  url: #{group_path(@group).to_json},
+                  method: "PUT",
+                  params: params,
+                  success: function(response, options){
+                    window.el.unmask();
+                  }
+                });
+                Ext.Ajax.request({
+                  url: #{add_views_path.to_json},
+                  params: {id: selectedRecord.get("id"), classification: "Image", object_type: "Group", object_id: #{@group.id}},
+                  method: "POST"//,
+/* THIS EVENT IS NOT USEFUL AT THE MOMENT, BUT REMEMBER TO UNCOMMENT 
+THESE LINES LATER ON AFTER THE PICTURES PANEL FOR THE GROUP IS IMPLEMENTED
+                  success: function(response, options){
+                      picturePanelStore.reload();
+                  }
+*/
+                });
+              }
+            });
+          }
+        }
+      }
+    ]
+  });
+
+  var mainInfoPanel = new Ext.form.FormPanel({
+    autoScroll: true,
+    items: [
+      {
+        layout: "column",
+        items: [
+          {items: [avatarPanel], columnWidth: 0.3},
+          {
+            layout: "form",
+            columnWidth: 0.4,
+            items: [
+              xl.widget.InlineActiveField({ form: updateGroupForm, afteredit: #{afteredit_function}, field: {width: 200, value: #{@group.label.to_json}, name: 'label', fieldLabel: 'Label', id: #{typed_dom_id(@group, :label).to_json}}}),
+              xl.widget.InlineActiveField({ form: updateGroupForm, afteredit: #{afteredit_function}, field: {width: 200, value: #{@group.name.to_json}, name: 'name', fieldLabel: 'Name', id: #{typed_dom_id(@group, :name).to_json}}}),
+              xl.widget.InlineActiveField({ form: updateGroupForm, field: {type: "checkbox", width: 200, checked: #{@group.private}, name: 'private', fieldLabel: 'Private?', id: #{typed_dom_id(@group, :private).to_json}}}),
+              xl.widget.InlineActiveField({ form: updateGroupForm, field: {type: "textarea", width: 200, value: #{@group.description.to_json}, name: 'description', fieldLabel: 'Description', id: #{typed_dom_id(@group, :description).to_json}}}),
+              xl.widget.InlineActiveField({ form: updateGroupForm, field: {type: "textarea", width: 200, value: #{@group.private_description.to_json}, name: 'private_description', fieldLabel: 'Private Description', id: #{typed_dom_id(@group, :private_description).to_json}}})
+            ]
+          }
+        ]
+      },
+      xl.widget.InlineActiveField({ form: updateGroupForm, field: {type: "textarea", width: 400, height: 100, value: #{@group.web_copy.to_json}, name: 'web_copy', fieldLabel: 'Web Copy', id: #{typed_dom_id(@group, :web_copy).to_json}}}),
+      tagsPanel
+    ]
+  });
+  
+  #{self.initialize_security_panel}
+  #{self.initialize_members_panel}
+
+  var tabPanel = new Ext.TabPanel({
+    activeTab: 0,
+    tabPosition: "bottom",
+    items:[#{self.tab_panel_items}]
+  });
+
+  newPanel.add(tabPanel);
+`
+end

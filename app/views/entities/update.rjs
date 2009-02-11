@@ -1,0 +1,6 @@
+if @updated
+  page << refresh_grid_datastore_of("entities") if params[:entity] && (params[:entity][:name] || params[:entity][:classification])
+  page.replace_html(typed_dom_id(@entity, :timestamps), render_object_timestamps(@entity))
+end
+
+page << update_inside_panel_notifications("entities_edit_#{@entity.id}")

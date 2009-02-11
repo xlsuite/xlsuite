@@ -1,0 +1,17 @@
+= ActsAsMoney
+
+This plugin depends on the Money gem, version 1.7.1.  It also adds a couple of extensions to Money to make it more useful.
+
+== Example
+
+ class ProductLine < ActiveRecord::Base
+   acts_as_money :price
+ end
+
+ ProductLine.new(:price => "14.99 USD")
+ ProductLine.new(:price => 14.99.to_money("USD"))
+ ProductLine.new(:price => 1499.to_money("USD"))
+
+ # The three examples above will all return the same thing:  a Money object initialized to 14.99 USD.
+
+== Money extensions

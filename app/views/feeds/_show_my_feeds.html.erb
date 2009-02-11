@@ -1,0 +1,7 @@
+<%@parsed_template ||= Liquid::Template.parse('{% render_feed myfeeds count:20 order:"by_date" display:"dash"%}')%>
+<% text = @parsed_template.render!({}, {:registers => {"domain" => current_domain, "account" => current_account, "user" => current_user}}) %>
+<% text.each do |t| %>
+  <% if t.match("<a")%>
+  <%= render :partial => "list_my_feeds", :locals => {:feed => t}%>
+  <% end %>
+<% end %>

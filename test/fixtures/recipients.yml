@@ -1,0 +1,64 @@
+group_recipients:
+  id: 1
+  email_id: 1
+  party_id: 
+  sent_at: <%= Time.now.to_formatted_s(:db) %>
+  read_at:
+  address:
+  extras:
+  generated_subject:
+  generated_body:
+  account_id: 1 # WPUL
+  name:
+  type: ToRecipient
+  recipient_builder_id: 1 # Staff Members group staff_members
+  recipient_builder_type: GroupListBuilder
+
+search_tagged_with_staff_recipients:
+  id: 2
+  email_id: 1
+  party_id: 
+  sent_at: <%= Time.now.to_formatted_s(:db) %>
+  read_at:
+  address:
+  extras:
+  generated_subject:
+  generated_body:
+  account_id: 1 # WPUL
+  name:
+  type: ToRecipient
+  tag_syntax: staff
+  recipient_builder_id: 3 # tagged_with_staff
+  recipient_builder_type: TagListBuilder
+
+nil_builder_type_and_id:
+  id: 3
+  email_id: 1
+  party_id: 
+  sent_at: <%= Time.now.to_formatted_s(:db) %>
+  read_at:
+  address: test@test.com
+  extras:
+  generated_subject:
+  generated_body:
+  account_id: 1 # WPUL
+  name: test test
+  type: ToRecipient
+  recipient_builder_id:
+  recipient_builder_type: PartyListBuilder
+
+sender_of_first_email:
+  id: 4
+  email_id: 1
+  party_id: 1000001 # bob
+  sent_at: 
+  read_at: <%= Time.now.to_formatted_s(:db) %>
+  address: bob@test.com
+  extras:
+  generated_subject:
+  generated_body:
+  account_id: 1 # WPUL
+  name: Bob Henry
+  type: Sender
+  recipient_builder_id:
+  recipient_builder_type:

@@ -1,0 +1,106 @@
+update_url = async_update_supplier_path(:id => @supplier.id).to_json
+get_url = async_get_attribute_supplier_path(:id => @supplier.id).to_json
+
+page << create_tab_using_ajax_response("Supplier | #{@supplier.name}") do
+%Q`
+  var formDefaults = { layout: 'form', labelWidth: 75, labelAlign: 'right' };
+  
+  var form = { url: #{update_url}, method: 'put'};
+  var form2 = {
+    update: { url: #{update_url} },
+    get: { url: #{get_url} }
+  };
+  
+  var infoPanel = new Ext.Panel({
+    layout: 'table',
+    layoutConfig: { columns: 1 },
+    defaults: formDefaults,
+    
+    items: [
+      {
+        items: xl.widget.InlineActiveField({ form: form2, object: 'supplier', field: {value: '#{@supplier.name}', name: 'name', fieldLabel: 'Name', width: 200} })
+      },{
+        items: [
+          xl.widget.InlineActiveField({ form: form, object: 'supplier', field: {value: '#{@supplier.current_po_status}', name: 'current_po_status', fieldLabel: 'Current PO Status', width: 100} }),
+          xl.widget.InlineActiveField({ form: form, object: 'supplier', field: {value: '#{@supplier.threshold_products}', name: 'threshold_products', fieldLabel: 'Threshold Products', width: 100} }),
+          xl.widget.InlineActiveField({ form: form, object: 'supplier', field: {value: '#{@supplier.last_order_at}', name: 'last_order_at', fieldLabel: 'Last Order', width: 100} }),
+          xl.widget.InlineActiveField({ form: form, object: 'supplier', field: {value: '#{@supplier.last_delivery_at}', name: 'last_delivery_at', fieldLabel: 'Last Delivery', width: 100} }),
+          xl.widget.InlineActiveField({ form: form, object: 'supplier', field: {value: '#{@supplier.average_delivery_time}', name: 'average_delivery_time', fieldLabel: 'Avg. Delivery Time', width: 100} }),
+          xl.widget.InlineActiveField({ form: form, object: 'supplier', field: {value: '#{@supplier.average_margin}', name: 'average_margin', fieldLabel: 'Avg. Margin', width: 100} })
+        ]
+      },{
+        items: xl.widget.InlineActiveField({ form: form, object: 'supplier', field: {type: 'textarea', value: '#{@supplier.description}', name: 'description', fieldLabel: 'Description', width: 200, height: 97} })
+      }
+    ]
+  });
+  
+  var phonePanel = new Ext.Panel({
+    layout: 'column',
+    defaults: formDefaults,
+    
+    items: [
+      { items: [xl.widget.InlineActiveField({ form: form, object: 'supplier[phone]', field: {value: '#{@supplier.phone.number}', name: 'number', fieldLabel: 'Phone', width: 150} })] },
+      { items: [xl.widget.InlineActiveField({ form: form, object: 'supplier[phone]', field: {value: '#{@supplier.phone.extension}', name: 'extension', fieldLabel: 'Ext.', width: 50} })] }
+    ]
+  });
+  
+  var addressFieldset = new Ext.form.FieldSet({
+    title: 'Address',
+    collapsible: true,
+    labelWidth: 50,
+    labelAlign: 'right',
+    width: 300,
+    
+    items: [
+      xl.widget.InlineActiveField({form: form, object: 'supplier[address]', field: { value: '#{@supplier.address.line1}', name: 'line1', fieldLabel: 'Line 1', width: 200} }),
+      xl.widget.InlineActiveField({form: form, object: 'supplier[address]', field: { value: '#{@supplier.address.line2}', name: 'line2', fieldLabel: 'Line 2', width: 200} }),
+      xl.widget.InlineActiveField({form: form, object: 'supplier[address]', field: { value: '#{@supplier.address.line3}', name: 'line3', fieldLabel: 'Line 3', width: 200} }),
+      xl.widget.InlineActiveField({form: form, object: 'supplier[address]', field: { value: '#{@supplier.address.city}', name: 'city', fieldLabel: 'City', width: 200} }),
+      xl.widget.InlineActiveField({form: form, object: 'supplier[address]', field: { value: '#{@supplier.address.state}', name: 'state', fieldLabel: 'State', width: 200} }),
+      xl.widget.InlineActiveField({form: form, object: 'supplier[address]', field: { value: '#{@supplier.address.country}', name: 'country', fieldLabel: 'Country', width: 200} }),
+      xl.widget.InlineActiveField({form: form, object: 'supplier[address]', field: { value: '#{@supplier.address.zip}', name: 'zip', fieldLabel: 'Zip', width: 200} })
+    ]
+  });
+  
+  var contactPanel = new Ext.Panel({
+    defaults: formDefaults,
+    items: [
+      phonePanel,
+      {
+        items: [
+          xl.widget.InlineActiveField({form: form, object: 'supplier[link]', field: { value: '#{@supplier.link.url}', name: 'url', fieldLabel: 'Website', width: 150} }),
+          xl.widget.InlineActiveField({form: form, object: 'supplier[email]', field: { value: '#{@supplier.email.email_address}', name: 'email_address', fieldLabel: 'Email', width: 150} })
+        ]
+      },
+      addressFieldset
+    ]
+  });
+  
+  var authsPanel = new Ext.Panel({});
+  
+  var layoutPanel = new Ext.Panel({
+    layout: 'table',
+    layoutConfig: { columns: 2 },
+    defaults: { style: 'padding: 15px;', width: 400, height: 360 },
+    
+    items: [
+      infoPanel,
+      contactPanel,
+      { html: '&nbsp;' },
+      authsPanel
+    ]
+  });
+  
+  newPanel.add(layoutPanel);
+  
+  var _afterRenderCallback = function() {
+    xl.widget.AttachGroupAuthorizationsPanel({
+      parent: authsPanel,
+      object: 'supplier',
+      auths:  #{async_get_group_auths_json_supplier_path(:id => @supplier.id).to_json},
+      update: #{async_update_supplier_path(:id => @supplier.id).to_json},
+      get:    #{async_get_name_id_hashes_groups_path.to_json}
+    });
+  }
+`
+end

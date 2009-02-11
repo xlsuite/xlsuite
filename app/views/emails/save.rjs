@@ -1,0 +1,34 @@
+page << update_notices_using_ajax_response(:on_root => true)
+# close the current new email tab
+page << "xl.email.refreshMailboxes();"  
+page << "xl.closeTabPanel('recipients_index_#{@email.id}');"
+
+if @open_new_edit_tab
+  page << "xl.openNewTabPanel('emails_edit_#{@email.id}', #{edit_email_path(@email).to_json});"
+  page << "xl.closeTabPanel('emails_sandbox_new_nil');"
+end
+
+if @preview
+  @refresh_interval = 2
+
+  page << create_tab_using_ajax_response("Generating email recipients...") do
+  %Q`
+  var panel = new Ext.Panel({
+    autoScroll: true,
+    items: [
+      {
+        html: #{render(:partial => 'futures/show_extjs').to_json}
+      }
+    ]
+  });
+
+  newPanel.add(panel);
+
+  var _afterRenderCallback = function() {
+    // Set up the refresher
+    xl.createIntervalForFutureUpdater('#{async_get_future_as_json_future_path(:id => @future.id)}', #{@refresh_interval});
+  };
+  `
+end
+page << "xl.tabPanel.activate('emails_save_#{@email.id}');"
+end

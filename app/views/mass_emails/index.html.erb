@@ -1,0 +1,25 @@
+<h2 class="page_header"><%= params[:folder].capitalize || "Inbox" %></h2>
+<div class="ipage">
+<div class="mail_user_compose">
+ <%= link_to "Compose Mass Mail", new_mass_email_path %>
+</div>
+<% if current_user.can?(:edit_all_mailings) -%>
+<div><%= link_to "Show all", mass_emails_path(:folder => params[:folder], :all => "yes") unless params[:all] == "yes" %></div>
+<div><%= link_to("Personal", mass_emails_path(:folder => params[:folder])) if params[:all] == "yes"%></div>
+<% end -%>
+<table id="emails_list">
+  <thead>
+  	<tr class="tableHeader">
+		<th>Sender</th>
+		<th>Subject</th>
+		<th>Date/Time</th>
+	</tr>
+  </thead>
+  <tbody>
+  	
+    <%= render :partial => "mass_email", :collection => @objects  if @mass_emails %>
+    <%= render :partial => "mass_recipient", :collection => @objects  if @mass_recipients %>
+  </tbody>
+</table>
+<div><%= paginator_on(@page) %></div>
+</div>

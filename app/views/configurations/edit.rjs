@@ -1,0 +1,43 @@
+page << create_tab_using_ajax_response("Editing #{@configuration.name}", "wrapperPanel.syncSize()") do
+%Q`
+  var formButtons = [{
+        text: 'Save',
+        handler: function(me, event){
+            if (formPanel.getForm().isValid()){
+              formPanel.getForm().doAction('submit', {
+                method: "put",
+                url: #{configuration_path(@configuration).to_json},
+                success: function(form, action){
+                  response = action.result;
+                  formPanel.el.unmask();
+                  xl.maskedPanels.remove(formPanel);
+                  $("status-bar-notifications").innerHTML = response.flash;
+                  #{refresh_grid_datastore_of("configurations")}
+                }
+              });
+              formPanel.el.mask("Updating...");
+              xl.maskedPanels.push(formPanel);
+            }
+            else {
+              formPanel.el.mask("Please check the required fields");
+              var tempFunction = function() {formPanel.el.unmask()};
+              tempFunction.defer(1500);
+            }
+          }
+      },{
+        text: "Cancel",
+        handler: function(me, event){
+            xl.closeTabPanel('configurations_edit_#{@configuration.id}')
+          }
+      }];
+
+  var formPanel = new Ext.form.FormPanel({
+    autoScroll: true,
+    tbar: formButtons,
+    bbar: formButtons,
+    items: [#{render_form_panel_items}]
+  });
+
+  newPanel.add(formPanel);
+`
+end

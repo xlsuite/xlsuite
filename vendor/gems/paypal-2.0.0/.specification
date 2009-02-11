@@ -1,0 +1,76 @@
+--- !ruby/object:Gem::Specification 
+name: paypal
+version: !ruby/object:Gem::Version 
+  version: 2.0.0
+platform: ruby
+authors: 
+- Tobias Luetke
+autorequire: paypal
+bindir: bin
+cert_chain: 
+date: 2006-06-30 00:00:00 -04:00
+default_executable: 
+dependencies: 
+- !ruby/object:Gem::Dependency 
+  name: money
+  type: :runtime
+  version_requirement: 
+  version_requirements: !ruby/object:Gem::Requirement 
+    requirements: 
+    - - ">"
+      - !ruby/object:Gem::Version 
+        version: 0.0.0
+    version: 
+description: Paypal IPN integration library for rails and other web applications
+email: tobi@leetsoft.com
+executables: []
+
+extensions: []
+
+extra_rdoc_files: []
+
+files: 
+- init.rb
+- README
+- Rakefile
+- MIT-LICENSE
+- lib/helper.rb
+- lib/notification.rb
+- lib/paypal.rb
+- misc/PayPal - Instant Payment Notification - Technical Overview.pdf
+- misc/paypal.psd
+- test/helper_test.rb
+- test/mocks
+- test/notification_test.rb
+- test/remote
+- test/mocks/http_mock.rb
+- test/mocks/method_mock.rb
+- test/remote/remote_test.rb
+has_rdoc: true
+homepage: http://dist.leetsoft.com/api/paypal
+post_install_message: 
+rdoc_options: []
+
+require_paths: 
+- lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">"
+    - !ruby/object:Gem::Version 
+      version: 0.0.0
+  version: 
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+requirements: []
+
+rubyforge_project: 
+rubygems_version: 1.2.0
+signing_key: 
+specification_version: 1
+summary: Paypal IPN integration library for rails and other web applications
+test_files: []
+

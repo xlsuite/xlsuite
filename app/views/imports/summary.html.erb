@@ -1,0 +1,52 @@
+<div id="importSummary#{@import.id}">
+
+<div>
+  <b><%= h(@import.filename) %>,&nbsp;</b>
+  <% if @import.import_errors.blank? && !@import.imported_lines.blank? %>
+    <%= @import.imported_lines.reject {|e| !e}.size %> entries uploaded,&nbsp;
+    <span class="green">no errors during import</span>
+  <% elsif @import.import_errors.blank? && @import.imported_lines.blank? %>
+    Import hasn't started yet
+  <% elsif !@import.import_errors.blank? %>
+    <span class="red"><%= @import.imported_lines.length %> errors reported,&nbsp;</span>
+    <% if @import.force %>
+    <span>force import was set, <%= @import.imported_lines.reject {|e| !e}.length %> entries imported</span>
+    <% else %>
+    <span>force import was not set, no items imported</span>
+    <% end %>
+  <% end %>
+  <% if @import.imported_rows_count < @import.total_rows_count then -%>
+  <p>Import was aborted mid-stream.  Reschedule the import:</p>
+  <form method="post" action="<%= go_import_path(@import) %>">
+    <p><%= submit_tag "Import" %> or <%= link_to "Cancel", imports_path %></p>
+  </form>
+  <% end -%>
+</div>
+
+<% if @import.state =~ /invalid url/i %>
+  <p>Reason: Scraper module only supports yellowpages.com and yellowpages.ca</p>
+<% elsif @import.state =~ /scrape failed/i %>
+  <p>An error prevented the URL from being scraped. Please ensure the page exists.</p>
+<% else %>
+  <% unless @import.import_errors.blank? then -%>
+    <table>
+      <thead>
+        <tr>
+          <th width="5%">Row #</th>
+          <th width="75%">Row content</th>
+          <th class="red">Error message</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= render_import_errors(@import) %>
+      <tbody>
+    </table>
+  <% end -%>
+<% end -%>
+
+<% if @import.scrape && @import.last_scraped_url %>
+<div>Last scraped URL: <%= @import.last_scraped_url %></div>
+<% end %>
+
+<%= link_to "Back to import index", imports_path %>
+</div>

@@ -1,0 +1,10 @@
+root:
+  id: 1
+  name: Root
+  account_id: 1
+  
+pet:
+  id: 2
+  name: Pet
+  parent_id: 1
+  account_id: 1

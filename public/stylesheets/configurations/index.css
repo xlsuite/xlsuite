@@ -1,0 +1,19 @@
+#configurationsTable { 
+  border: 1px solid black;
+  width: 100%;
+  text-align: left; }
+
+#configurationsTable tr.tableHeader { 
+  height: 30px; 
+  padding: 6px; 
+  background: url(../../images/table_headerBg.png) repeat-x; }
+  
+#configurationsTable tr.tableHeader th, tr.tableHeader th a {
+  font: 11px Verdana, sans-serif; 
+  font-weight: bold;  
+  padding: 4px; color: #fff;}
+
+#configurationsTable td {
+  padding: 2px;  
+  border-right: 1px solid black;
+  border-bottom: 1px solid black; }

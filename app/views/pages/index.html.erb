@@ -1,0 +1,32 @@
+<div class="ipage">
+  <% if account_domains.size > 1 then -%>
+  <% form_tag(pages_path, :method => :get, :id => "pages_filter") do %>
+  <div>
+    <label class="bold" for="domain">Show domain:</label>
+    <select name="domain" id="domain">
+      <option value="">All domains</option>
+      <%= options_from_collection_for_select(account_domains, :name, :name, @domain ? @domain.name : nil) %>
+    </select>
+    <%= submit_tag "Filter", :class => "button", :name => nil %>
+  </div>
+  <% end %>
+  <% end %>
+  <p class="m4 right"><%= link_to_function("Add top level page", "parent.xl.createTab(#{new_page_path.to_json}, 'new_page_page')", :icon => :page_add) %></p>
+  <table id="pages" class="page clear">
+    <thead class="tableHeader">
+    <th>Title</th>
+      <th>Status</th>
+      <th>Behaviour</th>
+      <th>Slug</th>
+      <th width="25%">Actions</th>
+      </thead>
+    <tbody>
+      <%= render :partial => @pages, :locals => {:level => 0} %>
+    </tbody>
+  </table>
+  <% if @pages.empty? then -%>
+  <%= link_to "Create", new_page_path %> your home page
+  <% end -%>
+</div>
+
+

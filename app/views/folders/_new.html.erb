@@ -1,0 +1,9 @@
+<h1>New folder</h1>
+<% remote_form_for :folder, @folder, :url => folders_path do |f| %>
+  <%= render :partial => "form" %>  
+  <span id="new_folder_action">
+    <%= submit_tag "Create" %>or
+    <%= link_to_function "Cancel", "xl.closeTabPanel('folders_new_#{params[:id]}')" %>
+  </span>
+<% end -%>
+ 

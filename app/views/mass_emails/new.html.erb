@@ -1,0 +1,21 @@
+<h2 class="mail_header">New Mass Mail</h2>
+<div class="mail_body">
+  <% form_tag(mass_emails_url, :multipart => true, :onsubmit => "return false", :id => dom_id(@email)) do %>
+    <div class="mail_user_options">
+      <span class="links">
+        <%= link_to "Send", "#", :class => "submit send" %>
+        <%= link_to "Save", "#", :class => "submit save" %>
+        <%= link_to "Cancel", emails_path %>
+      </span>
+    </div>
+    <%= render :partial => 'form' %>
+    <div id="bottom_console" class="mail_user_options left clear">
+      <span class="links">
+        <%= link_to "Send", "#", :class => "submit send" %>
+        <%= link_to "Save", "#", :class => "submit save" %>
+        <%= link_to "Cancel", emails_path %>
+      </span>
+      <p id="e_sched" class="clear">Scheduled at: <%= datetime_select :email, :scheduled_at %></p>
+    </div>
+  <% end -%>
+</div>

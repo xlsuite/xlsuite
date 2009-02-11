@@ -1,0 +1,11 @@
+if @created
+  # update notices
+  page << update_notices_using_ajax_response(:on_root => true)
+  # close the current new sale_event tab
+  page << close_tab_panel("sale_events_new_nil")
+  # open a new edit tab with the saved sale_event
+  page << send_default_get_ajax_request(edit_sale_event_path(@sale_event))
+  page << refresh_grid_datastore_of("sale_event")
+else
+  page << update_inside_panel_notifications("sale_events_new_nil")
+end

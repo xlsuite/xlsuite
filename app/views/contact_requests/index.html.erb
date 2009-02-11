@@ -1,0 +1,14 @@
+<h1>Contact Requests</h1>
+
+<% form_tag(contact_requests_path, :method => :get) do %>
+  <label for="filter">Filter:</label>
+  <%= select_tag :filter, options_for_select(%w(Incomplete Completed), @filter.to_s.titleize) %>
+  <%= submit_tag "Filter", :name => nil %>
+<% end -%>
+
+<ol id="contact_requests">
+  <%= render :partial => @contact_requests %>
+<% if @contact_requests.empty? then -%>
+  <li>None</li>
+<% end -%>
+</ol>

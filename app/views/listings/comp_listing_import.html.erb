@@ -1,0 +1,82 @@
+<form>
+        <ul id="topPanel">
+                <li><a class="HRmargin1" href="">Listings Search</a></li>
+
+                <li><a class="HRmargin1" href="">Targeted MLS# Import</a></li>
+                <li><label>QuickNav:</label><input class="inline text" size="30" /></li>                
+        </ul>
+        <div class="tableheader">
+        <h2>Search Listings</h2>
+        <ul id="listings_searchOptions">
+                <!-- adds new MLS# line -->
+                <li class="small"><a href="" onclick="Element.toggle ('newMLS#line'); return false;">New MLS# Line</a></li>
+
+                <li class="small"><a href="">Cancel</a></li>
+        </ul>
+        </div>
+        <br class="clear" />
+        <table class="imp">
+                <tr class="tableheader">
+                <th scope="col" width="30%"></th>
+                        <th scope="col" width="70%"></th>
+
+                </tr>
+                <tr>
+                        <td>
+                                <label>MLS Number</label><br />
+                                <label>Address</label><br />
+                                <label>Tag on Import</label><br />
+                                <label>Send Link to Recipient</label><br />
+
+                                <!-- add new 'send link to Recipient' line -->
+                                <a href="" onclick="Element.toggle ('addNewRecipient1'); return false;">Add Recipient</a>
+                        </td>
+                        <td>
+                                <input class="inline text" size="30" /><br />
+                                <input class="inline text" size="50" /><br />
+                                <input class="inline text" size="50" /><br />
+                                <input class="inline text" size="50" /><br />
+
+                                <input id="addNewRecipient1" class="inline text" size="50" style="display:none;" /><br />
+                        </td>           
+                </tr>
+                <tr>
+                        <td>
+                                <label>MLS Number</label><br />
+                                <label>Address</label><br />
+                                <label>Tag on Import</label><br />
+
+                                <label>Send Link to Recipient</label><br />
+                                <!-- add new 'send link to Recipient' line -->
+                                <a href="" onclick="Element.toggle ('addNewRecipient2'); return false;">Add Recipient</a>
+                        </td>
+                        <td>
+                                <input class="inline text" size="30" /><br />
+                                <input class="inline text" size="50" /><br />
+                                <input class="inline text" size="50" /><br />
+
+                                <input class="inline text" size="50" /><br />
+                                <input id="addNewRecipient2" class="inline text" size="50" style="display:none;" /><br />
+                        </td>           
+                </tr>
+                <tr id="newMLS#line" style="display:none;">
+                        <td>
+                                <label>MLS Number</label><br />
+                                <label>Address</label><br />
+
+                                <label>Tag on Import</label><br />
+                                <label>Send Link to Recipient</label><br />
+                                <!-- add new 'send link to Recipient' line -->
+                                <a href="" onclick="Element.toggle ('addNewRecipient3'); return false;">Add Recipient</a>
+                        </td>
+                        <td>
+                                <input class="inline text" size="30" /><br />
+
+                                <input class="inline text" size="50" /><br />
+                                <input class="inline text" size="50" /><br />
+                                <input class="inline text" size="50" /><br />
+                                <input id="addNewRecipient3" class="inline text" size="50" style="display:none;" /><br />
+                        </td>           
+                </tr>
+        </table>
+</form>

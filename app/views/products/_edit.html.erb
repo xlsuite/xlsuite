@@ -1,0 +1,10 @@
+<h2 class="page_header">Edit Product</h2>
+<div class="ipage product_edit">
+  <% inline_remote_form_for :product, @product, :url => product_path(@product), :html => {:method => :put, :id => (dom_id(@product) + "_main_form")} do |f| %>
+    <%= render_inside_panel_notifications_container %>
+    <%= render :partial => "form", :locals => {:f => f} %>
+  <% end %>
+  <div id="<%= typed_dom_id(@product, :timestamps) %>" class='product_footer clear'>
+    <%= render_object_timestamps(@product) %>
+  </div>
+</div>

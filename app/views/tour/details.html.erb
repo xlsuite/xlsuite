@@ -1,0 +1,32 @@
+<h1>Details on <%= @address.line1 %></h1>
+<% if @party then -%>
+<% unless @party.after_pictures.empty? -%>
+<% if @party.after_pictures.first && @party.after_pictures.first.picture then -%>
+<%= image_tag(picture_url(:id => @party.after_pictures.first.picture.id),
+              :size => @party.after_pictures.first.picture.geometry,
+              :alt => @party.after_pictures.first.picture.description,
+              :class => 'standalone framed') %>
+<% end -%>
+<% end -%>
+<% unless @party.after_pictures[1..-1].nil? || @party.after_pictures[1..-1].empty? -%>
+<h2>After Pictures</h2>
+<div class="gallery">
+  <ul>
+<%= render :partial => 'gallery_item', :collection => @party.after_pictures[1..-1] %>
+  </ul>
+  <div class="end">&nbsp;</div>
+</div>
+<% end -%>
+
+<% unless @party.before_pictures.empty? -%>
+<h2>Before Pictures</h2>
+<div class="gallery">
+  <ul>
+<%= render :partial => 'gallery_item', :collection => @party.before_pictures %>
+  </ul>
+  <div class="end">&nbsp;</div>
+</div>
+<% end -%>
+<% end -%>
+
+<%= render :partial => 'supplies', :object => @invoice if @invoice -%>

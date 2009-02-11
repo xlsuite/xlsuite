@@ -1,0 +1,12 @@
+See the documentation for XlSuite::LinkWithIcon for the full details.
+
+This plugin includes images by Mark James.  The icons are available
+at: http://www.famfamfam.com/lab/icons/silk/
+
+The icons are licensed under a Creative Commons Attribution 2.5 License.
+The license text can be obtained by visiting:  http://creativecommons.org/licenses/by/2.5/
+
+== Installation
+Copy the files from <tt>vendor/plugins/link_with_icon/assets/</tt> to <tt>public/</tt>.
+You may also replace the icons with any other ones you wish, as long as they
+are stored in <tt>public/images/icons/</tt> folder.

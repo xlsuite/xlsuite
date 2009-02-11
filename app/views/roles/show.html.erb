@@ -1,0 +1,16 @@
+<h2><%= h(@permission_set.name) %></h2>
+
+<h3>Members</h3>
+<ul id="members">
+  <%= render :partial => "member", :collection => @permission_set.children %>
+</ul>
+
+<h3>Permissions</h3>
+<ul id="permissions">
+  <%= render :partial => @permission_set.permissions %>
+</ul>
+
+<p>
+  <%= link_to("Back", permission_sets_path, :icon => "permission_set") %>
+  <%= link_to("Edit", edit_permission_set_path(@permission_set), :icon => "permission_set_edit") %>
+</p>

@@ -1,0 +1,5 @@
+<ul>
+<% for party in @parties do -%>
+  <li id="<%= dom_id(party) %>"><%= highlight(h(party.display_name), @q) %></li>
+<% end -%>
+</ul>

@@ -1,0 +1,17 @@
+after_render = %Q`
+  newPanel.on('resize', function(comp)
+  {
+    bodyEditor.syncSize();
+  });
+`
+
+page << create_tab_using_ajax_response("Layouts | Edit", after_render) do
+%Q`
+
+  #{generate_save_close_cancel_toolbar(@layout, layout_path(@layout), layout_path(:id => @layout.id, :commit_type => "close"))}
+
+  #{generate_form_panel}
+
+  newPanel.add(formPanel);
+`
+end

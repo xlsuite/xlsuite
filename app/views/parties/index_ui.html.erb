@@ -1,0 +1,517 @@
+<% limit = params[:limit] || 50 %>
+<% partiesUrl = formatted_parties_path(:format => :json).to_json %>
+var Example = {
+  init : function(){
+    Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
+  
+    // create party record using the party model
+    var PartyRecord = new Ext.data.Record.create([
+      {name: 'displayName', mapping: 'display-name'},
+      {name: 'firstName', mapping: 'name.first'},
+      {name: 'lastName', mapping: 'name.last'},
+      {name: 'company', mapping: 'company-name'},
+      {name: 'position', mapping: 'position'},
+      {name: 'referral', mapping: 'referral'},
+      {name: 'notes', mapping: 'notes'},
+      {name: 'tags', mapping: 'tags'},
+      {name: 'email', mapping: 'email-address'},
+      {name: 'phone', mapping: 'phone'},
+      {name: 'website', mapping: 'link'},
+      {name: 'address', mapping: 'address'},
+      {name: 'other-addresses', mapping: 'other-addresses'},
+      {name: 'other-emails', mapping: 'other-emails'},
+      {name: 'other-phones', mapping: 'other-phones'},
+      {name: 'other-websites', mapping: 'other-websites'}
+    ]);
+
+    // data reader to parse the xml response
+    //var reader = new Ext.data.XmlReader({record: 'party', id: '@id', totalRecords: '@total'}, PartyRecord);
+    var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, PartyRecord);
+
+    // set up connection of the data
+  
+    var connection = new Ext.data.Connection({url: <%= partiesUrl %>, method: 'get'});
+    var proxy = new Ext.data.HttpProxy(connection);
+    
+    // set up the data store and then send request to the server
+    var ds = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+    ds.load({params: {start: 0, limit: <%= limit %> }});
+    
+    // set up the ext grid object
+    var xg = Ext.grid;
+    
+    // create row expander of the grid object
+    var expander = new xg.RowExpander({ contains: ["position", "address", "referral", "notes", "tags"],
+      tpl : new Ext.Template(
+        '<table width="100%"><col width="50%"><col width="50%"><tr>',
+        '<td><div class="row-expander-left">',
+        '<div class="other-emails">{other-emails}</div>',
+        '<div class="other-phones">{other-phones}</div>',
+        '<div class="other-links">{other-websites}</div>',
+        '<div class="other-addresses">{other-addresses}</div>',
+        '</div></td>',
+        '<td><div class="row-expander-right"><p>{position}</p><p>{tags}</p><p>{notes}</p></div></td>',
+        '</tr></table>'
+      )
+    });
+        
+    // define paging toolbar that is going to be appended to the footer of the grid panel
+    var paging = new Ext.PagingToolbar({
+      store: ds,
+      pageSize: <%= limit %>,
+      displayInfo: true,
+      displayMsg: 'Displaying {0} to {1} of {2}',
+      emptyMsg: "No record to display",
+      cls: "paging-toolbar-bottom",
+      plugins: [new Ext.ux.PageSizePlugin]
+    });
+        
+    // create filter field to be appended as the top grid toolbar
+    var filterField = new Ext.form.TextField({selectOnFocus: true, grow: false, emptyText: "Search"});
+    filterField.on("specialkey",
+      function(field, e) {
+        if (e.getKey() == Ext.EventObject.RETURN || e.getKey() == Ext.EventObject.ENTER) {
+          e.preventDefault();
+          ds.baseParams['q'] = this.getValue();
+          ds.reload({params: {start: 0, limit: <%= limit %>}});
+        }
+      }
+    );      
+
+    // clear button for the filter field
+    var clearButton = new Ext.Toolbar.Button({
+      text: 'Clear', 
+      handler: function() {
+        filterField.setValue("");
+        ds.baseParams['q'] = "";
+        ds.reload();
+      }
+    });
+
+    // create GridPanel object
+    var grid = new Ext.grid.GridPanel({
+      store: ds,
+      cm: new xg.ColumnModel([
+          expander,
+          {id: 'displayName', header: "Display Name", width: 250, sortable: true, dataIndex: 'displayName'},
+          {header: "Company Name", width: 150, sortable: true, dataIndex: 'company', hidden: true},
+          {header: "Last Name", width: 150, sortable: true, dataIndex: 'lastName', hidden: true},
+          {header: "First Name", width: 125, sortable: true, dataIndex: 'firstName', hidden: true},
+          {id: "email", header: "E-Mail", width: 140, sortable: false, dataIndex: 'email'},
+          {id: "phone", header: "Phone", width: 140, sortable: false, dataIndex: 'phone'},
+          {id: "website", header: "Website", width: 140, sortable: false, dataIndex: 'website'}
+        ]),
+      viewConfig: {
+        forceFit: false
+      },
+      plugins: expander,
+      collapsible: true,
+      animCollapse: false,
+      autoScroll: true,
+      autoWidth: true,
+      autoExpandColumn: 'displayName',
+      height: <%= get_default_grid_height %>,
+      tbar: [
+        "Filter: ", 
+        filterField, 
+        clearButton
+      ],
+      bbar: [paging],
+      footer: true,
+      iconCls: 'icon-grid',
+      renderTo: document.body
+    });    
+    
+    parent.xl.runningGrids.set("parties", grid);
+    
+    // set event on row double click of a row in the grid panel
+    var baseUrl = <%= general_party_path(:id => "__ID__").to_json %>;
+
+    // set double click action on grid cells
+    grid.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
+      var record = ds.getAt(rowIndex);
+      var id = record.id.split("_").last();
+      var fieldName = grid.getColumnModel().getDataIndex(columnIndex);
+      
+      switch(columnIndex){
+        case 0:
+          break //this is the expander
+        case grid.getColumnModel().getIndexById("email"):
+          var email_path = <%= sandbox_new_emails_path(:email_tos => "__ADDR__").to_json %>;
+          parent.xl.openNewTabPanel('emails_new_nil', email_path.sub("__ADDR__", record.get("email").split(":").last()));
+          break;
+        case grid.getColumnModel().getIndexById("phone"):
+          break;
+        case grid.getColumnModel().getIndexById("website"):
+          var website_url = record.get("website");
+          if ( website_url == "" ) { break };
+          if ( !website_url.match(new RegExp("^(ht|f)tp:\/\/", "i")) ) {
+            website_url = "http://" + website_url;
+          };
+          parent.xl.createTab(website_url);
+          break;
+        default:
+          parent.xl.createTab(baseUrl.sub("__ID__", id));
+      }
+    });
+    
+    // define per page text field
+    var partiesIndexPath = <%= parties_path(:limit => "__LIMIT__").to_json %>;
+    var showPerPageField = new Ext.form.TextField({selectOnFocus: true, grow: false, width: 30, value: <%= limit %>});
+    showPerPageField.on("specialkey",
+      function(field, e) {
+        if (e.getKey() == Ext.EventObject.RETURN || e.getKey() == Ext.EventObject.ENTER) {
+          e.preventDefault();
+          iframe.src = partiesIndexPath.sub("__LIMIT__", field.getValue());
+        }
+      }
+    );      
+    
+    //paging.addText("Show ");
+    //paging.addSpacer();
+    //paging.addField(showPerPageField);
+    //paging.addSpacer();
+    //paging.addText("per page");
+    grid.getTopToolbar().addClass("top-toolbar");
+    grid.getBottomToolbar().addClass("bottom-toolbar");
+    
+    
+    // menu actions for grid panel
+
+    var selectAllAction = new Ext.Action({
+      text: "Select all",
+      iconCls: "display_none"
+    });
+
+    var clearAllAction = new Ext.Action({
+      text: "Clear all",
+      iconCls: "display_none",
+      disabled: true
+    });
+
+    var addToGroupAction = new Ext.Action({
+      text: "Add to Group",
+      iconCls: "display_none",
+      disabled: true,
+      handler: function() { 
+        Ext.Msg.buttonText.ok = "Add";
+        Ext.Msg.show({
+          title: "Add selected contacts to a group",
+          msg: '<label>Please select a group: </label><%= e( select_tag("group_id", options_for_select(@groups.map {|g| [g.name, g.id]})) ) %>',
+          buttons: Ext.Msg.OKCANCEL,
+          fn: function(btn) {
+            if ( btn.match(new RegExp("ok","i")) ) { 
+              $('list-selection-menu-group_id').value = $('group_id').options[$('group_id').selectedIndex].value;
+              $('list-selection-menu-form').action = <%= add_collection_to_group_parties_path.to_json %>;
+              $('list-selection-menu-form').submit();
+            }
+            else {
+              $('list-selection-menu-group_id').value = "";
+              $('list-selection-menu-form').action = '';
+            }
+          }
+        });
+      }
+    });
+
+    var new_party_path = <%= new_party_path(:id => "__ID__").to_json %>;
+    var duplicateAction = new Ext.Action({
+      text: "Duplicate",
+      iconCls: "display_none",
+      disabled: true,
+      handler: function(){
+        parent.xl.createTab(new_party_path.sub("__ID__", $('list-selection-menu-ids').value));
+      }
+    });    
+    
+    var emailAction = new Ext.Action({
+      text: "Email",
+      iconCls: "display_none",
+      disabled: true,
+      handler: function() {
+        var records = grid.getSelectionModel().getSelections();
+        var email_path = <%= sandbox_new_emails_path(:email_tos => "__ADDR__").to_json %>;
+        var email_addresses = [];
+        var blank_emails = 0;
+        for(i=0;i<records.length;i++){
+          if(records[i].get("email") && records[i].get("email") != ""){
+            email_addresses.push(records[i].get("email"));
+          }
+          else{
+            blank_emails++;
+          }
+        }
+        email_addresses = email_addresses.join(", ");
+        if(email_addresses == ""){
+          Ext.Msg.show({
+            width: 200,
+            msg: "Selected contacts do not have email addresses",
+            buttons: Ext.MessageBox.OK
+          });
+        }
+        else {
+          if(blank_emails>0){
+            Ext.Msg.show({
+              width: 200,
+              msg: blank_emails + " of selected contacts do not have email addresses",
+              buttons: Ext.MessageBox.OK
+            });        
+          }
+          parent.xl.openNewTabPanel('emails_new_nil', email_path.sub("__ADDR__", escape(email_addresses)));
+        }
+      }
+    });    
+    
+    var massMailAction = new Ext.Action({
+      text: "Mass Mail",
+      iconCls: "display_none", 
+      disabled: true,
+      handler: function() {
+        var records = grid.getSelectionModel().getSelections();
+        var mass_email_path = <%= sandbox_new_emails_path(:email_tos => "__ADDR__", :mass => true).to_json.gsub("amp;", "") %>;
+        var email_addresses = [];
+        var blank_emails = 0;
+        for(i=0;i<records.length;i++){
+          if(records[i].get("email") && records[i].get("email") != ""){
+            email_addresses.push(records[i].get("email"));
+          }
+          else{
+            blank_emails++;
+          }
+        }
+        email_addresses = email_addresses.join(", ");
+        if(email_addresses == ""){
+          Ext.Msg.show({
+            width: 200,
+            msg: "Selected contacts do not have email addresses",
+            buttons: Ext.MessageBox.OK
+          });
+        }
+        else {
+          if(blank_emails>0){
+            Ext.Msg.show({
+              width: 200,
+              msg: blank_emails + " of selected contacts do not have email addresses",
+              buttons: Ext.MessageBox.OK
+            });        
+          }
+          parent.xl.openNewTabPanel('emails_new_nil', (mass_email_path.sub("__ADDR__", escape(email_addresses))));
+        }
+      }
+    });    
+    
+    var publishProfileAction = new Ext.Action({
+      text: "Publish Profile",
+      iconCls: "display_none",
+      disabled: true,
+      handler: function() { 
+        var records = grid.getSelectionModel().getSelections();
+        var ids = records.invoke('get', 'id');
+        Ext.Msg.confirm("Confirm Publish Profiles", "Are you sure you want to make the selected party's profiles publicly viewable?", function(buttonText) {
+          if (buttonText.match(new RegExp("yes","i"))) {
+            Ext.Ajax.request({
+              url: '/admin/parties/publish_profiles',
+              method: "POST",
+              params: { ids: parent.$('contact-list-ids').value },
+              success: function(request, options) {
+                xl.log("SUCCESS: " + request.responseText);
+              } // end success(r,o)
+            }); // end Ext.Ajax.request
+          } // end if(buttonText.match...
+        }); // end Ext.Msg.confirm
+      }
+    });
+    
+    var printSummaryAction = new Ext.Action({
+      text: "Print summary",
+      iconCls: "display_none",
+      disabled: true
+    });    
+
+    var resetPasswordAction = new Ext.Action({
+      text: "Reset Password(s)",
+      iconCls: "display_none",
+      disabled: true,
+      handler: function() { 
+        Ext.Msg.confirm("", "Reset password of selected contacts?", function(btn){
+          if ( btn.match(new RegExp("yes","i")) ) { 
+            $('list-selection-menu-form').action = <%= reset_collection_password_parties_path.to_json %>;
+            $('list-selection-menu-form').submit();
+          }
+          else {
+            $('list-selection-menu-form').action = '';
+          }
+        });
+      }
+    });
+    
+    var sendFileAction = new Ext.Action({
+      text: "Send a file",
+      iconCls: "display_none",
+      disabled: true
+    });    
+
+    var tagWithAction = new Ext.Action({
+      text: "Tag",
+      iconCls: "display_none",
+      disabled: true,
+      handler: function() { 
+        Ext.Msg.prompt("Please input tag", "", function(btn, text){
+          if ( btn.match(new RegExp("ok","i")) ) { 
+            $('list-selection-menu-tag_list').value = text;              
+            $('list-selection-menu-form').action = <%= tagged_collection_parties_path.to_json %>;
+            $('list-selection-menu-form').submit();
+          }
+          else {
+            $('list-selection-menu-tag_list').value = "";
+            $('list-selection-menu-form').action = '';
+          }
+        });
+      }
+    });
+    
+    var deleteAction = new Ext.Action({
+      text: "Delete",
+      iconCls: "display_none",
+      disabled: true,
+      handler: function() { 
+        Ext.Msg.confirm("", "Delete selected records permanently?", function(btn){
+          if ( btn.match(new RegExp("yes","i")) ) { 
+            $('list-selection-menu-form').action = <%= destroy_collection_parties_path.to_json %>;
+            $('list-selection-menu-form').submit();
+          }
+          else {
+            $('list-selection-menu-form').action = '';
+          }
+        });
+      }
+    });
+
+    clearAllAction.setHandler(function(e) {
+      grid.getSelectionModel().clearSelections(); 
+      $('list-selection-menu-ids').value = "";
+      e.disable();
+    });
+
+    selectAllAction.setHandler(function(e) {
+      grid.getSelectionModel().selectAll();
+      e.disable(); 
+    });
+    
+    var selectionMenu =  new Ext.menu.Menu({
+      items: [selectAllAction, clearAllAction]
+    });
+    selectionMenu.addSeparator();
+    selectionMenu.add(addToGroupAction, duplicateAction, emailAction, massMailAction, printSummaryAction, resetPasswordAction, sendFileAction, tagWithAction, publishProfileAction);
+    selectionMenu.addSeparator();
+    selectionMenu.add(deleteAction);
+    
+    grid.getTopToolbar().add({ id: 'selection-menu', text: "Actions", menu: selectionMenu });
+    
+    var delayedRecordAjaxTask = new Ext.util.DelayedTask(function(){
+      ids = parent.$('contact-list-ids').value;
+      parent.$('recordMessagesPanel').childElements().each(function(e){e.hide();});
+      parent.$('recordFilesPanel').childElements().each(function(e){e.hide();});
+      parent.$('recordPaymentsPanel').childElements().each(function(e){e.hide();});
+      if(parent.$("party_"+ids+"_messages")){
+        parent.$("party_"+ids+"_messages").show();
+      }
+      if(parent.$("party_"+ids+"_files")){
+        parent.$("party_"+ids+"_files").show();
+      }
+      if(parent.$("party_"+ids+"_payments")){
+        parent.$("party_"+ids+"_payments").show();
+      }
+      
+      else{
+        blankregex = /^[\s]*$/;
+        if(!blankregex.test(ids))
+          parent.recordMessagesRefresh(ids);
+          parent.recordFilesRefresh(ids);
+          parent.recordPaymentsRefresh(ids);
+      }
+    });
+    
+    grid.getSelectionModel().on("selectionchange", function(){
+      records = grid.getSelectionModel().getSelections();
+      var ids = new Array();
+      records.each( function(e) {
+        ids.push(e.id.split("_").last());
+      });
+      $('list-selection-menu-ids').value = ids.join(",");
+      parent.$('contact-list-ids').value = ids.join(",");
+      
+      if(ids.length>0){
+        selectionMenu.items.each(function(e) {e.enable();});
+        if(ids.length == 1){
+          duplicateAction.enable();
+        } 
+        else{
+          duplicateAction.disable();
+        }  
+        printSummaryAction.disable();
+        sendFileAction.disable();        
+
+        if (ids.length == 1)
+          parent.xl.setEastTitle("Related to " + ds.getById("party_"+ids).get("displayName"), 
+            parent.$('current-displayed-iframe-source').value);
+        else
+          parent.xl.setEastTitle("Related to: multiple", parent.$('current-displayed-iframe-source').value);                
+      }
+      else{
+        selectionMenu.items.each(function(e) {e.disable();});
+        selectAllAction.enable();
+      }
+      
+      //delay 1.5seconds before refreshing the east accordions
+      delayedRecordAjaxTask.delay(1500);
+    });
+    
+    //Update messages on rowclick (should be something like selectionchange, but selectionchange
+    //sends out too many requests to the server)
+    grid.on("selectionChange", function(){
+      
+    });
+    
+    // add extra links to the header
+    var extra_links_span = parent.Ext.get(document.location.pathname + '-other-links');
+
+    extra_links_span.insertHtml('afterBegin', <%= link_to_function("&nbsp;&nbsp;&nbsp;Import", "parent.xl.createTab('#{imports_path}')").to_json %>, false);
+    extra_links_span.insertHtml('afterBegin', <%= link_to_function("&nbsp;&nbsp;&nbsp;New", "parent.xl.createTab('#{new_party_path}')").to_json %>, false);
+    
+    // Set up "Expand all" and "Collapse all" rows
+    var expandAllAction = new Ext.Action({
+      text: "Expand all",
+      handler: function(){
+        Ext.DomQuery.select('.x-grid3-row-collapsed').each (function(e)
+          { expander.expandRow(e); }
+        );
+      }  
+    });
+    
+    var collapseAllAction =  new Ext.Action({
+      text: "Collapse all",
+      handler: function(){
+        Ext.DomQuery.select('.x-grid3-row-expanded').each (function(e)
+          { expander.collapseRow(e); }
+        );
+      }
+    });
+    
+    grid.getTopToolbar().add(expandAllAction, collapseAllAction);
+    
+    ds.on('load', function(datastore, records, options){
+      var row_expander_bodies = Ext.DomQuery.select('.x-grid3-row-body');
+      var record_id = null;
+      for(i=0;i<row_expander_bodies.length;i++){
+        record_id = (records[i].id).split("_").last();
+        Ext.EventManager.addListener(row_expander_bodies[i], "dblclick", function(event, element, options){
+          parent.xl.createTab(baseUrl.sub("__ID__", options.recordId));
+        }, this, {recordId:record_id});
+      }
+    });
+    
+  }  
+};
+
+Ext.onReady(Example.init, Example);

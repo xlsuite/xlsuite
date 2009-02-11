@@ -1,0 +1,47 @@
+
+<div class="ipage">
+<% content_for(:js) do -%>
+<%= javascript_include_tag "xl_suite/form_handler" %>
+<%= javascript_tag <<EOF
+  var #{typed_dom_id(@asset, :form_handler)} = new XlSuite.FormHandler("#{dom_id(@asset)}");
+EOF
+%>
+<% end -%>
+
+<% inline_form_for(:asset, @asset, :url => asset_path(@asset), :html => {:method => :put, :id => dom_id(@asset)}) do |f| %>
+<% with_thumbnail(@asset, :medium) do |thumbnail, thumbnail_url| -%>
+  <div id="download-selector">
+    <span>Download:</span>
+    <ul>
+      <%= download_links(@asset) %>
+    </ul>
+  </div>
+
+  <div class="container">
+    <div id="asset_title">
+      <%= f.text_field :title %>
+    </div>
+    <img src="<%= thumbnail_url %>" width="<%= thumbnail.width %>" height="<%= thumbnail.height %>" alt="<%=h @asset.title %>" class="view"/>
+  
+    <div class="asset_description">
+      <%= f.text_area(:description) %>
+    </div>
+
+    <dl class="fields">
+      <%= render :partial => "details", :object => @asset %>
+    </dl>
+
+    <div class="actions">
+      <%= link_to "Edit", edit_asset_path(@asset), :icon => :image_edit %>
+      <%= link_to "Delete", asset_path(@asset), :icon => :delete, :method => :delete, :confirm => "Are you sure ?" %>
+      <% if @asset.folder_id%>
+        <%= link_to "Close", assets_path(:ids => @asset.folder_id), :icon => :image %>
+      <% else %>
+        <%= link_to "Close", assets_path, :icon => :image %>
+      <% end -%>
+    </div>
+  </div>
+<% end -%>
+<% end -%>
+<%= hidden_field_tag "elsewhere", nil %>
+</div>

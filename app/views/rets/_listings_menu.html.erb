@@ -1,0 +1,9 @@
+<ul id="topPanel">
+  <li><%= link_to("Listings Search", listings_search_rets_path, :class => "HRmargin1") if current_user.can?(:access_rets) %></li>
+  <li><%= link_to("Targeted MLS# Import", listings_import_rets_path, :class => "HRmargin1") if current_user.can?(:access_rets) %></li>
+  <li>
+    <label>QuickNav:<label>
+    <%= text_field_tag "quick_nav_listing", "", :class => "inline text" %>
+  </li>
+  <li><%= link_to "New Listing", new_listing_path, :class => "HRmargin1" %></li>
+</ul>

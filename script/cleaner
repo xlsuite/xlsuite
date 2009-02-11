@@ -1,0 +1,43 @@
+#!/usr/bin/env ruby
+forced, domain_name = false, nil
+
+ARGV.each do |arg|
+  case arg
+  when "--force"
+    forced = true
+  else
+    domain_name = arg
+  end
+end
+
+raise "USAGE:  #{$0} [DOMAIN_NAME]" if domain_name.nil? || domain_name.empty?
+
+require File.dirname(__FILE__) + "/../config/environment"
+puts "Running in #{Rails.env} mode, #{forced ? 'FOR REAL' : 'in sandbox mode'}"
+
+account = Domain.find_by_name(domain_name).account
+conds = %w(first_name last_name company_name).inject([]) do |memo, attr|
+  memo << "#{attr} IS NULL OR LENGTH(#{attr}) = 0"
+end
+
+Party.transaction do
+  print "Parties: "
+  STDOUT.flush
+  puts account.parties.connection.execute("DELETE FROM parties WHERE (#{ conds.join(") AND (") }) AND account_id = #{account.id}")
+
+  print "Contact Routes: "
+  STDOUT.flush
+  candidates = account.contact_routes.find(:all, :select => "contact_routes.id", :joins => "LEFT JOIN parties ON parties.id = contact_routes.routable_id AND contact_routes.routable_type = 'Party'", :conditions => ["parties.id IS NULL AND contact_routes.account_id = ?", account.id])
+  puts account.contact_routes.connection.execute("DELETE FROM contact_routes WHERE id IN (#{candidates.map(&:id).join(',')})")
+
+  print "Estimates: "
+  STDOUT.flush
+  candidates = account.estimates.find(:all, :select => "estimates.id", :joins => "LEFT JOIN parties ON parties.id = estimates.invoice_to_id", :conditions => ["parties.id IS NULL AND estimates.account_id = ?", account.id])
+  puts account.estimates.connection.execute("DELETE FROM estimates WHERE id IN (#{candidates.map(&:id).join(',')})")
+
+  print "Estimate Lines: "
+  STDOUT.flush
+  puts account.estimates.connection.execute("DELETE FROM estimate_lines WHERE estimate_id IN (#{candidates.map(&:id).join(',')})")
+
+  raise "Sandbox mode...  Use --force to execute" unless forced
+end

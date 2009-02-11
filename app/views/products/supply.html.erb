@@ -1,0 +1,85 @@
+<%= content_tag :div, "", :id => typed_dom_id(@product, :discounts) %>
+<%= javascript_tag %Q`
+  function #{typed_dom_id(@product, :suppliers)}(){
+    var dummyData = [];
+    
+    var record_store = xl.widget.SimpleJSONStore({
+      array: dummyData,
+      doSmartMappings: true,
+      fields: [
+        {name: 'id', mapping: 'object_id', type: 'int'},
+        'name', 'phone', 'email', 'price', 'last_order_at',
+        {name: 'average_delivery_time_in_seconds', type: 'int'}
+      ],
+      doLoad: true 
+    });
+    
+    var suppliersGridPanel = new Ext.grid.EditorGridPanel({
+      region: 'center',
+      store: record_store.store,
+      cm: new Ext.grid.ColumnModel([
+        { 
+          id: "name",
+          header: "Name",
+          dataIndex: "name", 
+          sortable: true, 
+          editor: new Ext.form.TextField({allowBlank: false})
+        },{
+          header: "Phone", 
+          dataIndex: "phone", 
+          sortable: true,
+          editor: new Ext.form.TextField({allowBlank: false})
+        },{
+          header: "Email",
+          dataIndex: "email",
+          sortable: true,
+          editor: new Ext.form.TextField({allowBlank: false})
+        },{
+          header: "Price",
+          dataIndex: "price",
+          sortable: true, 
+          editor: new Ext.form.NumberField({allowNegative: false, allowBlank: false})
+        },{
+          header: "Avg. Delivery Time",
+          dataIndex: "average_delivery_time_secs",
+          sortable: true, 
+          editor: new Ext.form.NumberField({allowNegative: false, allowBlank: false})
+        },{
+          header: "Last PO Date",
+          dataIndex: "last_order_at",
+          sortable: true,
+          editor: new Ext.form.DateField({format: "d/m/Y"})
+        }
+      ]),
+        
+      tbar: [
+        'Suppliers for this Product',
+        {
+          text: 'Add Supplier',
+          handler : function(){ }
+        },
+        'Actions'
+      ],
+      
+      autoScroll: true,
+      autoWidth: true
+    });
+    
+
+    /*var formPanel = new Ext.form.FormPanel({
+      html: '<p>FormPanel</p>'
+    });*/
+
+    /*var layoutPanel = new Ext.Panel({
+      layout: "border",
+      items: [suppliersGridPanel],
+      renderTo: #{typed_dom_id(@product, :suppliers).to_json}
+    });
+    
+    layoutPanel.render();*/
+    new XlSuite.FormHandler("#{dom_id(@product)}_suppliers_form", {now:true, defaultValue:"N/A"});
+  }; // end #{typed_dom_id(@product, :discounts)}()
+  
+  #{typed_dom_id(@product, :suppliers)}();
+`
+%>

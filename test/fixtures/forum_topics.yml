@@ -1,0 +1,75 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+pdi:
+  id: 1
+  forum_id: 1
+  forum_category_id: 1
+  user_id: 51
+  title: PDI this!
+  created_at: <%= 4.days.ago.to_s :db %>
+  replied_at: <%= 2.days.ago.to_s :db %>
+  replied_by: 1000001
+  last_post_id: 3
+  posts_count: 3
+  account_id: 1
+sticky:
+  id: 5
+  forum_id: 1
+  user_id: 1000001
+  forum_category_id: 1
+  title: upgrade now
+  created_at: <%= 123.hours.ago.to_s :db %>
+  updated_at: <%= 123.hours.ago.to_s :db %>
+  replied_at: <%= 123.hours.ago.to_s :db %>
+  replied_by: 51
+  last_post_id: 5
+  posts_count: 1
+  sticky: 1
+  account_id: 1
+ponies:
+  id: 4
+  forum_id: 1
+  forum_category_id: 1
+  user_id: 51
+  title: ponies
+  created_at: <%= 47.hours.ago.to_s :db %>
+  posts_count: 1
+  replied_at: <%= 47.hours.ago.to_s :db %>
+  replied_by: 1000001
+  last_post_id: 4 
+  account_id: 1
+galactus:
+  id: 6
+  forum_id: 2
+  forum_category_id: 2
+  user_id: 1000001
+  title: Galactus is coming
+  created_at: <%= 2.hours.ago.to_s :db %>
+  posts_count: 2
+  replied_at: <%= 2.hours.ago.to_s :db %>
+  replied_by: 1000001
+  last_post_id: 6
+  account_id: 1
+shield:
+  id: 7
+  forum_id: 2
+  forum_category_id: 2
+  user_id: 51
+  title: Agent of SHIELD
+  created_at: <%= 1.hour.ago.to_s :db %>
+  posts_count: 2
+  replied_at: <%= 1.hour.ago.to_s :db %>
+  replied_by: 1000001
+  last_post_id: 9
+  account_id: 1
+i18n:
+  id: 8
+  forum_id: 1
+  forum_category_id: 1
+  user_id: 51
+  title: i18n in rails?
+  created_at: <%= 4.minutes.ago.to_s :db %>
+  replied_at: <%= 2.minutes.ago.to_s :db %>
+  posts_count: 1
+  replied_by: 1000001
+  last_post_id: 10
+  account_id: 1

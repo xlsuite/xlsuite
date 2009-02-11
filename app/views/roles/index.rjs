@@ -1,0 +1,154 @@
+after_render = ""
+
+page << create_tab_using_ajax_response("Roles", after_render) do
+%Q`
+  var selectedIds = new Array();
+  var clickedId = null;
+  
+  var addToRootAction = new Ext.Action({
+    text: "Add to Root",
+    iconCls: "display_none",
+    handler: function(){
+      var params = {};
+      Ext.Msg.prompt("Root Role Label", "Please enter the root role label:", function(btn, text){
+        if (btn == "ok") {
+          params["role[name]"] = text;
+          rolesFileTreePanel.el.mask("Adding '"+ text +"' to the root role...");
+          Ext.Ajax.request({
+            url: #{roles_path.to_json},
+            method: "POST",
+            params: params,
+            callback: function(options, success, response){
+              var response = Ext.util.JSON.decode(response.responseText);
+              if (response.success){
+                rolesFileTreePanel.getLoader().load(rolesRootTreeNode);
+              }
+              else {
+                Ext.Msg.alert("Error:", response.errors);
+              }
+              rolesFileTreePanel.el.unmask();
+            },
+            failure: function(response, options){
+              #{self.connection_error_message}
+              rolesFileTreePanel.el.unmask();
+            }
+          });
+        }
+      });
+    }
+  });
+  
+  var addAction = new Ext.Action({
+    disabled: true,
+    text: "Add",
+    iconCls: "display_none",
+    handler: function(){
+      var params = {};
+      params["role[parent_id]"] = clickedId;
+      Ext.Msg.prompt("Role Label", "Please enter the role label:", function(btn, text){
+        if (btn == "ok") {
+          params["role[name]"] = text;
+          rolesFileTreePanel.el.mask("Adding a new role...");
+          Ext.Ajax.request({
+            url: #{roles_path.to_json},
+            method: "POST",
+            params: params,
+            callback: function(options, success, response){
+              var response = Ext.util.JSON.decode(response.responseText);
+              if (response.success){
+                rolesFileTreePanel.getLoader().load(rolesRootTreeNode);
+              }
+              else {
+                Ext.Msg.alert("Error:", response.errors);
+              }
+              rolesFileTreePanel.el.unmask();
+            },
+            failure: function(response, options){
+              #{self.connection_error_message}
+              rolesFileTreePanel.el.unmask();
+            }
+          });
+        }
+      });
+    }
+  });
+
+  var deleteAction =  new Ext.Action({
+    disabled: true,
+    text: "Delete",
+    iconCls: "display_none",
+    handler: function(){
+      Ext.Msg.confirm("Deleting roles", "Completely removed checked role(s)?", function(buttonText){
+        if (buttonText.match(new RegExp("yes","i"))) {
+          rolesFileTreePanel.el.mask("Processing delete...");
+          Ext.Ajax.request({
+            url: #{destroy_collection_roles_path.to_json},
+            method: "DELETE",
+            params: { ids: selectedIds.join(",") },
+            callback: function(options, success, response){
+              selectedIds.clear();
+            },
+            success: function(response, options) {
+              response = Ext.util.JSON.decode(response.responseText);
+              xl.updateStatusBar(response.flash);
+              rolesFileTreePanel.getLoader().load(rolesRootTreeNode);
+              rolesFileTreePanel.el.unmask();
+            },
+            failure: function(response, options){
+              #{self.connection_error_message}
+              rolesFileTreePanel.el.unmask();            
+            }
+          });
+        }
+      });
+    }
+  });
+
+  var rolesRootTreeNode =  new Ext.tree.AsyncTreeNode({
+    text: "Role - Root",
+    expanded: true,
+    id: 0
+  });
+
+  var editRolePath = #{edit_role_path(:id => "__ID__").to_json};
+
+  var rolesFileTreePanel = new Ext.tree.TreePanel({
+    root: rolesRootTreeNode,
+    rootVisible: false,
+    disableCheckWhenDblClick: true,
+    disableAnimatingWhenDblClick: true,
+    height: (#{get_default_grid_height(nil)}-30),
+    loader: new Ext.tree.TreeLoader({
+      requestMethod: "GET",
+      url: #{formatted_roles_path(:format => :json).to_json},
+      baseAttrs: {uiProvider: Ext.tree.TreeCheckNodeUI}
+    }),
+    tbar: [addToRootAction, addAction, deleteAction],
+    listeners: {
+        check: function(node, checked){
+          if (checked){
+            selectedIds.push(node.id);
+          }
+          else{
+            selectedIds.splice(selectedIds.indexOf(node.id));
+          }
+          if(selectedIds.size()>0){
+            deleteAction.enable();
+          }
+          else{
+            deleteAction.disable();
+          }
+        },
+        click: function(node, event){
+          clickedId = node.id;
+          addAction.enable();
+        },
+        dblclick: function(node, event){
+          xl.openNewTabPanel('roles_edit_' + 'node.id', editRolePath.sub("__ID__", node.id));
+        }
+      }
+  });
+
+  newPanel.add(rolesFileTreePanel);
+`
+end

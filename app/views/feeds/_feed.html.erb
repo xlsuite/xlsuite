@@ -1,0 +1,13 @@
+<tr>
+  <td>
+    <% when_user_can?(:edit_feeds) do %>
+      <%= link_to(icon_tag("arrow_refresh_small.png"), refresh_feed_path(feed)) %>
+      <%= link_to(icon_tag("delete.png"), feed_path(feed), :method => :delete, :confirm => "Delete the feed permanently?") %>
+    <% end %> 
+  </td>
+  <% title = feed.description.blank? ? "" : feed.description %>
+  <td><%= link_to(h(feed.label.blank? ? "N/A" : feed.label), edit_feed_url(feed), :title => "Description: " + title) %></td>
+  <td><%= link_to(h(feed.url), feed.url, :target => "_blank") %></td>
+  <td><%= feed.tags.join(", ") %></td>
+  <td><%= check_box_tag "party[feed_ids][]", feed.id, current_user.feeds.include?(feed)%></td>
+</tr>

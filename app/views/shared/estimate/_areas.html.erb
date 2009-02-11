@@ -1,0 +1,108 @@
+<table border="0" cellspacing="4" cellpadding="0" width="95%" align="center">
+  <col /><col width="330"/>
+  <tbody>
+<% unless @estimate.picture.blank? -%>
+    <tr>
+      <td colspan="2">
+        <h2>The picture you gave us</h2>
+        <%= image_tag(picture_url(:id => @estimate.picture),
+                :class => 'standalone framed',
+                :size => @estimate.picture.geometry,
+                :alt => 'The picture you uploaded') %>
+      </td>
+    </tr>
+<% end -%>
+    <tr>
+      <td colspan="2">
+        <h2>Select areas to light</h2>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <%= check_box 'estimate', 'roof_lines', :onclick => "toggleEstimatePicture('house', ['roof_lines','roof_top','eaves'])" %> <label for="estimate_roof_lines">Lighting the roof line</label><br/>
+        <%= check_box 'estimate', 'roof_top', :onclick => "toggleEstimatePicture('house', ['roof_lines','roof_top','eaves'])" %> <label for="estimate_roof_top">Lighting the <q>up lines</q>, or top of the roof</label><br/>
+        <%= check_box 'estimate', 'eaves', :onclick => "toggleEstimatePicture('house', ['roof_lines','roof_top','eaves'])" %> <label for="estimate_eaves">Lighting under the eaves (ropelight / icicles)</label><br/>
+      </td>
+      <td>
+        <%= image_tag 'house.jpg', :size => '320x240', :alt => 'Hotel picture', :class => 'framed', :id => 'house_roof_lines_roof_top_eaves' %>
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        <%= check_box 'estimate', 'windows', :onclick => "toggleEstimatePicture('house2', ['windows', 'garage_doors', 'fences_and_gates'])" %> <label for="estimate_windows">Outlining Windows</label><br/>
+        <%= check_box 'estimate', 'garage_doors', :onclick => "toggleEstimatePicture('house2', ['windows', 'garage_doors', 'fences_and_gates'])" %> <label for="estimate_garage_doors">Outlining Garage Doors</label><br/>
+        <%= check_box 'estimate', 'fences_and_gates', :onclick => "toggleEstimatePicture('house2', ['windows', 'garage_doors', 'fences_and_gates'])" %> <label for="estimate_fences_and_gates">Lighting Fence Lines or Gates</label><br/>
+      </td>
+      <td>
+        <%= image_tag 'house2.jpg', :size => '320x240', :alt => 'Hotel picture', :class => 'framed', :id => 'house2_windows_garage_doors_fences_and_gates' %>
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        <%= check_box 'estimate', 'bushes', :onclick => "toggleEstimatePicture('house3', ['bushes', 'trees', 'paths'])" %> <label for="estimate_bushes">Lighting Bushes</label><br/>
+        <%= check_box 'estimate', 'trees', :onclick => "toggleEstimatePicture('house3', ['bushes', 'trees', 'paths'])" %> <label for="estimate_trees">Lighting Trees</label><br/>
+        <%= check_box 'estimate', 'paths', :onclick => "toggleEstimatePicture('house3', ['bushes', 'trees', 'paths'])" %> <label for="estimate_paths">Lighting Path or Driveway</label><br/>
+      </td>
+      <td>
+        <%= image_tag 'house3.jpg', :size => '320x240', :alt => 'Hotel picture', :class => 'framed', :id => 'house3_bushes_trees_paths' %>
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        <%= check_box 'estimate', 'garlands', :onclick => "toggleEstimatePicture('house_side', ['garlands','wreaths'])" %> <label for="estimate_garlands">Lit garlands around doors / fences / columns</label><br/>
+        <%= check_box 'estimate', 'wreaths', :onclick => "toggleEstimatePicture('house_side', ['garlands','wreaths'])" %> <label for="estimate_wreaths">Wreaths on doors / fences / building</label><br/>
+      </td>
+      <td>
+        <%= image_tag 'house_side.jpg', :size => '320x240', :alt => 'Hotel picture', :class => 'framed', :id => 'house_side_garlands_wreaths' %>
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        <%= check_box 'estimate', 'inflatables', :onclick => "toggleEstimatePicture('house5', ['inflatables', 'ropelight_sculptures'])" %> <label for="estimate_inflatables">Inflatable for yard / top of building</label><br/>
+        <%= check_box 'estimate', 'ropelight_sculptures', :onclick => "toggleEstimatePicture('house5', ['inflatables', 'ropelight_sculptures'])" %> <label for="estimate_ropelight_sculptures">Rope light sculpture (snowman, santa sled, star)</label><br/>
+      </td>
+      <td>
+        <%= image_tag 'house5.jpg', :size => '320x240', :alt => 'Hotel picture', :class => 'framed', :id => 'house5_inflatables_ropelight_sculptures' %>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <%= check_box 'estimate', 'animate', :onclick => "toggleEstimatePicture('house6', ['animate'])" %> <label for="estimate_animate">Animate my display and/or setting to music</label><br/>
+      </td>
+      <td>
+        <%= image_tag 'house6.gif', :size => '320x240', :alt => 'Hotel picture', :class => 'framed', :id => 'house6_animate' %>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <h2>Default preferences for lights</h2>
+        <p>Select the default style and color of lights you want to use.  This
+          can be edited later for each section, but let's get started with an
+          estimate for you.</p>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <%= label 'What style of lights were you thinking of using ?', 'estimate', 'default_light_style' %><br/>
+        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+          <col/><col width="8"/><col/><col width="8"/><col/><col width="8"/><col/>
+          <tbody>
+<% require 'enumerator'; @style_choices.each_slice(4) do |slice| -%>
+            <tr valign="top">
+              <%= render :partial => 'shared/estimate/style', :collection => slice, :spacer_template => 'shared/estimate/style_spacer' %>
+            </tr>
+<% end -%>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td><%= label 'What color of lights were you thinking of using ?', 'estimate', 'default_light_color' %></td>
+      <td><%= select('estimate', 'default_light_color', @color_choices) %></td>
+    </tr>
+  </tbody>
+</table>

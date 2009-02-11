@@ -1,0 +1,19 @@
+/* XLsuite  CSS > transparency
+
+created: 2007-06-22 | by: imaxim@gmail.com 
+updated: 2007-06-22 | by: imaxim@gmail.com 
+purpose: transparency classes
+details: will end up in the type.css file
+
+*/
+
+.bt {background: transparent;}
+
+.t10  { filter:alpha( opacity=10 );-moz-opacity:.10;opacity:.10; }
+.t25  { filter:alpha( opacity=25 );-moz-opacity:.25;opacity:.25; }
+.t50  { filter:alpha( opacity=50 );-moz-opacity:.50;opacity:.50; }
+.t75  { filter:alpha( opacity=75 );-moz-opacity:.75;opacity:.75; }
+.t100 { filter:alpha( opacity=100);-moz-opacity:1.00;opacity:1.00; }
+
+.hide { display: none;;  }
+.view { display: block; }

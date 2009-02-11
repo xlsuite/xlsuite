@@ -1,0 +1,29 @@
+#!/bin/sh
+# Do NOT "set -e"
+
+ACTION=$1
+
+RAILS_ENV=production
+RAILS_ROOT=`dirname $0`/..
+PIDFILE=$RAILS_ROOT/log/rails_cron.pid
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+
+cd $RAILS_ROOT
+
+# Many daemons don't delete their pidfiles when they exit.
+case "$ACTION" in
+  start)
+    rake RAILS_ENV=$RAILS_ENV cron_start
+  ;;
+
+  stop)
+    rake RAILS_ENV=$RAILS_ENV cron_stop
+    rm -f $PIDFILE
+  ;;
+
+  restart)
+    $0 stop $USER
+    $0 start $USER
+  ;;
+esac

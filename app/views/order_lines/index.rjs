@@ -1,0 +1,39 @@
+page << 
+%Q`
+  var kDefaultSupplier = {id: 0};
+  
+  var orderLinesRecordAndStore = xl.widget.SimpleJSONStore({
+    url: '#{order_lines_path(@order)}',
+    doLoad: true,
+    doSmartMappings: true,
+    fields: [
+      // supplier_id is called supplier_id instead of just supplier to
+      // fool ProvidersController#update, which does receive an id and
+      // sets supplier_id. Otherwise, supplier_id is an array
+      'id'
+    ]
+  });
+  
+  var orderLinesActionsMenu = new Ext.menu.Menu({});
+  var orderLinesGridPanel = new Ext.grid.EditorGridPanel({
+    store: orderLinesRecordAndStore.store,
+    cm: new Ext.grid.ColumnModel([
+      { 
+        header: "ID",
+        dataIndex: "id", 
+        sortable: true, 
+        editor: new Ext.form.TextField({allowBlank: false}),
+        renderer: function(value, cell, record) { return value.name; }
+      }
+    ]),
+    
+    tbar: [
+      'Order Lines'
+    ],
+    
+    autoScroll: true,
+    autoWidth: true
+  });
+  
+ 
+`

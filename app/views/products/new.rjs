@@ -1,0 +1,31 @@
+page << create_tab_using_ajax_response("Product | New") do
+%Q`
+  var wrapperPanel = new Ext.Panel({
+    layout: 'border',
+    cls: 'IAmAPanelWithBorderLayoutContainer',
+    region: 'center'
+  });
+  
+  var upperPanel = new Ext.Panel({
+    region: 'center',
+    html: #{render(:partial => "new").to_json},
+    autoScroll: true
+  });
+  wrapperPanel.add(upperPanel);
+  
+  newPanel.add(wrapperPanel);
+`
+end
+
+page << %Q`
+  /*Event.observe(#{typed_dom_id(@product, :wholesale_price, :field).to_json}, 'change', function() {
+    calculateMarginPercentage(#{typed_dom_id(@product, :retail_price, :field).to_json}, #{typed_dom_id(@product, :wholesale_price, :field).to_json}, #{typed_dom_id(@product, :margin).to_json});
+  });
+
+  Event.observe(#{typed_dom_id(@product, :retail_price, :field).to_json}, 'change', function() {
+    calculateMarginPercentage(#{typed_dom_id(@product, :retail_price, :field).to_json}, #{typed_dom_id(@product, :wholesale_price, :field).to_json}, #{typed_dom_id(@product, :margin).to_json});
+  });
+  */
+  #{ render_tags_panel("product[tag_list]", @product, current_account.products.tags, {:width => 300}, {:collapsible => false, :title => "Tags"}, true)}
+  tagsPanel.render("product_tags");
+`

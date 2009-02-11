@@ -1,0 +1,14 @@
+<h1>Edit folder</h1>
+
+<%= error_messages_for :folder %>
+
+<% form_tag folder_path(@folder), :method => :put do %>
+  <%= select_tag("parent_id", options_for_select(folder_selections, @parent.id.to_s)) %>
+  <p>
+    <label for="product_title">Name</label><br/>
+    <%= text_field :folder, :name %>
+  </p>
+  <%= submit_tag "Edit" %>
+<% end %>
+
+<%= link_to 'Back', :action => 'index' %>

@@ -1,0 +1,5 @@
+page << update_notices_using_ajax_response(:on_root => true)
+if @destroyed_items_size > 0
+  page << refresh_grid_datastore_of("email_Label")
+  page << "parent.myEmailLabelsRefresh();"
+end
