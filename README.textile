@@ -1,4 +1,4 @@
-Introduction:
+h1. Introduction
 
 Thank you for downloading the XLsuite code base.
 
@@ -26,7 +26,7 @@ marketing and client management including many social media functions,
 e-commerce and communications modules.
 
 
-Dual Licenses:
+h1. Dual Licenses
 
 The application is licensed under a dual license, both a GPL v.2 open source 
 license as well as having a commercial license available for those interested 
@@ -71,7 +71,7 @@ Information about our partner program can be found at
 http://xlsuite.com/partners
 
 
-The Company:
+h1. The Company
 
 XLsuite is a product of iXLd Media Inc, a Vancouver based company whose main 
 focus is developing XLsuite and implementing it in various vertical markets. 
@@ -84,7 +84,7 @@ communication and hard work.  We don't like negative people and we're selective
 about the projects we take on and the people we work with.
 
 
-Core Team:
+h1. Core Team
 
 The core application was first developed by Francois Beausoleil of Teksol.info
 The other core team members include Harman Sandjaja and Spencer Shek 
