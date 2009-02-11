@@ -42,7 +42,6 @@
 				if(innerdiv.length!=1){						
 					innerdiv=$("<div class='progress'></div>");					
 					div.append("<div class='text'>&nbsp;</div>");
-          console.log(div);
 					$("<span class='text'>&nbsp;</span>").css("width","580px").appendTo(innerdiv);					
 					div.append(innerdiv);					
 				}
