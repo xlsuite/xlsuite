@@ -341,6 +341,14 @@ class Comment < ActiveRecord::Base
     defensio.mark_as_spam(self)
   end
   
+  def author
+    self.created_by
+  end
+  
+  def author_profile
+    self.created_by.profile
+  end
+  
   protected
   def defensio
     @defensio ||= Mephisto::SpamDetectionEngines::DefensioEngine::new
