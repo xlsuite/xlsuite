@@ -329,7 +329,11 @@ class CommentsController < ApplicationController
         unless @created
           flash_failure @comment.errors.full_messages
         else
-          flash_success params[:success_message] ? params[:success_message] : "Comment created"
+          if @comment.reload.approved_at
+            flash_success "Comment created"
+          else
+            flash_success params[:success_message] ? params[:success_message] : "Comment created"
+          end
         end
         redirect_to_return_to_or_back
       end
