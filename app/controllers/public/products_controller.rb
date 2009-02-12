@@ -286,24 +286,38 @@ class Public::ProductsController < ApplicationController
   
   def create
     begin
-      @product = self.current_account.products.build(params[:product])
-      @product.creator = self.current_user
-      p_owner = nil
-      if params[:owner_profile_id]
-        p_owner = self.current_account.profiles.find(params[:owner_profile_id]).party
-      else
-        p_owner = self.current_user
-      end
-      @product.owner = p_owner
-      @product.current_domain = current_domain
-      @product.save!
-      respond_to do |format|
-        format.html do
-          flash_success params[:success_message] || "Product #{@product.name} successfully created"
-          return redirect_to_next_or_back_or_home
+      ActiveRecord::Base.transaction do
+        @product = self.current_account.products.build(params[:product])
+        @product.creator = self.current_user
+        p_owner = nil
+        if params[:owner_profile_id]
+          p_owner = self.current_account.profiles.find(params[:owner_profile_id]).party
+        else
+          p_owner = self.current_user
         end
-        format.js do
-          render :json => {:success => true}
+        @product.owner = p_owner
+        @product.current_domain = current_domain
+        @product.save!
+        
+        unless params[:product][:main_image].blank? || params[:product][:main_image].size == 0 then
+          product_main_image_id = @product.main_image_id
+          Asset.find(product_main_image_id) if product_main_image_id
+          main_image = self.current_account.assets.build(:uploaded_data => params[:product].delete(:main_image), :account => @product.account)
+          main_image.crop_resized("70x108")
+          main_image.save!
+          @product.main_image = main_image.id
+        else
+          params[:product].delete("main_image")
+        end
+              
+        respond_to do |format|
+          format.html do
+            flash_success params[:success_message] || "Product #{@product.name} successfully created"
+            return redirect_to_next_or_back_or_home
+          end
+          format.js do
+            render :json => {:success => true}
+          end
         end
       end
     rescue
