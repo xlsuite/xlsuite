@@ -381,7 +381,7 @@ module XlSuite
           html.push %Q(</ul>)
         end
         if !(@options[:display]  =~ /dash/i)
-          html.map!{|fragment| sanitize(fragment)}
+          html.map!{|fragment| sanitize(fragment).gsub("&amp;", "&").gsub("&lt;", "<").gsub("&gt;", ">")}
         end
         html
       rescue REXML::ParseException
