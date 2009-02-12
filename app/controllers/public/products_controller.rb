@@ -287,7 +287,14 @@ class Public::ProductsController < ApplicationController
   def create
     begin
       @product = self.current_account.products.build(params[:product])
-      @product.creator = @product.owner = self.current_user
+      @product.creator = self.current_user
+      p_owner = nil
+      if params[:owner_profile_id]
+        p_owner = self.current_account.profiles.find(params[:owner_profile_id]).party
+      else
+        p_owner = self.current_user
+      end
+      @product.owner = p_owner
       @product.current_domain = current_domain
       @product.save!
       respond_to do |format|
