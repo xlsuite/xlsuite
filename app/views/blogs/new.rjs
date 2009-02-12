@@ -67,7 +67,7 @@ page << create_tab_using_ajax_response("New Blog") do
     forceSelection: true,
     editable: false,
     store: approvalMethodSelectionStore,
-    value: #{(@blog.comment_approval_method || "Moderated").to_json}  
+    value: #{current_domain.get_config("default_comment_approval_method").to_json}  
   });
 
   var formPanel = new Ext.form.FormPanel({

@@ -291,6 +291,7 @@ class Public::ListingsController < ApplicationController
       Listing.transaction do
         @listing = current_account.listings.build
         @listing.attributes = params[:listing]
+        @listing.current_domain = current_domain
         @listing.creator = @profile ? @profile.party : current_user
         @address = @listing.build_address(params[:address])
         @listing.account = @address.account = current_account

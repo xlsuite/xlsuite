@@ -320,6 +320,7 @@ class BlogPostsController < ApplicationController
     end
     @blog = current_account.blogs.find(params[:blog_id])
     @blog_post.blog = @blog
+    @blog_post.current_domain = current_domain
     @blog_post.author = current_user
     @blog_post.hide_comments = params[:blog_post][:hide_comments] ? true : false
     @created = @blog_post.save

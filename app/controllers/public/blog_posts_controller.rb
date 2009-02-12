@@ -295,6 +295,7 @@ class Public::BlogPostsController < ApplicationController
       end
       @blog = current_account.blogs.find(params[:blog_id])
       @blog_post.blog = @blog
+      @blog_post.current_domain = current_domain
       @blog_post.author = @party
       @blog_post.hide_comments = params[:blog_post][:hide_comments] ? true : false
       @blog_post.save!

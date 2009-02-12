@@ -290,6 +290,7 @@ class Public::BlogsController < ApplicationController
       @blog = current_account.blogs.build(params[:blog])
       @blog.created_by = @blog.owner = @party
       @blog.author_name = @party.display_name
+      @blog.current_domain = current_domain
       @blog.save!
       respond_to do |format|
         format.html do

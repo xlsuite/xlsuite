@@ -288,6 +288,7 @@ class Public::ProductsController < ApplicationController
     begin
       @product = self.current_account.products.build(params[:product])
       @product.creator = @product.owner = self.current_user
+      @product.current_domain = current_domain
       @product.save!
       respond_to do |format|
         format.html do

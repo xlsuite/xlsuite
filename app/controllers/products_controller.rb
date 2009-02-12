@@ -311,6 +311,7 @@ class ProductsController < ApplicationController
   def create
     @product = current_account.products.build(params[:product])
     @product.creator_id = self.current_user.id
+    @product.current_domain = current_domain
     @created = @product.save
     if @created && params[:files].kind_of?(Hash)
       params[:files].each_pair do |key, value|

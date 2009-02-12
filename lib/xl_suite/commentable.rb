@@ -281,6 +281,10 @@
 module XlSuite
   module Commentable
     def self.included(base)
+      base.send("attr_accessor", :current_domain)
+      base.before_validation_on_create :set_comment_approval_method
+      base.validates_format_of :comment_approval_method, :with => /(moderated)|(always\sapproved)|(no comments)/i
+      
       base.has_many :comments, :as => :commentable, :order => "created_at DESC"
     end
     
@@ -332,5 +336,14 @@ module XlSuite
       end
       count
     end
+    
+    def set_comment_approval_method
+      if self.comment_approval_method.blank?
+        self.comment_approval_method = self.current_domain.blank? ? self.account.get_config(:default_comment_approval_method) : 
+                                                                    self.current_domain.get_config(:default_comment_approval_method) 
+      end
+      true
+    end
+    protected :set_comment_approval_method
   end
 end
