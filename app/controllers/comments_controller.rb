@@ -575,8 +575,8 @@ class CommentsController < ApplicationController
   
   def authorized?
     return true if current_user.can?(:edit_comments)
-    if %w(new create).index(self.action_name)
-      return true
+    if %w(new create).include?(self.action_name)
+      return self.current_user?
     end
     false
   end   
