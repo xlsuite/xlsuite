@@ -306,6 +306,7 @@ class ProfilesController < ApplicationController
     params[:profile].delete(:group_ids)
     ActiveRecord::Base.transaction do
       @profile = current_account.profiles.build(params[:profile])
+      @profile.current_domain = current_domain
       @profile.save!
       if party_params[:group_labels]
         groups = current_account.groups.find(:all, :select => "groups.id", :conditions => {:label => party_params.delete(:group_labels).split(",").map(&:strip).reject(&:blank?)})
@@ -356,6 +357,7 @@ class ProfilesController < ApplicationController
     if params[:copy_info]
       @profile = @party.to_new_profile
     end
+    @profile.current_domain = current_domain
     @profile.save!
     @party.profile = @profile
     @party.save!

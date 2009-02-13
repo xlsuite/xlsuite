@@ -343,6 +343,7 @@ class ListingsController < ApplicationController
     Listing.transaction do
       @listing = current_account.listings.build
       @listing.attributes = params[:listing]
+      @listing.current_domain = current_domain
       @address = @listing.build_address(params[:address])
       @listing.account = @address.account = current_account
       if @listing.save! and @address.save!
@@ -730,9 +731,9 @@ class ListingsController < ApplicationController
   
   def custom_required_permissions
     has_required_permissions = if %w(async_destroy_collection new old create edit update destroy destroy_collection import auto_complete_tag remove_duplicate_views
-                          async_mark_as_sold auto_complete_party_field async_tag_collection auto_complete_remove_party_field remove_listings_from_parties).include?(params[:action].to_s)
+                          async_mark_as_sold async_tag_collection auto_complete_remove_party_field remove_listings_from_parties).include?(params[:action].to_s)
       (current_user? && current_user.can?(:edit_listings))
-    elsif %w(index add_listings_to_parties).include?(params[:action].to_s)
+    elsif %w(index add_listings_to_parties auto_complete_party_field).include?(params[:action].to_s)
       current_user?
     else %w(show).include?(params[:action].to_s) 
       true

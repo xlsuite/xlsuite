@@ -352,7 +352,7 @@ class AccountsController < ApplicationController
         
         @acct.owner = @owner
         @acct.save!
-        @acct.grant_all_permissions_to_owner
+        MethodCallbackFuture.create!(:model => @acct, :method => :grant_all_permissions_to_owner, :system => true, :priority => 10)
 
         # We reload the account to refresh the party and contact routes
         # Or else, the email contact route won't be found in account's #send_confirmation_email
@@ -365,13 +365,14 @@ class AccountsController < ApplicationController
         @acct.confirmation_url = lambda {|confirmation_token| confirm_accounts_url(confirmation_options.merge(:code => confirmation_token)).gsub(self.current_domain.name, @domain.name)}
         @acct.save!
       end
-    rescue
+    rescue 
       @acct.destroy if @acct.id
       # NOP, let the view handle the details
-      logger.debug($!.record) if $!.respond_to?(:record)
-      logger.debug($!)
-      logger.debug($!.backtrace.join("\n"))
+      logger.warn($!.record) if $!.respond_to?(:record)
+      logger.warn($!)
+      logger.warn($!.backtrace.join("\n"))
       flash_failure :now, $!.message
+      @_parent_domain = self.get_request_parent_domain
       render :action => :new, :layout => "plain-html"
     end
   end

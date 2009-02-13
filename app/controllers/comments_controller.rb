@@ -329,7 +329,11 @@ class CommentsController < ApplicationController
         unless @created
           flash_failure @comment.errors.full_messages
         else
-          flash_success params[:success_message] ? params[:success_message] : "Comment created"
+          if @comment.reload.approved_at
+            flash_success "Comment created"
+          else
+            flash_success params[:success_message] ? params[:success_message] : "Comment created"
+          end
         end
         redirect_to_return_to_or_back
       end
@@ -571,8 +575,8 @@ class CommentsController < ApplicationController
   
   def authorized?
     return true if current_user.can?(:edit_comments)
-    if %w(new create).index(self.action_name)
-      return true
+    if %w(new create).include?(self.action_name)
+      return self.current_user?
     end
     false
   end   

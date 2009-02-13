@@ -281,7 +281,7 @@
 class CommentDrop < Liquid::Drop
   attr_reader :comment
   delegate :rating, :body, :name, :url, :email, :user_agent, :referrer_url, 
-      :approved_at, :created_at, :updated_at, :to => :comment
+      :approved_at, :created_at, :updated_at, :author, :author_profile, :to => :comment
 
   def initialize(comment)
     @comment = comment

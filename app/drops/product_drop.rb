@@ -280,10 +280,11 @@
 # 		     END OF TERMS AND CONDITIONS
 class ProductDrop < Liquid::Drop
   attr_reader :product
-  delegate :id, :name, :product_no, :categories, :tags, :creator,
+  delegate :id, :name, :product_no, :categories, :tags, :creator, :editor, :owner,
       :sku, :dom_id, :pictures, :free_period, :created_at, :updated_at, :polygons,
       :pay_period_unit, :pay_period_length, :free_period_unit, :free_period_length, 
-      :approved_comments_count, :unapproved_comments_count, :description, :to => :product
+      :approved_comments_count, :unapproved_comments_count, :description, 
+      :creator_id, :editor_id, :owner_id, :to => :product
 
   def initialize(product)
     @product = product
