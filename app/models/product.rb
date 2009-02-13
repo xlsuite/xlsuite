@@ -442,7 +442,12 @@ class Product < ActiveRecord::Base
   end
   
   def set_main_image(image_id)
-    image_id_clone = image_id.clone.to_i
+    image_id_clone = nil
+    if !image_id.kind_of?(Fixnum)
+      image_id_clone = image_id.clone.to_i
+    else
+      image_id_clone = image_id.to_i
+    end
     image = self.account.assets.find(image_id_clone)
     product_view = self.views.find(:first, :conditions => ["views.asset_id = ?", image_id_clone])
     if product_view
