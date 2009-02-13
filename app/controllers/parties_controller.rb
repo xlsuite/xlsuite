@@ -858,9 +858,9 @@ class PartiesController < ApplicationController
     redirect_path = params[:signed_up]
     redirect_path.blank? ? (redirect_to_specified_or_default forum_categories_url) : (return redirect_to(params[:gids].blank? ? redirect_path+"?new=#{new}" : redirect_path + "?gids=#{params[:gids]}&new=#{new}"))
 
-    rescue ActiveRecord::RecordInvalid
-      @code = params[:code]
-      render(:action => "confirm")
+    # rescue ActiveRecord::RecordInvalid
+    #  @code = params[:code]
+    #  render(:action => "confirm")
 
     rescue XlSuite::AuthenticatedUser::ConfirmationTokenExpired
       flash_failure :now, "Confirmation token has expired.  Please register again."
