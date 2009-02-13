@@ -287,6 +287,8 @@ class Public::ProductsController < ApplicationController
   def create
     begin
       ActiveRecord::Base.transaction do
+        main_image_params = params[:product].delete("main_image")
+        
         @product = self.current_account.products.build(params[:product])
         @product.creator = self.current_user
         p_owner = nil
@@ -299,15 +301,13 @@ class Public::ProductsController < ApplicationController
         @product.current_domain = current_domain
         @product.save!
         
-        unless params[:product][:main_image].blank? || params[:product][:main_image].size == 0 then
+        unless main_image_params.blank? || main_image_params.size == 0 then
           product_main_image_id = @product.main_image_id
           Asset.find(product_main_image_id) if product_main_image_id
-          main_image = self.current_account.assets.build(:uploaded_data => params[:product].delete(:main_image), :account => @product.account)
+          main_image = self.current_account.assets.build(:uploaded_data => main_image_params, :account => @product.account)
           main_image.crop_resized("70x108")
           main_image.save!
           @product.main_image = main_image.id
-        else
-          params[:product].delete("main_image")
         end
               
         respond_to do |format|
