@@ -299,14 +299,14 @@ class Public::BlogPostsController < ApplicationController
       @blog_post.author = @party
       @blog_post.hide_comments = params[:blog_post][:hide_comments] ? true : false
       @blog_post.save!
+      flash_success params[:success_message] || "Blog post for #{@blog.label} blog successfully created"    
       respond_to do |format|
         format.html do
-          flash_success params[:success_message] || "Blog post for #{@blog.label} blog successfully created"    
           params[:next]=params[:next].gsub(/__id__/i, @blog_post.id.to_s).gsub(/__blog_id__/i, @blog_post.blog.id.to_s) if params[:next]
           return redirect_to_next_or_back_or_home
         end
         format.js do
-          render :json => {:success => true}
+          render :json => {:success => true, :message => flash[:notice].to_s}
         end
       end
     rescue
