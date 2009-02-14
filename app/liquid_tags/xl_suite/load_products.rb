@@ -282,6 +282,8 @@ module XlSuite
   class LoadProducts < Liquid::Tag
     PageNumSyntax = /page_num:\s*(#{Liquid::QuotedFragment})/
     PerPageSyntax = /per_page:\s*(#{Liquid::QuotedFragment})/
+    PublicSyntax = /public:\s*(#{Liquid::QuotedFragment})/
+    PrivateSyntax = /private:\s*(#{Liquid::QuotedFragment})/
     SearchSyntax = /search:\s*(#{Liquid::QuotedFragment})/
     CategorySyntax = /category:\s*(#{Liquid::QuotedFragment})/
     CategoriesSyntax = /categories:\s*(#{Liquid::QuotedFragment})/
@@ -309,6 +311,8 @@ module XlSuite
       @options[:tagged_all] = $1 if markup =~ TaggedAllSyntax
       @options[:tagged_any] = $1 if markup =~ TaggedAnySyntax
       @options[:order] = $1 if markup =~ OrderSyntax
+      @options[:private] = $1 if markup =~ PrivateSyntax
+      @options[:public] = $1 if markup =~ PublicSyntax
       @options[:in] = $1 if markup =~ InSyntax
       @options[:pages_count] = $1 if markup =~ PagesCountSyntax
       @options[:total_count] = $1 if markup =~ TotalCountSyntax
@@ -357,6 +361,12 @@ module XlSuite
         
         if @options[:owner_id]
           conditions << "products.owner_id=#{context_options[:owner_id].to_i}"
+        end
+        
+        if @options[:private]
+          conditions << "products.private = 1"
+        elsif @options[:public]
+          conditions << "products.private = 0"
         end
         
         if @options[:categories]
