@@ -510,7 +510,7 @@ class Profile < ActiveRecord::Base
   end
   
   def generate_alias
-    t_alias = self.company_name.dup
+    t_alias = self.company_name.to_s.dup
     t_alias = self.name.to_s.dup if t_alias.blank?
     return if t_alias.blank?
     t_alias.gsub!(/[^(\d\w\s)]/, "")
@@ -542,7 +542,7 @@ class Profile < ActiveRecord::Base
   end
   
   def generate_custom_url
-    t_alias = self.company_name.dup
+    t_alias = self.company_name.to_s.dup
     t_alias = self.name.to_s.dup if t_alias.blank?
     return if t_alias.blank?
     t_alias.gsub!(/[^(\d\w\s)]/, "")
