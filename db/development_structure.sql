@@ -1726,6 +1726,7 @@ CREATE TABLE `products` (
   `deactivate_commenting_on` date default NULL,
   `comment_approval_method` varchar(255) default NULL,
   `owner_id` int(11) default NULL,
+  `private` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
   KEY `by_account_sku` (`account_id`,`sku`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -2396,3 +2397,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090210032328');
 INSERT INTO schema_migrations (version) VALUES ('20090210225259');
 
 INSERT INTO schema_migrations (version) VALUES ('20090214021609');
+
+INSERT INTO schema_migrations (version) VALUES ('20090214023103');
