@@ -224,7 +224,7 @@ CREATE TABLE `blogs` (
   `created_at` datetime default NULL,
   `updated_at` datetime default NULL,
   `account_id` int(11) default NULL,
-  `comment_approval_method` varchar(255) default 'Moderated',
+  `comment_approval_method` varchar(255) default NULL,
   `created_by_id` int(11) default NULL,
   `updated_by_id` int(11) default NULL,
   `owner_id` int(11) default NULL,
@@ -1349,7 +1349,7 @@ CREATE TABLE `listings` (
   `latitude` float default NULL,
   `longitude` float default NULL,
   `creator_id` int(11) default NULL,
-  `comment_approval_method` varchar(255) default 'Moderated',
+  `comment_approval_method` varchar(255) default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_ext_id` (`account_id`,`external_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1524,7 +1524,7 @@ CREATE TABLE `parties` (
 CREATE TABLE `parties_product_categories` (
   `party_id` int(11) default NULL,
   `product_category_id` int(11) default NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `payables` (
   `id` int(11) NOT NULL auto_increment,
@@ -1724,7 +1724,7 @@ CREATE TABLE `products` (
   `average_rating` decimal(5,3) NOT NULL default '0.000',
   `hide_comments` tinyint(1) default '0',
   `deactivate_commenting_on` date default NULL,
-  `comment_approval_method` varchar(255) default 'Moderated',
+  `comment_approval_method` varchar(255) default NULL,
   `owner_id` int(11) default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_account_sku` (`account_id`,`sku`)
@@ -1747,7 +1747,7 @@ CREATE TABLE `profile_requests` (
   `profile_id` int(11) default NULL,
   `created_by_id` int(11) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `profiles` (
   `id` int(11) NOT NULL auto_increment,
@@ -1771,9 +1771,10 @@ CREATE TABLE `profiles` (
   `average_rating` decimal(5,3) NOT NULL default '0.000',
   `hide_comments` tinyint(1) default '0',
   `deactivate_commenting_on` date default NULL,
-  `comment_approval_method` varchar(255) default 'Moderated',
+  `comment_approval_method` varchar(255) default NULL,
   `claimable` tinyint(1) default '0',
   `owner_id` int(11) default NULL,
+  `custom_url` varchar(255) default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -2386,4 +2387,12 @@ INSERT INTO schema_migrations (version) VALUES ('20090206233240');
 
 INSERT INTO schema_migrations (version) VALUES ('20090207030015');
 
+INSERT INTO schema_migrations (version) VALUES ('20090210011853');
+
 INSERT INTO schema_migrations (version) VALUES ('20090210020042');
+
+INSERT INTO schema_migrations (version) VALUES ('20090210032328');
+
+INSERT INTO schema_migrations (version) VALUES ('20090210225259');
+
+INSERT INTO schema_migrations (version) VALUES ('20090214021609');
