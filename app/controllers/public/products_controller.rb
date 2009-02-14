@@ -281,7 +281,7 @@
 class Public::ProductsController < ApplicationController
   # check authorized?
   required_permissions :none
-  before_filter :filter_parameters, :only => [:update]
+  before_filter :blacklist_parameters, :only => [:update]
   before_filter :load_product_categories, :only => [:add_to_categories, :remove_from_categories]
   
   def create
@@ -439,7 +439,7 @@ class Public::ProductsController < ApplicationController
     @all_categories_permitted = @category_ids_param.size == @product_categories_count
   end
   
-  def filter_parameters
+  def blacklist_parameters
     if params[:product]
       params[:product].delete(:category_ids)
     end
