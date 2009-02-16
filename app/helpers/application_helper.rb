@@ -285,7 +285,7 @@ module ApplicationHelper
   include JavascriptEscaper
   include ExtjsHelper
   
-  DOMAIN_PATTERNS_WIKI_URL = "http://ixld.com/blogs/training/2009/2/14/multi-domain-management/3282"
+  DOMAIN_PATTERNS_GUIDE_URL = "http://ixld.com/blogs/training/2009/2/14/multi-domain-management/3282"
 
   # Returns a JavaScript literal value, used to return variables in JS code (while doing #to_json)
   def jslit(value)

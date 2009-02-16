@@ -600,7 +600,7 @@ module LayoutsHelper
         items: [
           domainPatternsField,
           {
-            html: '<p class="tip"><a href="#{DOMAIN_PATTERNS_GUIDE_URL}" title="xlsuite wiki : multi-domain management">&uArr;What&rsquo;s this?</a><span class="italic" font-size="10px">(Separate patterns with a comma or a new line)</span></p>'
+            html: '<p class="tip"><a target="_blank" href="#{ApplicationHelper::DOMAIN_PATTERNS_GUIDE_URL}" title="xlsuite wiki : multi-domain management">&uArr;What&rsquo;s this?</a><span class="italic" font-size="10px">(Separate patterns with a comma or a new line)</span></p>'
           }
         ]
       },{
