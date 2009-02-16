@@ -1,0 +1,27 @@
+if @send_order_template && !@order_urls.empty?
+out = []
+@order_urls.each do |order_url|
+  out << "window.open('#{order_url}')"
+end
+page << %Q`
+  #{out.join(";")};   
+`
+
+else
+
+page << %Q`
+  Ext.Msg.show({
+    title: "Send order template not found",
+    msg: "The default send order email template cannot be found. Please create it first, and send the order again.",
+    buttons: Ext.Msg.OK,
+    fn: function(btn){
+      if ( btn.match(new RegExp("ok","i")) ) {
+        xl.openNewTabPanel('send_order_new_nil', #{new_template_path(:_template => {:label => current_domain.get_config("send_order_template"), 
+          :subject => "Order Confirmation", :body => "Thank you for your order. Please validate and pay online following this link: http://#{current_domain.name}/orders?uuid=__UUID__ 
+            \n<p>Subtotal: __SUBTOTAL__</p>\n<p>Total: __TOTAL__</p>"}).to_json.gsub("amp;", "")})
+        }
+      }
+  });
+`
+
+end
