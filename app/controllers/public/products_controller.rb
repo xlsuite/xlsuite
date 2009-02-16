@@ -297,6 +297,7 @@ class Public::ProductsController < ApplicationController
         else
           p_owner = self.current_user
         end
+        @product.private = true
         @product.owner = p_owner
         @product.current_domain = current_domain
         @product.save!
