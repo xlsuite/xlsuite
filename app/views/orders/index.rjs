@@ -157,12 +157,19 @@ page << create_tab_using_ajax_response("Orders | Index", after_render) do
     disabled: true
   });
   
+  var viewAction = new Ext.Action({
+    text: "View invoice(s)",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
   var selectionMenu =  new Ext.menu.Menu({
     items: [selectAllAction, clearAllAction]
   });
   
   selectionMenu.addSeparator();
   selectionMenu.add(changeStatusAction);
+  selectionMenu.add(viewAction);
   selectionMenu.addSeparator();
   selectionMenu.add(deleteAction);
   
@@ -215,6 +222,14 @@ page << create_tab_using_ajax_response("Orders | Index", after_render) do
     });
   });
   
+  viewAction.setHandler(function(e) {
+    Ext.Ajax.request({
+      url: #{view_orders_path.to_json},
+      method: 'get',
+      params: {ids:selectedIds.join(",")}
+    });
+  });
+  
   grid.getSelectionModel().on("selectionchange", function(){
     records = grid.getSelectionModel().getSelections();
     var ids = new Array();
@@ -226,10 +241,13 @@ page << create_tab_using_ajax_response("Orders | Index", after_render) do
     if(ids.length>0){
       clearAllAction.enable();
       deleteAction.enable();
+      viewAction.enable();
     }
-    else
+    else{
       deleteAction.disable();
       selectAllAction.enable();
+      viewAction.disable();
+    }
   });
   
 `
