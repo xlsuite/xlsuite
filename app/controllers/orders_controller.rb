@@ -279,7 +279,7 @@
 # 
 # 		     END OF TERMS AND CONDITIONS
 class OrdersController < ApplicationController
-  required_permissions %w(index show) => [:view_orders, :edit_orders, {:any => true}],
+  required_permissions %w(index show view) => [:view_orders, :edit_orders, {:any => true}],
     %w(new create edit update destroy tax_fields destroy_collection get_totals get_send_order_template) => :edit_orders
   skip_before_filter :login_required, :only => [:buy, :pay]
   before_filter :load_order, :only => %w(buy show edit update destroy tax_fields get_totals)
@@ -401,6 +401,27 @@ class OrdersController < ApplicationController
     @send_order_template = current_account.templates.find_by_label(send_order_config) if send_order_config
     respond_to do |format|
       format.js { render :json => {:template_name => @send_order_template ? @send_order_template.label : nil}.to_json}
+    end
+  end
+  
+  def view
+    send_order_config = self.current_domain.get_config("send_order_template")
+    order_uuids = self.current_account.orders.find(params[:ids].split(",").map(&:strip).map(&:to_i)).map(&:uuid)
+    @send_order_template = self.current_account.templates.find_by_label(send_order_config) if send_order_config
+    view_url = nil
+    if @send_order_template
+      if @send_order_template.body =~ /(https?:\/\/.+\..+__uuid__.*)/i
+        view_url = $1
+        view_url = view_url.split("http").select{|e| e =~ /__uuid__/i}.last
+        view_url = "http" + view_url
+        @order_urls = []
+        order_uuids.each do |uuid|
+          @order_urls << view_url.gsub(/__uuid__/i, uuid)
+        end
+      end
+    end
+    respond_to do |format|
+      format.js
     end
   end
   
