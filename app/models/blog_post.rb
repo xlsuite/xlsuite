@@ -340,6 +340,10 @@ class BlogPost < ActiveRecord::Base
     attributes.delete(:blog_id)
     attributes
   end
+  
+  def author_profile
+    self.author.profile
+  end
 
   protected
 

@@ -281,7 +281,7 @@
 class BlogPostDrop < Liquid::Drop
   attr_reader :blog_post
   delegate :id, :dom_id, :excerpt, :title, :author_name, :link, :published_at, :created_at, :updated_at, 
-  :permalink, :tags, :tag_list, :approved_comments_count, :unapproved_comments_count, :author, 
+  :permalink, :tags, :tag_list, :approved_comments_count, :unapproved_comments_count, :author, :author_profile,
   :deactivate_commenting_on, :to => :blog_post
 
   def initialize(blog_post)

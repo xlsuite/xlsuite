@@ -282,7 +282,8 @@ class BlogDrop < Liquid::Drop
   attr_reader :blog
 
   delegate :id, :dom_id, :title, :subtitle, :label, :author_name, :created_at, :updated_at, 
-  :tags, :tag_list, :last_updated_at, :created_by_id, :created_by, :comment_approval_method, :to => :blog
+  :tags, :tag_list, :last_updated_at, :created_by_id, :created_by, :comment_approval_method, 
+  :author, :author_profile, :to => :blog
 
   def initialize(blog)
     @blog = blog
