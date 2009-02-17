@@ -29,7 +29,9 @@ page << create_tab_using_ajax_response("ProfileRequests | Index", after_render) 
     {name: 'created_by_id', mapping: 'created_by_id'},
     {name: 'created_by_name', mapping: 'created_by_name'},
     {name: 'profile_id', mapping: 'profile_id'},
-    {name: 'view_profile', mapping: 'view_profile'}
+    {name: 'view_profile', mapping: 'view_profile'},
+    {name: 'groups', mapping: 'groups'}
+    
   ]);
   // data reader to parse the json response
   var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, ProfileRequestRecord);
@@ -57,11 +59,12 @@ page << create_tab_using_ajax_response("ProfileRequests | Index", after_render) 
   #{create_grid_tbar_clear_button}
   
     // create row expander of the grid object
-    var expander = new Ext.grid.RowExpander({ contains: ["links", "addresses", "phones", "avatar_url", "info"],
+    var expander = new Ext.grid.RowExpander({ contains: ["links", "addresses", "phones", "avatar_url", "info", "groups"],
       tpl : new Ext.Template(
         '<table><tr><td>',
         '<img src="{avatar_url}"/></td><td>',
         '<div>Addresses: {addresses}</div>',
+        '<div>Groups: {groups}</div>',
         '<div>{info}</div></td></tr></table>'
       )
     });

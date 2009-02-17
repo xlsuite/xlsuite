@@ -279,6 +279,7 @@
 # 
 # 		     END OF TERMS AND CONDITIONS
 class ProfileAddRequest < ProfileRequest
+  
   def approve!
     ProfileAddRequest.transaction do
       self.to_party_and_profile!
@@ -289,12 +290,16 @@ class ProfileAddRequest < ProfileRequest
   
   def to_party_and_profile!
     @party = self.account.parties.new
-    %w( first_name middle_name last_name company_name position honorific avatar_id ).each do |column|
+    %w( first_name middle_name last_name company_name position honorific avatar_id tag_list).each do |column|
       @party.send(column+"=", self.send(column))
     end
     
     @party.created_by = @party.updated_by = @party.referred_by = self.created_by
     @party.save!
+    
+    groups = self.account.groups.all(:conditions => ["id IN (?)", self.group_ids.split(",")])
+    @party.groups = groups unless groups.empty?
+    
     self.copy_contact_routes_to_party!(@party)
     @profile = @party.to_new_profile
     @profile.info = self.info
