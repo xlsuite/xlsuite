@@ -139,7 +139,7 @@ ActionController::Routing::Routes.draw do |map|
 
     map.resources :orders, :path_prefix => "/admin", 
         :member => { :tax_fields => :get, :get_totals => :get },
-        :collection => {:destroy_collection => :post, :auto_complete_tag => :get, 
+        :collection => {:destroy_collection => :post, :auto_complete_tag => :get, :view => :get, 
                         :get_send_order_template => :get, :buy => :post, :pay => :post } do |order|
       order.resources :order_lines, :member => { :update => :put }, 
             :collection => {:destroy_collection => :post, :reposition_lines => :post}

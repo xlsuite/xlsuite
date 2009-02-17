@@ -281,7 +281,7 @@
 class Public::ProductsController < ApplicationController
   # check authorized?
   required_permissions :none
-  before_filter :filter_parameters, :only => [:update]
+  before_filter :blacklist_parameters, :only => [:update]
   before_filter :load_product_categories, :only => [:add_to_categories, :remove_from_categories]
   
   def create
@@ -297,6 +297,7 @@ class Public::ProductsController < ApplicationController
         else
           p_owner = self.current_user
         end
+        @product.private = true
         @product.owner = p_owner
         @product.current_domain = current_domain
         @product.save!
@@ -336,16 +337,30 @@ class Public::ProductsController < ApplicationController
   
   def update
     begin
-      @product.attributes = params[:product]
-      @product.editor =  self.current_user
-      @product.save!
-      respond_to do |format|
-        format.html do
-          flash_success params[:success_message] || "Product #{@product.name} successfully updated"
-          return redirect_to_next_or_back_or_home
+      ActiveRecord::Base.transaction do
+        main_image_params = params[:product].delete("main_image")
+
+        @product.attributes = params[:product]
+        @product.editor = self.current_user
+        @product.save!
+
+        unless main_image_params.blank? || main_image_params.size == 0 then
+          product_main_image_id = @product.main_image_id
+          Asset.find(product_main_image_id) if product_main_image_id
+          main_image = self.current_account.assets.build(:uploaded_data => main_image_params, :account => @product.account)
+          main_image.crop_resized("70x108")
+          main_image.save!
+          @product.main_image = main_image.id
         end
-        format.js do
-          render :json => {:success => true}
+
+        respond_to do |format|
+          format.html do
+            flash_success params[:success_message] || "Product #{@product.name} successfully updated"
+            return redirect_to_next_or_back_or_home
+          end
+          format.js do
+            render :json => {:success => true}
+          end
         end
       end
     rescue
@@ -439,7 +454,7 @@ class Public::ProductsController < ApplicationController
     @all_categories_permitted = @category_ids_param.size == @product_categories_count
   end
   
-  def filter_parameters
+  def blacklist_parameters
     if params[:product]
       params[:product].delete(:category_ids)
     end

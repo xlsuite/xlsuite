@@ -314,6 +314,7 @@ class ProfileRequest < ActiveRecord::Base
   has_many :links, :class_name => "LinkContactRoute", :as => :routable, :order => "position", :extend => XlSuite::ContactRoutesExtensions, :dependent => :destroy
   has_many :email_addresses, :class_name => "EmailContactRoute", :as => :routable, :order => "position", :extend => XlSuite::ContactRoutesExtensions, :dependent => :destroy
   
+  acts_as_taggable
   acts_as_fulltext %w(first_name middle_name last_name links_as_text phones_as_text addresses_as_text email_addresses_as_text position), :weight => 50 
   
   validates_presence_of :account_id

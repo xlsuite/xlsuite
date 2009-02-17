@@ -328,6 +328,9 @@ class Profile < ActiveRecord::Base
   validates_presence_of :account_id
   validates_uniqueness_of :alias, :scope => :account_id, :if => Proc.new {|p| !p.alias.blank?}
   validates_format_of :alias, :with => /\A[-\w]+\Z/i, :message => "can contain only a-z, A-Z, 0-9, _ and -, cannot contain space(s)", :if => Proc.new {|p| !p.alias.blank?}
+
+  validates_uniqueness_of :custom_url, :scope => :account_id, :if => Proc.new {|p| !p.custom_url.blank?}
+  validates_format_of :custom_url, :with => /\A[-\w]+\Z/i, :message => "can contain only a-z, A-Z, 0-9, _ and -, cannot contain space(s)", :if => Proc.new {|p| !p.custom_url.blank?}
   
   after_save :update_party_product_category_name
     
@@ -507,7 +510,7 @@ class Profile < ActiveRecord::Base
   end
   
   def generate_alias
-    t_alias = self.company_name.dup
+    t_alias = self.company_name.to_s.dup
     t_alias = self.name.to_s.dup if t_alias.blank?
     return if t_alias.blank?
     t_alias.gsub!(/[^(\d\w\s)]/, "")
@@ -536,6 +539,38 @@ class Profile < ActiveRecord::Base
       end
     end
     self.update_attribute(:alias, c_alias)
+  end
+  
+  def generate_custom_url
+    t_alias = self.company_name.to_s.dup
+    t_alias = self.name.to_s.dup if t_alias.blank?
+    return if t_alias.blank?
+    t_alias.gsub!(/[^(\d\w\s)]/, "")
+    t_alias.gsub!(/\s+/, " ")
+    t_alias.downcase!
+    t_alias.gsub!(/\s/, "_")
+    c_alias, t_profile = nil, nil
+    count, counter = 0, 0
+    c_alias = t_alias
+    loop do
+      count = self.class.count(:conditions => {:custom_url => c_alias, :account_id => self.account.id})
+      counter += 1
+      if count > 0
+        t_profile = self.class.find(:all, :select => "id", :conditions => {:custom_url => c_alias, :account_id => self.account.id}).map(&:id)
+        if t_profile.size > 1
+          logger.warn("You should not see this message, found the cause in Profile#generate_alias")
+          return
+        end
+        if t_profile.first == self.id
+          return
+        else
+          c_alias = t_alias + counter.to_s
+        end
+      else
+        break
+      end
+    end
+    self.update_attribute(:custom_url, c_alias)
   end
 
   def email_addresses_as_text

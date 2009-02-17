@@ -467,6 +467,8 @@ module ProfilesHelper
             xl.widget.InlineActiveField({ form: updateProfileForm, field: {value: #{@profile.last_name.to_json}, name: 'last_name', fieldLabel: 'Last Name', id: #{typed_dom_id(@profile, :last_name).to_json}}}),
             xl.widget.InlineActiveField({ form: updateProfileForm, field: {value: #{@profile.company_name.to_json}, name: 'company_name', fieldLabel: 'Company Name', id: #{typed_dom_id(@profile, :company_name).to_json}}}),
             xl.widget.InlineActiveField({ form: updateProfileForm, field: {value: #{@profile.position.to_json}, name: 'position', fieldLabel: 'Position', id: #{typed_dom_id(@profile, :position).to_json}}}),
+            xl.widget.InlineActiveField({ form: updateProfileForm, field: {value: #{@profile.alias.to_json}, name: 'alias', fieldLabel: 'Alias', id: #{typed_dom_id(@profile, :alias).to_json}}}),
+            xl.widget.InlineActiveField({ form: updateProfileForm, field: {value: #{@profile.custom_url.to_json}, name: 'custom_url', fieldLabel: 'Public Profile URL', id: #{typed_dom_id(@profile, :custom_url).to_json}}}),
             birthdateField
         ]
       });

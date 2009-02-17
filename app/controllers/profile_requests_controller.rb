@@ -339,13 +339,20 @@ class ProfileRequestsController < ApplicationController
       phone = params[:profile].delete("phone")
       link = params[:profile].delete("link")
       address = params[:profile].delete("address")
+      group_labels = params[:profile].delete(:group_labels)
+
       @profile_add_request = current_account.profile_add_requests.build(params[:profile])
       unless avatar.blank? || avatar.size == 0 then
         avatar = @profile_add_request.build_avatar(:uploaded_data => avatar, :account => current_account)
         avatar.save!
+      end      
+      if group_labels
+        groups = current_account.groups.find(:all, :conditions => {:label => group_labels.split(",").map(&:strip).reject(&:blank?)})
+        @profile_add_request.group_ids = groups.map(&:id).join(",") unless groups.empty?
       end
       @profile_add_request.created_by = current_user
       @profile_add_request.save
+      @profile_add_request.groups = groups
       @profile_add_request.reload
       @profile_add_request.phone = phone unless phone.blank?
       @profile_add_request.link = link unless link.blank?    
@@ -365,17 +372,6 @@ class ProfileRequestsController < ApplicationController
         end
         format.js do
           render :json => {:success => true, :message => flash[:notice].join(", ")}
-        end
-      end
-    rescue
-      errors = $!.message.to_s
-      respond_to do |format|
-        format.html do
-          flash_failure errors
-          return redirect_to_return_to_or_back_or_home
-        end
-        format.js do
-          render :json => {:success => false, :errors => [errors]}
         end
       end
     end
@@ -408,7 +404,8 @@ class ProfileRequestsController < ApplicationController
       :links => record.links.map(&:url).join(", "),
       :phones => record.phones.map(&:number).join(", "),
       :addresses => record.addresses.map {|addr| addr.to_formatted_s(:html => {:tag => "p", :class => "other-address"}) }.join(""), 
-      :view_profile => view_profile
+      :view_profile => view_profile,
+      :groups => record.group_ids.blank? ? "" : current_account.groups.all(:conditions => ["id IN (?)", record.group_ids.split(",")]).map(&:name).join(", ")
     }
   end
 end

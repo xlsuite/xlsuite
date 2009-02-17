@@ -353,6 +353,14 @@ class Blog < ActiveRecord::Base
     :created_by_id => account_owner_id, :updated_by_id => nil, :owner_id => account_owner_id)
   end
 
+  def author
+    self.owner
+  end
+  
+  def author_profile
+    self.owner.profile
+  end
+
   protected
 
   def set_author_name

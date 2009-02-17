@@ -855,12 +855,15 @@ class PartiesController < ApplicationController
 
     flash_success "You have been successfully authorized.  Welcome!"
 
-    redirect_path = params[:signed_up]
+    redirect_path = params[:signed_up] || params[:next]
     redirect_path.blank? ? (redirect_to_specified_or_default forum_categories_url) : (return redirect_to(params[:gids].blank? ? redirect_path+"?new=#{new}" : redirect_path + "?gids=#{params[:gids]}&new=#{new}"))
 
     rescue ActiveRecord::RecordInvalid
+      logger.warn $!.message.to_s
       @code = params[:code]
-      render(:action => "confirm")
+      flash_failure @party.errors.full_messages
+      return redirect_to_return_to_or_back_or_home
+      #render(:action => "confirm")
 
     rescue XlSuite::AuthenticatedUser::ConfirmationTokenExpired
       flash_failure :now, "Confirmation token has expired.  Please register again."
