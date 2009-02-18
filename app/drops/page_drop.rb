@@ -287,6 +287,7 @@ class PageDrop < Liquid::Drop
   end
 
   def title
+    
     page.render_title(@context)
   end
 
@@ -317,10 +318,12 @@ class PageDrop < Liquid::Drop
   end
   
   def raw_meta_description
-    self.page.meta_description
+    template = Liquid::Template.parse(self.page.meta_description)
+    template.render(context)
   end
   
   def raw_meta_keywords
-    self.page.meta_keywords
+    template = Liquid::Template.parse(self.page.meta_keywords)
+    template.render(context)
   end
 end
