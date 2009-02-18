@@ -3,7 +3,7 @@ h1. Introduction
 Thank you for downloading the XLsuite code base.
 
 XLsuite started it's days in 2005 as a business management platform for my 
-Christmas lighting company weputuplights.com
+Christmas lighting company "weputuplights.com":http://weputuplights.com/
 
 The goal was to provide a business management system that could be expanded 
 to service installers in other parts of the country as my business grew.
@@ -11,7 +11,7 @@ to service installers in other parts of the country as my business grew.
 As it evolved, we designed it in a way that was more generic so that it would 
 fit the needs of other businesses outside the scope of just lighting installers.
 
-In 2007, Rick Stonehouse, a Vancouver real estate agent got involved in the 
+In 2007, "Rick Stonehouse":http://rickstonehouse.com/, a Vancouver real estate agent got involved in the 
 project and had us add functionality relating to managing his real estate 
 business, which is where the real estate listings manager came from.
 
@@ -21,7 +21,7 @@ clients in multiple business verticals including Fisheries, Contracting,
 Real Estate, Hospitality, Publishing, Arts, Health, Internet Marketing, 
 Education, Media and Manufacturing.
 
-The platform has been designed to encompass many of the "best practices" around 
+The platform has been designed to encompass many of the _best practices_ around 
 marketing and client management including many social media functions, 
 e-commerce and communications modules.
 
