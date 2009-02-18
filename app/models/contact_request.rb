@@ -509,12 +509,12 @@ class ContactRequest < ActiveRecord::Base
   def confirm_as_ham!
     self.update_attribute("approved_at", Time.now.utc)
     self.create_party unless self.party
-    #defensio.mark_as_ham(self)
+    defensio.mark_as_ham(self)
   end
 
   def confirm_as_spam!
     self.update_attribute("approved_at", nil)
-    #defensio.mark_as_spam(self)
+    defensio.mark_as_spam(self)
   end
 
   def complete!
