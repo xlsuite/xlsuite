@@ -65,10 +65,9 @@ hosting solution with it, we require that you either purchase a commercial
 license for it, or use our partner program to host your solution on our 
 XLsuite.com service.
 
-You can find out more about our license options by visiting 
-http://xlsuite.com/license
-Information about our partner program can be found at 
-http://xlsuite.com/partners
+You can find out more about our license options by visiting http://xlsuite.com/license
+
+Information about our partner program can be found at http://xlsuite.com/partners
 
 
 h1. The Company
@@ -86,10 +85,8 @@ about the projects we take on and the people we work with.
 
 h1. Core Team
 
-The core application was first developed by Francois Beausoleil of Teksol.info
-The other core team members include Harman Sandjaja and Spencer Shek 
-programing with ruby.
-Ionut Maxim working on Design and Madalin Sandu working on CSS and JS 
-implementations.
+The core application was first developed by "François Beausoleil":http://blog.teksol.info.
+The other core team members include Harman Sandjaja and Spencer Shek programming with Ruby.
+Ionut Maxim working on design and Madalin Sandu working on CSS and JS implementations.
 
-I am Riel Roussopoulos, CEO of iXLd Media Inc.
+I am "Riel Roussopoulos":http://www.linkedin.com/in/djriel, CEO of iXLd Media Inc.
