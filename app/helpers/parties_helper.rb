@@ -1480,6 +1480,7 @@ module PartiesHelper
         title: "Groups",
         root: membershipsRootTreeNode,
         rootVisible: false,
+        autoScroll: true,
         height: ((#{get_default_grid_height(nil)}-30)/2-1),
         loader: new Ext.tree.TreeLoader({
           requestMethod: "GET",
@@ -1524,6 +1525,7 @@ module PartiesHelper
         root: rolesRootTreeNode,
         rootVisible: false,
         height: ((#{get_default_grid_height(nil)}-30)/2-1),
+        autoScroll: true,
         loader: new Ext.tree.TreeLoader({
           requestMethod: "GET",
           url: #{formatted_roles_path(:party_id => @party.id, :format => :json).to_json},
