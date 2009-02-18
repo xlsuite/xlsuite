@@ -526,7 +526,14 @@ module XlSuite
 
     def set_paid_in_full
       return unless self.respond_to?(:paid_in_full=)
-      self.paid_in_full = self.balance.zero? && !self.total_amount.zero?
+      if self.balance.zero? && !self.total_amount.zero?
+        self.paid_in_full = true
+        self.paid_in_full_at = Time.now
+      else
+        self.paid_in_full = false
+        self.paid_in_full_at = nil
+      end
+        
       #Don't return false if balance is not zero
       true
     end
