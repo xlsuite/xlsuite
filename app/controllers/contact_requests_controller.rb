@@ -436,7 +436,7 @@ class ContactRequestsController < ApplicationController
     end
     if !@error_messages.blank?
       @error_messages = @error_messages.flatten
-      flash_failure :now, @error_messages
+      flash_failure @error_messages
     end
     return render(:action => "new") if params[:contact_request].blank?
     if @error_messages.blank?
