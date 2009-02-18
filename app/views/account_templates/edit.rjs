@@ -1,4 +1,4 @@
-page << create_tab_using_ajax_response("Account Template") do
+page << create_tab_using_ajax_response("Publish Suite") do
 %Q`
   #{self.generate_form_panel}
   
