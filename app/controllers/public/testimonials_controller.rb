@@ -285,12 +285,13 @@ class Public::TestimonialsController < ApplicationController
     if params[:testimonial][:email_address]
       begin
         Testimonial.transaction do
+          avatar_param = params[:testimonial].delete(:avatar)
           @testimonial = current_account.testimonials.build(params[:testimonial])
           @testimonial.created_by = current_user if current_user?
           @testimonial.testified_at = Time.now.utc
           @testimonial.save!
-          unless params[:testimonial][:avatar].blank? || params[:testimonial][:avatar].size == 0 then
-            avatar = @testimonial.build_avatar(:uploaded_data => params[:testimonial].delete(:avatar), :account => @testimonial.account)
+          unless avatar_param.blank? || avatar_param.size == 0 then
+            avatar = @testimonial.build_avatar(:uploaded_data => avatar_param, :account => @testimonial.account)
             avatar.crop_resized("70x108")
             avatar.save!
             @testimonial.avatar = avatar

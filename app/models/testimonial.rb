@@ -378,7 +378,8 @@ class Testimonial < ActiveRecord::Base
       link.url = self.website_url
       link.save!
     end
-    self.update_attributes({:author_id => party.id, :avatar_id => self.avatar_id})
+    party.update_attribute("avatar_id", self.avatar_id) unless party.avatar
+    self.update_attributes({:author_id => party.id})
   end
 protected
   def author_display_name
