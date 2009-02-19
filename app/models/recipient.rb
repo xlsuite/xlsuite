@@ -353,7 +353,7 @@ class Recipient < ActiveRecord::Base
             "recipient" => PartyDrop.new(self.party),
             "from" => PartyDrop.new(self.email.sender.party), "now" => Time.now.utc,
             "attachments" => self.email.attachments.map {|att| AttachmentDrop.new(att, self)},
-            "account" => self.email.account)
+            "account" => self.email.account, "domain" => self.email.domain)
       context.merge!(self.extras) if self.extras
     end.stringify_keys
   end
