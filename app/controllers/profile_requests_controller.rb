@@ -352,11 +352,26 @@ class ProfileRequestsController < ApplicationController
       end
       @profile_add_request.created_by = current_user
       @profile_add_request.save
-      @profile_add_request.groups = groups
       @profile_add_request.reload
       @profile_add_request.phone = phone unless phone.blank?
-      @profile_add_request.link = link unless link.blank?    
+  
+      if link
+        link.each_pair do |key, value|
+          unless value[:url].blank? || value[:name] =~ /^name$/i || value[:url] =~ /^http:\/\/\s*$/i
+            link = @profile_add_request.links.build(value)
+            link.save!
+          end
+        end
+      end
+      
       @profile_add_request.address = address unless address.blank?
+      
+      profile_alias = params[:profile].delete("forum_alias")
+      profile_alias = params[:profile][:alias] if params[:profile][:alias]
+      params[:profile][:alias] = profile_alias
+      
+      @profile_add_request.alias = profile_alias.blank? ? nil : profile_alias
+      
       @profile_add_request.save!
       
       if !current_domain.get_config("profile_request_moderation") || current_user.can?(:edit_profile_requests)
