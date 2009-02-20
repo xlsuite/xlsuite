@@ -1279,6 +1279,7 @@ CREATE TABLE `layouts` (
   `uuid` varchar(36) default NULL,
   `modified` tinyint(1) default NULL,
   `updator_id` int(11) default NULL,
+  `no_update` tinyint(1) default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_account_title` (`account_id`,`title`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -2419,3 +2420,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090218214721');
 INSERT INTO schema_migrations (version) VALUES ('20090218234431');
 
 INSERT INTO schema_migrations (version) VALUES ('20090220213223');
+
+INSERT INTO schema_migrations (version) VALUES ('20090220230041');
