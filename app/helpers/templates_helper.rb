@@ -302,8 +302,9 @@ module TemplatesHelper
     "month" => "The full month's number (at the time of sending the E-Mail)",
     "month_name" => "The full month's name (at the time of sending the E-Mail)",
     
-    "randomize_password_if_none" => "Randomizes the recipient's password and pastes it into the body in the format 'Password: (new pw)'"
+    "randomize_password_if_none" => "Randomizes the recipient's password and pastes it into the body in the format 'Password: (new pw)'",
     
+    "domain.name" => "Name of the selected domain"
     }.sort.freeze
 
   def render_template_syntaxes
