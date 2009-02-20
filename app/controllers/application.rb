@@ -648,11 +648,23 @@ class ApplicationController < ActionController::Base
   end
   
   def redirect_to_return_to_or_back_or_home
-    redirect_to params[:return_to] || request.env["HTTP_REFERER"] || "/"
+    params_return_to = nil
+    if params[:return_to]
+      params_return_to = params[:return_to].dup
+      params_return_to.gsub!(/_+id_+/i, params[:target_id]) if params[:target_id]
+      params_return_to.gsub!(/_+uuid_+/i, params[:target_uuid]) if params[:target_uuid]
+    end
+    redirect_to params_return_to || request.env["HTTP_REFERER"] || "/"
   end
   
   def redirect_to_next_or_back_or_home
-    redirect_to params[:next] || request.env["HTTP_REFERER"] || "/"
+    params_next = nil
+    if params[:next]
+      params_next = params[:next].dup
+      params_next.gsub!(/_+id_+/i, params[:target_id]) if params[:target_id]
+      params_next.gsub!(/_+uuid_+/i, params[:target_uuid]) if params[:target_uuid]
+    end
+    redirect_to params_next || request.env["HTTP_REFERER"] || "/"
   end
 
   def load_cart
