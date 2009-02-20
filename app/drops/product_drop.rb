@@ -342,4 +342,8 @@ class ProductDrop < Liquid::Drop
   def comments_off
     self.product.comment_approval_method =~ /no comments/i ? true : false
   end
+  
+  def category_ids
+    self.product.category_ids.join(",")
+  end
 end

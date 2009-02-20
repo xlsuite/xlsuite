@@ -665,7 +665,17 @@ module AccountTemplatesHelper
           {id: "account-template-module-name", width: 150, header: "Module name", dataIndex: 'name'},
           {id: "account-template-module-fee", header: "Fee (in CAD$)", dataIndex: "fee"}
         ]),
-        plugins: selectFeatureCheckColumn
+        plugins: selectFeatureCheckColumn,
+        listeners:{
+          render: function(me){
+            featuresSelectionStore.each(function(record){
+              if(record.get("checked")){
+                var key = "account_template[" + record.get("column_name") + "]"
+                globalParameters[key] = 1;
+              }
+            });
+          }
+        }
       });
       
       var subscriptionMarkupFeeStore = new Ext.data.JsonStore({

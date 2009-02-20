@@ -297,8 +297,10 @@ class ProfileAddRequest < ProfileRequest
     @party.created_by = @party.updated_by = @party.referred_by = self.created_by
     @party.save!
     
-    groups = self.account.groups.all(:conditions => ["id IN (?)", self.group_ids.split(",")])
-    @party.groups = groups unless groups.empty?
+    if self.group_ids
+      groups = self.account.groups.all(:conditions => ["id IN (?)", self.group_ids.split(",")])
+      @party.groups = groups unless groups.empty?
+    end
     
     self.copy_contact_routes_to_party!(@party)
     @profile = @party.to_new_profile

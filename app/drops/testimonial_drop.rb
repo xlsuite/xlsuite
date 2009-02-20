@@ -285,4 +285,8 @@ class TestimonialDrop < Liquid::Drop
   def initialize(testimonial)
     @testimonial = testimonial
   end
+  
+  def avatar
+    self.testimonial.show_avatar? ? self.testimonial.avatar : nil
+  end
 end

@@ -746,7 +746,7 @@ class Asset < ActiveRecord::Base
   def unpack_zip_archives
     return unless self.zip_file?
     self.asset_children.destroy_all unless self.new_record?
-    MethodCallbackFuture.create!(:models => [self], :account =>  self.account, :method => :unpack_archive)
+    MethodCallbackFuture.create!(:models => [self], :account =>  self.account, :method => :unpack_archive, :priority => 50)
   end
   
   def external_url_not_blank
