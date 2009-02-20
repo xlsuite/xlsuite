@@ -280,7 +280,7 @@
 # 		     END OF TERMS AND CONDITIONS
 class ViewsController < ApplicationController
   before_filter :find_ar_object, :except => [:upload]
-  required_permissions %w(reposition remove add upload) => [:edit_listings]
+  required_permissions :none
   before_filter :find_listing, :only => [:upload]
   
 =begin
