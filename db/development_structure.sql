@@ -1227,6 +1227,7 @@ CREATE TABLE `items` (
   `modified` tinyint(1) default NULL,
   `http_code` int(11) default '200',
   `updator_id` int(11) default NULL,
+  `no_update` tinyint(1) default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_uuid` (`account_id`,`uuid`),
   KEY `by_account_fullslug_status` (`account_id`,`fullslug`,`status`),
@@ -1457,6 +1458,7 @@ CREATE TABLE `orders` (
   `latitude` float default NULL,
   `longitude` float default NULL,
   `domain_id` int(11) default NULL,
+  `paid_in_full_at` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -2078,6 +2080,7 @@ CREATE TABLE `testimonials` (
   `author_name` varchar(255) default NULL,
   `author_company_name` varchar(255) default NULL,
   `avatar_id` int(11) default NULL,
+  `show_avatar` tinyint(1) default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -2405,6 +2408,14 @@ INSERT INTO schema_migrations (version) VALUES ('20090214025154');
 
 INSERT INTO schema_migrations (version) VALUES ('20090216224845');
 
+INSERT INTO schema_migrations (version) VALUES ('20090218023301');
+
+INSERT INTO schema_migrations (version) VALUES ('20090218024250');
+
 INSERT INTO schema_migrations (version) VALUES ('20090218212658');
 
 INSERT INTO schema_migrations (version) VALUES ('20090218214721');
+
+INSERT INTO schema_migrations (version) VALUES ('20090218234431');
+
+INSERT INTO schema_migrations (version) VALUES ('20090220213223');
