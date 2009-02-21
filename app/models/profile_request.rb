@@ -281,6 +281,7 @@
 class ProfileRequest < ActiveRecord::Base
   belongs_to :account
   include XlSuite::PicturesHelper
+  include XlSuite::Commentable
   belongs_to :avatar, :class_name => "Asset", :foreign_key => "avatar_id"
   belongs_to :created_by, :class_name => "Party", :foreign_key => "created_by_id"
   belongs_to :profile
