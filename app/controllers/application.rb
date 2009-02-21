@@ -651,8 +651,8 @@ class ApplicationController < ActionController::Base
     params_return_to = nil
     if params[:return_to]
       params_return_to = params[:return_to].dup
-      params_return_to.gsub!(/_+id_+/i, params[:target_id]) if params[:target_id]
-      params_return_to.gsub!(/_+uuid_+/i, params[:target_uuid]) if params[:target_uuid]
+      params_return_to.gsub!(/_+id_+/i, @_target_id) if @_target_id
+      params_return_to.gsub!(/_+uuid_+/i, @_target_uuid) if @_target_uuid
     end
     redirect_to params_return_to || request.env["HTTP_REFERER"] || "/"
   end
@@ -661,8 +661,8 @@ class ApplicationController < ActionController::Base
     params_next = nil
     if params[:next]
       params_next = params[:next].dup
-      params_next.gsub!(/_+id_+/i, params[:target_id]) if params[:target_id]
-      params_next.gsub!(/_+uuid_+/i, params[:target_uuid]) if params[:target_uuid]
+      params_next.gsub!(/_+id_+/i, @_target_id) if @_target_id
+      params_next.gsub!(/_+uuid_+/i, @_target_uuid) if @_target_uuid
     end
     redirect_to params_next || request.env["HTTP_REFERER"] || "/"
   end
