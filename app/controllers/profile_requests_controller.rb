@@ -374,6 +374,17 @@ class ProfileRequestsController < ApplicationController
       
       @profile_add_request.save!
       
+      if params[:comment] && !params[:comment][:body].blank?
+        @comment = current_account.comments.build(params[:comment])
+        @comment.commentable = @profile_add_request
+        
+        @comment.user_agent = request.env["HTTP_USER_AGENT"]
+        @comment.referrer_url = request.env["HTTP_REFERER"]
+        @comment.request_ip = request.remote_ip
+        @comment.created_by = @comment.updated_by = current_user if current_user?
+        @comment.save
+      end
+        
       if !current_domain.get_config("profile_request_moderation") || current_user.can?(:edit_profile_requests)
         @profile_add_request.approve!
         flash_success params[:approved_message] || "Thank you, your profile has been approved"
