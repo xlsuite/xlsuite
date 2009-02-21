@@ -314,6 +314,7 @@ class Public::ProductsController < ApplicationController
         respond_to do |format|
           format.html do
             flash_success params[:success_message] || "Product #{@product.name} successfully created"
+            @_target_id = @product.id
             return redirect_to_next_or_back_or_home
           end
           format.js do
