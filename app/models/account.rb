@@ -1254,8 +1254,13 @@ class Account < ActiveRecord::Base
   def send_confirmation_email
     return unless self.registering?
     self.confirmation_url = self.confirmation_url.call(confirmation_token) if self.confirmation_url.respond_to?(:call)
+    MethodCallbackFuture.create!(:account => self, :method => :send_confirmation_email_with_confirmation_url, 
+      :priority => 1, :model => self, :params => {:url => self.confirmation_url})
+  end
+  
+  def send_confirmation_email_with_confirmation_url(params)
     AdminMailer.deliver_account_confirmation_email(:route => self.owner.main_email,
-      :domain_name => self.domains.first.name, :confirmation_url => self.confirmation_url)
+      :domain_name => self.domains.first.name, :confirmation_url => params[:url])
   end
 
   def presence_of_state_and_country_when_activating
