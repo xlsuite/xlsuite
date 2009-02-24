@@ -307,6 +307,10 @@ class ProfileAddRequest < ProfileRequest
     @profile.info = self.info
     @profile.owner = self.created_by
     @profile.save!
+    self.comments.each do |comment|
+      comment.commentable = @profile
+      comment.save!
+    end
     self.update_attribute(:profile_id, @profile.reload.id)
     @party.update_attribute(:profile_id, @profile.id)
     @party.reload

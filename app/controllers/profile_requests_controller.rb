@@ -382,6 +382,8 @@ class ProfileRequestsController < ApplicationController
         @comment.referrer_url = request.env["HTTP_REFERER"]
         @comment.request_ip = request.remote_ip
         @comment.created_by = @comment.updated_by = current_user if current_user?
+        @comment.spam = false
+        @comment.approved_at = Time.now
         @comment.save
       end
         
