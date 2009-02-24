@@ -362,6 +362,24 @@ class Public::BlogsController < ApplicationController
     end
   end
   
+  def validate_label
+    @blog = current_account.blogs.build(:label => params[:label])
+    @blog.valid? # We just want to run validation
+
+    valid = false
+    message = ""
+    if @blog.errors.on(:label) then
+      message = @blog.errors.on(:label) 
+    else
+      valid = true
+    end
+    respond_to do |format|
+      format.js do
+        render :json => {:success => true, :valid => valid, :message => message }
+      end
+    end
+  end
+  
   protected
   def load_blog
     @blog = current_account.blogs.find(params[:id])
@@ -377,6 +395,7 @@ class Public::BlogsController < ApplicationController
   end
   
   def authorized?
+    return true if %w(validate_label).index(self.action_name)
     return false unless current_user?
     return true if current_user.can?(:edit_blogs)
     self.load_party
