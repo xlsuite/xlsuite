@@ -287,7 +287,7 @@ class BlogPost < ActiveRecord::Base
   acts_as_fulltext %w(title), %w(excerpt body author_name blog_title blog_subtitle blog_label blog_author_name tags_as_text)
   acts_as_reportable :columns => %w(title excerpt body author_name link permalink)
 
-  named_scope :published, :conditions => ["published_at < ?", Time.now.utc]
+  named_scope :published, lambda {{:conditions => ["published_at < ?", Time.now.utc] }}
   named_scope :by_publication_date, :order => "published_at DESC"
 
   belongs_to :account
