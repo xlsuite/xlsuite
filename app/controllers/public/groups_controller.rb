@@ -291,6 +291,13 @@ class Public::GroupsController < ApplicationController
       @group.private = false
       @group.created_by = @group.updated_by = @party
       @group.save!
+      
+      unless params[:join].blank?
+        @party.groups << @group
+        @party.update_effective_permissions = true
+        @party.save!
+      end
+      
       respond_to do |format|
         format.html do
           flash_success params[:success_message] || "Group #{@group.label} successfully created"
