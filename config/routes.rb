@@ -44,7 +44,8 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :public_groups, :path_prefix => "/admin/public", :as => "groups", :controller => "public/groups", 
     :member => {:join => :post, :leave => :post}
   map.resources :public_listings, :path_prefix => "/admin/public", :as => "listings", :controller => "public/listings"
-  map.resources :public_blogs, :path_prefix => "/admin/public", :as => "blogs", :controller => "public/blogs"
+  map.resources :public_blogs, :path_prefix => "/admin/public", :as => "blogs", :controller => "public/blogs",
+    :collection => {:validate_label => :post}
   map.resources :public_blog_posts, :path_prefix => "/admin/public", :as => "blog_posts", :controller => "public/blog_posts"
   
   map.resources :account_templates, :path_prefix => "/admin",
