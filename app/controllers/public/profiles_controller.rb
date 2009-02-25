@@ -335,7 +335,12 @@ class Public::ProfilesController < ApplicationController
   end
   
   def check_alias
-    taken = (self.current_account.profiles.find_by_alias(params[:alias]) ? true : false)
+    taken = true
+    if params[:alias].blank?
+      taken = false
+    else
+      taken = (self.current_account.profiles.find_by_alias(params[:alias]) ? true : false)
+    end
     respond_to do |format|
       format.js do
         render(:json => {:taken => taken}.to_json)
@@ -344,7 +349,12 @@ class Public::ProfilesController < ApplicationController
   end
   
   def check_custom_url
-    taken = (self.current_account.profiles.find_by_custom_url(params[:custom_url]) ? true : false)
+    taken = true
+    if params[:custom_url].blank?
+      taken = false
+    else
+      taken = (self.current_account.profiles.find_by_custom_url(params[:custom_url]) ? true : false)
+    end
     respond_to do |format|
       format.js do
         render(:json => {:taken => taken}.to_json)
