@@ -46,7 +46,6 @@ Rails::Initializer.run do |config|
   config.action_controller.session = { :session_key => "session_id", :secret => "some secret phrase of at least 30 characters" }
 
   config.gem "actionwebservice",    :version => "= 1.2.6", :lib => "action_web_service"
-  config.gem "mocha",               :version => "~> 0.9"
   config.gem "hpricot"
   config.gem "builder",             :version => "~> 2.1"
   config.gem "money",               :version => "~> 1.7"
