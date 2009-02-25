@@ -305,6 +305,7 @@ class Party < ActiveRecord::Base
 
   has_many :affiliates
   has_many :blogs, :foreign_key => :owner_id
+  has_many :blog_posts, :foreign_key => :author_id
   has_many :created_groups, :foreign_key => :created_by_id, :class_name => "Group"
   has_many :created_listings, :foreign_key => :creator_id, :class_name => "Listing"
   
