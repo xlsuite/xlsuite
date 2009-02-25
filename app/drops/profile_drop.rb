@@ -384,6 +384,10 @@ class ProfileDrop < Liquid::Drop
     self.profile.party.blogs
   end
   
+  def blog_posts
+    self.profile.party.blog_posts.published.by_publication_date
+  end
+  
   def created_listings
     self.profile.party.created_listings
   end
