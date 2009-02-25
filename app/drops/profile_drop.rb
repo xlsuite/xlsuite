@@ -416,6 +416,11 @@ class ProfileDrop < Liquid::Drop
     self.profile.party.groups.private
   end
   
+  def company_name_or_full_name
+    return self.profile.company_name unless self.profile.company_name.blank?
+    return self.profile.full_name
+  end
+  
   def editable_by_user
     return false unless self.context && self.context["user"] && self.context["user"].party
     return self.profile.writeable_by?(self.context["user"].party)
