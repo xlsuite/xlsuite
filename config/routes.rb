@@ -17,7 +17,8 @@ ActionController::Routing::Routes.draw do |map|
     :member => {:add_to_categories => :post, :remove_from_categories => :delete}
   
   map.resources :public_profiles, :path_prefix => "/admin/public", :as => "profiles", :controller => "public/profiles",
-    :member => {:attach_product_categories => :post, :detach_product_categories => :delete, :check_alias => :get}
+    :member => {:attach_product_categories => :post, :detach_product_categories => :delete},
+    :collection => {:check_alias => :get, :check_custom_url => :get}
   
   map.resources :product_items, :path_prefix => "/admin", :collection => {:destroy_collection => :delete}
   
