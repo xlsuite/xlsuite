@@ -342,6 +342,15 @@ class Public::ProfilesController < ApplicationController
       end
     end
   end
+  
+  def check_custom_url
+    taken = (self.current_account.profiles.find_by_custom_url(params[:custom_url]) ? true : false)
+    respond_to do |format|
+      format.js do
+        render(:json => {:taken => taken}.to_json)
+      end
+    end
+  end
 
   protected
 
@@ -361,7 +370,7 @@ class Public::ProfilesController < ApplicationController
       self.load_profile
       return true if self.current_user.can?(:edit_profiles)
       return self.current_user.id == @profile.party.id
-    elsif %(check_alias).include?(self.action_name)
+    elsif %(check_alias check_custom_url).include?(self.action_name)
       return true
     else
       return false
