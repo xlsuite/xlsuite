@@ -582,7 +582,8 @@ CREATE TABLE `domains` (
   `activated_at` datetime default NULL,
   `domain_subscription_id` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  KEY `name` (`name`)
+  KEY `name` (`name`),
+  KEY `by_account` (`account_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `effective_permissions` (
@@ -1195,6 +1196,7 @@ CREATE TABLE `item_versions` (
   `modified` tinyint(1) default NULL,
   `http_code` int(11) default '200',
   `updator_id` int(11) default NULL,
+  `no_update` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
   KEY `index_item_versions_on_item_id` (`item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1258,6 +1260,7 @@ CREATE TABLE `layout_versions` (
   `uuid` varchar(36) default NULL,
   `modified` tinyint(1) default NULL,
   `updator_id` int(11) default NULL,
+  `no_update` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
   KEY `index_layout_versions_on_layout_id` (`layout_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -2422,3 +2425,9 @@ INSERT INTO schema_migrations (version) VALUES ('20090218234431');
 INSERT INTO schema_migrations (version) VALUES ('20090220213223');
 
 INSERT INTO schema_migrations (version) VALUES ('20090220230041');
+
+INSERT INTO schema_migrations (version) VALUES ('20090221014507');
+
+INSERT INTO schema_migrations (version) VALUES ('20090221015919');
+
+INSERT INTO schema_migrations (version) VALUES ('20090225235741');
