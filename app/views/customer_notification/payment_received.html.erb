@@ -84,7 +84,7 @@
 <p>You may retrieve electronic products by confirming here: <a href='<%=@confirmation_url%>'><%=@confirmation_url%></a>
 <% else %>
 <p>You may retrieve electronic products by logging in here: <a href='<%=@download_page%>'><%=@download_page%></a>
-<p>Username: <%= @customer.main_email.email_address %></p>
+<p>Login Email: <%= @customer.main_email.email_address %></p>
 <p>
   If you have forgotten your password, or need to reset it for any reason you may do so here:<br/>
   <%= @reset_password_url %>
