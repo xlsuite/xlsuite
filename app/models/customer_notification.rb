@@ -322,10 +322,13 @@ class CustomerNotification < ActionMailer::Base
     else
       subject_value = "[XL] Confirmation of your #{payable_subject.class.name.humanize} ##{payable_subject.number} for #{payment.amount.format}"
     end
+    
+    reset_password_url = "http://#{domain.name}/admin/parties/forgot_password"
 
     subject    subject_value
     body       params.merge(:payment => payable.payment, :payable_subject => payable_subject, :customer => customer, :needs_to_ship => needs_to_ship, 
-                            :needs_to_download => needs_to_download, :download_page => download_page, :confirmation_url => confirmation_url)
+                            :needs_to_download => needs_to_download, :download_page => download_page, :confirmation_url => confirmation_url,
+                            :reset_password_url => reset_password_url)
     recipients customer.main_email.to_formatted_s
     from       "Payment Processor #{domain} <payments@#{mail_domain}>"
     sent_on    sent_at
