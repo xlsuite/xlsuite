@@ -83,7 +83,7 @@ var doDomainNameCheck = function(suiteId){
   var domainName = document.getElementById('account-signup-domain-name-checker-'+suiteId.toString()).value + "." + getReferralDomain();
   suitesJsonRequest = new JsonRequestWithScriptTag({
     url:getAjaxRequestUrl()+"/admin/domains/validate_name",
-    params: {callback:"updateDomainNameCheckerStatus", name:domainName},
+    params: {callback:"updateDomainNameCheckerStatus", name:domainName}
   });
 }
 
@@ -150,9 +150,9 @@ var xlSuiteEmbedBody = function(suitesCollection){
        "<input class='xlsuite_install_button' id='xlsuite-install-button-{id}' type='submit' value='INSTALL' onclick='toggleInstallForm({id}); return false;'>",
     "</li>"
   );
-  suitesCollection.forEach(function(element,index,array){
-    htmlCode += suiteXTemplate.apply(element);
-  });
+  for (var i = 0; i < suitesCollection.length; i++) {
+    htmlCode += suiteXTemplate.apply(suitesCollection[i]);
+  }
   return htmlCode;
 };
 
@@ -178,9 +178,11 @@ var generateSearchBarIndustriesSelection = function(response){
   htmlCode += "<select id='xlsuite-embed-suites-search-bar-industries' name='industry'>";
   htmlCode += "<option value='all'>Industry</option>";
   var industriesCollection = response.collection;
-  industriesCollection.forEach(function(element,index,array){
-    htmlCode += optionXTemplate.apply(element);
-  });
+  
+  for (var i = 0; i < industriesCollection.length; i++) {
+    htmlCode += optionXTemplate.apply(industriesCollection[i]);
+  }
+  
   htmlCode += "</select>";
   industriesContainer.innerHTML = htmlCode;
   industriesJsonRequest.removeScriptTag();
@@ -192,9 +194,11 @@ var generateSearchBarMainThemesSelection = function(response){
   htmlCode += "<select id='xlsuite-embed-suites-search-bar-main_themes' name='main_theme'>";
   var mainThemesCollection = response.collection;
   htmlCode += "<option value='all'>Main theme</option>";
-  mainThemesCollection.forEach(function(element,index,array){
-    htmlCode += optionXTemplate.apply(element);
-  });
+  
+  for (var i = 0; i < mainThemesCollection.length; i++) {
+    htmlCode += optionXTemplate.apply(mainThemesCollection[i]);
+  }
+
   htmlCode += "</select>";
   mainThemesContainer.innerHTML = htmlCode;
   mainThemesJsonRequest.removeScriptTag();
@@ -206,9 +210,11 @@ var generateSearchBarTagListSelection = function(response){
   htmlCode += "<select id='xlsuite-embed-suites-search-bar-tag_list' name='tag_list'>";
   var tagListCollection = response.collection;
   htmlCode += "<option value=''>Tagged</option>";
-  tagListCollection.forEach(function(element,index,array){
-    htmlCode += tagXTemplate.apply(element);
-  });
+  
+  for (var i = 0; i < tagListCollection.length; i++) {
+    htmlCode += tagXTemplate.apply(tagListCollection[i]);
+  }
+  
   htmlCode += "</select>";
   tagListContainer.innerHTML = htmlCode;
   tagListJsonRequest.removeScriptTag();
@@ -267,12 +273,14 @@ var generatePaging = function(currentPage, pagesCount){
     htmlCode += (i + "</a>");
   }
   container.innerHTML = htmlCode;
-  Ext.DomQuery.select(".xlsuite-embed-suites-paging-number").forEach(function(element, index, array){
-    Ext.EventManager.addListener(element, "click", function(event, el){
+  
+  var pagingNumbers = Ext.DomQuery.select(".xlsuite-embed-suites-paging-number");
+  for (var i = 0; i < pagingNumbers.length; i++) {
+    Ext.EventManager.addListener(pagingNumbers[i], "click", function(event, el){
       replacePageNumWith(el.innerHTML);
       updateSuitesCatalogBody();
     });
-  });
+  }
 };
 
 var suitesJsonRequest = null;
@@ -300,7 +308,7 @@ var generateSuitesCatalogBody = function(parameters){
   parameters.callback = "replaceSuitesCatalogBody";
   suitesJsonRequest = new JsonRequestWithScriptTag({
     url:getAjaxRequestUrl()+"/admin/public/suites.json",
-    params: parameters,
+    params: parameters
   });
 };
 
@@ -331,7 +339,7 @@ var getReferralDomain = function(){
 };
 
 var getAjaxRequestUrl = function(){
-  return "http://" + getReferralDomain()
+  return "http://" + getReferralDomain();
 };
 
 Ext.onReady(function(){
