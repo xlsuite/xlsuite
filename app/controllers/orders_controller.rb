@@ -440,7 +440,7 @@ class OrdersController < ApplicationController
         redirect_to result.first
       when "credit_card"
         options = {:return => return_url.as_absolute_url(current_domain.name)}
-        options.merge!(:credit_card => params[:credit_card])
+        options.merge!(:credit_card => params[:credit_card], :domain => self.current_domain)
         result = @payment.start!(who, options)
         redirect_to return_url
       else
