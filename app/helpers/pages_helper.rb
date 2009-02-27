@@ -731,6 +731,13 @@ module PagesHelper
       width: 665
     });
     
+    var noUpdateCheckbox = new Ext.form.Checkbox({
+      checked: #{@page.no_update.to_json},
+      name: "page[no_update]",
+      fieldLabel: "No update",
+      inputValue: "1"
+    });
+    
     var mainPanel = new Ext.Panel({
       width: '100%',
       layout: 'table',
@@ -783,7 +790,8 @@ module PagesHelper
               triggerAction: 'all',
               mode: 'local',
               value: #{@page.status.to_json}
-            })
+            }),
+            noUpdateCheckbox
           ]
         }, 
         {
