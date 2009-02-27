@@ -293,6 +293,8 @@ class PagesController < ApplicationController
   before_filter :load_source_domains, :only => %w(index update)
 
   before_filter :load_cart, :only => %w(show embed_code)
+  
+  before_filter :process_page_params, :only => %w(create update)
 
   def sandbox
     respond_to do |format|
@@ -414,11 +416,6 @@ class PagesController < ApplicationController
   def create
     params[:page][:behavior_values] = params.delete(:behavior_values)
     params[:page][:behavior] = params[:page][:behavior].downcase
-    if params[:page][:no_update]
-      params[:page][:no_update] = true 
-    else
-      params[:page][:no_update] = false
-    end
     @page = current_account.pages.build(params[:page])
     @page.creator @page.updator = current_user
 
@@ -458,11 +455,6 @@ class PagesController < ApplicationController
       @page.updator = current_user
       params[:page][:behavior_values] = params.delete(:behavior_values)
       params[:page][:behavior] = params[:page][:behavior].downcase
-      if params[:page][:no_update]
-        params[:page][:no_update] = true 
-      else
-        params[:page][:no_update] = false
-      end
       @updated = @page.update_attributes(params[:page])
       @close = true if params[:commit_type] =~ /close/i
       refresh = params[:refresh] || false
@@ -584,6 +576,14 @@ class PagesController < ApplicationController
   end
 
   protected
+  def process_page_params
+    if params[:page][:no_update]
+      params[:page][:no_update] = true 
+    else
+      params[:page][:no_update] = false
+    end
+  end
+  
   def assemble_records(records)
     results = []
     records.each do |record|
