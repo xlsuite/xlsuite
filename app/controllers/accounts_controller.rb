@@ -328,7 +328,7 @@ class AccountsController < ApplicationController
     
     begin
       Account.transaction do
-        @acct.expires_at = current_superuser? ? (params[:account] || {})[:expires_at] : Configuration.get(:account_expiration_duration_in_seconds).from_now
+        @acct.expires_at = Configuration.get(:account_expiration_duration_in_seconds).from_now
         @acct.disable_copy_account_configurations = true
         @acct.save!
         
