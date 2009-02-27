@@ -87,7 +87,7 @@
 <p>Login Email: <%= @customer.main_email.email_address %></p>
 <p>
   If you have forgotten your password, or need to reset it for any reason you may do so here:<br/>
-  <%= @reset_password_url %>
+  <a href="<%= @reset_password_url %>"><%= @reset_password_url %></a>
 </p>
 <% end %>
 <% end %>
