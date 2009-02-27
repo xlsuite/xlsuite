@@ -286,6 +286,8 @@ class LayoutsController < ApplicationController
 
   before_filter :load_source_domains, :only => %w(index)
   
+  before_filter :process_layout_params, :only => %w(create update)
+  
   def index
     respond_to do |format|
       format.js
@@ -445,6 +447,14 @@ class LayoutsController < ApplicationController
   end
 
   protected
+  def process_layout_params
+    if params[:layout][:no_update]
+      params[:layout][:no_update] = true 
+    else
+      params[:layout][:no_update] = false
+    end
+  end
+
   def assemble_records(records)
     results = []
     records.each do |record|
