@@ -414,6 +414,11 @@ class PagesController < ApplicationController
   def create
     params[:page][:behavior_values] = params.delete(:behavior_values)
     params[:page][:behavior] = params[:page][:behavior].downcase
+    if params[:page][:no_update]
+      params[:page][:no_update] = true 
+    else
+      params[:page][:no_update] = false
+    end
     @page = current_account.pages.build(params[:page])
     @page.creator @page.updator = current_user
 
@@ -453,6 +458,11 @@ class PagesController < ApplicationController
       @page.updator = current_user
       params[:page][:behavior_values] = params.delete(:behavior_values)
       params[:page][:behavior] = params[:page][:behavior].downcase
+      if params[:page][:no_update]
+        params[:page][:no_update] = true 
+      else
+        params[:page][:no_update] = false
+      end
       @updated = @page.update_attributes(params[:page])
       @close = true if params[:commit_type] =~ /close/i
       refresh = params[:refresh] || false
