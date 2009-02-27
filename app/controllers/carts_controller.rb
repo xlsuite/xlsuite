@@ -347,10 +347,12 @@ class CartsController < ApplicationController
       end
     end
     rescue
+      errors = $!.message.to_s
       respond_to do |format|
         format.html do
-          return redirect_to(params[:return_to]) if params[:return_to]
-          return redirect_to(:back) if request.env["HTTP_REFERER"]
+          logger.warn(errors.inspect)
+          flash_failure errors
+          return redirect_to_return_to_or_back_or_home
         end
         format.js do
           return render(:json => {:uuid => nil}.to_json)
