@@ -791,7 +791,10 @@ module PagesHelper
               mode: 'local',
               value: #{@page.status.to_json}
             }),
-            noUpdateCheckbox
+            noUpdateCheckbox,
+            {
+              html: '<span class="italic" font-size="10px">Checking the no update checkbox will exclude this page when performing suite update</span>'
+            }
           ]
         }, 
         {
