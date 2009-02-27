@@ -832,6 +832,13 @@ module SnippetsHelper
     
     var titleField = xl.widget.FormField({ value: #{@snippet.title.to_json}, name: 'snippet[title]', fieldLabel: 'Title', id: #{(typed_dom_id(@snippet, :title)).to_json}, width: 270});
     var domainPatternsField = xl.widget.FormField({ type: 'textarea', value: #{@snippet.domain_patterns.to_json}, name: 'snippet[domain_patterns]', fieldLabel: 'Domain Patterns', id: #{(typed_dom_id(@snippet, :fullslug)).to_json}, width: 270});
+
+    var noUpdateCheckbox = new Ext.form.Checkbox({
+      checked: #{@snippet.no_update.to_json},
+      name: "snippet[no_update]",
+      fieldLabel: "No update",
+      inputValue: "1"
+    });
     
     var mainPanel = new Ext.Panel({
       width: '100%',
@@ -897,6 +904,10 @@ module SnippetsHelper
           domainPatternsField,
           {
             html: '<p class="tip"><a target="_blank" href="#{ApplicationHelper::DOMAIN_PATTERNS_GUIDE_URL}" title="xlsuite wiki : multi-domain management">&uArr;What&rsquo;s this?</a><span class="italic" font-size="10px">(Separate patterns with a comma or a new line)</span></p>'
+          },
+          noUpdateCheckbox,
+          {
+            html: '<span class="italic" font-size="10px">Checking the no update checkbox will exclude this snippet when performing suite update</span>'
           }
         ]
       },
