@@ -398,7 +398,6 @@ class PagesController < ApplicationController
       @page = current_account.pages.build
     end
 
-    @behavior_values = OpenStruct.new(@page.behavior_values)
     @page.creator = current_user
     @title = "Pages New"
     respond_to do |format|
@@ -407,7 +406,6 @@ class PagesController < ApplicationController
   end
 
   def edit
-    @behavior_values = OpenStruct.new(@page.behavior_values)
     respond_to do |format|
       format.js
     end
