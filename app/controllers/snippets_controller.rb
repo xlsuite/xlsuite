@@ -287,6 +287,7 @@ class SnippetsController < ApplicationController
   before_filter :move_behavior_values_to_snippets_parameter, :only => %w(create update)
   before_filter :check_write_access, :only => %w(edit update destroy)
   before_filter :load_source_domains, :only => %w(index)
+  before_filter :process_snippet_params, :only => %w(update create)
 
   def index
     respond_to do |format|
@@ -333,8 +334,7 @@ class SnippetsController < ApplicationController
 
   def create
     Snippet.transaction do
-      published_at = params[:snippet][:published_at]
-      
+      published_at = params[:snippet][:published_at]      
       params[:snippet][:behavior] = params[:snippet][:behavior].downcase
       @snippet = current_account.snippets.build(params[:snippet])
       if published_at
@@ -515,6 +515,14 @@ class SnippetsController < ApplicationController
   end
 
   protected
+  def process_snippet_params
+    if params[:snippet][:no_update]
+      params[:snippet][:no_update] = true 
+    else
+      params[:snippet][:no_update] = false
+    end
+  end
+  
   def assemble_records(records)
     results = []
     records.each do |record|
