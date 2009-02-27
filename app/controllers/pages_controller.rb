@@ -417,7 +417,8 @@ class PagesController < ApplicationController
     params[:page][:behavior_values] = params.delete(:behavior_values)
     params[:page][:behavior] = params[:page][:behavior].downcase
     @page = current_account.pages.build(params[:page])
-    @page.creator @page.updator = current_user
+    @page.creator = self.current_user
+    @page.updator = self.current_user
 
     Page.transaction do
       @created = @page.save!
