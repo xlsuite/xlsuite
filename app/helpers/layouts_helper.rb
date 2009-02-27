@@ -565,6 +565,13 @@ module LayoutsHelper
     var contentTypeField = xl.widget.FormField({ value: #{@layout.content_type.to_json}, name: 'layout[content_type]', fieldLabel: 'Content Type', id: #{typed_dom_id(@layout, :content_type).to_json}, width: 270});
     var encodingField = xl.widget.FormField({ value: #{@layout.encoding.to_json}, name: 'layout[encoding]', fieldLabel: 'Encoding', id: #{typed_dom_id(@layout, :encoding).to_json}, width: 270});
     var domainPatternsField = xl.widget.FormField({ type: 'textarea', value: #{@layout.domain_patterns.to_json}, name: 'layout[domain_patterns]', fieldLabel: 'Domain Patterns', id: #{typed_dom_id(@layout, :fullslug).to_json}, width: 270});
+
+    var noUpdateCheckbox = new Ext.form.Checkbox({
+      checked: #{@layout.no_update.to_json},
+      name: "layout[no_update]",
+      fieldLabel: "No update",
+      inputValue: "1"
+    });
         
     var mainPanel = new Ext.Panel({
       width: '100%',
@@ -601,6 +608,10 @@ module LayoutsHelper
           domainPatternsField,
           {
             html: '<p class="tip"><a target="_blank" href="#{ApplicationHelper::DOMAIN_PATTERNS_GUIDE_URL}" title="xlsuite wiki : multi-domain management">&uArr;What&rsquo;s this?</a><span class="italic" font-size="10px">(Separate patterns with a comma or a new line)</span></p>'
+          },
+          noUpdateCheckbox,
+          {
+            html: '<span class="italic" font-size="10px">Checking the no update checkbox will exclude this layout when performing suite update</span>'
           }
         ]
       },{
