@@ -348,12 +348,12 @@ class ProfileRequest < ActiveRecord::Base
             next if attrs.merge(:name => nil).values.join.blank?
 
             name = name ? name.to_s : "Main"
-            model = self.#{plural}.find_by_name(name)
+            model = self.#{plural =~ /email/i ? "email_addresses" : plural}.find_by_name(name)
             if model then
               method = model.new_record? ? :attributes= : :update_attributes
               model.send(method, attrs.merge(:name => name))
             else
-              self.#{plural} << #{class_name}.new(attrs.merge(:routable => self, :name => name, :account => self.account))
+              self.#{plural =~ /email/i ? "email_addresses" : plural} << #{class_name}.new(attrs.merge(:routable => self, :name => name, :account => self.account))
             end
           end
         else

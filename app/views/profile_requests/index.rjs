@@ -30,7 +30,8 @@ page << create_tab_using_ajax_response("ProfileRequests | Index", after_render) 
     {name: 'created_by_name', mapping: 'created_by_name'},
     {name: 'profile_id', mapping: 'profile_id'},
     {name: 'view_profile', mapping: 'view_profile'},
-    {name: 'groups', mapping: 'groups'}
+    {name: 'groups', mapping: 'groups'},
+    {name: 'type', mapping: 'type'}
     
   ]);
   // data reader to parse the json response
@@ -79,6 +80,7 @@ page << create_tab_using_ajax_response("ProfileRequests | Index", after_render) 
   var grid = new Ext.grid.EditorGridPanel({
       store: ds,
       cm: new Ext.grid.ColumnModel([expander, 
+          {id: "type", width: 75, header: "Type", sortable: true, dataIndex: 'type'},
           {id: "name", width: 110, header: "Name", sortable: true, dataIndex: 'name'},
           {id: "company_name", width: 130, header: "Company Name", sortable: true, dataIndex: 'company_name'},
           {id: "links", width: 75, header: "Websites", sortable: true, dataIndex: 'links'},
@@ -86,7 +88,7 @@ page << create_tab_using_ajax_response("ProfileRequests | Index", after_render) 
           {id: "created_by_name", width: 150, header: "Submitted By", sortable: true, dataIndex: 'created_by_name'},
           {id: "created_at", width: 75, header: "Created At", sortable: true, dataIndex: 'created_at'},
           {id: "approved_at", width: 75, header: "Approved At", sortable: true, dataIndex: 'approved_at'},
-          {id: "view_profile", width: 85, header: "Created Profile", sortable: true, dataIndex: 'view_profile'}
+          {id: "view_profile", width: 85, header: "Profile", sortable: true, dataIndex: 'view_profile'}
         ]),
       autoScroll: true,
       autoExpandColumn: 'company_name',

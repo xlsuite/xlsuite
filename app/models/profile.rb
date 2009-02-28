@@ -287,6 +287,8 @@ class Profile < ActiveRecord::Base
   include XlSuite::PicturesHelper
   belongs_to :avatar, :class_name => "Asset", :foreign_key => "avatar_id"
 
+  has_many :profile_add_requests
+  has_many :profile_claim_requests
   composed_of :name,    :mapping => [ %w(last_name last),
                                       %w(first_name first),
                                       %w(middle_name middle)]
@@ -484,6 +486,10 @@ class Profile < ActiveRecord::Base
     return true if party.owned_profiles.map(&:id).include?(self.id)
     return true if party.profile.id == self.id
     return false
+  end
+  
+  def claimed?
+    return self.profile_claim_requests.any?(&:approved_at) || self.party.confirmed?
   end
   
   protected
