@@ -28,15 +28,12 @@ module XlSuite
           end
 
           def #{method_name}=(value)
-            case value
-            when NilClass
+            if value.respond_to?(:to_money) then
+              self.#{method_name}_amount = value.to_money
+            elsif value.nil? then
               self.#{method_name}_amount = nil
-            when Money
-              self.#{method_name}_amount = value
-            when String
-              self.#{method_name}_amount = value.blank? ? Money.zero : value.to_money
             else
-              raise ArgumentError, "##{method_name}= expects nil, a Money instance, or a String of the form '15.00 CAD'"
+              raise ArgumentError, "##{method_name}= expects nil, or something that responds to :to_money, got \#{value.inspect}"
             end
           end
         end_eval
