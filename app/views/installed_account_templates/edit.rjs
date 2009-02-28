@@ -1,6 +1,6 @@
 page << create_tab_using_ajax_response("Installed Suite | #{@installed_account_template.account_template.name}") do
 %Q`
-  var updateButton = new Ext.Button({
+  var buttonConfig = {
     text: "Update",
     handler: function(btn, e){
       Ext.Msg.confirm("Updating template", "Do you want to proceed?", function(btn){
@@ -24,7 +24,10 @@ page << create_tab_using_ajax_response("Installed Suite | #{@installed_account_t
         }
       });
     }
-  });
+  };
+
+  var updateButton = new Ext.Button(buttonConfig);
+  var bottomUpdateButton = new Ext.Button(buttonConfig);
   
   var excludeItemsHiddenField = new Ext.form.Hidden({
     name: "update[exclude_items]"
@@ -56,7 +59,12 @@ page << create_tab_using_ajax_response("Installed Suite | #{@installed_account_t
   var formPanel = new Ext.form.FormPanel({
     items: [assetsCheckboxField, configurationsCheckboxField, workflowsCheckboxField, overwriteCheckboxField, excludeItemsHiddenField],
     bbar: [updateButton],
-    tbar: [updateButton]
+    tbar: [bottomUpdateButton],
+    listeners: {
+      render: function(cpt){
+        xl.fitToOwnerCtHeight(cpt);
+      }
+    }
   });
   
   #{self.generate_changed_items_grid}
