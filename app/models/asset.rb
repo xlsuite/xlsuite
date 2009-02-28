@@ -300,6 +300,7 @@ class Asset < ActiveRecord::Base
     end
   end
   
+  # Please modify View#set_classification if the following conditions are changed
   IMAGE_FILES_CONDITION = "(assets.content_type LIKE 'image/%')"
   AUDIO_FILES_CONDITION = "(assets.content_type LIKE 'audio/%')"
   VIDEO_FILES_CONDITION = "(assets.content_type LIKE 'video/%')"
