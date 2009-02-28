@@ -605,7 +605,8 @@ class Account < ActiveRecord::Base
       t_layout = target_acct.layouts.find_by_uuid(layout.uuid)
       if t_layout
         next if t_layout.no_update?
-        t_layout.attributes = layout.attributes_for_copy_to(target_acct, options) if options[:overwrite]
+        next if options[:exclude_layouts] && options[:exclude_layouts].include?(t_layout.id)
+        t_layout.attributes = layout.attributes_for_copy_to(target_acct, options)
         t_layout.save!
       else
         t_layout = target_acct.layouts.create!(layout.attributes_for_copy_to(target_acct, options))
@@ -634,8 +635,13 @@ class Account < ActiveRecord::Base
     Page.disable_domain_routing_update do
       self.pages.find(:all, :conditions => {:type => "Page"}).each do |page|
         t_page = target_acct.pages.find_or_initialize_by_uuid(page.uuid)
-        next if t_page.no_update?
-        t_page.attributes = page.attributes_for_copy_to(target_acct, options) if t_page.new_record? || options[:overwrite]
+        if t_page.new_record?
+          t_page.attributes = page.attributes_for_copy_to(target_acct, options) 
+        else
+          next if t_page.no_update?
+          next if options[:exclude_pages].kind_of?(Enumerable) && options[:exclude_pages].include?(t_page.id)
+          t_page.attributes = page.attributes_for_copy_to(target_acct, options) 
+        end
         t_page.save!
       end
       logger.debug {"==> Copying redirects to target account"}
@@ -666,7 +672,8 @@ class Account < ActiveRecord::Base
       t_snippet = target_acct.snippets.find_by_uuid(snippet.uuid)
       if t_snippet
         next if t_snippet.no_update?
-        t_snippet.attributes = snippet.attributes_for_copy_to(target_acct, options) if options[:overwrite]
+        next if options[:exclude_snippets].kind_of?(Enumerable) && options[:exclude_snippets].include?(t_snippet.id)
+        t_snippet.attributes = snippet.attributes_for_copy_to(target_acct, options)
         t_snippet.ignore_warnings = true
         t_snippet.save!
       else
