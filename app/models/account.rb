@@ -305,7 +305,7 @@ class Account < ActiveRecord::Base
       invoices
       payments payment_transitions payables
       timelines
-      assets profiles profile_add_requests
+      assets profiles profile_add_requests profile_claim_requests profile_requests
       mappers imports fulltext_rows
       links link_categories
       products product_categories entities sale_events suppliers

@@ -3,7 +3,7 @@ ActionController::Routing::SEPARATORS.concat %w( ; )
 
 ActionController::Routing::Routes.draw do |map|
   map.resources :profile_requests, :path_prefix => "/admin", 
-    :collection => {:create_add => :post, :destroy_collection => :post, :approve_collection => :post}
+    :collection => {:create_add => :post, :create_claim => :post, :destroy_collection => :post, :approve_collection => :post}
   
   map.resources :public_domains, :path_prefix => "/admin/public", :as => "domains", :controller => "public/domains",
     :collection => {:check => :post}

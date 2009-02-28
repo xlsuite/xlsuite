@@ -283,7 +283,7 @@ class ProfileDrop < Liquid::Drop
   delegate :id, :party, :honorific, :first_name, :last_name, :middle_name, :full_name, :display_name, :company_name, :position,
     :avatar, :alias, :quick_description, :gmap_query, :info, :tags, :tag_list, :approved_comments_count, :unapproved_comments_count,
     :addresses, :email_addresses, :links, :phones, :main_address, :main_email, :main_link, :main_phone, :has_alias?, 
-    :created_at, :updated_at, :custom_url, :to => :profile
+    :created_at, :updated_at, :custom_url, :claimed?, :to => :profile
 
   def initialize(profile)
     @profile = profile
@@ -426,4 +426,8 @@ class ProfileDrop < Liquid::Drop
     return self.profile.writeable_by?(self.context["user"].party)
   end
   alias_method :writeable_by?, :editable_by_user
+  
+  def confirmed
+    return self.profile.party.confirmed?
+  end
 end
