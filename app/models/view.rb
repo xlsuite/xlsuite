@@ -298,6 +298,9 @@ class View < ActiveRecord::Base
         "multimedia"
       when /^video/i
         "multimedia"
+      when /shockwave/i
+        "multimedia"
+      when /flv$/i
       else
         "other_files"
       end
