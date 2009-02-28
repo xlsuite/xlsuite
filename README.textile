@@ -70,6 +70,7 @@ You can find out more about our license options by visiting http://xlsuite.com/l
 Information about our partner program can be found at http://xlsuite.com/partners
 
 
+
 h1. The Company
 
 XLsuite is a product of iXLd Media Inc, a Vancouver based company whose main 
