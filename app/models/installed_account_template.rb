@@ -295,8 +295,26 @@ class InstalledAccountTemplate < ActiveRecord::Base
     ActiveRecord::Base.transaction do
       return false unless self.account_template && self.account_template.stable_account
       options = options.dup.symbolize_keys
+      exclude_items = options.delete(:exclude_items)
+      options[:exclude_pages] = []
+      options[:exclude_layouts] = []
+      options[:exclude_snippets] = []
+      if exclude_items
+        exclude_items.split(",").map(&:strip).each do |exclude_item|
+          case exclude_item
+          when /page/i
+            options[:exclude_pages] << exclude_item.split("_").map(&:strip).last.to_i
+          when /snippet/i
+            options[:exclude_snippets] << exclude_item.split("_").map(&:strip).last.to_i
+          when /layout/i
+            options[:exclude_layouts] << exclude_item.split("_").map(&:strip).last.to_i
+          else
+            raise StandardError, "Exclude item contains non supported type #{exclude_item}" 
+          end
+        end
+      end
       options.reverse_merge!({
-        :pages => false, :snippets => false, :layouts => false,
+        :pages => true, :snippets => true, :layouts => true,
         :groups => false,
         :assets => false, 
         :products => false, 
@@ -361,15 +379,15 @@ class InstalledAccountTemplate < ActiveRecord::Base
     result = []
     return result unless self.account_template.stable_account
     stable_acct = self.account_template.stable_account
-    stable_acct.layouts.each do |layout|
-      l = target_acct.layouts.find_by_uuid(layout.uuid)
+    stable_acct.layouts.all(:conditions => {:no_update => false}).each do |layout|
+      l = target_acct.layouts.find(:first, :conditions => {:uuid => layout.uuid, :no_update => false})
       if l
         result << l if ((l.content_attributes != layout.content_attributes) and (l.modified or l.modified == nil))
       end
     end
     %w(pages snippets).each do |relation|
-      stable_acct.send(relation).each do |object|
-        o = target_acct.send(relation).find_by_uuid(object.uuid)
+      stable_acct.send(relation).all(:conditions => {:no_update => false}).each do |object|
+        o = target_acct.send(relation).find(:first, :conditions => {:uuid => object.uuid, :no_update => false})
         if o
           result << o if ((o.content_attributes != object.content_attributes) and (o.modified or o.modified==nil))
         end
