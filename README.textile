@@ -89,4 +89,3 @@ The other core team members include Harman Sandjaja and Spencer Shek programming
 Ionut Maxim working on design and Madalin Sandu working on CSS and JS implementations.
 
 I am "Riel Roussopoulos":http://www.linkedin.com/in/djriel, CEO of iXLd Media Inc.
-
