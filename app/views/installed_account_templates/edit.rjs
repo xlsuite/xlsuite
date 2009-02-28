@@ -1,18 +1,19 @@
 changed_items_path_json = formatted_changed_items_installed_account_template_path(:id => @installed_account_template.id, :format => :json).to_json
 
-page << create_tab_using_ajax_response("Installed Account Template | #{@installed_account_template.account_template.name}") do
+page << create_tab_using_ajax_response("Installed Suite | #{@installed_account_template.account_template.name}") do
 %Q`
   var updateButton = new Ext.Button({
     text: "Update",
     handler: function(btn, e){
       Ext.Msg.confirm("Updating template", "Do you want to proceed?", function(btn){
-        if ( btn.match(new RegExp("yes","i")) ) {              
+        if ( btn.match(new RegExp("yes","i")) ) {
+          excludeItemsHiddenField.setRawValue(excludeItemIds.join(","));
           formPanel.getForm().doAction("submit", 
             {
               url: #{refresh_installed_account_template_path(@installed_account_template).to_json},
               method: "POST",
               success: function(response, action){
-                Ext.Msg.alert("Updating template", "Your request has been received. Please refrain from modifying template items. You will receive an email at #{self.current_account.owner.main_email.email_address} once the update has been completed");
+                Ext.Msg.alert("Updating template", "Your request has been received. Please refrain from modifying suite items. You will receive an email at #{self.current_account.owner.main_email.email_address} once the update has been completed");
                 formPanel.el.unmask();
               },
               failure: function(response, action){
@@ -26,23 +27,11 @@ page << create_tab_using_ajax_response("Installed Account Template | #{@installe
       });
     }
   });
-
-  var snippetsCheckboxField = new Ext.form.Checkbox({
-    fieldLabel: "Snippets",
-    name: "update[snippets]",
-    checked: true
-  });
   
-  var layoutsCheckboxField = new Ext.form.Checkbox({
-    fieldLabel: "Layouts",
-    name: "update[layouts]",
-    checked: true
-  });
+  var excludeItemIds = new Array();
   
-  var pagesCheckboxField = new Ext.form.Checkbox({
-    fieldLabel: "Pages",
-    name: "update[pages]",
-    checked: true
+  var excludeItemsHiddenField = new Ext.form.Hidden({
+    name: "update[exclude_items]"
   });
   
   var assetsCheckboxField = new Ext.form.Checkbox({
@@ -64,12 +53,12 @@ page << create_tab_using_ajax_response("Installed Account Template | #{@installe
   });
   
   var overwriteCheckboxField = new Ext.form.Checkbox({
-    fieldLabel: "Overwrite components with template's?",
+    fieldLabel: "Overwrite components with suite's?",
     name: "update[overwrite]"
   });
 
   var formPanel = new Ext.form.FormPanel({
-    items: [layoutsCheckboxField, pagesCheckboxField, snippetsCheckboxField, assetsCheckboxField, configurationsCheckboxField, workflowsCheckboxField, overwriteCheckboxField],
+    items: [assetsCheckboxField, configurationsCheckboxField, workflowsCheckboxField, overwriteCheckboxField, excludeItemsHiddenField],
     bbar: [updateButton],
     tbar: [updateButton]
   });
@@ -79,7 +68,8 @@ page << create_tab_using_ajax_response("Installed Account Template | #{@installe
     {name: 'type', mapping: 'type'},
     {name: 'identifier', mapping: 'identifier'},
     {name: 'domain_patterns', mapping: 'domain_patterns'},
-    {name: 'updated_at', mapping: 'updated_at'}
+    {name: 'updated_at', mapping: 'updated_at'},
+    {name: 'include', mapping: 'include'}
   ]);
   var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, ChangedItemRecord);
   var connection = new Ext.data.Connection({url: #{changed_items_path_json}, method: 'get'});
@@ -128,17 +118,35 @@ page << create_tab_using_ajax_response("Installed Account Template | #{@installe
       win.show();
     }
   });
+
+  var cmsComponentCheckColumn = new Ext.grid.CheckColumn({
+    id: 'include',
+    header: "Include",
+    dataIndex: "include",
+    width: 45
+  });
+  
+  cmsComponentCheckColumn.addListener("click", function(element, event, record){
+    var objectId = record.get("id");
+    if(!record.get("include"))
+      excludeItemIds.push(objectId);
+    else
+      excludeItemIds.remove(objectId);
+    console.log("exclude item ids = %o", excludeItemIds);
+  });  
   
   var changedItemsGrid = new Ext.grid.GridPanel({
-    title: "Modified item(s) to be replaced",
+    title: "Modified CMS component(s) to be replaced",
     store: changedItemsStore,
     cm: new Ext.grid.ColumnModel([
+        cmsComponentCheckColumn,
         {id: "type", header: "Type", width: 75, dataIndex: 'type'},
         {id: "identifier", header: "Identifier", dataIndex: 'identifier'},
         {id: "domain_patterns", header: "Domain Pattern", dataIndex: 'domain_patterns'},
         {id: "updated_at", width: 125, header: "Updated at", dataIndex: 'updated_at'}
       ]),
     bbar: [toTextButton],
+    plugins: cmsComponentCheckColumn,
     listeners: {
       render: function(cpt){
         changedItemsStore.load();
