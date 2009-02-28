@@ -350,6 +350,8 @@ module InstalledAccountTemplatesHelper
         listeners: {
           render: function(cpt){
             noUpdateItemsStore.load();
+            console.log("cpt.ownerCt = %o", cpt.ownerCt.getSize());
+            console.log("cpt.ownerCt.ownerCt = %o", cpt.ownerCt.ownerCt.getSize());
             xl.fitToOwnerCt(cpt);
           }
         }
