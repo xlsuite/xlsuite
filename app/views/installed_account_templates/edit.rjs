@@ -62,6 +62,20 @@ page << create_tab_using_ajax_response("Installed Suite | #{@installed_account_t
   #{self.generate_changed_items_grid}
   
   #{self.generate_no_update_items_grid}
+  
+  var tabPanel = new Ext.TabPanel({
+    activeTab: 0,
+    tabPosition: "bottom",
+    items:[
+      {title: changedItemsGrid.title, items: changedItemsGrid, listeners: {show: function(panel){xl.viewport.render();}} },
+      {title: noUpdateItemsGrid.title, items: noUpdateItemsGrid, listeners: {show: function(panel){xl.viewport.render();}} }
+    ],
+    listeners: {
+      render: function(cpt){
+        xl.fitToOwnerCtHeight(cpt);
+      }
+    }
+  })
     
   var wrapperPanel = new Ext.Panel({
     layout: "column",
@@ -73,10 +87,11 @@ page << create_tab_using_ajax_response("Installed Suite | #{@installed_account_t
             xl.fitToOwnerCtHeight(cpt);
           }
         },
-        columnWidth: .15
+        columnWidth: .2
       },
       {
-        items: [changedItemsGrid, noUpdateItemsGrid],
+        
+        items: [tabPanel],
         listeners: {
           render: function(cpt){
             xl.fitToOwnerCtHeight(cpt);
