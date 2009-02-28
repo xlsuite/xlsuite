@@ -1754,6 +1754,7 @@ CREATE TABLE `profile_requests` (
   `profile_id` int(11) default NULL,
   `created_by_id` int(11) default NULL,
   `group_ids` varchar(255) default NULL,
+  `confirmation_url` varchar(255) default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -2432,4 +2433,8 @@ INSERT INTO schema_migrations (version) VALUES ('20090221015919');
 
 INSERT INTO schema_migrations (version) VALUES ('20090225235741');
 
+INSERT INTO schema_migrations (version) VALUES ('20090227005854');
+
 INSERT INTO schema_migrations (version) VALUES ('20090227222622');
+
+INSERT INTO schema_migrations (version) VALUES ('20090228022633');

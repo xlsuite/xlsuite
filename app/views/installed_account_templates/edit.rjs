@@ -1,8 +1,6 @@
-changed_items_path_json = formatted_changed_items_installed_account_template_path(:id => @installed_account_template.id, :format => :json).to_json
-
 page << create_tab_using_ajax_response("Installed Suite | #{@installed_account_template.account_template.name}") do
 %Q`
-  var updateButton = new Ext.Button({
+  var buttonConfig = {
     text: "Update",
     handler: function(btn, e){
       Ext.Msg.confirm("Updating template", "Do you want to proceed?", function(btn){
@@ -26,9 +24,10 @@ page << create_tab_using_ajax_response("Installed Suite | #{@installed_account_t
         }
       });
     }
-  });
-  
-  var excludeItemIds = new Array();
+  };
+
+  var updateButton = new Ext.Button(buttonConfig);
+  var bottomUpdateButton = new Ext.Button(buttonConfig);
   
   var excludeItemsHiddenField = new Ext.form.Hidden({
     name: "update[exclude_items]"
@@ -60,101 +59,32 @@ page << create_tab_using_ajax_response("Installed Suite | #{@installed_account_t
   var formPanel = new Ext.form.FormPanel({
     items: [assetsCheckboxField, configurationsCheckboxField, workflowsCheckboxField, overwriteCheckboxField, excludeItemsHiddenField],
     bbar: [updateButton],
-    tbar: [updateButton]
-  });
-  
-  var ChangedItemRecord = new Ext.data.Record.create([
-    {name: 'id', mapping: 'id'},
-    {name: 'type', mapping: 'type'},
-    {name: 'identifier', mapping: 'identifier'},
-    {name: 'domain_patterns', mapping: 'domain_patterns'},
-    {name: 'updated_at', mapping: 'updated_at'},
-    {name: 'include', mapping: 'include'}
-  ]);
-  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, ChangedItemRecord);
-  var connection = new Ext.data.Connection({url: #{changed_items_path_json}, method: 'get'});
-  var proxy = new Ext.data.HttpProxy(connection);
-  var changedItemsStore = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
-
-  var toTextButton = new Ext.Toolbar.Button({
-    text: "To TEXT",
-    handler: function(btn, e){
-      var text = "";
-      var gridColumnDataIndex = new Array();
-      var gridColumnModel = changedItemsGrid.getColumnModel();
-      for(var i=0; i<gridColumnModel.getColumnCount(); i++){
-        gridColumnDataIndex.push(gridColumnModel.getDataIndex(i));
-      }
-      changedItemsStore.each(function(record){
-        var content = new Array();
-        gridColumnDataIndex.forEach(function(element, index, array){
-          content.push(record.get(element));
-        });
-        text += (content.join(", ") + "\\n"); 
-      });
-      
-      var gridToText = new Ext.form.TextArea({
-        value: text,
-        readOnly: true,
-        listeners: {
-          render: function(cpt){
-            xl.fitToOwnerCt(cpt);
-          }
-        }
-      });
-      
-      var win = new Ext.Window({
-        title: changedItemsGrid.title,
-        items: gridToText,
-        height: 400,
-        width: 300,
-        autoScroll: true,
-        listeners: {
-          resize: function(cpt){
-            xl.fitToOwnerCt(gridToText);
-          }
-        }
-      });
-      win.show();
-    }
-  });
-
-  var cmsComponentCheckColumn = new Ext.grid.CheckColumn({
-    id: 'include',
-    header: "Include",
-    dataIndex: "include",
-    width: 45
-  });
-  
-  cmsComponentCheckColumn.addListener("click", function(element, event, record){
-    var objectId = record.get("id");
-    if(!record.get("include"))
-      excludeItemIds.push(objectId);
-    else
-      excludeItemIds.remove(objectId);
-    console.log("exclude item ids = %o", excludeItemIds);
-  });  
-  
-  var changedItemsGrid = new Ext.grid.GridPanel({
-    title: "Modified CMS component(s) to be replaced",
-    store: changedItemsStore,
-    cm: new Ext.grid.ColumnModel([
-        cmsComponentCheckColumn,
-        {id: "type", header: "Type", width: 75, dataIndex: 'type'},
-        {id: "identifier", header: "Identifier", dataIndex: 'identifier'},
-        {id: "domain_patterns", header: "Domain Pattern", dataIndex: 'domain_patterns'},
-        {id: "updated_at", width: 125, header: "Updated at", dataIndex: 'updated_at'}
-      ]),
-    bbar: [toTextButton],
-    plugins: cmsComponentCheckColumn,
+    tbar: [bottomUpdateButton],
     listeners: {
       render: function(cpt){
-        changedItemsStore.load();
-        xl.fitToOwnerCt(cpt);
+        xl.fitToOwnerCtHeight(cpt);
       }
     }
   });
   
+  #{self.generate_changed_items_grid}
+  
+  #{self.generate_no_update_items_grid}
+  
+  var tabPanel = new Ext.TabPanel({
+    activeTab: 0,
+    tabPosition: "bottom",
+    items:[
+      {title: changedItemsGrid.title, items: changedItemsGrid, listeners: {show: function(panel){xl.viewport.render();}} },
+      {title: noUpdateItemsGrid.title, items: noUpdateItemsGrid, listeners: {show: function(panel){xl.viewport.render();}} }
+    ],
+    listeners: {
+      render: function(cpt){
+        xl.fitToOwnerCtHeight(cpt);
+      }
+    }
+  })
+    
   var wrapperPanel = new Ext.Panel({
     layout: "column",
     items: [
@@ -168,7 +98,8 @@ page << create_tab_using_ajax_response("Installed Suite | #{@installed_account_t
         columnWidth: .2
       },
       {
-        items: changedItemsGrid,
+        
+        items: [tabPanel],
         listeners: {
           render: function(cpt){
             xl.fitToOwnerCtHeight(cpt);

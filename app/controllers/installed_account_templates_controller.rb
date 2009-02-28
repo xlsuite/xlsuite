@@ -279,9 +279,9 @@
 # 
 # 		     END OF TERMS AND CONDITIONS
 class InstalledAccountTemplatesController < ApplicationController
-  required_permissions %w(index edit refresh changed_items) => "current_user?"
+  required_permissions %w(index edit refresh changed_items no_update_items) => "current_user?"
   
-  before_filter :load_installed_account_template, :only => %w(edit refresh changed_items)
+  before_filter :load_installed_account_template, :only => %w(edit refresh changed_items no_update_items)
   
   def index
     @installed_account_templates = self.current_account.installed_account_templates
@@ -314,6 +314,33 @@ class InstalledAccountTemplatesController < ApplicationController
       format.json do
         json_records = []
         @changed_items.each do |changed_item|
+          json_records << {
+            :include => true,
+            :id => changed_item.dom_id,
+            :type => changed_item.class.name,
+            :identifier => case changed_item
+                           when Layout
+                             changed_item.title
+                           when Snippet
+                             changed_item.title
+                           when Page
+                             "#{changed_item.title} | #{changed_item.fullslug.inspect}"
+                           end,
+            :domain_patterns => (changed_item.respond_to?(:domain_patterns) ? changed_item.domain_patterns : ""),
+            :updated_at => (changed_item.respond_to?(:updated_at) ? changed_item.updated_at.strftime('%b %d, %Y %I:%M %p') : "")
+          }
+        end
+        render :json => {:collection => json_records, :total => json_records.size}.to_json 
+      end
+    end
+  end
+  
+  def no_update_items
+    @no_update_items = @installed_account_template.list_no_update_items_with(self.current_account)
+    respond_to do |format|
+      format.json do
+        json_records = []
+        @no_update_items.each do |changed_item|
           json_records << {
             :include => true,
             :id => changed_item.dom_id,

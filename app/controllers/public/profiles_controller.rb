@@ -284,6 +284,62 @@ class Public::ProfilesController < ApplicationController
 
   before_filter :load_product_categories, :only => [:attach_product_categories, :detach_product_categories]
 
+  def change_password
+    party = @profile.party
+    if params[:reset]
+      party.reset_password(current_domain.name)
+      message = %Q`<p>The password for <b>#{party.name.to_s.upcase}</b> has been reset.</p><p>An email containing the new password has been sent to #{party.main_email.email_address}</p>`
+      respond_to do |format|
+        format.js do
+          return render(:json => {:success => true, :messages => message}.to_json)
+        end
+        format.html do
+          flash_success message
+          redirect_to_next_or_back_or_home
+        end
+      end
+    else
+      begin
+        party.change_password!(:old_password => params.delete(:old_password),
+                               :password => params.delete(:password),
+                               :password_confirmation => params.delete(:password_confirmation))
+        respond_to do |format|
+          message = "Password successfully changed"
+          format.js do
+            return render(:json => {:success => true, :messages => message}.to_json)
+          end
+          format.html do
+            flash_success message
+            redirect_to_next_or_back_or_home
+          end
+        end
+      rescue XlSuite::AuthenticatedUser::BadAuthentication
+        respond_to do |format|
+          message = "Password is wrong"
+          format.js do
+            return render(:json => {:success => false, :messages => message}.to_json)
+          end
+          format.html do
+            flash_failure message
+            redirect_to_return_to_or_back_or_home
+          end
+        end
+      rescue ActiveRecord::RecordInvalid
+        respond_to do |format|
+          message = $!.message
+          format.js do
+            return render(:json => {:success => false, :messages => message}.to_json)
+          end
+          format.html do
+            flash_failure message
+            redirect_to_return_to_or_back_or_home
+          end
+        end
+      end
+      
+    end
+  end
+
   def attach_product_categories
     messages, errors = [], []
     if @all_categories_permitted
@@ -365,7 +421,7 @@ class Public::ProfilesController < ApplicationController
   protected
 
   def load_profile
-    @profile = self.current_account.profiles.find([:id])
+    @profile = self.current_account.profiles.find(params[:id])
   end
 
   def load_product_categories
@@ -375,7 +431,7 @@ class Public::ProfilesController < ApplicationController
   end
 
   def authorized?
-    if %w(attach_product_categories detach_product_categories).include?(self.action_name)
+    if %w(attach_product_categories detach_product_categories change_password).include?(self.action_name)
       return false unless self.current_user?
       self.load_profile
       return true if self.current_user.can?(:edit_profiles)

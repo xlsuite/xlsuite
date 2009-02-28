@@ -17,7 +17,7 @@ ActionController::Routing::Routes.draw do |map|
     :member => {:add_to_categories => :post, :remove_from_categories => :delete}
   
   map.resources :public_profiles, :path_prefix => "/admin/public", :as => "profiles", :controller => "public/profiles",
-    :member => {:attach_product_categories => :post, :detach_product_categories => :delete},
+    :member => {:attach_product_categories => :post, :detach_product_categories => :delete, :change_password => :post},
     :collection => {:check_alias => :get, :check_custom_url => :get}
   
   map.resources :product_items, :path_prefix => "/admin", :collection => {:destroy_collection => :delete}
@@ -33,7 +33,7 @@ ActionController::Routing::Routes.draw do |map|
     :member => {:pay => :post, :cancel => :put}
   
   map.resources :installed_account_templates, :path_prefix => "/admin",
-    :member => {:refresh => :post, :changed_items => :get}
+    :member => {:refresh => :post, :changed_items => :get, :no_update_items => :get}
   
   map.resources :public_account_templates, :path_prefix => "/admin/public", :as => "account_templates", :controller => "public/account_templates"
   
