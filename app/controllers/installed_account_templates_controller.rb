@@ -315,6 +315,7 @@ class InstalledAccountTemplatesController < ApplicationController
         json_records = []
         @changed_items.each do |changed_item|
           json_records << {
+            :include => true,
             :id => changed_item.dom_id,
             :type => changed_item.class.name,
             :identifier => case changed_item
