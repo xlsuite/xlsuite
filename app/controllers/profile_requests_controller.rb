@@ -379,7 +379,6 @@ class ProfileRequestsController < ApplicationController
         @profile_claim_request.approve!
         flash_success params[:approved_message] ? params[:approved_message].gsub("__email__", email_address) : "Thank you, please check your email at #{email_address} to finish claiming the profile."
       else
-        @profile_claim_request.deliver_signup_confirmation_email
         flash_success params[:success_message] ? params[:sucess_message].gsub("__email__", email_address) : "Thank you, your claim request is pending approval by an Admin. You will receive an email at #{email_address} when the request is approved"
       end
       
