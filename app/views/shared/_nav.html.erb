@@ -116,11 +116,8 @@
               <li><%= link_to_function 'New', "xl.openNewTabPanel('products_new_nil', #{new_product_path.to_json})" %></li>
             </ul>
           </li>
-          <li><%= link_to_function 'Categories<span class="right">&raquo;</span>', "xl.openNewTabPanel('product_categories_index_nil', #{product_categories_path.to_json})" %>
-						<!-- 3rd Level -->
-            <ul>
-              <li><%= link_to_function 'New', "xl.openNewTabPanel('product_categories_index_nil', '#{product_categories_path}?new=true')" %></li>
-            </ul>
+          <li>
+            <%= link_to_function 'Categories', "xl.openNewTabPanel('product_categories_index_nil', #{product_categories_path.to_json})" %>
 					</li>
           <li style="display:none;"><%= link_to_function 'Sale Events<span class="right">&raquo;</span>', "xl.openNewTabPanel('sale_events_index_nil', #{sale_events_path.to_json})" %>
             <ul>
