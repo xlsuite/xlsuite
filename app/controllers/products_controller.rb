@@ -384,7 +384,11 @@ class ProductsController < ApplicationController
   
   def update
     if @product.writeable_by?(current_user)
-      @product.attributes = params[:product]
+      params_product = params[:product]
+      if params_product[:category_ids]
+        params_product[:category_ids] = params_product[:category_ids].split(",").map(&:strip).map(&:to_i)
+      end
+      @product.attributes = params_product
       @product.editor_id = current_user.id
       @updated = @product.save!
       if @updated && params[:files].kind_of?(Hash)
