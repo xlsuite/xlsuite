@@ -1,31 +1,85 @@
-page << create_tab_using_ajax_response("Product | New") do
-%Q`
-  var wrapperPanel = new Ext.Panel({
-    layout: 'border',
-    cls: 'IAmAPanelWithBorderLayoutContainer',
-    region: 'center'
-  });
-  
-  var upperPanel = new Ext.Panel({
-    region: 'center',
-    html: #{render(:partial => "new").to_json},
-    autoScroll: true
-  });
-  wrapperPanel.add(upperPanel);
-  
-  newPanel.add(wrapperPanel);
-`
-end
-
 page << %Q`
-  /*Event.observe(#{typed_dom_id(@product, :wholesale_price, :field).to_json}, 'change', function() {
-    calculateMarginPercentage(#{typed_dom_id(@product, :retail_price, :field).to_json}, #{typed_dom_id(@product, :wholesale_price, :field).to_json}, #{typed_dom_id(@product, :margin).to_json});
-  });
+  function products_new_nil(){
+    var labelField = new Ext.form.TextField({
+      fieldLabel: 'Name',
+      allowBlank: false
+    });
+    var errorPanel = new Ext.Panel({
+      html: ''
+    });
+    
+    var productEditPath = #{edit_product_path(:id => "__id__").to_json};
 
-  Event.observe(#{typed_dom_id(@product, :retail_price, :field).to_json}, 'change', function() {
-    calculateMarginPercentage(#{typed_dom_id(@product, :retail_price, :field).to_json}, #{typed_dom_id(@product, :wholesale_price, :field).to_json}, #{typed_dom_id(@product, :margin).to_json});
-  });
-  */
-  #{ render_tags_panel("product[tag_list]", @product, current_account.products.tags, {:width => 300}, {:collapsible => false, :title => "Tags"}, true)}
-  tagsPanel.render("product_tags");
+    var window = new Ext.Window({
+      autoHeight: true,
+      width: 250,
+      header: false,
+      headerAsText: false,
+
+      plain: true,
+      floating: true,
+      shadow: true,
+      constrain: true,
+
+      closable: false,
+      collapsibe: false,
+      draggable: false,
+      maximizable: false,
+      minimizable: false,
+      resizable: false,
+
+      items: [
+        {
+          html: '<p>Please enter product name:</p><br />'
+        },
+        {
+          layout: 'form',
+          labelWidth: 50,
+          labelAlign: 'right',
+          items: labelField
+        },
+        errorPanel
+      ],
+
+      defaultButton: 1,
+      buttons: [
+        {
+          text: 'Create',
+          handler: function() {
+            Ext.Ajax.request({
+              url:#{products_path.to_json},
+              params: {"product[name]": labelField.getValue()},
+              success: function(response, options){
+                var response = Ext.decode(response.responseText);
+                if(response.success){
+                  var path = productEditPath.replace(new RegExp("__id__", "g"), response.id);
+                  var tabId = "products_edit_" + response.id;                 
+                  xl.openNewTabPanel(tabId, path);
+                  #{self.refresh_grid_datastore_of("Product")}
+                  window.hide(); window.close();
+                }
+                else{
+                  Ext.Msg.alert("Create product failed", "You should not see this message. Please contact our admin");
+                  window.hide(); window.close();
+                }
+              },
+              failure: function(response, options){
+                Ext.Msg.alert("Create product failed", "Proper connection with the server cannot be established")
+                window.hide(); window.close();
+              }
+            })
+          }
+        }, // end Create Button
+        {
+          text: 'Cancel',
+          handler: function() {
+            window.hide();
+            window.close(); // This destroys it
+          }
+        }
+      ] // end buttons
+    });
+    window.show();
+  }
+  products_new_nil();
 `

@@ -342,7 +342,13 @@ class ProductsController < ApplicationController
           return redirect_to(:back) if request.env["HTTP_REFERER"]
         end
       end
-      format.js
+      format.js do
+        if @created
+          return render(:json => {:success => true, :id => @product.id}.to_json)
+        else
+          return render(:json => {:success => false}.to_json)
+        end
+      end
     end
   end
   
