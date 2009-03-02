@@ -661,7 +661,7 @@ class PagesController < ApplicationController
 
   def json_response_for(page)
     json_response = truncate_record(page.reload)
-    json_response.merge!(:flash => flash[:notice] )
+    json_response.merge!(:flash => flash[:notice])
   end
 
   def load_source_domains
@@ -680,11 +680,11 @@ class PagesController < ApplicationController
   # This ssl_required? method overwrites the one in ApplicationController
   def ssl_required?
     ssl_required = if (params[:action] =~ /show/i)
-      load_page_by_slug
-      @page && @page.require_ssl
-    else
-      (self.class.read_inheritable_attribute(:ssl_required_actions) || []).include?(action_name.to_sym)
-    end
+                     load_page_by_slug
+                     @page && @page.require_ssl
+                   else
+                     (self.class.read_inheritable_attribute(:ssl_required_actions) || []).include?(action_name.to_sym)
+                   end
     ssl_required && ENV["RAILS_ENV"] == "production"
   end
 end
