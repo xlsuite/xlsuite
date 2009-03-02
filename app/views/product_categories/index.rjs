@@ -117,13 +117,6 @@ page << create_tab_using_ajax_response("Product Categories") do
       defaultButton: 1,
       buttons: [
         {
-          text: 'Cancel',
-          handler: function() {
-            window.hide();
-            window.close(); // This destroys it
-          }
-        },
-        {
           text: 'Create',
           handler: function() {
             var selectedNode = treePanel.getSelectionModel().getSelectedNode();
@@ -147,7 +140,14 @@ page << create_tab_using_ajax_response("Product Categories") do
               }
             });
           } // end handler
-        } // end Create Button
+        }, // end Create Button
+        {
+          text: 'Cancel',
+          handler: function() {
+            window.hide();
+            window.close(); // This destroys it
+          }
+        }
       ] // end buttons
     });
     
