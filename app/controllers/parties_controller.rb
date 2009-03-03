@@ -360,12 +360,13 @@ class PartiesController < ApplicationController
     else
       Party.transaction do
         @party.confirmation_token_expires_at = 24.hours.from_now
+        @party.confirmation_token ||= UUID.random_create.to_s
         @party.save!
         AdminMailer.deliver_signup_confirmation_email(:route => @party.main_email(true),
             :confirmation_url => lambda {|party, code| confirm_party_url(:id => @party, :code => code)},
             :confirmation_token => @party.confirmation_token)
       end
-      flash_success "<p>You have not confirmed your account.</p><p>Your password cannot be reset until you have confirmed your account.</p><p>Check your email and spam folder.</p>"
+      flash_success "You have not confirmed your account. A confirmation email has been sent to your email, please check your email and spam folder."
     end
     
     redirect_to new_session_path
