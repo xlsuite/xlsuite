@@ -1113,7 +1113,7 @@ class Party < ActiveRecord::Base
 
     def authenticate_with_account_email_and_password!(account, *args)
       self.with_scope(
-          :find => {:conditions => ["parties.account_id = ?", account.id]},
+          :find => {:conditions => ["parties.account_id = ? and confirmed = 1", account.id]},
           :create => {:account => account}) do
         EmailContactRoute.with_scope(
             :find => {:conditions => ["contact_routes.account_id = ? AND contact_routes.routable_type = 'Party' ", account.id]},
