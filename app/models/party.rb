@@ -391,7 +391,7 @@ class Party < ActiveRecord::Base
           :confirmation_token => options[:confirmation_token])
 
     rescue
-      errored = options[:errored]+1
+      errored = (options[:errored]||0)+1
       if errored > 30
         raise
       else
