@@ -1130,7 +1130,7 @@ class Account < ActiveRecord::Base
           :subscription_markup_fee => account_template.subscription_markup_fee,
           :setup_fee => account_template.setup_fee,
           :account_module_subscription => acct_mod_subscription) 
-        account_template_future = AccountTemplateInstallFuture.create!(:owner => self.owner, :account => self, :account_template_id => account_template.id)
+        account_template_future = AccountTemplateInstallFuture.create!(:owner => self.owner, :account => self, :account_template_id => account_template.id, :priority => 75)
       end
       payment_amount = (account_template ? account_template.subscription_fee : acct_mod_subscription.minimum_subscription_fee) 
       payment = Payment.create!(:account => master_account, :payment_method => "paypal",
