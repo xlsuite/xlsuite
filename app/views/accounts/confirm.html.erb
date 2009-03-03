@@ -45,7 +45,7 @@
       $("table tr.even:not(:first)").hide();
 
       $("table tr.odd").click(function(){
-        $(this).next("tr:even").slideToggle("slow")
+        $(this).next("tr:even").slideToggle("slow", function(){$(this).css('display', '');})
         .siblings("tr.even:visible").slideUp("slow");
         $(this).toggleClass("active");
         $(this).siblings("tr.odd").removeClass("active");
