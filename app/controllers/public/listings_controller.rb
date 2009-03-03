@@ -283,7 +283,7 @@ class Public::ListingsController < ApplicationController
   before_filter :filter_params
   before_filter :load_profile, :only => %w(create update)
   before_filter :custom_required_permissions
-  before_filter :load_listing, :only => %w(update destroy)
+  before_filter :load_listing, :only => %w(update destroy embed_code)
   before_filter :parse_money, :only => %w(create update)
   
   def create
@@ -373,6 +373,32 @@ class Public::ListingsController < ApplicationController
       end
       format.js do
         render :json => {:success => true, :errors => [errors]}
+      end
+    end
+  end
+
+  def embed_code
+    success = true
+    errors = []
+    @profile = self.current_account.owner.profile
+    if @profile
+      @profile = @profile.to_liquid
+    else
+      errors << "Account owner does not have his/her profile setup"
+      success = false
+    end
+    snippet = self.current_account.snippets.find_by_title(self.current_domain.get_config("listing_embed_code_snippet"))
+    if success && snippet
+      liquid_assigns = {"listing" => @listing.to_liquid, "profile" => @profile.to_liquid, "domain" => self.current_domain.to_liquid}
+      liquid_context = Liquid::Context.new(liquid_assigns, {}, false)
+      @text = Liquid::Template.parse(snippet.body).render!(liquid_context)
+    else
+      success = false
+      errors << "Listing embed code snippet cannot be found"
+    end
+    respond_to do |format|
+      format.js do
+        render(:json => {:success => success, :errors => errors, :title => @listing.quick_description, :text => @text}.to_json)
       end
     end
   end
