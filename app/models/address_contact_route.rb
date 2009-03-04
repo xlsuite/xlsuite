@@ -288,22 +288,15 @@ class AddressContactRoute < ContactRoute
             # Canada
             ['Alberta', 'AB'],
             ['British Columbia', 'BC'],
-            ['Colombie Britannique', 'BC'],
             ['Manitoba', 'MB'],
             ['New Brunswick', 'NB'],
-            ['Nouveau Brunswick', 'NB'],
             ['Newfoundland/Labrador', 'NL'],
-            ['Terre Neuve/Labrador', 'NL'],
             ['Northwest Territories', 'NT'],
-            ['Territoires du Nord Ouest', 'NT'],
             ['Nova Scotia', 'NS'],
-            ['Nouvelle Écosse', 'NS'],
             ['Nunavut', 'NU'],
             ['Ontario', 'ON'],
             ['Prince Edward Island', 'PE'],
-            ['Île du Prince Édouard', 'PE'],
             ['Quebec', 'QC'],
-            ['Québec', 'QC'],
             ['Saskatchewan', 'SK'],
             ['Yukon', 'YT'],
 
@@ -365,7 +358,8 @@ class AddressContactRoute < ContactRoute
             ['Washington', 'WA'],
             ['West Virginia', 'WV'],
             ['Wisconsin', 'WI'],
-            ['Wyoming', 'WY']
+            ['Wyoming', 'WY'],
+            ['Other', 'OTHER']
           ].freeze
 
   validates_numericality_of :latitude, :longitude, :allow_nil => true
