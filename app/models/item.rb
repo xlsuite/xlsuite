@@ -383,9 +383,7 @@ class Item < ActiveRecord::Base
       :fullslug => self.fullslug,
       :domain_patterns => self.domain_patterns,
       :layout => self.layout,
-      :cache_control_directive => self.cache_control_directive,
-      :meta_description => self.meta_description,
-      :meta_keywords => self.meta_keywords
+      :cache_control_directive => self.cache_control_directive
     }
   end
 
