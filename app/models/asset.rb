@@ -373,7 +373,7 @@ class Asset < ActiveRecord::Base
   
   def create_thumbnails
     return unless self.thumbnailable?
-    MethodCallbackFuture.create!(:models => [self], :account =>  self.account, :method => :generate_thumbnails) unless self.blank?
+    MethodCallbackFuture.create!(:models => [self], :account =>  self.account, :method => :generate_thumbnails, :priority => 150) unless self.blank?
   end
 
   def generate_thumbnails
