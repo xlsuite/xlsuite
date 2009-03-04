@@ -120,8 +120,6 @@ var xlSuiteEmbedBody = function(suitesCollection){
        "<div class='xlsuite-embed-suite-item-details'>",
          "<h2><a href='{demo_url}'>{name}</a></h2>",
          "<dl>",
-           "<dt>Rating</dt>",
-           "<dd>{rating}</dd>",
            "<dt>Designer</dt>",
            "<dd>{designer_name}</dd>",
            "<dt>Description</dt>",
