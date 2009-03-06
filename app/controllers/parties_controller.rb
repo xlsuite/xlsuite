@@ -851,13 +851,29 @@ class PartiesController < ApplicationController
 
   def authorize
     new = !@party.confirmed?
+    
+    if params[:party][:group_labels]
+      params[:party][:group_labels] = params[:party][:group_labels].split(",") if params[:party][:group_labels].is_a?(String)
+      groups = current_account.groups.find(:all, :select => "groups.id", :conditions => {:label => params[:party].delete(:group_labels).map(&:strip).reject(&:blank?)})
+      params[:party][:group_ids] = groups.map(&:id).join(",") unless groups.empty?
+    end
+    
+    params[:gids] = params[:gids].split(",") if params[:gids]
+    @party.account.groups.find(params[:party].delete(:group_ids).split(",").map(&:strip).reject(&:blank?)).to_a.each do |g|
+      unless @party.groups.include?(g)
+        @party.groups << g
+        params[:gids] << g.id
+      end
+    end if params[:party][:group_ids]
+    
+    @party.save
     @party.authorize!(:attributes => params[:party], :confirmation_token => params[:code])
     self.current_user = @party
 
     flash_success "You have been successfully authorized.  Welcome!"
 
     redirect_path = params[:signed_up] || params[:next]
-    redirect_path.blank? ? (redirect_to_specified_or_default forum_categories_url) : (return redirect_to(params[:gids].blank? ? redirect_path+"?new=#{new}" : redirect_path + "?gids=#{params[:gids]}&new=#{new}"))
+    redirect_path.blank? ? (redirect_to_specified_or_default forum_categories_url) : (return redirect_to(params[:gids].blank? ? redirect_path+"?new=#{new}" : redirect_path + "?gids=#{params[:gids].join(",")}&new=#{new}"))
 
     rescue ActiveRecord::RecordInvalid
       logger.warn $!.message.to_s
