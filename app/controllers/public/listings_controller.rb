@@ -380,7 +380,12 @@ class Public::ListingsController < ApplicationController
   def embed_code
     success = true
     errors = []
-    @profile = self.current_account.owner.profile
+    @profile = nil
+    if params[:profile_id]
+      @profile = self.current_account.profiles.find(params[:profile_id])
+    else
+      @profile = self.current_account.owner.profile
+    end
     if @profile
       @profile = @profile.to_liquid
     else
