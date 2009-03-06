@@ -336,7 +336,7 @@ class SessionsController < ApplicationController
           end        
         end
         format.js do
-          render :json => {:success => false, :parameters => params}.to_json
+          render :json => {:success => false, :messages => $!.message}.to_json
         end
       end
   end
