@@ -435,7 +435,7 @@ class Public::ProfilesController < ApplicationController
         contact_routes << (profile.main_url.number ? profile.main_link.url : "") if params[:with_link]
         contact_routes = contact_routes.reject(&:blank?)
         display_text += "   (" + contact_routes.join(", ") + ")" if !contact_routes.empty?
-        @profiles << {:display => display_text, :value => profile.id}
+        @profiles << {:display => display_text, :id => profile.id}
       end
     end
     respond_to do |format|
@@ -466,7 +466,7 @@ class Public::ProfilesController < ApplicationController
     elsif %(check_alias check_custom_url).include?(self.action_name)
       return true
     elsif %w(auto_complete).include?(self.action_name)
-      self.current_user?
+      return self.current_user?
     else
       return false
     end
