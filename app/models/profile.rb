@@ -334,6 +334,7 @@ class Profile < ActiveRecord::Base
   validates_uniqueness_of :custom_url, :scope => :account_id, :if => Proc.new {|p| !p.custom_url.blank?}
   validates_format_of :custom_url, :with => /\A[-\w]+\Z/i, :message => "can contain only a-z, A-Z, 0-9, _ and -, cannot contain space(s)", :if => Proc.new {|p| !p.custom_url.blank?}
   
+  before_save :generate_display_name
   after_save :update_party_product_category_name
     
   def gmap_query
@@ -493,6 +494,23 @@ class Profile < ActiveRecord::Base
   end
   
   protected
+  
+  def generate_display_name
+    t_display_name = [self.company_name, self.last_name, self.first_name].reject(&:blank?).join(', ')
+    if !t_display_name.blank?
+      self.display_name = t_display_name
+      return
+    end
+    if self.main_email then
+      t_display_name = (self.main_email.email_address || "").split("@").first
+    end
+    if !t_display_name.blank?
+      self.display_name = t_display_name
+      return
+    end
+    self.display_name = "" if self.display_name.blank?
+    self.display_name
+  end  
 
   def links_as_text
     self.links.map(&:url)
