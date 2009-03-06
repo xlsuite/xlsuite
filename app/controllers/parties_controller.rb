@@ -714,7 +714,10 @@ class PartiesController < ApplicationController
   def signup
     params[:party] ||= {}
     if params[:party][:group_labels]
-      groups = current_account.groups.find(:all, :select => "groups.id", :conditions => {:label => params[:party].delete(:group_labels).split(",").map(&:strip).reject(&:blank?)})
+      params[:party][:group_labels] = params[:party][:group_labels].split(",") if params[:party][:group_labels].is_a?(String)
+      # Flatten array such as ["lead", "news, local_news"]
+      params[:party][:group_labels] = params[:party][:group_labels].join(",").split(",")
+      groups = current_account.groups.find(:all, :select => "groups.id", :conditions => {:label => params[:party].delete(:group_labels).map(&:strip).reject(&:blank?)})
       params[:party][:group_ids] = groups.map(&:id).join(",") unless groups.empty?
     end
     @party = Party.find_by_account_and_email_address(current_account, params[:email_address][:email_address])
@@ -854,6 +857,8 @@ class PartiesController < ApplicationController
     
     if params[:party][:group_labels]
       params[:party][:group_labels] = params[:party][:group_labels].split(",") if params[:party][:group_labels].is_a?(String)
+      # Flatten array such as ["lead", "news, local_news"]
+      params[:party][:group_labels] = params[:party][:group_labels].join(",").split(",")
       groups = current_account.groups.find(:all, :select => "groups.id", :conditions => {:label => params[:party].delete(:group_labels).map(&:strip).reject(&:blank?)})
       params[:party][:group_ids] = groups.map(&:id).join(",") unless groups.empty?
     end
