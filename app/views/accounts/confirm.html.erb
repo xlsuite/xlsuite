@@ -45,7 +45,7 @@
       $("table tr.even:not(:first)").hide();
 
       $("table tr.odd").click(function(){
-        $(this).next("tr:even").slideToggle("slow")
+        $(this).next("tr:even").slideToggle("slow", function(){$(this).css('display', '');})
         .siblings("tr.even:visible").slideUp("slow");
         $(this).toggleClass("active");
         $(this).siblings("tr.odd").removeClass("active");
@@ -141,7 +141,7 @@
         <span style="display: none;"><%= hidden_field_tag "code", params[:code] %></span>
         <div class="ui-tabs-panel" id="signup1">
           <fieldset>
-            <legend>Create an account</legend>
+            <legend>Create an account<span class="small">* denotes required field</span></legend>
             <label><span class="mandatory">*</span> Choose a password</label>
             <%= password_field_tag "owner[password]" %>
             <span>Password is minimum of 6 characters in length</span>
@@ -156,15 +156,13 @@
             <%= text_field_tag "owner[first_name]", "" %>
             <label>Last Name</label>
             <%= text_field_tag "owner[last_name]", "" %>
-            <label>Avatar</label>
-            <input type="file" name="owner[avatar]"/>
-            <span class="small">(please use only .jpg / .jpeg / .png /.gif graphics format for your avatar)</span>
           </fieldset>
           <input class="submit" type="submit" name="" onClick="$('#signupDetails > ul').tabs('select', 1); return false;" value="Next"/>
         </div>
         <div class="ui-tabs-panel ui-tabs-hide" id="signup2">
           <fieldset>
           <legend>Contact Details</legend>
+            <span class="small">This information will be used in various places on your website such as your contact page, terms of service, and other applicable pages.</span>
             <label>Company</label>
             <%= text_field_tag "owner[company_name]", "" %>
             <label>Position</label>

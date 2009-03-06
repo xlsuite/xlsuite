@@ -2111,7 +2111,8 @@ CREATE TABLE `views` (
   `attachable_type` varchar(255) default NULL,
   `classification` varchar(255) default 'Image',
   PRIMARY KEY  (`id`),
-  KEY `by_attachable_classification_position` (`attachable_type`,`attachable_id`,`classification`,`position`)
+  KEY `by_attachable_classification_position` (`attachable_type`,`attachable_id`,`classification`,`position`),
+  KEY `by_asset_attachable` (`asset_id`,`attachable_type`,`attachable_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `workflows` (
@@ -2438,3 +2439,7 @@ INSERT INTO schema_migrations (version) VALUES ('20090227005854');
 INSERT INTO schema_migrations (version) VALUES ('20090227222622');
 
 INSERT INTO schema_migrations (version) VALUES ('20090228022633');
+
+INSERT INTO schema_migrations (version) VALUES ('20090303083314');
+
+INSERT INTO schema_migrations (version) VALUES ('20090303220116');

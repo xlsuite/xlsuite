@@ -391,7 +391,7 @@ class Party < ActiveRecord::Base
           :confirmation_token => options[:confirmation_token])
 
     rescue
-      errored = options[:errored]+1
+      errored = (options[:errored]||0)+1
       if errored > 30
         raise
       else
@@ -1113,7 +1113,7 @@ class Party < ActiveRecord::Base
 
     def authenticate_with_account_email_and_password!(account, *args)
       self.with_scope(
-          :find => {:conditions => ["parties.account_id = ?", account.id]},
+          :find => {:conditions => ["parties.account_id = ? and confirmed = 1", account.id]},
           :create => {:account => account}) do
         EmailContactRoute.with_scope(
             :find => {:conditions => ["contact_routes.account_id = ? AND contact_routes.routable_type = 'Party' ", account.id]},

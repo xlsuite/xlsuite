@@ -444,7 +444,7 @@ class Public::SuitesController < ApplicationController
       :id => suite.id,
       :name => suite.name,
       :demo_url => suite.demo_url,
-      :description => suite.description,
+      :description => suite.description || "N/A",
       :setup_fee => suite.setup_fee.format(:with_currency, :no_blank),
       :subscription_fee => suite.subscription_fee.format(:with_currency, :no_blank),
       :designer_name => suite.designer.display_name.to_s,

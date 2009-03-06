@@ -417,6 +417,33 @@ class Public::ProfilesController < ApplicationController
       end
     end
   end
+  
+  def auto_complete
+    @profiles = []
+    display_text = ""
+    contact_routes = []
+    if !params[:query].blank? && params[:query].size > 1
+      self.current_account.profiles.find(:all, :limit => 15, :conditions => 
+          ['LOWER(display_name) LIKE ? OR LOWER(display_name) LIKE ? OR LOWER(display_name) LIKE ?', 
+          '%' + params[:query].downcase + '%',
+          '%' + params[:query].downcase,
+          params[:query].downcase + '%']).each do |profile|
+        display_text = profile.display_name
+        contact_routes = []
+        contact_routes << (profile.main_email.email_address ? profile.main_email.email_address : "") if params[:with_email]
+        contact_routes << (profile.main_phone.number ? profile.main_phone.number : "") if params[:with_phone]
+        contact_routes << (profile.main_url.number ? profile.main_link.url : "") if params[:with_link]
+        contact_routes = contact_routes.reject(&:blank?)
+        display_text += "   (" + contact_routes.join(", ") + ")" if !contact_routes.empty?
+        @profiles << {:display => display_text, :value => profile.id}
+      end
+    end
+    respond_to do |format|
+      format.json do
+        render :json => {:collection => @profiles, :total => @profiles.size}.to_json
+      end
+    end
+  end
 
   protected
 
@@ -438,6 +465,8 @@ class Public::ProfilesController < ApplicationController
       return self.current_user.id == @profile.party.id
     elsif %(check_alias check_custom_url).include?(self.action_name)
       return true
+    elsif %w(auto_complete).include?(self.action_name)
+      self.current_user?
     else
       return false
     end

@@ -439,6 +439,51 @@ var createWebsite = new Ext.Action({
   }
 });
 
+var embedCodeListingPath = #{embed_code_public_listing_path(:id => "__id__").to_json};
+
+var embedCodeAction = new Ext.Action({
+  text: "Embed Code",
+  iconCls: "display_none",
+  handler: function(){
+    var records = gridPanel.getSelectionModel().getSelections();
+    var record = records[0];
+    if(records.length == 1){
+      var embedUrl = embedCodeListingPath.replace(new RegExp("__id__", "g"), record.get("id"))
+      Ext.Ajax.request({
+        url:embedUrl,
+        success: function(response, options){
+          var response = Ext.decode(response.responseText);
+          if(response.success){
+            var embedCodeTextArea = new Ext.form.TextArea({
+              height: 250,
+              width: 300,
+              value: response.text,
+              listeners: {
+                focus:function(cpt){cpt.selectText()},
+                render:function(cpt){cpt.selectText()}
+              }
+            });
+            var embedCodeWindow = new Ext.Window({
+              title: response.title,
+              items: embedCodeTextArea,
+              height: 250,
+              width: 300,
+              resizable: false
+            });
+            embedCodeWindow.show();
+          }
+          else{
+            Ext.Msg.alert("Embed code generator", response.errors.join(", "))
+          }
+        }
+      });
+    }
+    else{
+      Ext.Msg.alert("Embed code generator", "Please select one listing");
+    }
+  }
+});
+
 var gridTopToolbar = new Ext.Toolbar({
   cls: "top-toolbar",
   items: [
@@ -489,6 +534,7 @@ var gridTopToolbar = new Ext.Toolbar({
           addToPartiesAction,
           removeFromPartiesAction,
           createWebsite,
+          embedCodeAction,
           '-',
           mailListingsAction,
           '-',

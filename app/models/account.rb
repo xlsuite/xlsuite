@@ -640,7 +640,11 @@ class Account < ActiveRecord::Base
         else
           next if t_page.no_update?
           next if options[:exclude_pages].kind_of?(Enumerable) && options[:exclude_pages].include?(t_page.id)
-          t_page.attributes = page.attributes_for_copy_to(target_acct, options) 
+          copy_attrs = page.attributes_for_copy_to(target_acct, options)
+          copy_attrs.stringify_keys!
+          copy_attrs.delete("meta_description")
+          copy_attrs.delete("meta_keywords")
+          t_page.attributes = copy_attrs 
         end
         t_page.save!
       end
@@ -1130,7 +1134,7 @@ class Account < ActiveRecord::Base
           :subscription_markup_fee => account_template.subscription_markup_fee,
           :setup_fee => account_template.setup_fee,
           :account_module_subscription => acct_mod_subscription) 
-        account_template_future = AccountTemplateInstallFuture.create!(:owner => self.owner, :account => self, :account_template_id => account_template.id)
+        account_template_future = AccountTemplateInstallFuture.create!(:owner => self.owner, :account => self, :account_template_id => account_template.id, :priority => 75)
       end
       payment_amount = (account_template ? account_template.subscription_fee : acct_mod_subscription.minimum_subscription_fee) 
       payment = Payment.create!(:account => master_account, :payment_method => "paypal",
