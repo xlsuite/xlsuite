@@ -404,17 +404,17 @@ class InstalledAccountTemplate < ActiveRecord::Base
     t_acct_nu_layout_uuids = target_acct.layouts.all(:select => "uuid", :conditions => {:no_update => true}).map(&:uuid)
     s_acct_layout_uuids = stable_acct.layouts.all(:select => "uuid").map(&:uuid)
     temp = t_acct_nu_layout_uuids & s_acct_layout_uuids
-    result += target_acct.layouts.all(:conditions => {:uuid => temp}) unless temp.empty?
+    result += target_acct.layouts.all(:conditions => {:uuid => temp}, :order => "title ASC") unless temp.empty?
     # pages
     t_acct_nu_page_uuids = target_acct.pages.all(:select => "uuid", :conditions => {:no_update => true}).map(&:uuid)
     s_acct_page_uuids = stable_acct.pages.all(:select => "uuid").map(&:uuid)
     temp = t_acct_nu_page_uuids & s_acct_page_uuids
-    result += target_acct.pages.all(:conditions => {:uuid => temp}) unless temp.empty?
+    result += target_acct.pages.all(:conditions => {:uuid => temp}, :order => "fullslug ASC") unless temp.empty?
     # snippets
     t_acct_nu_snippet_uuids = target_acct.snippets.all(:select => "uuid", :conditions => {:no_update => true}).map(&:uuid)
     s_acct_snippet_uuids = stable_acct.snippets.all(:select => "uuid").map(&:uuid)
     temp = t_acct_nu_snippet_uuids & s_acct_snippet_uuids
-    result += target_acct.snippets.all(:conditions => {:uuid => temp}) unless temp.empty?
+    result += target_acct.snippets.all(:conditions => {:uuid => temp}, :order => "title ASC") unless temp.empty?
     result
   end
   
