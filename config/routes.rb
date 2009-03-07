@@ -24,7 +24,7 @@ ActionController::Routing::Routes.draw do |map|
   
   map.resources :suites, :path_prefix => "/admin",
     :collection => {:approve_collection => :put, :unapprove_collection => :put, :embed_code => :get,
-        :destroy_collection => :delete}
+        :destroy_collection => :delete, :install => :get}
     
   map.resources :account_modules, :path_prefix => "/admin"
   
