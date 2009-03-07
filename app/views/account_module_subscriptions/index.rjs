@@ -3,6 +3,13 @@ account_module_subscriptions_url_json = formatted_account_module_subscriptions_p
 
 page << create_tab_using_ajax_response("[XL] Subscriptions") do
 %Q`
+  var installNewSuiteButton = new Ext.Toolbar.Button({
+    text:"Install New Suite",
+    handler: function(btn, event){
+      xl.openNewTabPanel('suites_install_nil', #{install_suites_path.to_json});
+    }
+  });
+
   // create file record
   var AccountModuleSubscriptionRecord = new Ext.data.Record.create([
     {name: 'id', mapping: 'id'},
@@ -77,7 +84,7 @@ page << create_tab_using_ajax_response("[XL] Subscriptions") do
     selModel: new Ext.grid.RowSelectionModel,
     autoExpandColumn: "installed_account_modules",
     loadMask: true,
-    tbar: gridTopToolbar,
+    tbar: [gridTopToolbar, installNewSuiteButton],
     listeners:  {
       render: function(gr){
         ds.load({params: {start: 0, limit: #{limit} }});
