@@ -281,6 +281,7 @@
 class ContactRequest < ActiveRecord::Base
   validates_presence_of :account_id
   belongs_to :account
+  belongs_to :domain
   
   belongs_to :affiliate
 
@@ -481,7 +482,19 @@ class ContactRequest < ActiveRecord::Base
     
     self.body = out
   end
-
+  
+  def contains_blacklist_words
+    return false unless self.domain
+    blacklist_words = self.domain.get_config("blacklist_words")
+    blacklist_words_array = blacklist_words.split(',').map(&:strip).reject(&:blank?)
+    return false if blacklist_words_array.join("").blank?
+    blacklist_regex = Regexp.new("(#{blacklist_words_array.join('|')})")
+    %w(name email body subject).each do |column|
+      return true if self.send(column) =~ blacklist_regex
+    end
+    false
+  end
+  
   def do_spam_check!
     response = defensio.ham?(
       self.request_ip, self.created_at, self.name, "comment", {:body => self.body, :email => self.email}
@@ -489,7 +502,7 @@ class ContactRequest < ActiveRecord::Base
     if response[:status] == "fail"
       raise response[:message]
     else
-      response[:spam] ? mark_as_spam!(response[:spaminess], response[:signature]) : mark_as_ham!(response[:spaminess], response[:signature])
+      (response[:spam] || self.contains_blacklist_words) ? mark_as_spam!(response[:spaminess], response[:signature]) : mark_as_ham!(response[:spaminess], response[:signature])
       self.save!
     end
   end

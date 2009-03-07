@@ -316,6 +316,7 @@ class CommentsController < ApplicationController
     params[:comment].merge!(:rating => params[:rating]) unless params[:rating].blank?
     @comment = current_account.comments.build(params[:comment])
     @comment.commentable = @commentable
+    @comment.domain = current_domain
     
     @comment.user_agent = request.env["HTTP_USER_AGENT"]
     @comment.referrer_url = request.env["HTTP_REFERER"]

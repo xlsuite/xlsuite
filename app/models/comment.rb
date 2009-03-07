@@ -284,6 +284,7 @@ class Comment < ActiveRecord::Base
   acts_as_reportable :columns => %w(name url email referrer_url body rating commentable_type spam spaminess)
   
   belongs_to :account
+  belongs_to :domain
   belongs_to :commentable, :polymorphic => true
   
   validates_inclusion_of :rating, :in => 1..5, :allow_nil => true
@@ -306,6 +307,18 @@ class Comment < ActiveRecord::Base
     CommentDrop.new(self)
   end
   
+  def contains_blacklist_words
+    return false unless self.domain
+    blacklist_words = self.domain.get_config("blacklist_words")
+    blacklist_words_array = blacklist_words.split(',').map(&:strip).reject(&:blank?)
+    return false if blacklist_words_array.join("").blank?
+    blacklist_regex = Regexp.new("(#{blacklist_words_array.join('|')})")
+    %w(name url email body).each do |column|
+      return true if self.send(column) =~ blacklist_regex
+    end
+    false
+  end
+  
   def do_spam_check!
     response = defensio.ham?(
       self.request_ip, self.created_at, self.name, "comment", {:body => self.body, :email => self.email, :referrer => self.referrer_url, 
@@ -314,7 +327,7 @@ class Comment < ActiveRecord::Base
     if response[:status] == "fail"
       raise response[:message]
     else
-      response[:spam] ? mark_as_spam!(response[:spaminess], response[:signature]) : mark_as_ham!(response[:spaminess], response[:signature])
+      (response[:spam] || self.contains_blacklist_words) ? mark_as_spam!(response[:spaminess], response[:signature]) : mark_as_ham!(response[:spaminess], response[:signature])
       self.save!
     end
   end

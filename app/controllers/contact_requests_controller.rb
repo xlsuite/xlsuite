@@ -370,6 +370,7 @@ class ContactRequestsController < ApplicationController
       @contact_request = @party ? @party.contact_requests.build(contact_request_params.merge({:request_ip => request.remote_ip, :referrer_url => request.referer})) : 
                                   current_account.contact_requests.build(contact_request_params.merge({:request_ip => request.remote_ip, :referrer_url => request.referer})) 
       @contact_request.account = current_account
+      @contact_request.domain = current_domain
 
       if @party 
         # update blank attributes of parties if party params is specified

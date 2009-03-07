@@ -424,6 +424,7 @@ class ProfileRequestsController < ApplicationController
       if params[:comment] && !params[:comment][:body].blank?
         @comment = current_account.comments.build(params[:comment])
         @comment.commentable = @profile_add_request
+        @comment.domain = current_domain
         
         @comment.user_agent = request.env["HTTP_USER_AGENT"]
         @comment.referrer_url = request.env["HTTP_REFERER"]
