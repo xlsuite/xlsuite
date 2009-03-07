@@ -402,9 +402,19 @@ class SuitesController < ApplicationController
     end    
   end
   
+  def install
+    respond_to do |format|
+      format.js
+    end
+  end
+  
   protected
   def authorized?
     return true if %w(index embed_code).include?(self.action_name)
+    return false unless self.current_user?
+    if %w(install).include?(self.action_name)
+      return self.current_user_is_account_owner?
+    end
     self.current_user.superuser?
   end
 end
