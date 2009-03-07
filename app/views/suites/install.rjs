@@ -1,0 +1,48 @@
+page << create_tab_using_ajax_response("Installing New Suite") do
+%Q`
+  var explanationPanel = new Ext.Panel({
+    html:#{self.install_explanation_message.to_json},
+    listeners: {
+      render: function(cpt){
+        console.log("explanationPanel size %o", cpt.getSize());
+        console.log("ownerct of explanationPanel size %o", cpt.ownerCt.getSize());
+      }
+    }
+  });
+  var explanation1Panel = new Ext.Panel({
+    html:#{self.install_explanation_message.to_json},
+    listeners: {
+      render: function(cpt){
+        console.log("explanation1Panel size %o", cpt.getSize());
+        console.log("ownerct of explanation1Panel size %o", cpt.ownerCt.getSize());
+      }
+    }
+  });
+
+  #{self.initialize_suite_install_grid}
+
+  #{self.initialize_suite_install_selected_suite_panel}
+  
+  var step1Panel = new Ext.Panel({
+    title:"Step 1: Please select a suite by clicking it",
+    items:[grid,selectedSuitePanel]
+  });
+
+  #{self.initialize_suite_install_step2_panel}
+
+  var wrapperPanel = new Ext.Panel({
+    autoScroll:true,
+    items:[
+      explanationPanel, step1Panel, step2PanelContainer, explanation1Panel
+    ],
+    listeners: {
+      render: function(cpt){
+        console.log("wrapperPanel size %o", cpt.getSize());
+        console.log("owner of wrapperPanel size %o", cpt.ownerCt.getSize());
+      }
+    }
+  });
+
+  newPanel.add(wrapperPanel);
+`
+end
