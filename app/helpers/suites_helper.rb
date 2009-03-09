@@ -355,11 +355,16 @@ module SuitesHelper
         items: [{text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField]
       });
       
+      var demoUrlRenderer = function(value, metaData, record, rowIndex, colIndex, store){
+        var text = "<a href='" + value + "' target='_blank'>" + value + "</a>"
+        return(text);
+      };
+      
       var grid = new Ext.grid.GridPanel({
         store: ds,
         cm: new Ext.grid.ColumnModel([
             {id: "suite-name", header: "Name", sortable: true, dataIndex: 'name'},
-            {id: "suite-demo_url", header: "Demo url", sortable: false, dataIndex: 'demo_url'},
+            {id: "suite-demo_url", header: "Demo url", renderer:demoUrlRenderer, sortable: false, dataIndex: 'demo_url'},
             {id: "suite-subscription_fee", header: "Subscription fee", sortable: false, dataIndex: 'subscription_fee'},
             {id: "suite-setup_fee", header: "Setup fee", sortable: false, dataIndex: 'setup_fee'},
             {id: "suite-installed_count", header: "# installed", sortable: false, dataIndex: 'installed_count'},
@@ -370,7 +375,7 @@ module SuitesHelper
           ]),
         autoScroll: true,
         autoWidth: true,
-        height: 200,
+        height: 250,
         tbar: gridTopToolbar, 
         bbar: paging,
         selModel: new Ext.grid.RowSelectionModel({singleSelect:true}),
