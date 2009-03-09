@@ -381,7 +381,6 @@ class Item < ActiveRecord::Base
       :behavior => self.behavior,
       :status => self.status,
       :fullslug => self.fullslug,
-      :domain_patterns => self.domain_patterns,
       :layout => self.layout,
       :cache_control_directive => self.cache_control_directive
     }
