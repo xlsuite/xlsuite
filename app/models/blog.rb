@@ -286,7 +286,7 @@ class Blog < ActiveRecord::Base
   acts_as_reportable :columns => %w(title subtitle label author_name comment_approval_method)
 
   belongs_to :account
-  has_many :posts, :class_name => "BlogPost", :order => "created_at DESC", :dependent => :destroy
+  has_many :posts, :class_name => "BlogPost", :order => "id DESC", :dependent => :destroy
 
   belongs_to :owner, :class_name => "Party", :foreign_key => :owner_id
   belongs_to :created_by, :class_name => "Party", :foreign_key => :created_by_id
