@@ -352,12 +352,17 @@ module XlSuite
 
         orders = []
         if @options[:order]
-          orders << context_options[:order]
+          o = []
+          context_options[:order].split(",").map(&:strip).each do |e|
+            e.gsub!(/^created_at/i, "id")
+            o << e if e =~ /^(id|updated_at|title|author_name|average_rating)/i
+          end
+          orders += o
         else
           orders << "published_at DESC"
         end
-
-        options.merge!(:order => orders.join(",")) unless orders.blank?
+        
+        options.merge!(:order => orders.join(",")) unless orders.empty?
 
         conditions = []
         conditions_hash = {}
