@@ -210,7 +210,8 @@ CREATE TABLE `blog_posts` (
   `average_rating` decimal(5,3) NOT NULL default '0.000',
   PRIMARY KEY  (`id`),
   KEY `by_blog_published_at` (`blog_id`,`published_at`),
-  KEY `by_account_blog_published_at` (`account_id`,`blog_id`,`published_at`)
+  KEY `by_account_blog_published_at` (`account_id`,`blog_id`,`published_at`),
+  KEY `by_blog_id_published_at_updated_at` (`blog_id`,`published_at`,`updated_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `blogs` (
@@ -455,6 +456,7 @@ CREATE TABLE `comments` (
   `spaminess` decimal(10,0) default NULL,
   `defensio_signature` varchar(255) default NULL,
   `spam` tinyint(1) default '1',
+  `domain_id` int(11) default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -506,6 +508,7 @@ CREATE TABLE `contact_requests` (
   `referrer_url` varchar(255) default NULL,
   `params` text,
   `affiliate_id` int(11) default NULL,
+  `domain_id` int(11) default NULL,
   PRIMARY KEY  (`id`),
   KEY `contact_requests_created_at_index` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -2443,3 +2446,15 @@ INSERT INTO schema_migrations (version) VALUES ('20090228022633');
 INSERT INTO schema_migrations (version) VALUES ('20090303083314');
 
 INSERT INTO schema_migrations (version) VALUES ('20090303220116');
+
+INSERT INTO schema_migrations (version) VALUES ('20090307011522');
+
+INSERT INTO schema_migrations (version) VALUES ('20090307020749');
+
+INSERT INTO schema_migrations (version) VALUES ('20090307020902');
+
+INSERT INTO schema_migrations (version) VALUES ('20090307023541');
+
+INSERT INTO schema_migrations (version) VALUES ('20090307023649');
+
+INSERT INTO schema_migrations (version) VALUES ('20090309193850');
