@@ -700,7 +700,7 @@ var assetsIdHidden = new Ext.form.Hidden({
 }); manager.add(assetsIdHidden);
 
 var assetsFilename = new Ext.form.TextField({
-  fieldLabel: "XLsuite Asset Filename",
+  fieldLabel: "XLsuite Asset Label",
   name: "files[][filename]",
   value: ''
 }); manager.add(assetsFilename);
