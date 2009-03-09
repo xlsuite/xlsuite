@@ -355,7 +355,7 @@ module XlSuite
           o = []
           context_options[:order].split(",").map(&:strip).each do |e|
             e.gsub!(/^created_at/i, "id")
-            o << e if e =~ /^(id|updated_at|title|author_name|average_rating)/i
+            o << e if e =~ /^(id|published_at|updated_at|title|author_name|average_rating)/i
           end
           orders += o
         else
