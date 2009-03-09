@@ -283,9 +283,9 @@ module SuitesHelper
     %Q`
       <div class='suite-install-explanation'><b>FREE</b> install of our suite for 90 days</div>
       <ul class='suite-install-explanation'>3 <b>EASY</b> steps to install a suite:
-        <li>1. Select a suite</li>
+        <li>1. Select a suite and click the "NEXT STEP" button</li>
         <li>2. Select a domain to install to and press the "INSTALL"</li>
-        <li>3. Where is step 3? There is no step 3 hehe.. Told you it's easy</li>
+        <li>3. Step 3, there is no step 3 hehe.. Told you it's easy</li>
       </ul>
     `.gsub(/\s{2,}/i,"")
   end
@@ -404,9 +404,9 @@ module SuitesHelper
       
       var step1NextButton = new Ext.Button({
         disabled:true,
-        text:"NEXT STEP | Step 2: Choose domain patterns",
+        text:"NEXT STEP | Step 2: Choose existing domain or install a new one",
         handler:function(btn){
-          console.log("Proceed to step 2");
+          step2PanelContainer.show();
         }
       });
     
@@ -421,17 +421,16 @@ module SuitesHelper
   
   def initialize_suite_install_step2_panel
     domain_name_list = self.current_account.domains.map(&:name)
+    domain_name_list_with_xlsuite = domain_name_list + ["xlsuite.com"]
     %Q`
       var domainAvailable = false;
       var newDomainName = "";
       var domainList = #{(["New domain"] + domain_name_list).to_json};
-      var realDomainList = #{domain_name_list.to_json};
+      var realDomainList = #{domain_name_list_with_xlsuite.to_json};
       
       var disableEnableInstallButton = function(){
         if(selectedSuiteId){
-          if(domainAvailable){
-            installButton.setDisabled(false);
-          }
+          installButton.setDisabled(!domainAvailable);
         }
         else{
           installButton.setDisabled(true);
@@ -452,6 +451,36 @@ module SuitesHelper
         }
       };
       
+      var clearDomainCheckerMessage = function(){
+        document.getElementById("suite-install-domain-checker-message").innerHTML = "";
+      };
+      
+      var performAjaxCheck = function(){
+        var valid = true;
+        if((newDomainName.charAt(0) == ".") || (newDomainName.indexOf(" ") != -1)){
+          valid = false;
+        }
+        if(valid)
+        {
+          Ext.Ajax.request({
+            url:#{check_public_domains_path.to_json},
+            method:"post",
+            params:{name:newDomainName},
+            success:function(response, options){
+              var response = Ext.decode(response.responseText);
+              domainAvailable = !response.taken;
+              updateDomainCheckerMessage();
+              disableEnableInstallButton();
+            }
+          });
+        }
+        else{
+          domainAvailable = false;
+          updateDomainCheckerMessage();
+          disableEnableInstallButton();
+        }
+      };
+      
       var installButton = new Ext.Button({
         text:"INSTALL",
         disabled:true,
@@ -467,23 +496,28 @@ module SuitesHelper
         store:domainList,
         forceSelection:true,
         editable:false,
-        width:275,
+        width:250,
+        listWidth:250,
         triggerAction:"all",
         value:"New domain",
         mode:"local",
         listeners:{
           select:function(cpt, record, selectedIndex){
-            console.log("record is %o, selectedIndex");
             if(domainList[selectedIndex]=="New domain"){
               newDomainField.setDisabled(false);
               domainPickerComboBox.setDisabled(false);
               updateNewDomainNameWithTwoFields();
+              domainAvailable = false;
               disableEnableInstallButton();
+              performAjaxCheck();
+              clearDomainCheckerMessage();
             }
             else{
               newDomainField.setDisabled(true);
               domainPickerComboBox.setDisabled(true);
               newDomainName = domainList[selectedIndex];
+              clearDomainCheckerMessage();
+              domainAvailable = true;
               disableEnableInstallButton();
             }
           }
@@ -497,21 +531,24 @@ module SuitesHelper
         listeners:{
           keyup:function(cpt, event){
             updateNewDomainNameWithTwoFields();
-            updateDomainCheckerMessage();
-            disableEnableInstallButton();
+            performAjaxCheck();
           }
         }
       });
       
       var domainPickerComboBox = new Ext.form.ComboBox({
         width:200,
+        listWidth:200,
         store:realDomainList,
         forceSelection:true,
         editable:false,
-        value:#{domain_name_list.first.to_json},
+        triggerAction:"all",
+        mode:"local",
+        value:#{domain_name_list_with_xlsuite.first.to_json},
         listeners:{
           select:function(cpt, record, selectedIndex){
             updateNewDomainNameWithTwoFields();
+            performAjaxCheck();
           }
         }
       });
@@ -523,15 +560,16 @@ module SuitesHelper
       var step2Panel = new Ext.Panel({
         layout:"column",
         items:[
-          {layout:"form", labelWidth:80, width:375, items:selectionDomainComboBox},
+          {layout:"form", labelWidth:70, width:350, items:selectionDomainComboBox},
           {items:newDomainField, width:100},
           {html:"<span align='center'><b>.</b></span>", width:10},
-          {items:domainPickerComboBox, width:200},
+          {items:domainPickerComboBox, width:225},
         ]
       });
       
       var step2PanelContainer = new Ext.Panel({
         height:95,
+        hidden:true,
         title:"Step 2: Select your existing domain to install to or just register a new one for FREE",
         items:[step2Panel, domainCheckerMessage, installButton]
       });
