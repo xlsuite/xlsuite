@@ -9,15 +9,6 @@ page << create_tab_using_ajax_response("Installing New Suite") do
       }
     }
   });
-  var explanation1Panel = new Ext.Panel({
-    html:#{self.install_explanation_message.to_json},
-    listeners: {
-      render: function(cpt){
-        console.log("explanation1Panel size %o", cpt.getSize());
-        console.log("ownerct of explanation1Panel size %o", cpt.ownerCt.getSize());
-      }
-    }
-  });
 
   #{self.initialize_suite_install_grid}
 
@@ -33,7 +24,7 @@ page << create_tab_using_ajax_response("Installing New Suite") do
   var wrapperPanel = new Ext.Panel({
     autoScroll:true,
     items:[
-      explanationPanel, step1Panel, step2PanelContainer, explanation1Panel
+      explanationPanel, step1Panel, step2PanelContainer
     ],
     listeners: {
       render: function(cpt){
