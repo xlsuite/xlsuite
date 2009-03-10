@@ -307,6 +307,10 @@ class AssetDrop < Liquid::Drop
         thumbnail(#{name.inspect}).src
       end
       
+      def #{name}
+        asset.find_or_initialize_thumbnail(#{name.inspect})
+      end
+      
       alias_method :#{name}_download_url, :#{name}_src
       alias_method :#{name}_download_src, :#{name}_src
       alias_method :#{name}_url, :#{name}_src
