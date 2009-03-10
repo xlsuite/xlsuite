@@ -493,6 +493,32 @@ class Profile < ActiveRecord::Base
     return self.profile_claim_requests.any?(&:approved_at) || self.party.confirmed?
   end
   
+  def to_party_attributes
+    t_attrs = {}
+    Party.content_columns.map(&:name).each do |column_name|
+      t_attrs.merge!(column_name => self.send(column_name)) if self.respond_to?(column_name)
+    end
+    t_attrs
+  end
+  
+  def copy_routes_to_party!(party)
+    self.email_addresses.each do |email_cr|
+      profile_cr = email_cr.dup
+      profile_cr.routable = party
+      profile_cr.account = party.account
+      profile_cr.save
+    end
+    %w(links phones addresses).each do |cr_type|
+      self.send(cr_type).each do |cr|
+        profile_cr = cr.dup
+        profile_cr.routable = party
+        profile_cr.account = party.account
+        profile_cr.save!
+      end
+    end
+    true
+  end
+  
   protected
   
   def generate_display_name
