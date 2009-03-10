@@ -1227,27 +1227,70 @@ class Account < ActiveRecord::Base
     true
   end  
   
+  # This method is used to copy all data of a profile to an account owner
+  # The data includes avatar, products and feeds
   def copy_profile_to_owner!(options)
     ActiveRecord::Base.transaction do
+      owner_party = self.owner
+      # destroy the existing profile of the account owner
+      owner_party.profile.destroy if owner_party.profile
+
+      # find profile to copy from
       profile_id = options[:profile_id].to_i
       profile = Profile.find(profile_id)
+
+      # grab attributes of the source profile and remove average_rating, created_at and updated_at
+      # copying average_rating, created_at and updated_at do not make sense
+      # it's a different profile so those attributes must not carry over
       profile_attrs = profile.attributes
       profile_attrs.stringify_keys!
       profile_attrs.delete("average_rating")
       profile_attrs.delete("created_at")
       profile_attrs.delete("updated_at")
+      # create new profile based on previous attributes
       owner_profile = Profile.new(profile_attrs)
       owner_profile.account = self
       owner_profile.save!
-      owner_party.profile.destroy if owner_party.profile
-      owner_party = self.owner
+
+      # update attributes of the account owner and assign the newly created profile to it
       owner_party.attributes = profile.to_party_attributes
       owner_party.profile_id = owner_profile.id
       owner_party.save!
+      # copy all contact routes from the source profile to the account owner
       profile.copy_routes_to_party!(owner_party)
+      # must do a reload here so that the next line "owner_party.copy_contact..." returns correct result
       owner_party.reload
+      # copy contact routes of the account owner to his/her profile
       owner_party.copy_contact_routes_to_profile!
+      
+      # if the account owner profile has an avatar attached to it
+      # create a new asset and assign it as the avatar of the profile
+      if owner_profile.avatar
+        new_avatar = self.assets.create!(owner_profile.avatar.attributes_for_copy_to(self))
+        owner_profile.update(:avatar_id, new_avatar.id)
+        owner_party.update(:avatar_id, new_avatar.id)
+      end
+      
+      # copy products from the party of the source profile to the account owner
+      s_attrs = nil
+      t_product = nil
+      profile.party.products.each do |product|
+        s_attrs = product.attributes_for_copy_to(self)
+        t_product = self.products.build(s_attrs)
+        t_product.owner = owner_party
+      end
+      
+      # copy feeds from the party of the source profile to the account owner
+      t_feed = nil
+      profile.party.feeds.each do |feed|
+        s_attrs = feed.attributes_for_copy_to(self)
+        s_attrs.delete("feed_id")
+        s_attrs.delete("party_id")
+        t_feed = self.feeds.build(s_attrs)
+        owner_party.feeds << t_feed if t_feed.save
+      end
     end
+    true
   end
   
   protected
