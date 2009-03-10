@@ -57,6 +57,13 @@ page << create_tab_using_ajax_response("Edit Asset") do
                 name: 'asset[title]',
                 value: #{@asset.title.to_json}
               }),
+              new Ext.form.TextField({
+                width: 350,
+                fieldLabel: "Label",
+                name: "",
+                selectOnFocus: true,
+                value: #{@asset.filename.to_json}
+              }),
               new Ext.form.TextArea({
                 fieldLabel: "Description",
                 width: 350,
