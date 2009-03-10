@@ -1544,11 +1544,6 @@ class Party < ActiveRecord::Base
     self.permissions = Permission.find(:all)
   end
   
-  def products
-    return [] unless self.product_category
-    self.product_category.products
-  end
-    
   protected
   before_create :generate_random_uuid
 
