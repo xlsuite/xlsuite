@@ -1272,12 +1272,17 @@ class Account < ActiveRecord::Base
       end
       
       # copy products from the party of the source profile to the account owner
-      s_attrs = nil
-      t_product = nil
+      s_attrs, t_product, new_asset = nil, nil, nil
+      saved = false
       profile.party.products.each do |product|
         s_attrs = product.attributes_for_copy_to(self)
         t_product = self.products.build(s_attrs)
         t_product.owner = owner_party
+        saved = t_product.save
+        product.assets.each do |asset|
+          new_asset = self.assets.create!(asset.attributes_for_copy_to(self))
+          t_product.assets << new_asset
+        end if saved
       end
       
       # copy feeds from the party of the source profile to the account owner
