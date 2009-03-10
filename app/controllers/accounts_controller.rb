@@ -353,6 +353,8 @@ class AccountsController < ApplicationController
         @acct.owner = @owner
         @acct.save!
         MethodCallbackFuture.create!(:model => @acct, :method => :grant_all_permissions_to_owner, :system => true, :priority => 10)
+        
+        @acct.copy_profile_to_owner!(params[:profile_id]) if params[:profile_id]
 
         # We reload the account to refresh the party and contact routes
         # Or else, the email contact route won't be found in account's #send_confirmation_email
@@ -474,10 +476,13 @@ class AccountsController < ApplicationController
         @phone.save! unless @phone.number.blank?
         
         # create a profile of the account owner
-        @profile = @owner.to_new_profile
-        @profile.save!
-        @owner.update_attribute(:profile_id, @profile.id)
-        @owner.copy_contact_routes_to_profile!
+        @profile = @owner.profile
+        unless @profile
+          @profile = @owner.to_new_profile
+          @profile.save!
+          @owner.update_attribute(:profile_id, @profile.id)
+          @owner.copy_contact_routes_to_profile!
+        end
             
         # attach avatar to both profile and account owner party
         unless params_avatar.blank? || params_avatar.size == 0 then
