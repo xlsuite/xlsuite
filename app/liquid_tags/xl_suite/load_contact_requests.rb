@@ -378,6 +378,12 @@ module XlSuite
           end
           temp_crs = current_account.contact_requests.all(status_conditions)
           ids = temp_crs.map(&:id).map(&:to_i)
+            
+          if ids.empty?
+            context[@options[:pages_count]] = context[@options[:total_count]] = 0
+            context[@options[:in]] = nil
+            return
+          end
           conditions << "contact_requests.id IN (#{ids.join(',')})" unless ids.empty?
         end
         
