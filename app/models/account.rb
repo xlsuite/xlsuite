@@ -1227,6 +1227,29 @@ class Account < ActiveRecord::Base
     true
   end  
   
+  def copy_profile_to_owner!(options)
+    ActiveRecord::Base.transaction do
+      profile_id = options[:profile_id].to_i
+      profile = Profile.find(profile_id)
+      profile_attrs = profile.attributes
+      profile_attrs.stringify_keys!
+      profile_attrs.delete("average_rating")
+      profile_attrs.delete("created_at")
+      profile_attrs.delete("updated_at")
+      owner_profile = Profile.new(profile_attrs)
+      owner_profile.account = self
+      owner_profile.save!
+      owner_party.profile.destroy if owner_party.profile
+      owner_party = self.owner
+      owner_party.attributes = profile.to_party_attributes
+      owner_party.profile_id = owner_profile.id
+      owner_party.save!
+      profile.copy_routes_to_party!(owner_party)
+      owner_party.reload
+      owner_party.copy_contact_routes_to_profile!
+    end
+  end
+  
   protected
   def available_names_by_role(role)
     domain_names = self.domains.find(:all, :order=> "name").map(&:name).reject(&:blank?)
