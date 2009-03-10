@@ -469,8 +469,12 @@ class Product < ActiveRecord::Base
     return nil unless product_view
     return product_view.asset_id
   end
-
-  alias_method :main_image, :main_image_id
+  
+  def main_image
+    product_view = self.views.find(:first, :order => "position ASC")
+    return nil unless product_view
+    return product_view.asset
+  end
   
   def attributes_for_copy_to(account)
     account_owner_id = account.owner ?  account.owner.id : nil
