@@ -384,6 +384,8 @@ class Party < ActiveRecord::Base
   has_many :expiring_blogs, :through => :expiring_items, :source => :item, :source_type => "Blog"
   has_many :expiring_assets, :through => :expiring_items, :source => :item, :source_type => "Asset"
 
+  has_many :products, :foreign_key => :owner_id
+
   def deliver_signup_confirmation_email(options)
     begin
       AdminMailer.deliver_signup_confirmation_email(:route => self.main_email(true),
