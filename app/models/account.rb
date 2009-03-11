@@ -1267,8 +1267,8 @@ class Account < ActiveRecord::Base
       # create a new asset and assign it as the avatar of the profile
       if owner_profile.avatar
         new_avatar = self.assets.create!(owner_profile.avatar.attributes_for_copy_to(self))
-        owner_profile.update(:avatar_id, new_avatar.id)
-        owner_party.update(:avatar_id, new_avatar.id)
+        owner_profile.update_attribute(:avatar_id, new_avatar.id)
+        owner_party.update_attribute(:avatar_id, new_avatar.id)
       end
       
       # copy products from the party of the source profile to the account owner
