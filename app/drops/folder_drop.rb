@@ -280,7 +280,8 @@
 # 		     END OF TERMS AND CONDITIONS
 class FolderDrop < Liquid::Drop
   attr_reader :folder
-  delegate :id, :total_size, :name, :updated_at, :owner, :description, :created_at, :private, :assets, :to => :folder
+  delegate :id, :total_size, :name, :updated_at, :owner, :description, :created_at, :private, :assets, 
+           :children, :to => :folder
   
   def initialize(folder)
     @folder = folder
