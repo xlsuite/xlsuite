@@ -482,7 +482,7 @@ class Product < ActiveRecord::Base
 
     attributes = self.attributes.dup.symbolize_keys.merge(:account_id => account.id, :sold_to_date => 0, :most_recent_supplier_id => nil, :on_order => nil,
                               :creator_id => account_owner_id, :creator_name => account_owner_name, :editor_id => nil, :editor_name => nil,
-                              :domain_patterns => "**", :tag_list => self.tag_list, :owner_id => nil)
+                              :domain_patterns => "**", :tag_list => self.tag_list, :owner_id => nil, :owner => nil)
     attributes.delete(:product_id)
     attributes.delete(:product_category_id)
     attributes
