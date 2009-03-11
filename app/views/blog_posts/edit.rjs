@@ -7,6 +7,110 @@ page << create_tab_using_ajax_response("Post | #{truncate(@blog_post.title, 15)}
 
   #{self.generate_save_close_cancel_toolbar(@blog_post, blog_post_path(@blog_post), blog_post_path(:id => @blog_post.id, :commit_type => "close"))}
   
+  var tbarbbarButtons2 = [{
+    text: 'Save',
+    handler: function(me, event){
+        excerptPanel.el.mask('Saving...');
+        xl.maskedPanels.push(excerptPanel);
+        excerptPanel.getForm().doAction('submit',
+          {
+            url: #{blog_post_path(@blog_post).to_json}, 
+            method: 'put', 
+            success: function(form, action) {
+              xl.log('SUCCESS: ' + action.result);
+              response = action.result;
+              
+              // clear dirty flag on fields
+              form.setValues(form.getValues());
+              if(typeof(response)=="undefined")
+              {
+                formPanel.el.unmask();
+                xl.maskedPanels.remove(excerptPanel);
+                Ext.Msg.alert("Saving failed", "Proper connection with the server cannot be established");
+              }  
+              xl.updateStatusBar(response.flash);
+              
+              #{refresh_grid_datastore_of(@blog_post.class.name.underscore)};
+              
+              $("#{dom_id(@blog_post)}_errorMessages").innerHTML = "";
+              if(response.close)
+                xl.closeTabs('#{params[:controller]}_edit_'+response.id);
+  
+              excerptPanel.el.unmask();
+              xl.maskedPanels.remove(excerptPanel);
+            },
+            failure: function(form, action) {
+              response = action.result;
+              excerptPanel.el.unmask();
+              xl.maskedPanels.remove(excerptPanel);
+              $("#{dom_id(@blog_post)}_errorMessages").innerHTML = response.errors;
+            }
+          });
+        }
+      },{
+        text: 'Save and Close',
+        handler: function(me, event){
+            excerptPanel.el.mask('Saving...');
+            xl.maskedPanels.push(excerptPanel);
+            excerptPanel.getForm().doAction('submit',
+              {
+                url: #{blog_post_path(:id => @blog_post.id, :commit_type => "close").to_json}, 
+                method: 'put', 
+                success: function(form, action) {
+                  xl.log('SUCCESS: ' + action.result);
+                  response = action.result;
+                  
+                  // clear dirty flag on fields
+                  form.setValues(form.getValues());
+                  
+                  if(typeof(response)=="undefined")
+                  {
+                    excerptPanel.el.unmask();
+                    xl.maskedPanels.remove(excerptPanel);
+                    Ext.Msg.alert("Saving failed", "Proper connection with the server cannot be established");
+                  }  
+                  $("status-bar-notifications").innerHTML = response.flash; 
+                  
+                  #{refresh_grid_datastore_of(@blog_post.class.name.underscore)};
+                  
+                   if(response.close)
+                        xl.closeTabs('blog_posts_edit_'+response.id);
+      
+                  excerptPanel.el.unmask();
+                  xl.maskedPanels.remove(excerptPanel);
+                },
+                failure: function(form, action) {
+                  xl.logXHRFailure;
+                  response = action.result;
+                  $("#{dom_id(@blog_post)}_errorMessages").innerHTML = response.errors;
+                  formPanel.el.unmask();
+                  xl.maskedPanels.remove(formPanel);
+                }
+              });
+          }
+      },{
+        text: "Cancel",
+        handler: function(me, event){
+          var close = true;
+          if(excerptPanel.getForm().isDirty()){
+            Ext.Msg.show({buttons: Ext.Msg.YESNO, title: "Are you sure?", msg: "There are unsaved fields, are you sure you want to close this tab?", fn: function(btn, text){
+              if(btn=="no"){
+                close = false;
+              }
+              else{
+                xl.closeTabPanel(#{self.create_id_from_params.to_json})
+                  ;
+              }
+            }})
+          }
+          else{
+               xl.closeTabPanel(#{self.create_id_from_params.to_json})
+                  ;
+          }
+        }
+      }];
+  
+  
   var tagsPanelWrapper = new Ext.Panel({
     title: "Tags",
     items: [tagsPanel]
@@ -24,16 +128,23 @@ page << create_tab_using_ajax_response("Post | #{truncate(@blog_post.title, 15)}
     }    
   });
   
-  var excerptField = xl.widget.InlineActiveField({
-    form: form,
-    field: {
-      type: "textarea",
-      hideLabel: true,
-      name: 'excerpt',
-      width: "50%",
-      height: 150,
-      value: #{@blog_post.excerpt.to_json},
-      style: "font-family:monospace"
+  var excerptField = new Ext.ux.HtmlEditor({
+    hideLabel: true,
+    id: "blog_post_#{@blog_post.id}_excerpt",
+    name: 'blog_post[excerpt]',
+    width: '100%',
+    height: 500,
+    value: #{@blog_post.excerpt.to_json},
+    listeners: {
+      'resize': function(component){
+        var size = component.ownerCt.body.getSize();
+        component.suspendEvents();
+        component.setSize(size.width-20, size.height-60);
+        component.resumeEvents();
+      },
+      'render': function(component){
+        component.getToolbar().insertButton(16, #{html_editor_image_video_embed_button(@blog_post)});
+      }
     }
   });
   
@@ -626,9 +737,18 @@ page << create_tab_using_ajax_response("Post | #{truncate(@blog_post.title, 15)}
   var extrasPanel = new Ext.Panel({
     layout:"form",
     items: [
-      {title: "Excerpt/Summary", items:[excerptField]},
       tagsPanelWrapper,
       advancedSettingsPanel
+    ]
+  });
+  
+  var excerptPanel = new Ext.FormPanel({  
+    autoScroll: true,
+    tbar: tbarbbarButtons2,
+    bbar: tbarbbarButtons2,
+    layout:"form",
+    items: [
+      {title: "Excerpt/Summary", items:[excerptField]}
     ]
   });
   
@@ -638,6 +758,7 @@ page << create_tab_using_ajax_response("Post | #{truncate(@blog_post.title, 15)}
     layoutOnTabChange: true, 
     items: [
       {title: "Main Info", autoScroll: true, items: [formPanel], listeners: {show: function(panel){xl.viewport.render();}} },
+      {title: "Excerpt", items: [excerptPanel]},
       {title: "Extras", items: [extrasPanel]},
       {id: #{self.generate_inside_tab_panel_id(:comments).to_json}, title: "Comments", layout: 'ux.rowfit', items: [commentsGridPanel], listeners: {show: function(panel){xl.viewport.render();}} }
     ]
