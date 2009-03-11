@@ -394,7 +394,7 @@ class ProductCategory < ActiveRecord::Base
   
   def copy_products_and_subcategories_from_product_category!(category)
     category.products.each do |product|
-      new_product = self.account.products.find_by_name(product.name)
+      new_product = self.account.products.find(:first, :conditions => {:name => product.name, :owner_id => nil})
       new_product ||= self.products.build(product.attributes_for_copy_to(self.account))
 
       new_product.category_ids = new_product.category_ids << self.id
