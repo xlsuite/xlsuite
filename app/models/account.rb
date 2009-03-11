@@ -818,7 +818,7 @@ class Account < ActiveRecord::Base
     logger.debug {"==> Copying products and product categories to target account"}
     #first copy all products who do not belong to any product categories
     target_acct = Account.find(options[:target_account_id])
-    self.products.find(:all).select{|p|p.categories.blank?}.each do |product|
+    self.products.find(:all, :conditions => {:owner_id => nil}).select{|p|p.categories.blank?}.each do |product|
       next if target_acct.products.find_by_name(product.name)
       new_product = target_acct.products.create!(product.attributes_for_copy_to(target_acct))
       new_product.copy_assets_from!(product)
