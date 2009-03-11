@@ -153,9 +153,9 @@
             <label>Title</label>
             <%= select_tag "owner[honorific]", options_for_select(Party::HONORIFICS, "Mr.") %>
             <label>First Name</label>
-            <%= text_field_tag "owner[first_name]", "" %>
+            <%= text_field_tag "owner[first_name]", @owner.first_name %>
             <label>Last Name</label>
-            <%= text_field_tag "owner[last_name]", "" %>
+            <%= text_field_tag "owner[last_name]", @owner.last_name %>
           </fieldset>
           <input class="submit" type="submit" name="" onClick="$('#signupDetails > ul').tabs('select', 1); return false;" value="Next"/>
         </div>
@@ -164,29 +164,26 @@
           <legend>Contact Details</legend>
             <span class="small">This information will be used in various places on your website such as your contact page, terms of service, and other applicable pages.</span>
             <label>Company</label>
-            <%= text_field_tag "owner[company_name]", "" %>
+            <%= text_field_tag "owner[company_name]", @owner.company_name %>
             <label>Position</label>
-            <%= text_field_tag "owner[position]", "" %>
+            <%= text_field_tag "owner[position]", @owner.position %>
             <label>Phone</label>
             <span style="display: none;"><%= hidden_field_tag "phone[name]", "Main" %></span>
-            <%= text_field_tag "phone[number]", "" %>
+            <%= text_field_tag "phone[number]", @owner.main_phone.number %>
             <label>Address Line 1</label>
-            <%= text_field_tag "address[line1]", "" %>
+            <%= text_field_tag "address[line1]", @owner.main_address.line1 %>
             <label>Address Line 2</label>
-            <%= text_field_tag "address[line2]", "" %>
+            <%= text_field_tag "address[line2]", @owner.main_address.line2 %>
             <label>Address Line 3</label>
-            <%= text_field_tag "address[line3]", "" %>
+            <%= text_field_tag "address[line3]", @owner.main_address.line3 %>
             <label>City</label>
-            <%= text_field_tag "address[city]", "" %>
+            <%= text_field_tag "address[city]", @owner.main_address.city %>
             <label>Country</label>
-            <%= select_tag "address[country]", options_for_select(AddressContactRoute::COUNTRIES, AddressContactRoute::CANADA) %>
+            <%= select_tag "address[country]", options_for_select(AddressContactRoute::COUNTRIES, @owner.main_address.country || AddressContactRoute::CANADA)  %>
             <label>Province/State</label>
-            <%= select_tag "address[state]", options_for_select(AddressContactRoute::STATES) %>
+            <%= select_tag "address[state]", options_for_select(AddressContactRoute::STATES, @owner.main_address.state) %>
             <label>Zip/Postal Code</label>
-            <%= text_field_tag "address[zip]", "" %>
-            <!--<label>Make my profile public</label>
-            <input type="checkbox" name="create_profile"/>
-            <br/>Explanatory text about profile status-->
+            <%= text_field_tag "address[zip]", @owner.main_address.zip %>
           </fieldset>
           <input class="submit" type="submit" name="" onClick="$('#signupDetails > ul').tabs('select', 2); return false;" value="Next"/>
         </div>
