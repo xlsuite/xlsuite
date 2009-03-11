@@ -286,7 +286,8 @@ class AssetDrop < Liquid::Drop
   include ERB::Util
 
   delegate :id, :filename, :title, :description, :width, :height, :content_type, :size, :file_extension, :label, 
-    :shockwave_file?, :audio_file?, :flash_file?, :flv_file?, :mp3_file?, :pictures, :images, :src, :z_src, :to => :asset
+    :shockwave_file?, :audio_file?, :flash_file?, :flv_file?, :mp3_file?, :pictures, :images, :src, :z_src, :folder,
+    :to => :asset
   attr_reader :asset
 
   def initialize(asset)
