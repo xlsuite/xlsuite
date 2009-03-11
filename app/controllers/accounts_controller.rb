@@ -354,7 +354,7 @@ class AccountsController < ApplicationController
         @acct.save!
         MethodCallbackFuture.create!(:model => @acct, :method => :grant_all_permissions_to_owner, :system => true, :priority => 10)
         
-        @acct.copy_profile_to_owner!(params[:profile_id]) if params[:profile_id]
+        @acct.copy_profile_to_owner!(:profile_id => params[:profile_id]) if params[:profile_id]
 
         # We reload the account to refresh the party and contact routes
         # Or else, the email contact route won't be found in account's #send_confirmation_email
