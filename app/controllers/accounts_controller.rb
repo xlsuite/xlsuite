@@ -439,6 +439,7 @@ class AccountsController < ApplicationController
 
     # Default value
     @acct.template_name = @acct.default_template
+    @owner = @acct.owner
     
     @suite = nil
     @suite = AccountTemplate.find(params[:suite_id]) if params[:suite_id]
