@@ -7,7 +7,7 @@ class BlogPost < ActiveRecord::Base
   include XlSuite::Commentable
   
   acts_as_taggable
-  acts_as_fulltext %w(title), %w(excerpt body author_name blog_title blog_subtitle blog_label blog_author_name tags_as_text)
+  # acts_as_fulltext %w(title), %w(excerpt body author_name blog_title blog_subtitle blog_label blog_author_name tags_as_text)
   acts_as_reportable :columns => %w(title excerpt body author_name link permalink)
 
   named_scope :published, lambda {{:conditions => ["published_at < ?", Time.now.utc] }}

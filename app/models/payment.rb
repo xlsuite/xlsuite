@@ -18,7 +18,7 @@ class Payment < ActiveRecord::Base
   validates_presence_of :amount_cents
   validates_numericality_of :amount_cents
 
-  acts_as_fulltext %w(payment_method amount description state created_at)
+  # acts_as_fulltext %w(payment_method amount description state created_at)
 
   ValidPaymentMethods = ['paypal', 'credit_card', 'check', 'cash', 'other'].freeze
   PaymentMethods = ValidPaymentMethods.map {|s| [s.capitalize, s.gsub(' ', '-')]}.freeze

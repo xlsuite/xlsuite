@@ -8,7 +8,7 @@ class ApiKey < ActiveRecord::Base
   before_validation {|k| k.account = k.party.account if k.party}
 
   before_create :generate_api_key
-  acts_as_fulltext %w(key party_name)
+  # acts_as_fulltext %w(key party_name)
 
   def party_name
     party.name.to_s

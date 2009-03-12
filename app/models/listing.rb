@@ -18,7 +18,7 @@ class Listing < ActiveRecord::Base
   validates_presence_of :account_id
 
   acts_as_taggable
-  acts_as_fulltext %w(quick_description), %w(address_as_text mls_no realtor_name tags_as_text description status region contact_email)
+  # acts_as_fulltext %w(quick_description), %w(address_as_text mls_no realtor_name tags_as_text description status region contact_email)
   
   has_one :address, :class_name => "AddressContactRoute", :as => :routable, :dependent => :destroy
   belongs_to :realtor, :class_name => 'Party', :foreign_key => 'realtor_id'

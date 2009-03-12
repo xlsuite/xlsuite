@@ -3,7 +3,7 @@
 
 class Testimonial < ActiveRecord::Base
   acts_as_taggable
-  acts_as_fulltext %w(status), %w(body author_name author_company_name email_address phone_number website_url)
+  # acts_as_fulltext %w(status), %w(body author_name author_company_name email_address phone_number website_url)
 
   include DomainPatternsSplitter
   

@@ -48,7 +48,7 @@ class Profile < ActiveRecord::Base
   has_many :email_addresses, :class_name => "EmailContactRoute", :as => :routable, :order => "position", :extend => XlSuite::ContactRoutesExtensions, :dependent => :destroy
 
   acts_as_taggable
-  acts_as_fulltext %w(display_name links_as_text phones_as_text addresses_as_text email_addresses_as_text tag_list position), :weight => 50 
+  # acts_as_fulltext %w(display_name links_as_text phones_as_text addresses_as_text email_addresses_as_text tag_list position), :weight => 50 
 
   validates_presence_of :account_id
   validates_uniqueness_of :alias, :scope => :account_id, :if => Proc.new {|p| !p.alias.blank?}

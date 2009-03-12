@@ -25,7 +25,7 @@ class Email < ActiveRecord::Base
   # The tags on Email itself relate to the +sender+, not any of the recipients.
   # The tags on Recipient relate to that recipient only.
   acts_as_taggable
-  acts_as_fulltext %w(subject recipients_as_text dates_as_text tag_list)
+  # acts_as_fulltext %w(subject recipients_as_text dates_as_text tag_list)
 
   # We record the last exception's backtrace to help us trace the root cause of the problem.
   serialize :backtrace

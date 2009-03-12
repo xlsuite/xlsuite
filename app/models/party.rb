@@ -19,7 +19,7 @@ class Party < ActiveRecord::Base
     :columns => %w(honorific first_name last_name middle_name company_name display_name referal forum_alias timezone created_at updated_at confirmed),
     :map => {:addresses => :address_contact_route, :phones => :phone_contact_route, :links => :link_contact_route, :emails => :email_contact_route}
 
-  acts_as_fulltext %w(display_name links_as_text phones_as_text addresses_as_text email_addresses_as_text tags_as_text position), :weight => 50 
+  # acts_as_fulltext %w(display_name links_as_text phones_as_text addresses_as_text email_addresses_as_text tags_as_text position), :weight => 50 
 
   IMMEDIATELY = 'immediately'
   DAILY = 'daily'

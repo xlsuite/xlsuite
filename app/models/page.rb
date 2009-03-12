@@ -7,7 +7,7 @@ class Page < Item
   include CacheControl
 
   acts_as_taggable
-  acts_as_fulltext %w(title fullslug body status layout domain_patterns behavior)
+  # acts_as_fulltext %w(title fullslug body status layout domain_patterns behavior)
 
   VALID_STATUSES = %w(draft reviewed protected published).freeze
   STATUSES_FOR_SELECT = VALID_STATUSES.map {|status| [status.titleize, status]}.freeze

@@ -5,7 +5,7 @@ class Blog < ActiveRecord::Base
   include XlSuite::Commentable
   acts_as_taggable
 
-  acts_as_fulltext %w(title), %w(subtitle label author_name)
+  # acts_as_fulltext %w(title), %w(subtitle label author_name)
   acts_as_reportable :columns => %w(title subtitle label author_name comment_approval_method)
 
   belongs_to :account

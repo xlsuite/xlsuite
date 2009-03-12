@@ -17,7 +17,7 @@ class Invoice < ActiveRecord::Base
 
   before_create :generate_random_uuid
 
-  acts_as_fulltext %w(number customer_name iso_date),
+  # acts_as_fulltext %w(number customer_name iso_date),
       %w(date customer_email_addresses address_as_text line_items_as_text payments_as_text)
       
   after_create :update_order_lines_quantity_invoiced!

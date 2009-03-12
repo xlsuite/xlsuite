@@ -5,8 +5,8 @@ class Order < ActiveRecord::Base
   include XlSuite::Invoicable
 
   acts_as_reportable
-  acts_as_fulltext %w(care_of_name number date notes fst_name pst_name shipping_method status 
-      created_by_name updated_by_name sent_at sent_by_name confirmed_by_name completed_by_name voided_by_name ship_to_type)
+  # acts_as_fulltext %w(care_of_name number date notes fst_name pst_name shipping_method status 
+  #    created_by_name updated_by_name sent_at sent_by_name confirmed_by_name completed_by_name voided_by_name ship_to_type)
   
   validates_presence_of :date
 

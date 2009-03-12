@@ -14,7 +14,7 @@ class Template < ActiveRecord::Base
   validates_uniqueness_of :label, :scope => :account_id
   
   acts_as_taggable
-  acts_as_fulltext %w(label description subject body tags_as_text party_as_text)
+  # acts_as_fulltext %w(label description subject body tags_as_text party_as_text)
   
   
   def self.find_readable_by(party, query_params, search_options)

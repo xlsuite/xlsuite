@@ -4,7 +4,7 @@
 class Configuration < ActiveRecord::Base
   include DomainPatternsSplitter
 
-  acts_as_fulltext %w(name), %w(group_name value_as_text domain_patterns description)
+  # acts_as_fulltext %w(name), %w(group_name value_as_text domain_patterns description)
 
   belongs_to :account
 

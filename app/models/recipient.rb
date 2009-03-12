@@ -11,7 +11,7 @@ class Recipient < ActiveRecord::Base
 
   acts_as_taggable
 
-  acts_as_fulltext %w(address name)
+  # acts_as_fulltext %w(address name)
   serialize :extras
 
   before_validation :assign_default_address_and_name

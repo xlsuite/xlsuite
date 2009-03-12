@@ -2,7 +2,7 @@
 #- Copyright 2005-2009 iXLd Media Inc.  See LICENSE for details.
 
 class Account < ActiveRecord::Base
-  acts_as_fulltext %w(account_owner_display_name_as_text), %w(domain_names_as_text account_owner_email_as_text due_date_as_text cost_as_text)
+  # acts_as_fulltext %w(account_owner_display_name_as_text), %w(domain_names_as_text account_owner_email_as_text due_date_as_text cost_as_text)
   acts_as_tree :foreign_key => :signup_account_id
 
   belongs_to :owner, :class_name => 'Party', :foreign_key => 'party_id'

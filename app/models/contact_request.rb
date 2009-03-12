@@ -29,7 +29,7 @@ class ContactRequest < ActiveRecord::Base
   validates_format_of :email, :with => %r{[A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z]{2,}}i, :allow_nil => true
 
   acts_as_taggable
-  acts_as_fulltext %w(name email phone subject tag_list body subject)
+  # acts_as_fulltext %w(name email phone subject tag_list body subject)
 
   serialize :params, Hash
 

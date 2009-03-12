@@ -6,7 +6,7 @@ class ForumTopic < ActiveRecord::Base
   validates_presence_of :account_id
   before_validation { |r| r.account = r.forum.account if r.forum }
 
-  acts_as_fulltext %w(title)
+  # acts_as_fulltext %w(title)
 
   belongs_to :forum, :counter_cache => 'topics_count'
   belongs_to :forum_category

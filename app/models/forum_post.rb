@@ -8,7 +8,7 @@ class ForumPost < ActiveRecord::Base
   validates_presence_of :account_id
   before_validation { |r| r.account = (r.forum || r.topic).account if r.forum || r.topic }
 
-  acts_as_fulltext %w(topic_title body)
+  # acts_as_fulltext %w(topic_title body)
 
   belongs_to :forum, :counter_cache => 'posts_count'
   belongs_to :forum_category

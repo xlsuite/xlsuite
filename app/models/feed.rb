@@ -13,7 +13,7 @@ class Feed < ActiveRecord::Base
   has_many :entries, :dependent => :delete_all
 
   acts_as_taggable
-  acts_as_fulltext %w(label description url)
+  # acts_as_fulltext %w(label description url)
   validates_presence_of :url
   validates_uniqueness_of :label, :scope => [:account_id], :if => Proc.new{|feed| !feed.label.blank?}
 

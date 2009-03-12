@@ -10,7 +10,7 @@ class Link < ActiveRecord::Base
   attr_protected :approved
 
   acts_as_taggable
-  acts_as_fulltext %w(title url categories_as_text description tags_as_text)
+  # acts_as_fulltext %w(title url categories_as_text description tags_as_text)
 
   has_and_belongs_to_many :link_categories
   belongs_to :account

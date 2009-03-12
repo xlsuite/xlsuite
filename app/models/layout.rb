@@ -15,7 +15,7 @@ class Layout < ActiveRecord::Base
   belongs_to :creator, :class_name => "Party", :foreign_key => :creator_id
   belongs_to :updator, :class_name => 'Party', :foreign_key => :updator_id
 
-  acts_as_fulltext %w(title content_type body creator_as_text)
+  # acts_as_fulltext %w(title content_type body creator_as_text)
 
   validates_presence_of :domain_patterns
   before_validation :ensure_domain_patterns_not_empty

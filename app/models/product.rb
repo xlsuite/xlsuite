@@ -8,7 +8,7 @@ class Product < ActiveRecord::Base
   include XlSuite::AccessRestrictions
 
   acts_as_taggable
-  acts_as_fulltext %w(name most_recent_supplier_name in_stock on_order sold_to_date wholesale_price retail_price margin description), :weight => 50
+  # acts_as_fulltext %w(name most_recent_supplier_name in_stock on_order sold_to_date wholesale_price retail_price margin description), :weight => 50
   acts_as_reportable
 
   has_and_belongs_to_many :categories, :class_name => 'ProductCategory'

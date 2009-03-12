@@ -2,7 +2,7 @@
 #- Copyright 2005-2009 iXLd Media Inc.  See LICENSE for details.
 
 class Destination < ActiveRecord::Base
-  acts_as_fulltext %w(country state cost)
+  # acts_as_fulltext %w(country state cost)
   
   belongs_to :account
   acts_as_money :cost
