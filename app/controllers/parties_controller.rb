@@ -928,30 +928,17 @@ protected
   def process_index
     field     = params[:sort] =~ /\Acompany\Z/i ? "company_name" : "name"
     direction = params[:dir]  =~ /\Adesc\Z/i    ? "DESC"         : "ASC"
+    q         = params[:q] == "*" ? "" : params[:q]
 
-    # conditions = []
-    # params.delete(:group_id) if params[:group_id] =~ /all/i
-    # if params[:group_id]
-    #   party_ids = current_account.groups.find(params[:group_id]).parties.map(&:id)
-    #   if party_ids.join.blank?
-    #     @parties = []
-    #     @parties_count = 0
-    #     return
-    #   else
-    #     conditions << "(parties.id IN (#{party_ids.join(",")}))" 
-    #   end
-    # end
-#
-#    query_params = params[:q]
-#    unless query_params.blank?
-#      query_params = query_params.split(/\s+/)
-#      query_params = query_params.map {|q| q+"*"}.join(" ")
-#    end
-#    view_own_contacts_only = current_user.can?(:view_own_contacts_only, :edit_own_contacts_only, :any => true) && !current_user.can?(:view_party, :edit_party, :any => true)
-#    conditions << "(created_by_id = #{current_user.id} OR parties.id = #{current_user.id})" if view_own_contacts_only
-#    search_options.merge!(:conditions => conditions.join(" AND ")) unless conditions.blank?
+    with_conditions = Hash.new
+    with_conditions[:account_id] = current_account.id
+    with_conditions[:group_ids]  = [params[:group_id].to_i] unless params[:group_id].blank? || params[:group_id] =~ /\Aall\Z/i
 
-    @parties       = current_account.parties.search(params[:q], :with => {:account_id => current_account.id}, :page => params[:page], :order => "#{field} #{direction}")
+    view_own_contacts_only       = current_user.can?(:view_own_contacts_only, :edit_own_contacts_only, :any => true) && !current_user.can?(:view_party, :edit_party, :any => true)
+    with_conditions[:owner_id]   = current_party.id if view_own_contacts_only
+
+    logger.debug { {:q => params[:q], :with => with_conditions, :order => "#{field} #{direction}", :page => params[:page]}.to_yaml }
+    @parties       = current_account.parties.search(params[:q], :with => with_conditions, :page => params[:page], :order => "#{field} #{direction}")
     @parties_count = 1000
   end
 
