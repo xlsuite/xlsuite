@@ -926,56 +926,33 @@ protected
   end
 
   def process_index
-    sort_dir = case params[:dir]
-               when /\Adesc\Z/i
-                 "DESC"
-               else
-                 "ASC"
-               end
+    field     = params[:sort] =~ /\Acompany\Z/i ? "company_name" : "name"
+    direction = params[:dir]  =~ /\Adesc\Z/i    ? "DESC"         : "ASC"
 
-    fields = case params[:sort]
-    when "lastName"
-      %w(last_name first_name company_name)
-    when "firstName"
-      %w(first_name last_name company_name)
-    when "company"
-      %w(company_name last_name first_name)
-    when "displayName"
-      %w(display_name company_name last_name first_name)
-    end
+    # conditions = []
+    # params.delete(:group_id) if params[:group_id] =~ /all/i
+    # if params[:group_id]
+    #   party_ids = current_account.groups.find(params[:group_id]).parties.map(&:id)
+    #   if party_ids.join.blank?
+    #     @parties = []
+    #     @parties_count = 0
+    #     return
+    #   else
+    #     conditions << "(parties.id IN (#{party_ids.join(",")}))" 
+    #   end
+    # end
+#
+#    query_params = params[:q]
+#    unless query_params.blank?
+#      query_params = query_params.split(/\s+/)
+#      query_params = query_params.map {|q| q+"*"}.join(" ")
+#    end
+#    view_own_contacts_only = current_user.can?(:view_own_contacts_only, :edit_own_contacts_only, :any => true) && !current_user.can?(:view_party, :edit_party, :any => true)
+#    conditions << "(created_by_id = #{current_user.id} OR parties.id = #{current_user.id})" if view_own_contacts_only
+#    search_options.merge!(:conditions => conditions.join(" AND ")) unless conditions.blank?
 
-    search_options = {:offset => params[:start], :limit => params[:limit]}
-    search_options.merge!(:order => fields.map {|field| "#{field} #{sort_dir}"}.join(", ")) if fields
-    if search_options[:order].blank? && params[:q].blank?
-      search_options.merge!(:order => "display_name")
-    end
-
-    conditions = []
-    params.delete(:group_id) if params[:group_id] =~ /all/i
-    if params[:group_id]
-      party_ids = current_account.groups.find(params[:group_id]).parties.map(&:id)
-      if party_ids.join.blank?
-        @parties = []
-        @parties_count = 0
-        return
-      else
-        conditions << "(parties.id IN (#{party_ids.join(",")}))" 
-      end
-    end
-
-    query_params = params[:q]
-    unless query_params.blank?
-      query_params = query_params.split(/\s+/)
-      query_params = query_params.map {|q| q+"*"}.join(" ")
-    end
-    view_own_contacts_only = current_user.can?(:view_own_contacts_only, :edit_own_contacts_only, :any => true) && !current_user.can?(:view_party, :edit_party, :any => true)
-    conditions << "(created_by_id = #{current_user.id} OR parties.id = #{current_user.id})" if view_own_contacts_only
-    search_options.merge!(:conditions => conditions.join(" AND ")) unless conditions.blank?
-
-    @parties = current_account.parties.search(query_params, search_options)
-    search_options = conditions.blank? ? {} : {:conditions => conditions.join(" AND ")} 
-
-    @parties_count = current_account.parties.count_results(query_params, search_options)
+    @parties       = current_account.parties.search(params[:q], :with => {:account_id => current_account.id}, :page => params[:page], :order => "#{field} #{direction}")
+    @parties_count = 1000
   end
 
   def load_groups
