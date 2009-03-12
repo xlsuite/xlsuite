@@ -28,8 +28,8 @@ class Party < ActiveRecord::Base
     indexes notes.body, :as => :notes
     indexes tags.name, :as => :tag
     has :account_id, :archived_at
+    has :created_by_id, :as => :owner_id
   end
-  # acts_as_fulltext %w(display_name links_as_text phones_as_text addresses_as_text email_addresses_as_text tags_as_text position), :weight => 50 
 
   IMMEDIATELY = 'immediately'
   DAILY = 'daily'
