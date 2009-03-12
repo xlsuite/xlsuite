@@ -179,7 +179,7 @@
             <label>City</label>
             <%= text_field_tag "address[city]", @owner.main_address.city %>
             <label>Country</label>
-            <%= select_tag "address[country]", options_for_select(AddressContactRoute::COUNTRIES, @owner.main_address.country || AddressContactRoute::CANADA)  %>
+            <%= select_tag "address[country]", options_for_select(AddressContactRoute::COUNTRIES, (@owner.main_address.country.blank? ? AddressContactRoute::CANADA : @owner.main_address.country))  %>
             <label>Province/State</label>
             <%= select_tag "address[state]", options_for_select(AddressContactRoute::STATES, @owner.main_address.state) %>
             <label>Zip/Postal Code</label>
