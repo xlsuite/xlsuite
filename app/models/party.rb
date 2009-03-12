@@ -22,9 +22,11 @@ class Party < ActiveRecord::Base
   define_index do
     indexes [last_name, first_name, middle_name], :as => :name, :sortable => true
     indexes company_name, :sortable => true
+    indexes display_name, :sortable => true
     indexes [addresses.line1, addresses.line2, addresses.line3, addresses.city, addresses.state, addresses.country], :as => :address
     indexes email_addresses.email_address, :as => :email_address
     indexes phones.number, :as => :phone
+    indexes links.url, :as => :website
     indexes notes.body, :as => :notes
     indexes tags.name, :as => :tag
     has :account_id, :archived_at
