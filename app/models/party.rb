@@ -29,6 +29,7 @@ class Party < ActiveRecord::Base
     indexes tags.name, :as => :tag
     has :account_id, :archived_at
     has :created_by_id, :as => :owner_id
+    has groups(:id), :as => :group_ids
   end
 
   IMMEDIATELY = 'immediately'
