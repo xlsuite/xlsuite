@@ -364,24 +364,36 @@ class Public::GroupsController < ApplicationController
   end
   
   def join
-    self.load_party
-    @exist = @party.groups.find_by_id(@group.id)
-    @party.groups << @group if @exist.blank?
-    @party.update_effective_permissions = true
-    @party.save!
-    respond_to do |format|
-      format.html do
-        if @exist.blank?
-          flash_success "Successfully joined group #{@group.name}"
-          return redirect_to(params[:next]) if params[:next]
-        else
-          flash_failure "You are already a member of #{@group.name}"
-          return redirect_to(params[:return_to]) if params[:return_to]
+    if @group.public?
+      self.load_party
+      @exist = @party.groups.find_by_id(@group.id)
+      @party.groups << @group if @exist.blank?
+      @party.update_effective_permissions = true
+      @party.save!
+      respond_to do |format|
+        format.html do
+          if @exist.blank?
+            flash_success "Successfully joined group #{@group.name}"
+            return redirect_to(params[:next]) if params[:next]
+          else
+            flash_failure "You are already a member of #{@group.name}"
+            return redirect_to(params[:return_to]) if params[:return_to]
+          end
+          redirect_to :back
         end
-        redirect_to :back
+        format.js do
+          render :json => {:success => true}.to_json
+        end
       end
-      format.js do
-        render :json => {:success => true}.to_json
+    else
+      flash_failure "Cannot join group: #{@group.name} is a private group."
+      respond_to do |format|
+        format.html do
+          redirect_to_return_to_or_back_or_home
+        end
+        format.js do
+          render :json => {:success => false, :errors => flash_messages_to_s}
+        end
       end
     end
   end
@@ -433,7 +445,7 @@ class Public::GroupsController < ApplicationController
       return true if @group.created_by_id == @party.id
     elsif %w(join leave).index(self.action_name)
       self.load_group
-      return true if @group.public?
+      return true
     elsif %w(create).index(self.action_name)
       return true         
     end
