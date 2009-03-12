@@ -468,8 +468,6 @@ class Account < ActiveRecord::Base
     self.registering || false
   end
 
-  validate :presence_of_state_and_country_when_activating
-  
   def activate!
     @activation_attempt = true
     self.confirmation_token = nil
@@ -1347,15 +1345,6 @@ class Account < ActiveRecord::Base
   def send_confirmation_email_with_confirmation_url(params)
     AdminMailer.deliver_account_confirmation_email(:route => self.owner.main_email,
       :domain_name => self.domains.first.name, :confirmation_url => params[:url])
-  end
-
-  def presence_of_state_and_country_when_activating
-    if @activation_attempt
-      @activation_attempt = nil
-      if !self.state || !self.country
-        self.errors.add_to_base("Cannot activate account. Please specify state and country.")
-      end
-    end
   end
 
   def copy_configurations
