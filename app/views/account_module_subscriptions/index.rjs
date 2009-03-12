@@ -84,7 +84,7 @@ page << create_tab_using_ajax_response("[XL] Subscriptions") do
     selModel: new Ext.grid.RowSelectionModel,
     autoExpandColumn: "installed_account_modules",
     loadMask: true,
-    tbar: [gridTopToolbar, installNewSuiteButton],
+    tbar: [gridTopToolbar],
     listeners:  {
       render: function(gr){
         ds.load({params: {start: 0, limit: #{limit} }});
