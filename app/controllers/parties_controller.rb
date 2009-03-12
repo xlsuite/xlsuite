@@ -926,7 +926,11 @@ protected
   end
 
   def process_index
-    field     = params[:sort] =~ /\Acompany\Z/i ? "company_name" : "name"
+    field     = case params[:sort]
+                when /\Acompany\Z/i;      "company_name"
+                when /\AdisplayName\Z/i;  "display_name"
+                else;                     "name"
+                end
     direction = params[:dir]  =~ /\Adesc\Z/i    ? "DESC"         : "ASC"
     q         = params[:q] == "*" ? "" : params[:q]
 
