@@ -348,9 +348,10 @@ class CartsController < ApplicationController
     end
     rescue
       errors = $!.message.to_s
+      logger.warn(errors.inspect)
+      logger.warn($!.backtrace.join("\n"))
       respond_to do |format|
         format.html do
-          logger.warn(errors.inspect)
           flash_failure errors
           return redirect_to_return_to_or_back_or_home
         end
