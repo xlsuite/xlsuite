@@ -288,6 +288,11 @@ class CommentDrop < Liquid::Drop
   end
   
   def posted_by
-    "<a href='#{self.comment.url}'>#{self.comment.name}</a>"
+    if self.comment.url.blank?
+      return "#{self.comment.name}"
+    else
+      return "<a href='#{self.comment.url}'>#{self.comment.name}</a>"
+    end
+    
   end
 end
