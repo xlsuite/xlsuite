@@ -426,6 +426,7 @@ class Public::ListingsController < ApplicationController
   end
   
   def custom_required_permissions
+    return true if %w(embed_code).include?(params[:action].to_s)
     has_required_permissions = if !current_user? 
       false
     elsif current_user.can?(:edit_listings)
@@ -436,7 +437,7 @@ class Public::ListingsController < ApplicationController
       self.load_listing
       (@listing.creator && @listing.creator.id == current_user.id) || 
         (@listing.creator.profile && @listing.creator.profile.writeable_by?(current_user))
-    elsif %w(show embed_code).include?(params[:action].to_s) 
+    elsif %w(show).include?(params[:action].to_s) 
       true
     end
     has_required_permissions ? true : access_denied
