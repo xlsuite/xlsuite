@@ -436,7 +436,7 @@ class Public::ListingsController < ApplicationController
       self.load_listing
       (@listing.creator && @listing.creator.id == current_user.id) || 
         (@listing.creator.profile && @listing.creator.profile.writeable_by?(current_user))
-    else %w(show).include?(params[:action].to_s) 
+    elsif %w(show embed_code).include?(params[:action].to_s) 
       true
     end
     has_required_permissions ? true : access_denied
