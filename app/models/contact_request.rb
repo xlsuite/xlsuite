@@ -488,7 +488,7 @@ class ContactRequest < ActiveRecord::Base
     blacklist_words = self.domain.get_config("blacklist_words")
     blacklist_words_array = blacklist_words.split(',').map(&:strip).reject(&:blank?)
     return false if blacklist_words_array.join("").blank?
-    blacklist_regex = Regexp.new("(#{blacklist_words_array.join('|')})")
+    blacklist_regex = Regexp.new("(#{blacklist_words_array.join('|')})", true)
     %w(name email body subject).each do |column|
       return true if self.send(column) =~ blacklist_regex
     end
