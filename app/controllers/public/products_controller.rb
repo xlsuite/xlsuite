@@ -465,8 +465,8 @@ class Public::ProductsController < ApplicationController
     #index new create edit update destroy
     if %w(update destroy add_to_categories remove_from_categories).include?(self.action_name)
       return false unless self.current_user?
-      return true if self.current_user.can?(:edit_products)
       self.load_product
+      return true if self.current_user.can?(:edit_products)
       return true if @product.creator_id == self.current_user.id || @product.owner_id == self.current_user.id
     elsif %w(create).include?(self.action_name)
       return false unless self.current_user?
