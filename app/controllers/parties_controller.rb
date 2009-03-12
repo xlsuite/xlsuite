@@ -926,12 +926,12 @@ protected
   end
 
   def process_index
-    case params[:dir]
-    when "ASC", "DESC"
-      sort_dir = params[:dir]
-    else
-      sort_dir = "ASC"
-    end
+    sort_dir = case params[:dir]
+               when /\Adesc\Z/i
+                 "DESC"
+               else
+                 "ASC"
+               end
 
     fields = case params[:sort]
     when "lastName"
