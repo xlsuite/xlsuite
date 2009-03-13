@@ -452,8 +452,8 @@ class PagesController < ApplicationController
   def update
     Page.transaction do
       @page.updator = current_user
-      params[:page][:behavior_values] = params.delete(:behavior_values)
-      params[:page][:behavior] = params[:page][:behavior].downcase
+      params[:page][:behavior_values] = params.delete(:behavior_values) if params[:behaviour_values]
+      params[:page][:behavior] = params[:page][:behavior].downcase if params[:page][:behavior]
       @updated = @page.update_attributes(params[:page])
       @close = true if params[:commit_type] =~ /close/i
       refresh = params[:refresh] || false
@@ -576,10 +576,21 @@ class PagesController < ApplicationController
 
   protected
   def process_page_params
-    if params[:page][:no_update]
-      params[:page][:no_update] = true 
+    if params[:from_index]
+      return unless params[:page][:no_update_flag]
+      no_update_param = params[:page].delete(:no_update_flag)
+      if no_update_param == "1"
+        params[:page][:no_update] = true 
+      elsif no_update_param == "0"
+        params[:page][:no_update] = false
+      end
     else
-      params[:page][:no_update] = false
+      no_update_param = params[:page].delete(:no_update_flag)
+      if no_update_param == "1"
+        params[:page][:no_update] = true 
+      else
+        params[:page][:no_update] = false
+      end
     end
   end
   
@@ -605,7 +616,8 @@ class PagesController < ApplicationController
       :layout => record.layout,
       :domains => selbox,
       :updator => record.updator ? ( record.updator.full_name.blank? ? record.updator.display_name : record.updator.full_name ) : "Anonymous", 
-      :updated_at => record.updated_at.to_s
+      :updated_at => record.updated_at.to_s,
+      :no_update => record.no_update
     }
   end
 
