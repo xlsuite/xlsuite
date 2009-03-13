@@ -17,6 +17,7 @@ page << create_tab_using_ajax_response("Snippets | Index", after_render) do
     {name: 'updated_at', mapping: 'updated_at'},
     {name: 'published_at', mapping: 'published_at'},
     {name: 'updator_id', mapping: 'updator'},
+    {name: 'no_update', mapping: 'no_update'},
     {name: 'behavior', mapping: 'behavior'}
   ]);
   
@@ -75,6 +76,27 @@ page << create_tab_using_ajax_response("Snippets | Index", after_render) do
     cls: "top-toolbar",
     items: [{text: "Show Domain:"}, domainSelection, {text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
   });
+
+  var snippetPath = #{snippet_path(:id => "__ID__").to_json};
+  var noUpdateCheckColumn = new Ext.grid.CheckColumn({
+    id: 'no_update', 
+    header: "No update",
+    dataIndex: 'no_update',
+    width: 60,
+    fixed: true,
+    inputValue: 1
+  });
+  noUpdateCheckColumn.addListener("click", function(column, event, record){
+    var no_update_flag = "0";
+    if(record.get("no_update")){
+      no_update_flag = "1";
+    }
+    Ext.Ajax.request({
+      url:snippetPath.replace(new RegExp("__ID__"), record.get("id")),
+      params:{"snippet[no_update_flag]":no_update_flag, "from_index":"1"},
+      method:"put"
+    });
+  });
   
   var editRenderer = function(value, cell, record) {
     return '<div class="icon_pencilGo pointerOnHover"/>';
@@ -89,7 +111,8 @@ page << create_tab_using_ajax_response("Snippets | Index", after_render) do
         {header: "Behavior", width: 100, sortable: true, dataIndex: 'behavior'},
         {id: "updated_at", header: "Updated at", sortable: true, dataIndex: 'updated_at'},
         {id: "updator", header: "Updated By", sortable: true, dataIndex: 'updator_id'},
-        {id: "published_at", header: "Publish at", sortable: true, dataIndex: 'published_at'}
+        {id: "published_at", header: "Publish at", sortable: true, dataIndex: 'published_at'},
+        noUpdateCheckColumn
       ]),
     autoScroll: true,
     autoWidth: true,
@@ -97,6 +120,7 @@ page << create_tab_using_ajax_response("Snippets | Index", after_render) do
     clicksToEdit:1,
     tbar: gridTopToolbar, 
     bbar: paging,
+    plugins:noUpdateCheckColumn,
     selModel: new Ext.grid.RowSelectionModel,
     viewConfig: { autoFill: true, forceFit: true},
     loadMask: true

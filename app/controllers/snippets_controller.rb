@@ -516,10 +516,21 @@ class SnippetsController < ApplicationController
 
   protected
   def process_snippet_params
-    if params[:snippet][:no_update]
-      params[:snippet][:no_update] = true 
+    if params[:from_index]
+      return unless params[:snippet][:no_update_flag]
+      no_update_param = params[:snippet].delete(:no_update_flag)
+      if no_update_param == "1"
+        params[:snippet][:no_update] = true 
+      elsif no_update_param == "0"
+        params[:snippet][:no_update] = false
+      end
     else
-      params[:snippet][:no_update] = false
+      no_update_param = params[:snippet].delete(:no_update_flag)
+      if no_update_param == "1"
+        params[:snippet][:no_update] = true 
+      else
+        params[:snippet][:no_update] = false
+      end
     end
   end
   
@@ -540,6 +551,7 @@ class SnippetsController < ApplicationController
       :updated_at => record.updated_at.to_s, 
       :behavior => record.behavior,
       :published_at => record.published_at.to_s,
+      :no_update => record.no_update,
       :updator => record.updator ? ( record.updator.full_name.blank? ? record.updator.display_name : record.updator.full_name ) : "Anonymous"
     }
   end
