@@ -16,6 +16,7 @@ page << create_tab_using_ajax_response("Layouts | Index", after_render) do
     {name: 'domain_patterns', mapping: 'domain_patterns'},
     {name: 'updated_at', mapping: 'updated_at'},
     {name: 'updator_id', mapping: 'updator'},
+    {name: 'no_update', mapping: 'no_update'},
     {name: 'content_type', mapping: 'content_type'}
   ]);
   
@@ -74,6 +75,27 @@ page << create_tab_using_ajax_response("Layouts | Index", after_render) do
     cls: "top-toolbar",
     items: [{text: "Show Domain:"}, domainSelection, {text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
   });
+
+  var layoutPath = #{layout_path(:id => "__ID__").to_json};
+  var noUpdateCheckColumn = new Ext.grid.CheckColumn({
+    id: 'no_update', 
+    header: "No update",
+    dataIndex: 'no_update',
+    width: 60,
+    fixed: true,
+    inputValue: 1
+  });
+  noUpdateCheckColumn.addListener("click", function(column, event, record){
+    var no_update_flag = "0";
+    if(record.get("no_update")){
+      no_update_flag = "1";
+    }
+    Ext.Ajax.request({
+      url:layoutPath.replace(new RegExp("__ID__"), record.get("id")),
+      params:{"layout[no_update_flag]":no_update_flag, "from_index":"1"},
+      method:"put"
+    });
+  });
   
   var editRenderer = function(value, cell, record) {
     return '<div class="icon_pencilGo pointerOnHover"/>';
@@ -88,6 +110,7 @@ page << create_tab_using_ajax_response("Layouts | Index", after_render) do
         {id: "content_type", header: "Content Type", width: 100, sortable: true, dataIndex: 'content_type', editor: new Ext.form.TextField()},
         {id: "updated_at", header: "Updated at", sortable: true, dataIndex: 'updated_at'},
         {id: "updator", header: "Updated By", sortable: true, dataIndex: 'updator_id'},
+        noUpdateCheckColumn
       ]),
     autoScroll: true,
     autoWidth: true,
@@ -95,6 +118,7 @@ page << create_tab_using_ajax_response("Layouts | Index", after_render) do
     clicksToEdit:1,
     tbar: gridTopToolbar, 
     bbar: paging,
+    plugins:noUpdateCheckColumn,
     selModel: new Ext.grid.RowSelectionModel,
     loadMask: true,
     viewConfig: { autoFill: true, forceFit: true}

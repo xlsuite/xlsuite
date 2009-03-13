@@ -568,7 +568,7 @@ module LayoutsHelper
 
     var noUpdateCheckbox = new Ext.form.Checkbox({
       checked: #{@layout.no_update.to_json},
-      name: "layout[no_update]",
+      name: "layout[no_update_flag]",
       fieldLabel: "No update",
       inputValue: "1"
     });
