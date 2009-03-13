@@ -3,7 +3,7 @@
 
 class GroupDrop < Liquid::Drop
   attr_reader :group
-  delegate :name, :id, :parent_id, :avatar, :to, :products, :group_items, :label, :tag_list, :to => :group
+  delegate :name, :id, :parent_id, :avatar, :private?, :products, :group_items, :label, :tag_list, :to => :group
 
   def initialize(group)
     @group = group
