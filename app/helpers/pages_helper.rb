@@ -733,7 +733,7 @@ module PagesHelper
     
     var noUpdateCheckbox = new Ext.form.Checkbox({
       checked: #{@page.no_update.to_json},
-      name: "page[no_update]",
+      name: "page[no_update_flag]",
       fieldLabel: "No update",
       inputValue: "1"
     });
