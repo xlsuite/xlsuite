@@ -835,7 +835,7 @@ module SnippetsHelper
 
     var noUpdateCheckbox = new Ext.form.Checkbox({
       checked: #{@snippet.no_update.to_json},
-      name: "snippet[no_update]",
+      name: "snippet[no_update_flag]",
       fieldLabel: "No update",
       inputValue: "1"
     });
