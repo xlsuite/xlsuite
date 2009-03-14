@@ -46,7 +46,7 @@ img.xlsuite-embed-suite-item-main-image              {width:100%;}
 dl.xlsuite-embed-suite-item-details                  {float: right; clear:right; overflow:hidden; width: 55%; font-size:11px; line-height:140%; padding: 5px 0px;}
 dl.xlsuite-embed-suite-item-details dt               {float: left; display:inline; width: 23%; font-weight:bold; padding:1%;}
 dl.xlsuite-embed-suite-item-details dd               {float: left; display:inline; width: 73%; margin-bottom:5px; padding:1%;}
-#xlsuite-embed-suites-catalog #install               {clear: both; position:relative; overflow:hidden; padding:5px 5px 5px 10px; text-align:left; background-color:#EEE;
+#xlsuite-embed-suites-catalog div.suite-install               {clear: both; position:relative; overflow:hidden; padding:5px 5px 5px 10px; text-align:left; background-color:#EEE;
                                                       -moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px;}
 
 /* catalog pagination */
