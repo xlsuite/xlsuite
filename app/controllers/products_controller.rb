@@ -370,6 +370,9 @@ class ProductsController < ApplicationController
       end
       @product.attributes = params[:product]
       @product.editor_id = current_user.id
+      if params[:product].has_key?(:private)
+        @product.private = false if @product.private =~ /false/i
+      end
       @updated = @product.save
       if !@updated
         flash_failure :now, @product.errors.full_messages
