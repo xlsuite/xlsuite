@@ -413,28 +413,6 @@ page << create_tab_using_ajax_response("Product | #{truncate(@product.name, 20)}
       {items: clearOwnerButton, width: 100}
     ]
   });
-  
-  var productPrivateCheckbox = new Ext.form.Checkbox({
-    fieldLabel: "Private",
-    name: "product[private]",
-    checked: #{@product.private.to_json},
-    type: 'checkbox',
-    listeners: {
-      change: function(me, newValue, oldValue){
-        var parameters = {};
-        parameters["product[private]"] = newValue;
-        
-        Ext.Ajax.request({
-          url: #{async_update_product_path(@product).to_json},
-          params: parameters,
-          method: "PUT"
-        });
-      },
-      check: function(me, checked){
-        clearOwnerButton.focus();
-      }
-    }
-  });
 
   var upperGeneralPanel = new Ext.Panel({
     id: prefix + '.layout.upperGeneralPanel',
@@ -468,7 +446,7 @@ page << create_tab_using_ajax_response("Product | #{truncate(@product.name, 20)}
         layout: 'form',
         labelAlign: 'right',
         items: [
-          productPrivateCheckbox,
+          xl.widget.InlineActiveField({form: form,  field: {"type": "checkbox", "checked": #{@product.private}, "name": "private", "fieldLabel": "Private"}}),
           #{f.money_field(:wholesale_price, :label => 'Wholesale')},
           #{f.money_field(:retail_price, :label => 'Retail')},
           #{f.number_field(:margin)},
