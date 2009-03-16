@@ -278,34 +278,18 @@
 # POSSIBILITY OF SUCH DAMAGES.
 # 
 # 		     END OF TERMS AND CONDITIONS
-class AccountModule < ActiveRecord::Base
-  belongs_to :account
-  validates_presence_of :account_id, :module
-  
-  AVAILABLE_MODULES = AccountTemplate::AVAILABLE_MODULES + %w(mass_mail rets_import imports_scraper site_import redirects)
-  validates_inclusion_of :module, :in => AVAILABLE_MODULES
-  validates_uniqueness_of :module, :scope => [:account_id]
-  
-  acts_as_money :minimum_subscription_fee
-  
-  def to_liquid
-    AccountModuleDrop.new(self)
+class AccountModuleDrop < Liquid::Drop
+  delegate :module, :minimum_subscription_fee, :to => :account_module
+  attr_reader :account_module
+
+  def initialize(account_module=nil)
+    @account_module = account_module
   end
   
-  def self.free_modules
-    #self.all(:select => :module, :conditions => ["minimum_subscription_fee_cents = 0 OR minimum_subscription_fee_cents IS NULL"]).map(&:module)
-    %w(blogs forums product_catalog profiles)
-  end
+  alias_method :name, :module
   
-  def self.paying_modules
-    AVAILABLE_MODULES.clone - self.free_modules
+  def minimum_subscription_fee
+    MoneyDrop.new(self.account_module.minimum_subscription_fee)
   end
-  
-  def self.count_minimum_subscription_fee(*args)
-    fee = Money.zero
-    args.flatten.each do |mod_name|
-      fee += self.find_by_module(mod_name.to_s).minimum_subscription_fee
-    end
-    fee
-  end
+  alias_method :fee, :minimum_subscription_fee
 end
