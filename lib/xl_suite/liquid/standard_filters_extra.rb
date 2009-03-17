@@ -313,6 +313,10 @@ module XlSuite
       def humanize(input)
         input.humanize
       end
+      
+      def titleize(input)
+        input.titleize
+      end
     end
   end
 end
