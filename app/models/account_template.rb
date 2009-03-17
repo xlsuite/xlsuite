@@ -334,52 +334,65 @@ class AccountTemplate < ActiveRecord::Base
       new_account.expires_at = 100.years.from_now
       new_account.save!
       options.merge!(:target_account_id => new_account.id, :overwrite => true)
+      copy_futures = []
       if options[:layouts]
-        MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_layouts_to!)
+        copy_futures << MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_layouts_to!)
         object_pushed = true
       end
       if options[:snippets]
-        MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_snippets_to!)
+        copy_futures << MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_snippets_to!)
         object_pushed = true
       end
       if options[:pages]
-        MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_pages_to!)
+        copy_futures << MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_pages_to!)
         object_pushed = true
       end
       if options[:groups]
-        MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_groups_and_roles_to!)
+        copy_futures << MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_groups_and_roles_to!)
         object_pushed = true
       end
       if options[:assets]
-        MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_assets_to!)
+        copy_futures << MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_assets_to!)
         object_pushed = true
       end
-      MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_configurations_to!)
+      copy_futures << MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_configurations_to!)
       if options[:products]
-        MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_products_and_product_categories_to!)
+        copy_futures << MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_products_and_product_categories_to!)
         object_pushed = true
       end
       if options[:contacts]
-        MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_contacts_to!)
+        copy_futures << MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_contacts_to!)
         object_pushed = true
       end
       if options[:blogs]
-        MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_blogs_and_blog_posts_to!)
+        copy_futures << MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_blogs_and_blog_posts_to!)
         object_pushed = true
       end
       if options[:workflows]
-        MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_workflows_to!)
+        copy_futures << MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_workflows_to!)
         object_pushed = true
       end
       if options[:feeds]
-        MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_feeds_to!)
+        copy_futures << MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_feeds_to!)
         object_pushed = true
       end
       return false unless object_pushed
+      callbacks_future = MethodCallbackFuture.create!(:models => [self], :account => new_account, :method => :callbacks_after_template_push, :repeat_until_true => true, 
+            :params => {:future_ids => copy_futures.map(&:id), :target_account_id => new_account.id}, :priority => 75)
       self.push_current_stable_to_previous
       self.stable_account_id = new_account.id
       self.save!
     end
+  end
+  
+  def callbacks_after_template_push(args)
+    future_ids = args[:future_ids]
+    status_hash = Future.get_status_of(future_ids)
+    if status_hash['isCompleted']
+      MethodCallbackFuture.create(:priority => 75, :models => [self.trunk_account], :account => self.trunk_account, :method => :attach_product_accessible_items_to!, :params => {:target_account_id => args[:target_account_id], :overwrite => true})
+      return true
+    end
+    return false
   end
   
   def rollback_stable!
