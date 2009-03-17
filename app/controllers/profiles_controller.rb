@@ -396,7 +396,9 @@ class ProfilesController < ApplicationController
             @profile.party.attempt_password_authentication!(params[:profile][:password]) unless (@profile.password_hash.blank? || @profile.party == current_user)
             @profile.update_attributes!(params[:profile])
           end
-
+          
+          flash_success "Profile successfully updated"
+          
           return redirect_to((params[:next] || "/profiles/view?id=__ID__").sub("__ID__", @profile.id.to_s))
         rescue
           %w(addresses phones links email_addresses).each do |method|
