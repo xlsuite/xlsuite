@@ -536,7 +536,8 @@ class Account < ActiveRecord::Base
         MethodCallbackFuture.create!(:priority => 75, :models => [stable_account], :account => self, :method => :copy_all_contacts_to!, :params => {:target_account_id => self.id, :overwrite => true}),
         MethodCallbackFuture.create!(:priority => 75, :models => [stable_account], :account => self, :method => :copy_all_blogs_and_blog_posts_to!, :params => {:target_account_id => self.id, :overwrite => true}),
         MethodCallbackFuture.create!(:priority => 75, :models => [stable_account], :account => self, :method => :copy_all_workflows_to!, :params => {:target_account_id => self.id, :overwrite => true}),
-        MethodCallbackFuture.create!(:priority => 75, :models => [stable_account], :account => self, :method => :copy_all_feeds_to!, :params => {:target_account_id => self.id, :overwrite => true})
+        MethodCallbackFuture.create!(:priority => 75, :models => [stable_account], :account => self, :method => :copy_all_feeds_to!, :params => {:target_account_id => self.id, :overwrite => true}),
+        MethodCallbackFuture.create!(:priority => 75, :models => [stable_account], :account => self, :method => :copy_all_email_templates_to!, :params => {:target_account_id => self.id, :overwrite => true})
       ]
       callbacks_future = MethodCallbackFuture.create!(:models => [self], :account => self, :method => :callbacks_after_account_install, :repeat_until_true => true, 
             :params => {:future_ids => copy_futures.map(&:id), :type => "account_install", :stable_account => stable_account}, :priority => 75)
@@ -969,7 +970,7 @@ class Account < ActiveRecord::Base
       new_workflow.copy_steps_from!(workflow, options)
     end
   end
-
+  
   # TODO: should call create! here too but losing validation is no good too.....
   def copy_all_workflows_to!(options)
     logger.debug("==> Copying workflows to target account")
@@ -1012,6 +1013,25 @@ class Account < ActiveRecord::Base
       target_acct.feeds.create(feed.attributes_for_copy_to(target_acct))
     end    
     MethodCallbackFuture.create!(:models => [self.feeds], :account => target_acct, :method => :refresh) unless self.feeds.empty?
+  end
+  
+  def copy_all_email_templates_from!(options)
+    domain = Domain.find(options[:source_domain_id])
+    logger.debug {"==> Copying email templates from #{domain.name}"}
+    domain.account.templates.each do |template|
+      next if self.templates.find_by_label(template.label)
+      self.templates.create!(template.attributes_for_copy_to(self))
+    end
+  end
+  
+  def copy_all_email_templates_to!(options)
+    logger.debug("==> Copying email templates to target account")
+    target_acct = Account.find(options[:target_account_id])
+    self.templates.each do |template|
+      next if target_acct.templates.find_by_label(template.label)
+      new_template = target_acct.templates.new(template.attributes_for_copy_to(target_acct))
+      new_template.save(false)
+    end
   end
   
   def grant_all_permissions_to_owner

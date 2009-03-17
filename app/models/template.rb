@@ -337,10 +337,10 @@ class Template < ActiveRecord::Base
   end
   
   def party_as_text
-    self.party.name.to_s
+    self.party ? self.party.name.to_s : ""
   end
   
   def attributes_for_copy_to(account)
-    self.attributes.dup.symbolize_keys.merge(:account_id => account.id, :party_id => account.owner.id, :tag_list => self.tag_list)
+    self.attributes.dup.symbolize_keys.merge(:account_id => account.id, :party_id => account.owner ? account.owner.id : nil, :tag_list => self.tag_list)
   end
 end
