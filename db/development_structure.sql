@@ -1524,6 +1524,7 @@ CREATE TABLE `parties` (
   `birthdate_year` int(11) default NULL,
   `profile_id` int(11) default NULL,
   `confirmed` tinyint(1) default '0',
+  `point` int(11) default '0',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_token` (`account_id`,`token`),
   UNIQUE KEY `by_profile` (`profile_id`),
@@ -2460,3 +2461,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090307023649');
 INSERT INTO schema_migrations (version) VALUES ('20090309193850');
 
 INSERT INTO schema_migrations (version) VALUES ('20090311202847');
+
+INSERT INTO schema_migrations (version) VALUES ('20090318235548');
