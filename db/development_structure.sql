@@ -1542,7 +1542,7 @@ CREATE TABLE `party_domain_points` (
   `account_id` int(11) default NULL,
   `domain_id` int(11) default NULL,
   `party_id` int(11) default NULL,
-  `point` int(11) default '0',
+  `own_point` int(11) default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -2479,3 +2479,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090319004439');
 INSERT INTO schema_migrations (version) VALUES ('20090319215310');
 
 INSERT INTO schema_migrations (version) VALUES ('20090319224202');
+
+INSERT INTO schema_migrations (version) VALUES ('20090319225335');
