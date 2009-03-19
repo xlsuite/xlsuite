@@ -285,7 +285,7 @@ module XlSuite
       base.before_validation_on_create :set_comment_approval_method
       base.validates_format_of :comment_approval_method, :with => /(moderated)|(always\sapproved)|(no comments)/i
       
-      base.has_many :comments, :as => :commentable, :order => "created_at DESC"
+      base.has_many :comments, :as => :commentable, :order => "created_at DESC", :dependent => :destroy
     end
     
     def approved_comments
