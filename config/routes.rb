@@ -18,7 +18,7 @@ ActionController::Routing::Routes.draw do |map|
   
   map.resources :public_profiles, :path_prefix => "/admin/public", :as => "profiles", :controller => "public/profiles",
     :member => {:attach_product_categories => :post, :detach_product_categories => :delete, :change_password => :post},
-    :collection => {:check_alias => :get, :check_custom_url => :get, :auto_complete => :get}
+    :collection => {:check_alias => :get, :check_custom_url => :get, :auto_complete => :get, :embed_code => :get}
   
   map.resources :product_items, :path_prefix => "/admin", :collection => {:destroy_collection => :delete}
   
@@ -206,7 +206,8 @@ ActionController::Routing::Routes.draw do |map|
   
   map.resources :profiles, :path_prefix => "/admin",
       :member => {:create_profile_from_party => :post, :show_feed => :get, :validate_forum_alias => :get, :validate_alias => :get, :confirm => :post},
-      :collection => {:validate_feed => :get, :login => :post, :auto_complete_city => :post, :auto_complete_state => :post} do |profiles|
+      :collection => {:validate_feed => :get, :login => :post, :auto_complete_city => :post, :auto_complete_state => :post, :tagged_collection => :post, 
+                :destroy_collection => :delete} do |profiles|
 
     profiles.resources :addresses, :controller => "address_contact_routes", :name_prefix => :profile_, 
         :member => {:update_new => :put},
