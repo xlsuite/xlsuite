@@ -1536,6 +1536,15 @@ CREATE TABLE `parties_product_categories` (
   `product_category_id` int(11) default NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `party_domain_points` (
+  `id` int(11) NOT NULL auto_increment,
+  `account_id` int(11) default NULL,
+  `domain_id` int(11) default NULL,
+  `party_id` int(11) default NULL,
+  `point` int(11) default '0',
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `payables` (
   `id` int(11) NOT NULL auto_increment,
   `account_id` int(11) default NULL,
@@ -2463,3 +2472,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090309193850');
 INSERT INTO schema_migrations (version) VALUES ('20090311202847');
 
 INSERT INTO schema_migrations (version) VALUES ('20090318235548');
+
+INSERT INTO schema_migrations (version) VALUES ('20090319004439');
