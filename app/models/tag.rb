@@ -61,6 +61,7 @@ class Tag < ActiveRecord::Base
   end
 
   def on(taggable)
+    return unless self.valid?
     count = self.taggings.count(:all, :conditions => ['taggable_id = ? AND taggable_type = ?', taggable.id, taggable.class.name])
     self.taggings.create(:taggable => taggable) if count.zero?
   end

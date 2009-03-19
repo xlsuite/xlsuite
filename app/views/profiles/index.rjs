@@ -1,24 +1,25 @@
 limit = params[:limit] || 50
-partiesUrl = formatted_parties_path(:format => :json).to_json
+profilesUrl = formatted_profiles_path(:format => :json).to_json
 
 after_render = %Q`
   ds.load({params: {start: 0, limit: #{limit} }});
 `
 
-page << create_tab_using_ajax_response("Contact List", after_render) do
+page << create_tab_using_ajax_response("Profile List", after_render) do
 %Q`
   var selectedIds = null;
+  var selectedPartyIds = null;
 
   Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
 
   // create party record using the party model
-  var PartyRecord = new Ext.data.Record.create([
+  var ProfileRecord = new Ext.data.Record.create([
+    {name: 'partyId', mapping: 'party_id'},
     {name: 'displayName', mapping: 'display-name'},
     {name: 'firstName', mapping: 'name.first'},
     {name: 'lastName', mapping: 'name.last'},
     {name: 'company', mapping: 'company-name'},
     {name: 'position', mapping: 'position'},
-    {name: 'referral', mapping: 'referral'},
     {name: 'tags', mapping: 'tags'},
     {name: 'groups', mapping: 'groups'},
     {name: 'email', mapping: 'email-address'},
@@ -28,17 +29,16 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
     {name: 'other-addresses', mapping: 'other-addresses'},
     {name: 'other-emails', mapping: 'other-emails'},
     {name: 'other-phones', mapping: 'other-phones'},
-    {name: 'other-websites', mapping: 'other-websites'},
-    {name: 'profile', mapping: 'profile'}
+    {name: 'other-websites', mapping: 'other-websites'}
   ]);
 
   // data reader to parse the xml response
-  //var reader = new Ext.data.XmlReader({record: 'party', id: '@id', totalRecords: '@total'}, PartyRecord);
-  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, PartyRecord);
+  //var reader = new Ext.data.XmlReader({record: 'party', id: '@id', totalRecords: '@total'}, ProfileRecord);
+  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, ProfileRecord);
 
   // set up connection of the data
 
-  var connection = new Ext.data.Connection({url: #{partiesUrl}, method: 'get'});
+  var connection = new Ext.data.Connection({url: #{profilesUrl}, method: 'get'});
   var proxy = new Ext.data.HttpProxy(connection);
 
   // set up the data store and then send request to the server
@@ -48,7 +48,7 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
     remoteSort: true, 
     baseParams: {q: "#{@default_search}"},
     listeners: {"load": function(store, records, options){
-      #{unmask_grid_with_key("parties")}
+      #{unmask_grid_with_key("profiles")}
     }}
   });
 
@@ -96,31 +96,6 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
     }
   );
   
-  var filterByStore = new Ext.data.SimpleStore({
-    fields: ['display', 'value'],
-    data: #{([['All', 'all']] + current_account.groups.find(:all, :order => :name).map{|g|[g.name, g.id]}).to_json}
-  });
-  
-  var filterBySelection = new Ext.form.ComboBox({
-    hiddenName: 'filter_by',
-    displayField: 'display', 
-    valueField: 'value',
-    fieldLabel: 'Filter By',
-    emptyText: 'Groups',
-    width: 110,
-    store: filterByStore, 
-    editable : false,
-    triggerAction: 'all',
-    mode: 'local',
-    listeners: {
-      'select': function(me, record, index){
-        ds.baseParams['q'] = filterField.getValue();
-        ds.baseParams['group_id'] = record.data.value;
-        ds.reload({params: {start: 0, limit: ds.lastOptions.params.limit}});
-      }
-    }
-  });
-  
   var clearButton = new Ext.Toolbar.Button({
     text: 'Clear',
     handler: function() {
@@ -141,8 +116,7 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
         {header: "First Name", width: 125, sortable: true, dataIndex: 'firstName', hidden: true},
         {id: "email", header: "E-Mail", width: 140, sortable: false, dataIndex: 'email'},
         {id: "phone", header: "Phone", width: 140, sortable: false, dataIndex: 'phone'},
-        {id: "website", header: "Website", width: 140, sortable: false, dataIndex: 'website'},
-        {id: "profile", header: "Profile", width: 50, sortable: false, dataIndex: 'profile'}
+        {id: "website", header: "Website", width: 140, sortable: false, dataIndex: 'website'}
       ]),
     viewConfig: {
       forceFit: false
@@ -155,8 +129,6 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
     autoExpandColumn: 'displayName',
     height: #{get_default_grid_height},
     tbar: [
-      { text: "Filter By: " },
-      filterBySelection,
       { text: ""},
       filterField,
       clearButton
@@ -168,14 +140,14 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
   });
 
   newPanel.add(grid);
-  xl.runningGrids.set("parties", grid);
+  xl.runningGrids.set("profiles", grid);
   newPanel.on("destroy", function(){
-    xl.runningGrids.unset("parties");
+    xl.runningGrids.unset("profiles");
   });
 
   // set event on row double click of a row in the grid panel
-  var baseUrl = #{edit_party_path(:id => "__ID__").to_json};
-  var profileEditUrl = #{edit_profile_path(:id => "__ID__").to_json};
+  var baseUrl = #{edit_profile_path(:id => "__PARTY_ID__").to_json};
+  var profileEditUrl = #{edit_profile_path(:id => "__PARTY_ID__").to_json};
 
   // set double click action on grid cells
   grid.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
@@ -200,22 +172,24 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
         };
         xl.createTab(website_url);
         break;
-      case grid.getColumnModel().getIndexById("profile"):
-        xl.openNewTabPanel('profiles_edit_' + id, profileEditUrl.sub("__ID__", id));
-        break;
       default:
-        xl.openNewTabPanel('parties_edit_' + id , baseUrl.sub("__ID__", id));
+        if(record.get("partyId") == 0){
+          Ext.Msg.alert("This profile does not belong to any contact records");
+        }else{
+          xl.openNewTabPanel('profiles_edit_' + id , baseUrl.sub("__PARTY_ID__", record.get("partyId")));
+        }
+        
     }
   });
 
   // define per page text field
-  var partiesIndexPath = #{parties_path(:limit => "__LIMIT__").to_json};
+  var profilesIndexPath = #{profiles_path(:limit => "__LIMIT__").to_json};
   var showPerPageField = new Ext.form.TextField({selectOnFocus: true, grow: false, width: 30, value: #{limit}});
   showPerPageField.on("specialkey",
     function(field, e) {
       if (e.getKey() == Ext.EventObject.RETURN || e.getKey() == Ext.EventObject.ENTER) {
         e.preventDefault();
-        iframe.src = partiesIndexPath.sub("__LIMIT__", field.getValue());
+        iframe.src = profilesIndexPath.sub("__LIMIT__", field.getValue());
       }
     }
   );
@@ -281,7 +255,7 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
           text: "Add",
           handler: function() {
               var parameters = {};
-              parameters["ids"] = selectedIds.toString();
+              parameters["ids"] = selectedPartyIds.toString();
               groupsSelectionFormPanel.getForm().doAction("submit",
                 {
                   url: #{add_collection_to_group_parties_path.to_json},
@@ -314,26 +288,6 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
     handler: function() {
       grid.disable();
       addToGroupWindow.show();
-    }
-  });
-
-  var create_order_path = #{new_order_path(:invoice_to_id => "__ID__").to_json};
-  var createOrderAction = new Ext.Action({
-    text: "Create Order",
-    iconCls: "display_none",
-    disabled: true,
-    handler: function(){
-      xl.openNewTabPanel("orders_new_nil", create_order_path.sub("__ID__", selectedIds.first()));
-    }
-  });
-
-  var new_party_path = #{new_party_path(:id => "__ID__").to_json};
-  var duplicateAction = new Ext.Action({
-    text: "Duplicate",
-    iconCls: "display_none",
-    disabled: true,
-    handler: function(){
-      xl.createTab(new_party_path.sub("__ID__", selectedIds.first()));
     }
   });
 
@@ -412,79 +366,16 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
       }
     }
   });
-
-  var publishProfileAction = new Ext.Action({
-    text: "Publish Profile",
-    iconCls: "display_none",
-    disabled: true,
-    handler: function() {
-      var records = grid.getSelectionModel().getSelections();
-      var ids = records.invoke('get', 'id');
-      Ext.Msg.confirm("Confirm Publish Profiles", "Are you sure you want to create profiles for the selected contacts?", function(buttonText) {
-        if (buttonText.match(new RegExp("yes","i"))) {
-          var parameters = {};
-          parameters["ids"] = selectedIds.join(",");
-          Ext.Msg.show({
-            title: "Confirm Publish Profiles",
-            msg: "Would you like to copy the contact routes to the profiles?",
-            width: 300,
-            buttons: Ext.MessageBox.YESNOCANCEL,
-            fn: function(buttonId, text){
-              if (buttonId == "yes" || buttonId == "no"){
-                if (buttonId == "yes"){
-                  parameters["copy_routes"] = "1";
-                }
-                Ext.Ajax.request({
-                  url: '/admin/parties/publish_profiles',
-                  method: "POST",
-                  params: parameters
-                }); // end Ext.Ajax.request
-              }
-              else {
-                return false;
-              }
-            }
-          });
-        } // end if(buttonText.match...
-      }); // end Ext.Msg.confirm
-    }
-  });
-
+  
   var printSummaryAction = new Ext.Action({
     text: "Print summary",
     iconCls: "display_none",
     disabled: true
   });
 
-  var resetPasswordAction = new Ext.Action({
-    text: "Reset Password(s)",
-    iconCls: "display_none",
-    disabled: true,
-    handler: function() {
-      Ext.Msg.confirm("", "Reset password of selected contacts?", function(btn){
-        if ( btn.match(new RegExp("yes","i")) ) {
-          var params = {};
-          params['ids'] = selectedIds.toString();
-          Ext.Ajax.request({
-            url: #{reset_collection_password_parties_path.to_json},
-            params: params,
-            method: "POST"
-          })
-        }
-      });
-    }
-  });
-
-  var sendFileAction = new Ext.Action({
-    text: "Send a file",
-    iconCls: "display_none",
-    disabled: true
-  });
-
-
   var tagsSelectionStore = new Ext.data.SimpleStore({
     fields: ['display', 'value'],
-    data: #{current_account.parties.tags.map{|e| [e.name, e.name]}.to_json}
+    data: #{current_account.profiles.tags.map{|e| [e.name, e.name]}.to_json}
   });
 
   var tagsSelectionField = new Ext.form.ComboBox({
@@ -520,7 +411,7 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
               parameters["ids"] = selectedIds.toString();
               tagsSelectionFormPanel.getForm().doAction("submit",
                 {
-                  url: #{tagged_collection_parties_path.to_json},
+                  url: #{tagged_collection_profiles_path.to_json},
                   method: "POST",
                   params: parameters
                 }
@@ -558,11 +449,11 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
         var params = {};
         params['ids'] = selectedIds.toString();
         Ext.Ajax.request({
-          url: #{destroy_collection_parties_path.to_json},
+          url: #{destroy_collection_profiles_path.to_json},
           params: params,
-          method: "POST"
+          method: "DELETE"
         });
-        #{mask_grid_with_key("parties", "Deleting...")}
+        #{mask_grid_with_key("profiles", "Deleting...")}
       });
     }
   });
@@ -570,6 +461,7 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
   clearAllAction.setHandler(function(e) {
     grid.getSelectionModel().clearSelections();
     selectedIds = new Array();
+    selectedPartyIds = new Array();
     e.disable();
   });
 
@@ -582,70 +474,32 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
     items: [selectAllAction, clearAllAction]
   });
   selectionMenu.addSeparator();
-  selectionMenu.add(addToGroupAction, createOrderAction, duplicateAction, emailAction, massMailAction, printSummaryAction, resetPasswordAction, sendFileAction, tagWithAction, publishProfileAction);
+  selectionMenu.add(addToGroupAction, emailAction, massMailAction, printSummaryAction, tagWithAction);
   selectionMenu.addSeparator();
   selectionMenu.add(deleteAction);
 
   grid.getTopToolbar().add({ text: "Actions", menu: selectionMenu });
 
-  var delayedRecordAjaxTask = new Ext.util.DelayedTask(function(){
-    ids = selectedIds.join(",");
-    $('recordMessagesPanel').childElements().each(function(e){e.hide();});
-    $('recordFilesPanel').childElements().each(function(e){e.hide();});
-    $('recordPaymentsPanel').childElements().each(function(e){e.hide();});
-    if($("party_"+ids+"_messages")){
-      $("party_"+ids+"_messages").show();
-    }
-    if($("party_"+ids+"_files")){
-      $("party_"+ids+"_files").show();
-    }
-    if($("party_"+ids+"_payments")){
-      $("party_"+ids+"_payments").show();
-    }
-
-    else{
-      blankregex = /^[\s]*$/;
-      if(!blankregex.test(ids))
-        recordMessagesRefresh(ids);
-        recordFilesRefresh(ids);
-        recordPaymentsRefresh(ids);
-    }
-  });
-
   grid.getSelectionModel().on("selectionchange", function(){
     records = grid.getSelectionModel().getSelections();
     var ids = new Array();
+    var partyIds = new Array();
     records.each( function(e) {
       ids.push(e.id.split("_").last());
+      partyIds.push(e.get("partyId"));
     });
     selectedIds = ids;
+    selectedPartyIds = partyIds;
 
     if(ids.length>0){
       selectionMenu.items.each(function(e) {e.enable();});
-      if(ids.length == 1){
-        createOrderAction.enable();
-        duplicateAction.enable();
-      }
-      else{
-        createOrderAction.disable();
-        duplicateAction.disable();
-      }
-      printSummaryAction.disable();
-      sendFileAction.disable();
 
-      if (ids.length == 1)
-        xl.setEastTitle("Related to " + ds.getById("party_"+ids).get("displayName"),
-          $('current-displayed-iframe-source').value);
-      else
-        xl.setEastTitle("Related to: multiple", $('current-displayed-iframe-source').value);
+      printSummaryAction.disable();
     }
     else{
       selectionMenu.items.each(function(e) {e.disable();});
       selectAllAction.enable();
     }
-
-    //delay 1.5seconds before refreshing the east accordions
-    delayedRecordAjaxTask.delay(1500);
   });
 
   //Update messages on rowclick (should be something like selectionchange, but selectionchange
@@ -656,9 +510,6 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
 
   // add extra links to the header
   var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
-
-  extra_links_span.insertHtml('afterBegin', #{link_to_function("&nbsp;&nbsp;&nbsp;Import", "xl.createTab('#{imports_path}')").to_json}, false);
-  extra_links_span.insertHtml('afterBegin', #{link_to_function("&nbsp;&nbsp;&nbsp;New", "xl.createTab('#{new_party_path}')").to_json}, false);
 
   // Set up "Expand all" and "Collapse all" rows
   var expandAllAction = new Ext.Action({
@@ -687,7 +538,7 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
     for(i=0;i<row_expander_bodies.length;i++){
       record_id = (records[i].id).split("_").last();
       Ext.EventManager.addListener(row_expander_bodies[i], "dblclick", function(event, element, options){
-        xl.openNewTabPanel('parties_edit_' + id , baseUrl.sub("__ID__", options.recordId));
+        xl.openNewTabPanel('profiles_edit_' + id , baseUrl.sub("__PARTY_ID__", options..get("partyId")));
       }, this, {recordId:record_id});
     }
   });

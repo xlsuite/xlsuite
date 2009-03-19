@@ -6,6 +6,17 @@ class ProfilesController < ApplicationController
   required_permissions :none
   before_filter :load_profile, :only => %w(update destroy confirm validate_forum_alias validate_alias)
 
+  def index
+    @groups = current_account.groups.find(:all, :order => "name")
+    respond_to do |format|
+      format.js
+      format.json do
+        process_index
+        render :json => {:collection => assemble_records(@profiles), :total => @profiles_count}.to_json
+      end
+    end
+  end
+
   def create
     confirmation_url_builder = lambda {|party, code|
       base_url = params[:confirm_url].blank? ? "/profiles/confirm?id=__ID__&code=__CODE__" : params[:confirm_url]
@@ -53,6 +64,23 @@ class ProfilesController < ApplicationController
     flash[:liquid][:profiles][:party] = params[:party]
 
     redirect_to(params[:return_to] || request.env["HTTP_REFERER"] || "/profiles/new")
+  end
+
+  def tagged_collection
+    current_account.profiles.find(params[:ids].split(",").map(&:strip)).to_a.each do |profile|
+      profile.tag_list = profile.tag_list + " #{params[:tag_list]}"
+      profile.save
+    end
+
+    respond_to do |format|
+      format.html do
+        flash_success "Tag list of selected contacts have been successfully updated"
+        redirect_to :action => "index"
+      end
+      format.js do
+        flash_success :now, "Tag list of selected contacts have been successfully updated"
+      end
+    end
   end
 
   # TODO: I DON'T THINK WE ARE USING THIS ARE WE? WE SHOULD USE SESSIONS CONTROLLER FOR THIS
@@ -119,7 +147,9 @@ class ProfilesController < ApplicationController
             @profile.party.attempt_password_authentication!(params[:profile][:password]) unless (@profile.password_hash.blank? || @profile.party == current_user)
             @profile.update_attributes!(params[:profile])
           end
-
+          
+          flash_success "Profile successfully updated"
+          
           return redirect_to((params[:next] || "/profiles/view?id=__ID__").sub("__ID__", @profile.id.to_s))
         rescue
           %w(addresses phones links email_addresses).each do |method|
@@ -360,5 +390,74 @@ class ProfilesController < ApplicationController
     else
       self.current_user?
     end
+  end
+
+  def process_index
+    case params[:dir]
+    when "ASC", "DESC"
+      sort_dir = params[:dir]
+    else
+      sort_dir = "ASC"
+    end
+
+    fields = case params[:sort]
+    when "lastName"
+      %w(last_name first_name company_name)
+    when "firstName"
+      %w(first_name last_name company_name)
+    when "company"
+      %w(company_name last_name first_name)
+    when "displayName"
+      %w(display_name company_name last_name first_name)
+    end
+
+    search_options = {:offset => params[:start], :limit => params[:limit]}
+    search_options.merge!(:order => fields.map {|field| "#{field} #{sort_dir}"}.join(", ")) if fields
+    if search_options[:order].blank? && params[:q].blank?
+      search_options.merge!(:order => "display_name")
+    end
+
+    conditions = []
+
+    query_params = params[:q]
+    unless query_params.blank?
+      query_params = query_params.split(/\s+/)
+      query_params = query_params.map {|q| q+"*"}.join(" ")
+    end
+    search_options.merge!(:conditions => conditions.join(" AND ")) unless conditions.blank?
+
+    @profiles = current_account.profiles.search(query_params, search_options)
+    search_options = conditions.blank? ? {} : {:conditions => conditions.join(" AND ")} 
+
+    @profiles_count = current_account.profiles.count_results(query_params, search_options)
+  end
+  
+  def assemble_records(records)
+    out = []
+    records.each do |record| 
+      out << assemble_record(record)
+    end
+    out
+  end
+  
+  def assemble_record(record)
+    {
+      "id" => record.dom_id,
+      "party_id" => record.party ? record.party.id : 0,
+      "display-name" => record.display_name.to_s,
+      "company-name" => record.company_name.to_s,
+      "name" => {"first" => record.name.first, "middle" => record.name.middle, "last" => record.name.last},
+      "tags" => record.tag_list.to_s,
+      "groups" => record.party ? record.party.groups.map(&:label).join(", ") : "",
+      "position" => record.position.to_s,
+      "phone" => record.main_phone.formatted_number_with_extension.to_s,
+      "link" => [record.main_link.url.to_s, record.affiliates ? record.affiliates.map(&:target_url) : nil].flatten.reject(&:blank?).join(", "),
+      "email-address" => record.main_email.email_address.to_s,
+      "address" => record.main_address.to_s,
+      "other-addresses" => record.other_addresses.map {|addr| addr.to_formatted_s(:html => {:tag => "p", :class => "other-address"}) }.join(""),
+      "other-emails" => ("<p>" + record.other_emails.map(&:email_address).join("</p><p>") + '</p>').to_s,
+      "other-phones" => ('<p>' + record.other_phones.map(&:formatted_number_with_extension).join("</p><p>") + '</p>').to_s,
+      "other-websites" => ('<p>' + record.other_links.map(&:url).join("</p><p>") + '</p>').to_s
+    }
   end
 end

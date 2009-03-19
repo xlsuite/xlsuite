@@ -32,6 +32,14 @@ module XlSuite
         return nil unless input.respond_to?(:strip)
         input.strip
       end
+      
+      def humanize(input)
+        input.humanize
+      end
+      
+      def titleize(input)
+        input.titleize
+      end
     end
   end
 end

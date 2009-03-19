@@ -31,24 +31,67 @@ JsonRequestWithScriptTag.prototype.removeScriptTag = function () {
     this.headLoc.removeChild(this.scriptObj);  
 }
 
+var xlCurrentCounter = 1; //default to bottom form
+var setXlCounter = function(counter){
+  xlCurrentCounter = counter;
+}
+
+var slideDownFreeDetails = function(suiteId){
+  var freeDetails = Ext.get("suite-free-details-"+suiteId)
+  if(!freeDetails.isVisible())
+    freeDetails.slideIn();
+}
+
+var slideDownProDetails = function(suiteId){
+  var proDetails = Ext.get("suite-pro-details-"+suiteId)
+  if(!proDetails.isVisible())
+    proDetails.slideIn();
+}
+
 var toggleInstallForm = function(suiteId){
   var installButton = document.getElementById("xlsuite-install-button-"+suiteId);
+  var installLink = document.getElementById("xlsuite-install-link-"+suiteId);
   if(installButton.value=="INSTALL"){
+    installButton.value = "CANCEL";
+    installLink.innerHTML = "CANCEL";
+    displayInstallForm(suiteId);
+  }
+  else if(installLink.innerHTML=="INSTALL"){
+    installLink.innerHTML = "CANCEL";
     installButton.value = "CANCEL";
     displayInstallForm(suiteId);
   }
   else if(installButton.value=="CANCEL"){
+    installButton.value = "INSTALL";
+    installLink.innerHTML = "INSTALL";
+    hideInstallForm(suiteId);
+  }
+  else if((installLink.innerHTML=="CANCEL")){
+    installLink.innerHTML = "INSTALL";
     installButton.value = "INSTALL";
     hideInstallForm(suiteId);
   }
 }
 
 var displayInstallForm = function(suiteId){
-  Ext.get("xlsuite-install-form-"+suiteId).show();
+  var installFormId = "xlsuite-install-form-";
+  if(xlCurrentCounter==0){
+    installFormId = installFormId + "top-"
+  }
+  var installForm = Ext.get(installFormId+suiteId);
+  installForm.setHeight(40);
+  installForm.show();
 }
 
 var hideInstallForm = function(suiteId){
-  Ext.get("xlsuite-install-form-"+suiteId).hide();
+  var installFormId = "xlsuite-install-form-";
+  var installForm = Ext.get(installFormId+suiteId);
+  installForm.hide();
+  installForm.setHeight(0);
+  installFormId = "xlsuite-install-form-top-";
+  installForm = Ext.get(installFormId+suiteId);
+  installForm.hide();
+  installForm.setHeight(0);
 }
 
 var xlsuiteValidEmail = false;
@@ -58,8 +101,14 @@ var currentSuiteId = null;
 var doEmailCheck = function(suiteId){
   xlsuiteValidEmail = false;
   currentSuiteId = suiteId;
-  var emailAddress = document.getElementById("account-signup-email-address-" + suiteId.toString()).value;
-  var emailAddressStatus = document.getElementById("account-signup-email-checker-status-"+suiteId.toString());
+  var emailAddressId = "account-signup-email-address-";
+  var emailAddressStatusId = "account-signup-email-checker-status-";
+  if(xlCurrentCounter==0){
+    emailAddressId = emailAddressId + "top-";
+    emailAddressStatusId = emailAddressStatusId + "top-";
+  }
+  var emailAddress = document.getElementById(emailAddressId + suiteId.toString()).value;
+  var emailAddressStatus = document.getElementById(emailAddressStatusId + suiteId.toString());
   if(validEmailFormat(emailAddress)){
     emailAddressStatus.innerHTML = "Email validated";
     xlsuiteValidEmail = true;
@@ -80,7 +129,11 @@ var validEmailFormat = function(address){
 var doDomainNameCheck = function(suiteId){
   xlsuiteValidDomainName = false;
   currentSuiteId = suiteId;
-  var domainName = document.getElementById('account-signup-domain-name-checker-'+suiteId.toString()).value + "." + getReferralDomain();
+  var domainNameId = 'account-signup-domain-name-checker-';
+  if(xlCurrentCounter==0){
+    domainNameId = domainNameId + "top-";
+  }
+  var domainName = document.getElementById(domainNameId+suiteId.toString()).value + "." + getReferralDomain();
   suitesJsonRequest = new JsonRequestWithScriptTag({
     url:getAjaxRequestUrl()+"/admin/domains/validate_name",
     params: {callback:"updateDomainNameCheckerStatus", name:domainName}
@@ -88,7 +141,11 @@ var doDomainNameCheck = function(suiteId){
 }
 
 var updateDomainNameCheckerStatus = function(response){
-  var domainNameStatus = document.getElementById("account-signup-domain-checker-status-" + currentSuiteId.toString());
+  var domainNameStatusId = "account-signup-domain-checker-status-";
+  if(xlCurrentCounter==0){
+    domainNameStatusId = domainNameStatusId + "top-"
+  }
+  var domainNameStatus = document.getElementById(domainNameStatusId + currentSuiteId.toString());
   if(response.valid){
     domainNameStatus.innerHTML = "Available";
     xlsuiteValidDomainName = true;
@@ -98,12 +155,25 @@ var updateDomainNameCheckerStatus = function(response){
     xlsuiteValidDomainName = false;
   }
   disableEnableSubmitButton();
-  var domainName = document.getElementById('account-signup-domain-name-checker-'+currentSuiteId.toString()).value + "." + getReferralDomain();
-  document.getElementById("account-signup-domain-name-"+currentSuiteId.toString()).value = domainName;
+  var domainNameCheckerId = 'account-signup-domain-name-checker-';
+  if(xlCurrentCounter==0){
+    domainNameCheckerId = domainNameCheckerId + "top-"
+  }
+  var domainName = document.getElementById(domainNameCheckerId+currentSuiteId.toString()).value + "." + getReferralDomain();
+  
+  var domainNameId = "account-signup-domain-name-";
+  if(xlCurrentCounter==0){
+    domainNameId = domainNameId + "top-"
+  }
+  document.getElementById(domainNameId+currentSuiteId.toString()).value = domainName;
 }
 
 var disableEnableSubmitButton = function(){
-  var submitButton = document.getElementById("account-signup-submit-button-"+currentSuiteId.toString());
+  var submitButtonId = "account-signup-submit-button-";
+  if(xlCurrentCounter==0){
+    submitButtonId = submitButtonId + "top-";
+  }
+  var submitButton = document.getElementById(submitButtonId+currentSuiteId.toString());
   if(xlsuiteValidEmail && xlsuiteValidDomainName){
     submitButton.disabled = false;
   }
@@ -116,43 +186,75 @@ var xlSuiteEmbedBody = function(suitesCollection){
   var htmlCode = "";
   var suiteXTemplate = new Ext.XTemplate(
     "<li class='xlsuite-embed-suite-item'>",
-       "<img src='{main_image_url}?size=medium' alt='' title='' class='xlsuite-embed-suite-item-main-image'/>",
-       "<div class='xlsuite-embed-suite-item-details'>",
-         "<h2><a href='{demo_url}'>{name}</a></h2>",
-         "<dl>",
-           "<dt>Designer</dt>",
-           "<dd>{designer_name}</dd>",
-           "<dt>Description</dt>",
-           "<dd>{description}</dd>",
-           "<dt>Tags</dt>",
-           "<dd>{tag_list}</dd>",
-           "<dt>Installed</dt>",
-           "<dd>{installed_count} times</dd>",
-           "<dt>Features</dt>",
-           "<dd>{features_list}</dd>",
-           "<dt>Installation Fee</dt>",
-           "<dd>{setup_fee}</dd>",
-           "<dt>Monthly Fee</dt>",
-           "<dd>{subscription_fee}</dd>",
-         "</dl>",
-       "</div>",
-       "<div class='xlsuite-embed-suite-more-info'>",
-         "<p>All of our suites come with a 60 day free trial. No credit card required for signup, just your email address.</p>",
-         "<p>Start with a subdomain and try it out to make sure it meets your needs.<span class='xlsuite-embed-suite-more-info-second-line'>yourname.xlsuite.com - free to try for 60 days</span></p>",
-         "<p>You pay when you are ready to point your own domain name to the account.<span class='xlsuite-embed-suite-more-info-second-line'>yourname.com - Pay the installation fee and start with recurring monthly fee</span></p>",
-       "</div>",
-       "<form style='display:none;' id='xlsuite-install-form-{id}' class='xlsuite-embed-suite-item-form' action='http://", getReferralDomain(), "/admin/accounts' method='post'>",
-         "<input type='hidden' name='account[referral_domain]' value='", getReferralDomain(), "' />",
-         "<input type='hidden' name='account[suite_id]' value='{id}' />",
-         "<input type='hidden' value='' name='domain[name]' autocomplete='off' id='account-signup-domain-name-{id}'/>",
-         "<span id='account-signup-domain-checker-status-{id}' class='account-signup-domain-checker-status'></span>",
-         "<span id='account-signup-email-checker-status-{id}' class='account-signup-email-checker-status'></span>",
-         "<input class='account_signup_domain_name_check' onblur='doDomainNameCheck({id});return false;' onfocus='this.select();return false;' value='choose a subdomain' name='' autocomplete='off' id='account-signup-domain-name-checker-{id}'/>",
-         getReferralDomain(),
-         '<input class="account_signup_email_check" onblur="doEmailCheck({id});return false;" onkeyup="doEmailCheck({id});return false" onfocus="this.select();return false;" value="enter your email" name="email[email_address]" autocomplete="off" id="account-signup-email-address-{id}"/>',
-         "<input class='account_signup_button' id='account-signup-submit-button-{id}' disabled='true' type='submit' value='SUBMIT' />",
-       "</form>",
-       "<input class='xlsuite_install_button' id='xlsuite-install-button-{id}' type='submit' value='INSTALL' onclick='toggleInstallForm({id}); return false;'>",
+      '<h2><a href="#" title="" target="_blank">{name}</a><a class="xlsuite_install_button" href="#" onClick="setXlCounter(0);toggleInstallForm({id});return false;" id="xlsuite-install-link-{id}" class="xlsuite_install_button">INSTALL</a></h2>',
+      '<div class="suite-install"><a name="install"></a>',
+        "<form style='display:none;' id='xlsuite-install-form-top-{id}' class='xlsuite-embed-suite-item-form' action='http://", getReferralDomain(), "/admin/accounts' method='post'>",
+          "<input type='hidden' name='account[referral_domain]' value='", getReferralDomain(), "' />",
+          "<input type='hidden' name='account[suite_id]' value='{id}' />",
+          "<input type='hidden' value='' name='domain[name]' autocomplete='off' id='account-signup-domain-name-top-{id}'/>",
+          "<span id='account-signup-domain-checker-status-top-{id}' class='account-signup-domain-checker-status'></span>",
+          "<input class='account_signup_domain_name_check' onblur='setXlCounter(0);doDomainNameCheck({id});return false;' onfocus='setXlCounter(0);this.select();return false;' value='choose a subdomain' name='' autocomplete='off' id='account-signup-domain-name-checker-top-{id}'/>",
+          '<span class="domain"> .'+getReferralDomain()+' </span><br />',
+          "<span id='account-signup-email-checker-status-top-{id}' class='account-signup-email-checker-status'></span>",
+          '<input class="account_signup_email_check" onblur="setXlCounter(0);doEmailCheck({id});return false;" onkeyup="setXlCounter(0);doEmailCheck({id});return false" onfocus="this.select();return false;" value="enter your email" name="email[email_address]" autocomplete="off" id="account-signup-email-address-top-{id}"/>',
+          "<input class='account_signup_button' id='account-signup-submit-button-top-{id}' disabled='true' type='submit' value='SUBMIT' />",
+        "</form>",
+      '</div>',
+      '<dl class="xlsuite-embed-suite-item-details">',
+        '<dt>Description</dt>',
+        '<dd>{description}</dd>',
+        '<dt>Features</dt>',
+        '<dd>{features_list}</dd>',
+        '<dt>Installed</dt>',
+        '<dd>{installed_count}</dd>',
+        '<dt>Tags</dt>',
+        '<dd>{tag_list}</dd>',
+        '<dt>Designer</dt>',
+        '<dd>{designer_name}</dd>',
+        '<dt>FEES</dt>',
+        '<dd>',
+          '<ul>',
+            '<li><b>Advertising Supported Version</b>  -  <a href="javascript:slideDownFreeDetails({id})"><span class="free">Free</span></a></li>',
+            '<li id="suite-free-details-{id}" style="display:none;">',
+              '<p>',
+                "At the end of the 60 days if you haven't gone pro, we will revert to the base suite and insert our ads into the suite. <br />",
+                'You may lose some of the customizations you did to your pages.<br />',
+                "You are welcome to continue using it as a subdomain for as long as you'd like for free.<br />",
+                'You can always "go pro" at a later date once you have grown your online business.<br />',
+                'Click "Install" to start your installation process now.',
+              '</p>',
+            '</li>',
+            '<li><a href="javascript:slideDownProDetails({id})"><span class="pro">Pro Version</span></a> (Click for details)</li>',
+            '<li id="suite-pro-details-{id}" style="display:none;">',
+              '<p>Installation Fee: {setup_fee}<br/>Subscription Fee: {subscription_fee}/month</p>',
+            '</li>',
+          '</ul>',
+        '</dd>',
+      '</dl>',
+      "<div class='xlsuite-embed-suite-more-info'>",
+        '<div>',
+          '<a href="{demo_url}" title="" target="_blank"><img src="{main_image_url}?size=medium" alt="" title="" class="xlsuite-embed-suite-item-main-image"/></a>',
+          '<h3>60 DAY FREE TRIAL</h3>',
+          '<p class="clear" />',
+          '<p>This suite has a free, advertising supported version. <br />',
+            'You have <b class="free">60 DAY FREE TRIAL</b> to try it out.<br />',
+            'If you want to use your own domain name and remove the ads (or put your own in), you simply pay for the suite by "going pro".</p>',
+          "<input class='xlsuite_install_button' id='xlsuite-install-button-{id}' type='submit' value='INSTALL' onclick='setXlCounter(1);toggleInstallForm({id}); return false;'>",
+        '</div>',
+      "</div>",
+      '<div class="suite-install"><a name="install"></a>',
+        "<form style='display:none;' id='xlsuite-install-form-{id}' class='xlsuite-embed-suite-item-form' action='http://", getReferralDomain(), "/admin/accounts' method='post'>",
+          "<input type='hidden' name='account[referral_domain]' value='", getReferralDomain(), "' />",
+          "<input type='hidden' name='account[suite_id]' value='{id}' />",
+          "<input type='hidden' value='' name='domain[name]' autocomplete='off' id='account-signup-domain-name-{id}'/>",
+          "<span id='account-signup-domain-checker-status-{id}' class='account-signup-domain-checker-status'></span>",
+          "<input class='account_signup_domain_name_check' onblur='setXlCounter(1);doDomainNameCheck({id});return false;' onfocus='setXlCounter(1);this.select();return false;' value='choose a subdomain' name='' autocomplete='off' id='account-signup-domain-name-checker-{id}'/>",
+          '<span class="domain"> .'+getReferralDomain()+' </span><br />',
+          "<span id='account-signup-email-checker-status-{id}' class='account-signup-email-checker-status'></span>",
+          '<input class="account_signup_email_check" onblur="setXlCounter(1);doEmailCheck({id});return false;" onkeyup="setXlCounter(1);doEmailCheck({id});return false" onfocus="this.select();return false;" value="enter your email" name="email[email_address]" autocomplete="off" id="account-signup-email-address-{id}"/>',
+          "<input class='account_signup_button' id='account-signup-submit-button-{id}' disabled='true' type='submit' value='SUBMIT' />",
+        "</form>",
+      '</div>',
     "</li>"
   );
   for (var i = 0; i < suitesCollection.length; i++) {

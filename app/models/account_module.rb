@@ -11,6 +11,10 @@ class AccountModule < ActiveRecord::Base
   
   acts_as_money :minimum_subscription_fee
   
+  def to_liquid
+    AccountModuleDrop.new(self)
+  end
+  
   def self.free_modules
     #self.all(:select => :module, :conditions => ["minimum_subscription_fee_cents = 0 OR minimum_subscription_fee_cents IS NULL"]).map(&:module)
     %w(blogs forums product_catalog profiles)

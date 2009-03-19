@@ -4,7 +4,7 @@
 class FeedsUpdator < Future
   def run
     Feed.find(:all, :conditions => ["refreshed_at <= ?", 31.hours.ago],
-              :order => "refreshed_at", :limit => 300).each do |feed|
+              :order => "refreshed_at", :limit => 10).each do |feed|
       MethodCallbackFuture.create!(:system => true, :model => feed, :method => :refresh, :priority => 200)
     end
 

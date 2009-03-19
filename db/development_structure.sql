@@ -1524,6 +1524,7 @@ CREATE TABLE `parties` (
   `birthdate_year` int(11) default NULL,
   `profile_id` int(11) default NULL,
   `confirmed` tinyint(1) default '0',
+  `point` int(11) default '0',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_token` (`account_id`,`token`),
   UNIQUE KEY `by_profile` (`profile_id`),
@@ -1534,6 +1535,15 @@ CREATE TABLE `parties_product_categories` (
   `party_id` int(11) default NULL,
   `product_category_id` int(11) default NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `party_domain_points` (
+  `id` int(11) NOT NULL auto_increment,
+  `account_id` int(11) default NULL,
+  `domain_id` int(11) default NULL,
+  `party_id` int(11) default NULL,
+  `point` int(11) default '0',
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `payables` (
   `id` int(11) NOT NULL auto_increment,
@@ -2460,3 +2470,7 @@ INSERT INTO schema_migrations (version) VALUES ('20090307023649');
 INSERT INTO schema_migrations (version) VALUES ('20090309193850');
 
 INSERT INTO schema_migrations (version) VALUES ('20090311202847');
+
+INSERT INTO schema_migrations (version) VALUES ('20090318235548');
+
+INSERT INTO schema_migrations (version) VALUES ('20090319004439');

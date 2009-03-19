@@ -16,6 +16,11 @@ class SuitesController < ApplicationController
 <script type="text/javascript" src="#{self.absolute_current_domain_url}/javascripts/xl_suite/suites_catalog_embed.js"></script>
 ~
     @embed_code << %Q~<link type="text/css" rel="stylesheet" href="#{self.absolute_current_domain_url}/stylesheets/suites_catalog_embed.css"/>
+<!--[if gte IE 6]>
+<style>
+li.xlsuite-embed-suite-item h2 a.xlsuite_install_button {top: 5px; right: 13px;}
+</style>
+<![endif]-->    
 ~ if params[:include_css]
     @embed_code << %Q~<div id="xlsuite-embed-suites-catalog">
 ~
@@ -65,8 +70,8 @@ class SuitesController < ApplicationController
     @embed_code << %Q~    </form>
   </div>
   <span id="xlsuite-embed-suites-referral-domain" style="display:none;">#{self.current_domain.name}</span>
-  <ul id="xlsuite-embed-suites-selection"></ul>
-  <div id="xlsuite-embed-suites-paging"></div>
+  <div id="xlsuite-embed-suites-collection"><ul id="xlsuite-embed-suites-selection"></ul></div>
+  <div id="xlsuite-embed-suites-paging" class="xlsuite-embed-suites-paging"></div>
 </div>~
     
     respond_to do |format|

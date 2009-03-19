@@ -46,7 +46,7 @@ class Account < ActiveRecord::Base
       rents 
       assignees steps tasks workflows
       installed_account_templates account_modules account_module_subscriptions subscriptions
-      categories affiliates).each do |table|
+      categories affiliates party_domain_points).each do |table|
     table.singularize.classify.constantize # Ensure the associated model exists
     has_many table.to_sym, :dependent => :destroy
   end
@@ -259,24 +259,46 @@ class Account < ActiveRecord::Base
         MethodCallbackFuture.create!(:priority => 75, :models => [stable_account], :account => self, :method => :copy_all_contacts_to!, :params => {:target_account_id => self.id, :overwrite => true}),
         MethodCallbackFuture.create!(:priority => 75, :models => [stable_account], :account => self, :method => :copy_all_blogs_and_blog_posts_to!, :params => {:target_account_id => self.id, :overwrite => true}),
         MethodCallbackFuture.create!(:priority => 75, :models => [stable_account], :account => self, :method => :copy_all_workflows_to!, :params => {:target_account_id => self.id, :overwrite => true}),
-        MethodCallbackFuture.create!(:priority => 75, :models => [stable_account], :account => self, :method => :copy_all_feeds_to!, :params => {:target_account_id => self.id, :overwrite => true})
+        MethodCallbackFuture.create!(:priority => 75, :models => [stable_account], :account => self, :method => :copy_all_feeds_to!, :params => {:target_account_id => self.id, :overwrite => true}),
+        MethodCallbackFuture.create!(:priority => 75, :models => [stable_account], :account => self, :method => :copy_all_email_templates_to!, :params => {:target_account_id => self.id, :overwrite => true})
       ]
-      mail_when_done_future = MethodCallbackFuture.create!(:models => [self], :account => self, :method => :send_template_install_email_when_done, :repeat_until_true => true, 
-            :params => {:future_ids => copy_futures.map(&:id), :type => "account_install"}, :priority => 75)
+      callbacks_future = MethodCallbackFuture.create!(:models => [self], :account => self, :method => :callbacks_after_account_install, :repeat_until_true => true, 
+            :params => {:future_ids => copy_futures.map(&:id), :type => "account_install", :stable_account => stable_account}, :priority => 75)
     end
     return copy_futures.map(&:id)
   end
 
-  def send_template_install_email_when_done(args)
+  def callbacks_after_account_install(args)
     future_ids = args[:future_ids]
     status_hash = Future.get_status_of(future_ids)
     if status_hash['isCompleted']
       if args[:type] =~ /account_install/i
+        MethodCallbackFuture.create(:priority => 75, :models => [args[:stable_account]], :account => self, :method => :attach_product_accessible_items_to!, :params => {:target_account_id => self.id, :overwrite => true})
         AdminMailer.deliver_account_installed_email(self)
       end
       return true
     end
     return false
+  end
+  
+  def attach_product_accessible_items_to!(args)
+    target_acct = Account.find(args[:target_account_id])
+    target_acct.products.each do |target_product|
+      src_product = self.products.find_by_name(target_product.name)
+      next unless src_product
+      src_product.accessible_items.each do |accessible|
+        target_item = nil
+        case accessible.item_type
+          when /(blog|group)/i
+            target_item = target_acct.send(accessible.item_type.tableize).find_by_label(accessible.item.label)
+          when Asset
+            target_item = target_acct.assets.find_by_uuid(accessible.item.uuid)
+        end
+        next unless target_item
+        product_item = ProductItem.new(:item => target_item, :product => target_product)
+        product_item.save
+      end
+    end
   end
 
   def copy_cms_components_from!(options)
@@ -671,7 +693,7 @@ class Account < ActiveRecord::Base
       new_workflow.copy_steps_from!(workflow, options)
     end
   end
-
+  
   # TODO: should call create! here too but losing validation is no good too.....
   def copy_all_workflows_to!(options)
     logger.debug("==> Copying workflows to target account")
@@ -714,6 +736,25 @@ class Account < ActiveRecord::Base
       target_acct.feeds.create(feed.attributes_for_copy_to(target_acct))
     end    
     MethodCallbackFuture.create!(:models => [self.feeds], :account => target_acct, :method => :refresh) unless self.feeds.empty?
+  end
+  
+  def copy_all_email_templates_from!(options)
+    domain = Domain.find(options[:source_domain_id])
+    logger.debug {"==> Copying email templates from #{domain.name}"}
+    domain.account.templates.each do |template|
+      next if self.templates.find_by_label(template.label)
+      self.templates.create!(template.attributes_for_copy_to(self))
+    end
+  end
+  
+  def copy_all_email_templates_to!(options)
+    logger.debug("==> Copying email templates to target account")
+    target_acct = Account.find(options[:target_account_id])
+    self.templates.each do |template|
+      next if target_acct.templates.find_by_label(template.label)
+      new_template = target_acct.templates.new(template.attributes_for_copy_to(target_acct))
+      new_template.save(false)
+    end
   end
   
   def grant_all_permissions_to_owner
