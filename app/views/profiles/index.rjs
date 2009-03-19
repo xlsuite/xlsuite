@@ -5,7 +5,7 @@ after_render = %Q`
   ds.load({params: {start: 0, limit: #{limit} }});
 `
 
-page << create_tab_using_ajax_response("Profiles List", after_render) do
+page << create_tab_using_ajax_response("Profile List", after_render) do
 %Q`
   var selectedIds = null;
   var selectedPartyIds = null;
@@ -478,7 +478,7 @@ page << create_tab_using_ajax_response("Profiles List", after_render) do
   selectionMenu.addSeparator();
   selectionMenu.add(deleteAction);
 
-  grid.getTopToolbar().add({ id: 'selection-menu', text: "Actions", menu: selectionMenu });
+  grid.getTopToolbar().add({ text: "Actions", menu: selectionMenu });
 
   grid.getSelectionModel().on("selectionchange", function(){
     records = grid.getSelectionModel().getSelections();

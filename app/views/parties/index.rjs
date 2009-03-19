@@ -586,7 +586,7 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
   selectionMenu.addSeparator();
   selectionMenu.add(deleteAction);
 
-  grid.getTopToolbar().add({ id: 'selection-menu', text: "Actions", menu: selectionMenu });
+  grid.getTopToolbar().add({ text: "Actions", menu: selectionMenu });
 
   var delayedRecordAjaxTask = new Ext.util.DelayedTask(function(){
     ids = selectedIds.join(",");
