@@ -386,6 +386,8 @@ class Party < ActiveRecord::Base
 
   has_many :products, :foreign_key => :owner_id
 
+  has_many :domain_points, :class_name => "PartyDomainPoint"
+
   def deliver_signup_confirmation_email(options)
     begin
       AdminMailer.deliver_signup_confirmation_email(:route => self.main_email(true),

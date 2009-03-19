@@ -286,6 +286,7 @@ class Domain < ActiveRecord::Base
   validates_presence_of :account_id
   
   belongs_to :domain_subscription
+  has_many :party_points, :class_name => "PartyDomainPoint"
 
   validates_presence_of :name, :if => :regular_domain?
   validates_uniqueness_of :name, :if => :regular_domain?
