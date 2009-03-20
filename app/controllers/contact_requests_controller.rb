@@ -411,7 +411,7 @@ class ContactRequestsController < ApplicationController
             extra << "#{k.to_s.humanize}: #{v.to_s}<br />"
           end
         end
-        @content << "<br />" + extra
+        @content << "<br />Additional Parameters:<br />" + extra
       end
       
       @contact_request.email = params[:email_address].values.map{|a| a[:email_address]}.join(", ") rescue nil
