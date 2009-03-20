@@ -354,7 +354,7 @@ module XlSuite
         options = {:limit => limit, :offset => offset} unless @options[:randomize]
         
         orders = []
-        orders << "open_house_text ASC" unless context_options[:order] =~ /open_house_text/i
+        orders << "open_house_text DESC" unless context_options[:order] =~ /open_house_text/i
         orders << context_options[:order] if @options[:order]
         orders << "mls_no DESC" unless context_options[:order] =~ /mls_no/i
         
