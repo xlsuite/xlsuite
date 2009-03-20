@@ -281,7 +281,7 @@
 class ContactRequestDrop < Liquid::Drop
   attr_reader :contact_request
   delegate :name, :email, :phone, :time_to_call, :subject, :body, :referrer_url, :tag_list, 
-    :party, :completed_at, :approved_at, :recipients, :to => :contact_request
+    :party, :completed_at, :approved_at, :recipients, :affiliate, :to => :contact_request
   
   def initialize(contact_request)
     @contact_request = contact_request
