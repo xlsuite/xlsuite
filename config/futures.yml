@@ -19,7 +19,7 @@ SessionCleaner:
   system: true
 
 FeedsUpdator:
-  interval: <%= 4.hours %>
+  interval: <%= 1.minute %>
   scheduled_at: <%= 11.minutes.from_now %>
   system: true
 

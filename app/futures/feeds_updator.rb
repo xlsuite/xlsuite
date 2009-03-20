@@ -282,7 +282,12 @@ class FeedsUpdator < Future
   def run
     Feed.find(:all, :conditions => ["refreshed_at <= ?", 31.hours.ago],
               :order => "refreshed_at", :limit => 10).each do |feed|
-      MethodCallbackFuture.create!(:system => true, :model => feed, :method => :refresh, :priority => 200)
+      begin
+        feed.refresh
+      rescue
+        feed.send_error_email
+        feed.reload.update_attribute(:refreshed_at, 30.days.from_now.utc)
+      end
     end
 
     self.complete!

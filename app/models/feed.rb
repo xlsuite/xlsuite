@@ -351,6 +351,10 @@ class Feed < ActiveRecord::Base
   rescue FeedTools::FeedAccessError
     # Couldn't retreive feed
     self.handle_error($!, 6.hours)
+  
+  rescue
+    # All other errors
+    self.handle_error($!, 6.hours)
   end
 
   def handle_error(exception, delta_try_again=2.days)
