@@ -153,7 +153,7 @@ page << create_tab_using_ajax_response("Profile List", after_render) do
   // set double click action on grid cells
   grid.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
     var record = ds.getAt(rowIndex);
-    var id = record.id.split("_").last();
+    var id = record.id;
     var fieldName = grid.getColumnModel().getDataIndex(columnIndex);
 
     switch(columnIndex){
