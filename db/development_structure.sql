@@ -510,6 +510,7 @@ CREATE TABLE `contact_requests` (
   `params` text,
   `affiliate_id` int(11) default NULL,
   `domain_id` int(11) default NULL,
+  `add_party_to_database` tinyint(1) default '1',
   PRIMARY KEY  (`id`),
   KEY `contact_requests_created_at_index` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1359,6 +1360,7 @@ CREATE TABLE `listings` (
   `longitude` float default NULL,
   `creator_id` int(11) default NULL,
   `comment_approval_method` varchar(255) default NULL,
+  `open_house` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_ext_id` (`account_id`,`external_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -2474,6 +2476,8 @@ INSERT INTO schema_migrations (version) VALUES ('20090309193850');
 
 INSERT INTO schema_migrations (version) VALUES ('20090311202847');
 
+INSERT INTO schema_migrations (version) VALUES ('20090318231709');
+
 INSERT INTO schema_migrations (version) VALUES ('20090318235548');
 
 INSERT INTO schema_migrations (version) VALUES ('20090319004439');
@@ -2486,6 +2490,10 @@ INSERT INTO schema_migrations (version) VALUES ('20090319225335');
 
 INSERT INTO schema_migrations (version) VALUES ('20090319225625');
 
+INSERT INTO schema_migrations (version) VALUES ('20090319225957');
+
 INSERT INTO schema_migrations (version) VALUES ('20090320004305');
 
 INSERT INTO schema_migrations (version) VALUES ('20090320005139');
+
+INSERT INTO schema_migrations (version) VALUES ('20090320232259');
