@@ -14,6 +14,7 @@ page << create_tab_using_ajax_response("Profile List", after_render) do
 
   // create party record using the party model
   var ProfileRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
     {name: 'partyId', mapping: 'party_id'},
     {name: 'displayName', mapping: 'display-name'},
     {name: 'firstName', mapping: 'name.first'},
@@ -457,6 +458,54 @@ page << create_tab_using_ajax_response("Profile List", after_render) do
       });
     }
   });
+  
+  var embedCodeProfilePath = #{embed_code_public_profile_path(:id => "__id__").to_json};
+  
+  var embedCodeAction = new Ext.Action({
+    text: "Embed Code",
+    iconCls: "display_none",
+    handler: function(){
+      var records = grid.getSelectionModel().getSelections();
+      if(records.length == 1){
+        var record = records[0];
+          var embedUrl = embedCodeProfilePath.replace(new RegExp("__id__", "g"), record.get("id"));
+          Ext.Ajax.request({
+            method:"get",
+            url:embedUrl,
+            success: function(response, options){
+              var response = Ext.decode(response.responseText);
+              if(response.success){
+                var embedCodeTextArea = new Ext.form.TextArea({
+                  height: 250,
+                  width: 300,
+                  value: response.text,
+                  listeners: {
+                    focus:function(cpt){cpt.selectText()},
+                    render:function(cpt){cpt.selectText()}
+                  }
+                });
+                var embedCodeWindow = new Ext.Window({
+                  title: response.title,
+                  items: embedCodeTextArea,
+                  height: 250,
+                  width: 300,
+                  resizable: false
+                });
+                embedCodeWindow.show();
+                window.close();
+                window.destroy();
+              }
+              else{
+                Ext.Msg.alert("Embed code generator", response.errors.join(", "))
+              }
+            }
+          });
+      }
+      else{
+        Ext.Msg.alert("Embed code generator", "Please select one profile");
+      }
+    }
+  });
 
   clearAllAction.setHandler(function(e) {
     grid.getSelectionModel().clearSelections();
@@ -474,7 +523,7 @@ page << create_tab_using_ajax_response("Profile List", after_render) do
     items: [selectAllAction, clearAllAction]
   });
   selectionMenu.addSeparator();
-  selectionMenu.add(addToGroupAction, emailAction, massMailAction, printSummaryAction, tagWithAction);
+  selectionMenu.add(addToGroupAction, emailAction, massMailAction, printSummaryAction, tagWithAction, embedCodeAction);
   selectionMenu.addSeparator();
   selectionMenu.add(deleteAction);
 

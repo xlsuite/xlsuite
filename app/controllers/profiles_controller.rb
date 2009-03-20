@@ -719,7 +719,7 @@ class ProfilesController < ApplicationController
   
   def assemble_record(record)
     {
-      "id" => record.dom_id,
+      "id" => record.id,
       "party_id" => record.party ? record.party.id : 0,
       "display-name" => record.display_name.to_s,
       "company-name" => record.company_name.to_s,

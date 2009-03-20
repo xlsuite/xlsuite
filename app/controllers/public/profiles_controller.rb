@@ -445,6 +445,24 @@ class Public::ProfilesController < ApplicationController
     end
   end
 
+  def embed_code
+    success = true
+    errors = []
+    snippet = self.current_account.snippets.find_by_title(self.current_domain.get_config("profile_embed_code_snippet"))
+    if snippet
+      liquid_assigns = {"profile" => @profile, "domain" => self.current_domain.to_liquid}
+      liquid_context = Liquid::Context.new(liquid_assigns, {}, false)
+      @text = Liquid::Template.parse(snippet.body).render!(liquid_context)
+    else
+      success = false
+      errors << "Profile embed code snippet cannot be found. Please check your configuration 'profile_embed_code_snippet'"
+    end
+    respond_to do |format|
+      format.js do
+        render(:json => {:success => success, :errors => errors, :title => @profile.display_name, :text => @text}.to_json)
+      end
+    end
+  end
   protected
 
   def load_profile
@@ -467,6 +485,9 @@ class Public::ProfilesController < ApplicationController
       return true
     elsif %w(auto_complete).include?(self.action_name)
       return self.current_user?
+    elsif %w(embed_code).include?(self.action_name)
+      self.load_profile
+      return true
     else
       return false
     end
