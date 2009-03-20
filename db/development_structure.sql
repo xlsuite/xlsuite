@@ -230,6 +230,7 @@ CREATE TABLE `blogs` (
   `updated_by_id` int(11) default NULL,
   `owner_id` int(11) default NULL,
   `private` tinyint(1) default '0',
+  `domain_id` int(11) default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_account_private` (`account_id`,`private`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -2484,3 +2485,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090319224202');
 INSERT INTO schema_migrations (version) VALUES ('20090319225335');
 
 INSERT INTO schema_migrations (version) VALUES ('20090319225625');
+
+INSERT INTO schema_migrations (version) VALUES ('20090320004305');
