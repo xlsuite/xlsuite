@@ -325,6 +325,7 @@ class Listing < ActiveRecord::Base
   before_save :set_default_attributes
   before_save :assign_raw_property_data
   before_save :copy_geolocation_from_address
+  before_save :set_open_house_flag
 
   before_save  do |l|
     l.public = (l.raw["Internet ok"].blank? || l.raw["Internet ok"] =~ /^yes$/i ? true : false)
@@ -650,6 +651,10 @@ class Listing < ActiveRecord::Base
   end
   
   protected
+  
+  def set_open_house_flag
+    self.open_house = (self.open_house_text.blank? ? false : true)
+  end
   
   def set_open_house_text_to_nil_if_blank
     self.open_house_text = nil if self.open_house_text.blank?
