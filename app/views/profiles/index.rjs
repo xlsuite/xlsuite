@@ -447,14 +447,16 @@ page << create_tab_using_ajax_response("Profile List", after_render) do
     disabled: true,
     handler: function() {
       Ext.Msg.confirm("", "Delete selected records permanently?", function(btn){
-        var params = {};
-        params['ids'] = selectedIds.toString();
-        Ext.Ajax.request({
-          url: #{destroy_collection_profiles_path.to_json},
-          params: params,
-          method: "DELETE"
-        });
-        #{mask_grid_with_key("profiles", "Deleting...")}
+        if(btn == "yes"){
+          var params = {};
+          params['ids'] = selectedIds.toString();
+          Ext.Ajax.request({
+            url: #{destroy_collection_profiles_path.to_json},
+            params: params,
+            method: "DELETE"
+          });
+          #{mask_grid_with_key("profiles", "Deleting...")}
+        }
       });
     }
   });
