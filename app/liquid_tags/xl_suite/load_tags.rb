@@ -356,7 +356,13 @@ module XlSuite
               %Q`LEFT JOIN blog_posts ON blog_posts.id=taggings.taggable_id`].join(" "), 
           :conditions => "blog_posts.id IN (#{from_blog_post_ids.join(",").blank? ? 0 : from_blog_post_ids.join(",")})").map(&:id)
         
-        conditions << "tags.id IN (#{tag_ids.join(',')})" unless tag_ids.empty?
+        if tag_ids.empty?
+          context[@options[:pages_count]] = context[@options[:total_count]] = 0
+          context[@options[:in]] = nil
+          return
+        else
+          conditions << "tags.id IN (#{tag_ids.join(',')})" 
+        end
         
         conditions = conditions.join(" AND ")
 
