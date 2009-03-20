@@ -153,7 +153,7 @@ page << create_tab_using_ajax_response("Profile List", after_render) do
   // set double click action on grid cells
   grid.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
     var record = ds.getAt(rowIndex);
-    var id = record.id;
+    var id = record.get("id");
     var fieldName = grid.getColumnModel().getDataIndex(columnIndex);
 
     switch(columnIndex){
@@ -534,7 +534,7 @@ page << create_tab_using_ajax_response("Profile List", after_render) do
     var ids = new Array();
     var partyIds = new Array();
     records.each( function(e) {
-      ids.push(e.id.split("_").last());
+      ids.push(e.get("id"));
       partyIds.push(e.get("partyId"));
     });
     selectedIds = ids;
@@ -585,9 +585,9 @@ page << create_tab_using_ajax_response("Profile List", after_render) do
     var row_expander_bodies = Ext.DomQuery.select('.x-grid3-row-body');
     var record_id = null;
     for(i=0;i<row_expander_bodies.length;i++){
-      record_id = (records[i].id).split("_").last();
+      record_id = (records[i].get("id"));
       Ext.EventManager.addListener(row_expander_bodies[i], "dblclick", function(event, element, options){
-        xl.openNewTabPanel('profiles_edit_' + id , baseUrl.sub("__PARTY_ID__", options..get("partyId")));
+        xl.openNewTabPanel('profiles_edit_' + id , baseUrl.sub("__PARTY_ID__", options.get("partyId")));
       }, this, {recordId:record_id});
     }
   });
