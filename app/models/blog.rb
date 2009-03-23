@@ -293,7 +293,7 @@ class Blog < ActiveRecord::Base
   belongs_to :created_by, :class_name => "Party", :foreign_key => :created_by_id
   belongs_to :updated_by, :class_name => "Party", :foreign_key => :updated_by_id
 
-  validates_presence_of :account_id, :title, :author_name, :label, :owner_id, :created_by_id
+  validates_presence_of :account_id, :domain_id, :title, :author_name, :label, :owner_id, :created_by_id
   validates_uniqueness_of :label, :scope => :account_id
   validates_format_of :label, :with => /\A[-\w]+\Z/i, :message => "can contain only a-z, A-Z, 0-9, _ and -, cannot contain space(s)"
 
