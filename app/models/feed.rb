@@ -368,8 +368,8 @@ class Feed < ActiveRecord::Base
         :refreshed_at => delta_try_again.from_now.utc)
 
       if self.error_count % 3 == 0 then
-        self.send_error_email
         self.update_attribute(:refreshed_at, 30.days.from_now.utc)
+        self.send_error_email
       end
     end
   end
@@ -377,11 +377,15 @@ class Feed < ActiveRecord::Base
   def send_error_email
     tos = [self.created_by, self.updated_by].compact
     return if tos.empty?
+    tos = tos.map(&:main_email).map(&:email_address).reject(&:blank?).join(",")
+    return if tos.blank?
     AdminMailer.deliver_feed_error_email(self, tos)
   end
 
   def attributes_for_copy_to(account)
-    self.attributes.dup.merge(:account_id => account.id, :tag_list => self.tag_list)
+    account_owner_id = account.owner ? account.owner.id : nil
+    self.attributes.dup.merge(:account_id => account.id, :tag_list => self.tag_list, 
+      :created_by_id => account_owner_id, :updated_by_id => account_owner_id)
   end
 
   protected

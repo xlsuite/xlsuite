@@ -412,7 +412,7 @@ class AdminMailer < ActionMailer::Base
   end
   
   def feed_error_email(feed, error_recipients)
-    recipients error_recipients.map(&:main_email).map(&:email_address).reject(&:blank?).join(",")
+    recipients error_recipients
     from "XLsuite Feed Fetcher <no-repy@xlsuite.com>"
     subject "[XL] Fatal error retrieving feed: #{feed.label}"
     content_type "text/html"

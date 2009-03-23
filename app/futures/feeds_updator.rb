@@ -285,8 +285,8 @@ class FeedsUpdator < Future
       begin
         feed.refresh
       rescue
-        feed.send_error_email
         feed.reload.update_attribute(:refreshed_at, 30.days.from_now.utc)
+        feed.send_error_email
       end
     end
 
