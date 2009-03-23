@@ -371,6 +371,7 @@ class Item < ActiveRecord::Base
     attributes = self.attributes.dup.merge(:account_id => account.id, :creator_id => (account.owner ? account.owner.id : nil), 
       :updator_id => t_updator_id, :domain_patterns => domain_patterns)
     attributes.merge!(:modified => options[:modified], :skip_set_modified => true) if options.has_key?(:modified)
+    attributes.merge!(:uuid => options[:uuid]) if options.has_key?(:uuid)
     attributes
   end
   

@@ -20,9 +20,11 @@ def copy(source_domain, target_domain, options)
       if options[:domain_match]
         next unless page.domain_patterns.index(source_domain.name)
       end
-      puts "Processing Page '#{page.title}' with fullslug '#{page.fullslug}' and domain patterns '#{page.domain_patterns}'"
-      new_item = Page.create!(page.attributes_for_copy_to(target_account, {:domain_patterns => source_domain.name}))
-      puts "Page title '#{new_item.title}' with fullslug '#{new_item.fullslug}' and domain patterns '#{new_item.domain_patterns}' successfully created"
+      puts "Processing #{page.class.name} '#{page.title}' with fullslug '#{page.fullslug}' and domain patterns '#{page.domain_patterns}'"
+      attr_options = {:domain_patterns => options[:copy_domain_patterns] ? page.domain_patterns : source_domain.name}
+      attr_options.merge!(:uuid => page.uuid) if options[:copy_uuid]
+      new_item = page.class.create!(page.attributes_for_copy_to(target_account, attr_options))
+      puts "#{page.class.name} title '#{new_item.title}' with fullslug '#{new_item.fullslug}' and domain patterns '#{new_item.domain_patterns}' successfully created"
     end
 
     puts "==> Copying snippets now ..."
@@ -31,7 +33,9 @@ def copy(source_domain, target_domain, options)
         next unless snippet.domain_patterns.index(source_domain.name)
       end
       puts "Processing Snippet '#{snippet.title}' with domain patterns '#{snippet.domain_patterns}'"
-      new_item = Snippet.new(snippet.attributes_for_copy_to(target_account, {:domain_patterns => source_domain.name}))
+      attr_options = {:domain_patterns => options[:copy_domain_patterns] ? snippet.domain_patterns : source_domain.name}
+      attr_options.merge!(:uuid => snippet.uuid) if options[:copy_uuid]
+      new_item = Snippet.new(snippet.attributes_for_copy_to(target_account, attr_options))
       new_item.ignore_warnings = true
       saved = new_item.save!
       puts "Snippet title '#{new_item.title}' with domain patterns '#{new_item.domain_patterns}' created"
@@ -43,7 +47,9 @@ def copy(source_domain, target_domain, options)
         next unless layout.domain_patterns.index(source_domain.name)
       end
       puts "Processing Layout '#{layout.title}' with domain patterns '#{layout.domain_patterns}'"
-      new_item = Layout.create!(layout.attributes_for_copy_to(target_account, {:domain_patterns => source_domain.name}))
+      attr_options = {:domain_patterns => options[:copy_domain_patterns] ? layout.domain_patterns : source_domain.name}
+      attr_options.merge!(:uuid => layout.uuid) if options[:copy_uuid]
+      new_item = Layout.create!(layout.attributes_for_copy_to(target_account, attr_options))
       puts "Layout title '#{new_item.title}' with domain patterns '#{new_item.domain_patterns}' created"
     end
     
@@ -59,6 +65,8 @@ Main do
   argument("source_domain") { required }
   argument("domain_patterns_include_source_domain") { required }
   argument("target_domain") { required }
+  argument("copy_domain_pattern") { required }
+  argument("copy_uuid") { required }
   def run
     source_domain_name = params["source_domain"].value
     source_domain = Domain.find_by_name(source_domain_name)
@@ -73,6 +81,24 @@ Main do
       options[:domain_match] = false
     else
       raise "Please input yes/Y or no/N" if domain_patterns_match !~ /^(yes|no|n|y)$|/i
+    end
+    copy_domain_patterns_match = params["copy_domain_pattern"].value
+    puts "Copy Domain Patterns #{copy_domain_patterns_match}"
+    if copy_domain_patterns_match =~ /^(yes|y)$/i 
+      options[:copy_domain_patterns] = true
+    elsif copy_domain_patterns_match =~ /^(no|n)$/i
+      options[:copy_domain_patterns] = false
+    else
+      raise "Please input yes/Y or no/N" if copy_domain_patterns_match !~ /^(yes|no|n|y)$|/i
+    end
+    copy_uuid_match = params["copy_uuid"].value
+    puts "Copy UUID #{copy_domain_patterns_match}"
+    if copy_uuid_match =~ /^(yes|y)$/i 
+      options[:copy_uuid] = true
+    elsif copy_uuid_match =~ /^(no|n)$/i
+      options[:copy_uuid] = false
+    else
+      raise "Please input yes/Y or no/N" if copy_uuid_match !~ /^(yes|no|n|y)$|/i
     end
 
     target_domain_name = params["target_domain"].value
