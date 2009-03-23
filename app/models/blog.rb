@@ -286,6 +286,7 @@ class Blog < ActiveRecord::Base
   acts_as_reportable :columns => %w(title subtitle label author_name comment_approval_method)
 
   belongs_to :account
+  belongs_to :domain
   has_many :posts, :class_name => "BlogPost", :dependent => :destroy
 
   belongs_to :owner, :class_name => "Party", :foreign_key => :owner_id
