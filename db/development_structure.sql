@@ -208,6 +208,7 @@ CREATE TABLE `blog_posts` (
   `deactivate_commenting_on` date default NULL,
   `hide_comments` tinyint(1) default NULL,
   `average_rating` decimal(5,3) NOT NULL default '0.000',
+  `domain_id` int(11) default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_blog_published_at` (`blog_id`,`published_at`),
   KEY `by_account_blog_published_at` (`account_id`,`blog_id`,`published_at`),
@@ -2501,3 +2502,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090320232259');
 INSERT INTO schema_migrations (version) VALUES ('20090320234347');
 
 INSERT INTO schema_migrations (version) VALUES ('20090321012653');
+
+INSERT INTO schema_migrations (version) VALUES ('20090323224839');
