@@ -654,6 +654,7 @@ class Listing < ActiveRecord::Base
   
   def set_open_house_flag
     self.open_house = (self.open_house_text.blank? ? false : true)
+    true
   end
   
   def set_open_house_text_to_nil_if_blank
