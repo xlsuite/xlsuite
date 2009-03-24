@@ -30,7 +30,7 @@ Rails::Initializer.run do |config|
   config.action_controller.session_store = :active_record_store
 
   # Activate observers that should always be running
-  config.active_record.observers = :point_blog_observer
+  config.active_record.observers = :point_blog_observer, :point_blog_post_observer
 
   # Make Active Record use UTC-base instead of local time
   config.active_record.default_timezone = :utc
