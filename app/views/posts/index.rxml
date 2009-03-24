@@ -1,17 +1,17 @@
 if @topic then
-  feed_title = "All Posts in #{h(@topic.title)} of #{h(@forum.name)} - XLsuite.com"
+  feed_title = "All Posts in #{h(@topic.title)} of #{h(@forum.name)} - #{current_domain.name}"
   self_url = topic_posts_url(:forum_category => @forum_category, :forum => @forum, :topic => @topic, :format => "atom")
   feed_id = "tag:topic#{@topic.id},#{Time.now.year}:#{request.domain}"
 elsif @forum then
-  feed_title = "All Posts in #{h(@forum.name)} of #{h(@forum.name)} - XLsuite.com"
+  feed_title = "All Posts in #{h(@forum.name)} of #{h(@forum.name)} - #{current_domain.name}"
   self_url = forum_posts_url(:forum_category => @forum_category, :forum => @forum, :format => "atom")
   feed_id = "tag:forum#{@forum.id},#{Time.now.year}:#{request.domain}"
 elsif @forum_category then
-  feed_title = "All Posts in #{h(@forum_category.name)} - XLsuite.com"
+  feed_title = "All Posts in #{h(@forum_category.name)} - #{current_domain.name}"
   self_url = forum_category_posts_url(:forum_category => @forum_category, :format => "atom")
   feed_id = "tag:forumcategory#{@forum_category.id},#{Time.now.year}:#{request.domain}"
 else
-  feed_title = "All Forums Posts - XLsuite.com"
+  feed_title = "All Forums Posts - #{current_domain.name}"
   self_url = all_posts_url(:format => "atom")
   feed_id = "tag:#{Time.now.year}:#{request.domain}"
 end
