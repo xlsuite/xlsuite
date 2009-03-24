@@ -283,7 +283,7 @@ class PointBlogObserver < ActiveRecord::Observer
   BLOG_CREATE = 100
   
   def before_save(blog)
-    blog.instance_variable_set(:@_old_record, blog.class.find(blog.id))
+    blog.instance_variable_set(:@_old_record, blog.id ? blog.class.find(blog.id) : nil)
   end
   
   # Add points to the blog owner
@@ -297,7 +297,7 @@ class PointBlogObserver < ActiveRecord::Observer
   def after_save(blog)
     old_record = blog.instance_variable_get(:@_old_record)
     new_owner = blog.owner
-    old_owner = old_record.owner
+    old_owner = old_record ? old_record.owner : new_owner
     return unless new_owner
     if new_owner
       if new_owner.id == old_owner.id
