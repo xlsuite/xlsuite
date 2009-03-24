@@ -22,7 +22,7 @@ def copy(source_domain, target_domain, options)
       end
       puts "Processing #{page.class.name} '#{page.title}' with fullslug '#{page.fullslug}' and domain patterns '#{page.domain_patterns}'"
       attr_options = {:domain_patterns => options[:copy_domain_patterns] ? page.domain_patterns : source_domain.name}
-      attr_options.merge!(:uuid => page.uuid) if options[:copy_uuid]
+      attr_options.merge!(:uuid => page.uuid, :modified => page.modified) if options[:copy_uuid]
       new_item = page.class.create!(page.attributes_for_copy_to(target_account, attr_options))
       puts "#{page.class.name} title '#{new_item.title}' with fullslug '#{new_item.fullslug}' and domain patterns '#{new_item.domain_patterns}' successfully created"
     end
@@ -34,7 +34,7 @@ def copy(source_domain, target_domain, options)
       end
       puts "Processing Snippet '#{snippet.title}' with domain patterns '#{snippet.domain_patterns}'"
       attr_options = {:domain_patterns => options[:copy_domain_patterns] ? snippet.domain_patterns : source_domain.name}
-      attr_options.merge!(:uuid => snippet.uuid) if options[:copy_uuid]
+      attr_options.merge!(:uuid => snippet.uuid, :modified => snippet.modified) if options[:copy_uuid]
       new_item = Snippet.new(snippet.attributes_for_copy_to(target_account, attr_options))
       new_item.ignore_warnings = true
       saved = new_item.save!
@@ -48,7 +48,7 @@ def copy(source_domain, target_domain, options)
       end
       puts "Processing Layout '#{layout.title}' with domain patterns '#{layout.domain_patterns}'"
       attr_options = {:domain_patterns => options[:copy_domain_patterns] ? layout.domain_patterns : source_domain.name}
-      attr_options.merge!(:uuid => layout.uuid) if options[:copy_uuid]
+      attr_options.merge!(:uuid => layout.uuid, :modified => layout.modified) if options[:copy_uuid]
       new_item = Layout.create!(layout.attributes_for_copy_to(target_account, attr_options))
       puts "Layout title '#{new_item.title}' with domain patterns '#{new_item.domain_patterns}' created"
     end
