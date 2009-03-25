@@ -16,9 +16,10 @@ class Public::BlogPostsController < ApplicationController
       if publish
         @blog_post.published_at = Time.now
       end
-      @blog = current_account.blogs.find(params[:blog_id])
+      @blog = self.current_account.blogs.find(params[:blog_id])
       @blog_post.blog = @blog
-      @blog_post.current_domain = current_domain
+      @blog_post.current_domain = self.current_domain
+      @blog_post.domain = self.current_domain
       @blog_post.author = @party
       @blog_post.hide_comments = params[:blog_post][:hide_comments] ? true : false
       @blog_post.save!

@@ -14,6 +14,7 @@ page << create_tab_using_ajax_response("Profile List", after_render) do
 
   // create party record using the party model
   var ProfileRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
     {name: 'partyId', mapping: 'party_id'},
     {name: 'displayName', mapping: 'display-name'},
     {name: 'firstName', mapping: 'name.first'},
@@ -152,7 +153,7 @@ page << create_tab_using_ajax_response("Profile List", after_render) do
   // set double click action on grid cells
   grid.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
     var record = ds.getAt(rowIndex);
-    var id = record.id.split("_").last();
+    var id = record.get("id");
     var fieldName = grid.getColumnModel().getDataIndex(columnIndex);
 
     switch(columnIndex){
@@ -446,15 +447,65 @@ page << create_tab_using_ajax_response("Profile List", after_render) do
     disabled: true,
     handler: function() {
       Ext.Msg.confirm("", "Delete selected records permanently?", function(btn){
-        var params = {};
-        params['ids'] = selectedIds.toString();
-        Ext.Ajax.request({
-          url: #{destroy_collection_profiles_path.to_json},
-          params: params,
-          method: "DELETE"
-        });
-        #{mask_grid_with_key("profiles", "Deleting...")}
+        if(btn == "yes"){
+          var params = {};
+          params['ids'] = selectedIds.toString();
+          Ext.Ajax.request({
+            url: #{destroy_collection_profiles_path.to_json},
+            params: params,
+            method: "DELETE"
+          });
+          #{mask_grid_with_key("profiles", "Deleting...")}
+        }
       });
+    }
+  });
+  
+  var embedCodeProfilePath = #{embed_code_public_profile_path(:id => "__id__").to_json};
+  
+  var embedCodeAction = new Ext.Action({
+    text: "Embed Code",
+    iconCls: "display_none",
+    handler: function(){
+      var records = grid.getSelectionModel().getSelections();
+      if(records.length == 1){
+        var record = records[0];
+          var embedUrl = embedCodeProfilePath.replace(new RegExp("__id__", "g"), record.get("id"));
+          Ext.Ajax.request({
+            method:"get",
+            url:embedUrl,
+            success: function(response, options){
+              var response = Ext.decode(response.responseText);
+              if(response.success){
+                var embedCodeTextArea = new Ext.form.TextArea({
+                  height: 250,
+                  width: 300,
+                  value: response.text,
+                  listeners: {
+                    focus:function(cpt){cpt.selectText()},
+                    render:function(cpt){cpt.selectText()}
+                  }
+                });
+                var embedCodeWindow = new Ext.Window({
+                  title: response.title,
+                  items: embedCodeTextArea,
+                  height: 250,
+                  width: 300,
+                  resizable: false
+                });
+                embedCodeWindow.show();
+                window.close();
+                window.destroy();
+              }
+              else{
+                Ext.Msg.alert("Embed code generator", response.errors.join(", "))
+              }
+            }
+          });
+      }
+      else{
+        Ext.Msg.alert("Embed code generator", "Please select one profile");
+      }
     }
   });
 
@@ -474,7 +525,7 @@ page << create_tab_using_ajax_response("Profile List", after_render) do
     items: [selectAllAction, clearAllAction]
   });
   selectionMenu.addSeparator();
-  selectionMenu.add(addToGroupAction, emailAction, massMailAction, printSummaryAction, tagWithAction);
+  selectionMenu.add(addToGroupAction, emailAction, massMailAction, printSummaryAction, tagWithAction, embedCodeAction);
   selectionMenu.addSeparator();
   selectionMenu.add(deleteAction);
 
@@ -485,7 +536,7 @@ page << create_tab_using_ajax_response("Profile List", after_render) do
     var ids = new Array();
     var partyIds = new Array();
     records.each( function(e) {
-      ids.push(e.id.split("_").last());
+      ids.push(e.get("id"));
       partyIds.push(e.get("partyId"));
     });
     selectedIds = ids;
@@ -536,9 +587,9 @@ page << create_tab_using_ajax_response("Profile List", after_render) do
     var row_expander_bodies = Ext.DomQuery.select('.x-grid3-row-body');
     var record_id = null;
     for(i=0;i<row_expander_bodies.length;i++){
-      record_id = (records[i].id).split("_").last();
+      record_id = (records[i].get("id"));
       Ext.EventManager.addListener(row_expander_bodies[i], "dblclick", function(event, element, options){
-        xl.openNewTabPanel('profiles_edit_' + id , baseUrl.sub("__PARTY_ID__", options..get("partyId")));
+        xl.openNewTabPanel('profiles_edit_' + id , baseUrl.sub("__PARTY_ID__", options.get("partyId")));
       }, this, {recordId:record_id});
     }
   });

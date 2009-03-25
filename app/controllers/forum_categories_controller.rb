@@ -16,7 +16,7 @@ class ForumCategoriesController < ApplicationController
 
   def index
     @title = "Forums"
-    @forum_categories = current_account.forum_categories.find(:all).reject{|f| !f.readable_by?(current_user? ? current_user : nil)}
+    @forum_categories = current_account.forum_categories.find(:all, :order => "name ASC").reject{|f| !f.readable_by?(current_user? ? current_user : nil)}
     render_within_public_layout
   end
 

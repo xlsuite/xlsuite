@@ -208,6 +208,7 @@ CREATE TABLE `blog_posts` (
   `deactivate_commenting_on` date default NULL,
   `hide_comments` tinyint(1) default NULL,
   `average_rating` decimal(5,3) NOT NULL default '0.000',
+  `domain_id` int(11) default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_blog_published_at` (`blog_id`,`published_at`),
   KEY `by_account_blog_published_at` (`account_id`,`blog_id`,`published_at`),
@@ -230,6 +231,7 @@ CREATE TABLE `blogs` (
   `updated_by_id` int(11) default NULL,
   `owner_id` int(11) default NULL,
   `private` tinyint(1) default '0',
+  `domain_id` int(11) default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_account_private` (`account_id`,`private`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -509,6 +511,7 @@ CREATE TABLE `contact_requests` (
   `params` text,
   `affiliate_id` int(11) default NULL,
   `domain_id` int(11) default NULL,
+  `add_party_to_database` tinyint(1) default '1',
   PRIMARY KEY  (`id`),
   KEY `contact_requests_created_at_index` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1358,6 +1361,7 @@ CREATE TABLE `listings` (
   `longitude` float default NULL,
   `creator_id` int(11) default NULL,
   `comment_approval_method` varchar(255) default NULL,
+  `open_house` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_ext_id` (`account_id`,`external_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1524,7 +1528,8 @@ CREATE TABLE `parties` (
   `birthdate_year` int(11) default NULL,
   `profile_id` int(11) default NULL,
   `confirmed` tinyint(1) default '0',
-  `point` int(11) default '0',
+  `own_point` int(11) default '0',
+  `referrals_point` int(11) default '0',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_token` (`account_id`,`token`),
   UNIQUE KEY `by_profile` (`profile_id`),
@@ -1541,7 +1546,8 @@ CREATE TABLE `party_domain_points` (
   `account_id` int(11) default NULL,
   `domain_id` int(11) default NULL,
   `party_id` int(11) default NULL,
-  `point` int(11) default '0',
+  `own_point` int(11) default '0',
+  `referrals_point` int(11) default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -2471,6 +2477,32 @@ INSERT INTO schema_migrations (version) VALUES ('20090309193850');
 
 INSERT INTO schema_migrations (version) VALUES ('20090311202847');
 
+INSERT INTO schema_migrations (version) VALUES ('20090318231709');
+
 INSERT INTO schema_migrations (version) VALUES ('20090318235548');
 
 INSERT INTO schema_migrations (version) VALUES ('20090319004439');
+
+INSERT INTO schema_migrations (version) VALUES ('20090319215310');
+
+INSERT INTO schema_migrations (version) VALUES ('20090319224202');
+
+INSERT INTO schema_migrations (version) VALUES ('20090319225335');
+
+INSERT INTO schema_migrations (version) VALUES ('20090319225625');
+
+INSERT INTO schema_migrations (version) VALUES ('20090319225957');
+
+INSERT INTO schema_migrations (version) VALUES ('20090320004305');
+
+INSERT INTO schema_migrations (version) VALUES ('20090320005139');
+
+INSERT INTO schema_migrations (version) VALUES ('20090320232259');
+
+INSERT INTO schema_migrations (version) VALUES ('20090320234347');
+
+INSERT INTO schema_migrations (version) VALUES ('20090321012653');
+
+INSERT INTO schema_migrations (version) VALUES ('20090323224839');
+
+INSERT INTO schema_migrations (version) VALUES ('20090324005956');

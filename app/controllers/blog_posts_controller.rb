@@ -41,10 +41,11 @@ class BlogPostsController < ApplicationController
       end
       @blog_post.published_at = published_at
     end
-    @blog = current_account.blogs.find(params[:blog_id])
+    @blog = self.current_account.blogs.find(params[:blog_id])
     @blog_post.blog = @blog
-    @blog_post.current_domain = current_domain
-    @blog_post.author = current_user
+    @blog_post.current_domain = self.current_domain
+    @blog_post.domain = self.current_domain
+    @blog_post.author = self.current_user
     @blog_post.hide_comments = params[:blog_post][:hide_comments] ? true : false
     @created = @blog_post.save
     @close = true if params[:commit_type] && params[:commit_type] =~ /close/i

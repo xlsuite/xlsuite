@@ -14,17 +14,19 @@ class BlogPost < ActiveRecord::Base
   named_scope :by_publication_date, :order => "published_at DESC"
 
   belongs_to :account
+  belongs_to :domain
   belongs_to :blog
   belongs_to :author, :class_name => "Party", :foreign_key => "author_id"
   belongs_to :editor, :class_name => "Party", :foreign_key => "editor_id"
 
   before_validation :set_default_permalink
 
-  validates_presence_of :account_id, :blog_id, :title, :author_id
+  validates_presence_of :account_id, :domain_id, :blog_id, :title, :author_id
   validates_format_of :link, :with => %r{\A(?:ftp|https?)://.*\Z}i, :allow_nil => true, :message => "must be absolute url", :if => :link_not_blank
   validates_format_of :permalink, :with => /\A[-\w]+\Z/i, :message => "can contain only a-z, A-Z, 0-9, _ and -, cannot contain space(s)", :if => :title_not_blank
 
   before_save :set_author_name
+  before_save :set_domain_if_blank
   
   def to_liquid
     BlogPostDrop.new(self)
@@ -105,5 +107,12 @@ class BlogPost < ActiveRecord::Base
   def set_default_permalink
     return unless self.permalink.blank?
     self.permalink = self.title.to_url
+  end
+  
+  def set_domain_if_blank
+    if self.domain.blank? && self.domain_id.blank?
+      self.domain = self.blog.domain
+      self.domain_id = self.blog.domain_id
+    end
   end
 end

@@ -1269,6 +1269,18 @@ class Party < ActiveRecord::Base
     self.permissions = Permission.find(:all)
   end
   
+  def add_point_in_domain(points, domain)
+    ActiveRecord::Base.transaction do
+      self.update_attribute(:own_point, self.own_point + points)
+      domain_point = self.domain_points.find(:first, :conditions => {:account_id => self.account_id, :domain_id => domain.id})
+      if domain_point
+        domain_point.update_attribute(:own_point, domain_point.own_point + points)
+      else
+        domain_point = self.domain_points.create!(:own_point => points, :domain_id => domain.id, :account_id => self.account_id, :party_id => self.id)
+      end
+    end
+  end
+  
   protected
   before_create :generate_random_uuid
 

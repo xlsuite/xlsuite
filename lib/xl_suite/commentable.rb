@@ -8,7 +8,7 @@ module XlSuite
       base.before_validation_on_create :set_comment_approval_method
       base.validates_format_of :comment_approval_method, :with => /(moderated)|(always\sapproved)|(no comments)/i
       
-      base.has_many :comments, :as => :commentable, :order => "created_at DESC"
+      base.has_many :comments, :as => :commentable, :order => "created_at DESC", :dependent => :destroy
     end
     
     def approved_comments
@@ -62,8 +62,11 @@ module XlSuite
     
     def set_comment_approval_method
       if self.comment_approval_method.blank?
-        self.comment_approval_method = self.current_domain.blank? ? self.account.get_config(:default_comment_approval_method) : 
-                                                                    self.current_domain.get_config(:default_comment_approval_method) 
+        d = nil
+        d = self.domain if self.respond_to?(:domain)
+        d = self.current_domain if d.blank?
+        self.comment_approval_method = d.blank? ? self.account.get_config(:default_comment_approval_method) : 
+                                                                    d.get_config(:default_comment_approval_method) 
       end
       true
     end

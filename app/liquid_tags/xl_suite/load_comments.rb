@@ -84,10 +84,7 @@ module XlSuite
         
         from_ids = []
         if @options[:from]
-          RAILS_DEFAULT_LOGGER.debug("^^^FROM!!!")
           ids = [context_options[:from]].flatten.map(&:id)
-          RAILS_DEFAULT_LOGGER.debug("^^^FROM!!!: #{[context_options[:from]].inspect}")
-          RAILS_DEFAULT_LOGGER.debug("^^^FROM!!!: #{[context_options[:from]].flatten.first.class.inspect}")
           if [context_options[:from]].flatten.first.class == BlogPost
             ids = ids.map(&:to_i)
             conditions << "comments.commentable_id IN (#{ids.join(",")}) AND comments.commentable_type = 'BlogPost'" unless ids.empty?

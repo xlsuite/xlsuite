@@ -25,9 +25,10 @@ class BlogsController < ApplicationController
   end
   
   def create
-    @blog = current_account.blogs.build(params[:blog])
-    @blog.created_by = current_user
-    @blog.current_domain = current_domain
+    @blog = self.current_account.blogs.build(params[:blog])
+    @blog.created_by = self.current_user
+    @blog.updated_by = self.current_user
+    @blog.domain = self.current_domain
     @created = @blog.save
     @close = true if params[:commit_type] && params[:commit_type] =~ /close/i
     respond_to do |format|

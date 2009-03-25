@@ -74,12 +74,24 @@ class ProfilesController < ApplicationController
 
     respond_to do |format|
       format.html do
-        flash_success "Tag list of selected contacts have been successfully updated"
+        flash_success "Tag list of selected profiles have been successfully updated"
         redirect_to :action => "index"
       end
       format.js do
-        flash_success :now, "Tag list of selected contacts have been successfully updated"
+        flash_success :now, "Tag list of selected profiles have been successfully updated"
       end
+    end
+  end
+  
+  def destroy_collection
+    destroyed_items_size = 0
+    current_account.profiles.find(params[:ids].split(",").map(&:strip)).to_a.each do |party|
+      destroyed_items_size += 1 if party.destroy
+    end
+
+    flash_success :now, "#{destroyed_items_size} profile(s) successfully deleted"
+    respond_to do |format|
+      format.js
     end
   end
 
@@ -379,12 +391,15 @@ class ProfilesController < ApplicationController
   
   def authorized?
     case self.action_name
-    when /\A(edit|create_profile_from_party|)\Z/i
+    when /\A(edit|create_profile_from_party)\Z/i
       return false unless self.current_user?
       self.load_party_profile
       return true if self.current_user.can?(:edit_profiles)
       return true if self.current_user == @party
       false
+    when /\A(destroy_collection|tagged_collection)\Z/i
+      return false unless self.current_user?
+      return true if self.current_user.can?(:edit_profiles)
     when /\A(login|create|confirm|validate_forum_alias|validate_alias)\Z/i
       true
     else
@@ -442,7 +457,7 @@ class ProfilesController < ApplicationController
   
   def assemble_record(record)
     {
-      "id" => record.dom_id,
+      "id" => record.id,
       "party_id" => record.party ? record.party.id : 0,
       "display-name" => record.display_name.to_s,
       "company-name" => record.company_name.to_s,

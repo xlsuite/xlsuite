@@ -43,6 +43,7 @@ class ContactRequest < ActiveRecord::Base
   
   def create_party
     return if self.params.blank?
+    return unless self.add_party_to_database
     
     params = self.params
     params.stringify_keys!

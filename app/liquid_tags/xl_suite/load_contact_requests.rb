@@ -13,6 +13,7 @@ module XlSuite
     RandomizeSyntax = /randomize:\s*(#{Liquid::QuotedFragment})/
     IdsSyntax = /ids:\s*(#{Liquid::QuotedFragment})/    
     AffiliatedContactSyntax = /affiliated_contact:\s*(#{Liquid::QuotedFragment})/    
+    RecipientContactSyntax = /recipient_contact:\s*(#{Liquid::QuotedFragment})/    
     InSyntax = /in:\s*([\w_]+)/
     AllSyntax = /all_contact_requests\s*/
     PagesCountSyntax = /pages_count:\s*([\w_]+)/
@@ -32,6 +33,7 @@ module XlSuite
       @options[:status] = $1 if markup =~ StatusSyntax
       @options[:ids] = $1 if markup =~ IdsSyntax
       @options[:affiliated_contact] = $1 if markup =~ AffiliatedContactSyntax
+      @options[:recipient_contact] = $1 if markup =~ RecipientContactSyntax
       @options[:all_contact_requests] = true if markup =~ AllSyntax
       @options[:randomize] = $1 if markup =~ RandomizeSyntax
       @options[:exclude] = $1 if markup =~ ExcludeSyntax
@@ -51,7 +53,7 @@ module XlSuite
         options = Hash.new
         context_options = Hash.new
         
-        [:affiliated_contact, :page_num, :per_page, :search, :tagged_any, :tagged_all, :order, :randomize, :status, :ids, :exclude].each do |option_sym|
+        [:recipient_contact, :affiliated_contact, :page_num, :per_page, :search, :tagged_any, :tagged_all, :order, :randomize, :status, :ids, :exclude].each do |option_sym|
           context_options[option_sym] = context[@options[option_sym]]
           context_options[option_sym] = @options[option_sym] unless context_options[option_sym]
         end
@@ -110,6 +112,7 @@ module XlSuite
           conditions << "contact_requests.id IN (#{ids.join(',')})" unless ids.empty?
         end
         
+        contact_request_ids = []
         if @options[:affiliated_contact]
           ids = []
           party = nil
@@ -122,18 +125,33 @@ module XlSuite
             party = context_options[:affiliated_contact].party
           end
           affiliate_ids = current_account.affiliates.all(:select => "id", :conditions => {:party_id => party.id}).map(&:id)
-          if affiliate_ids.empty?
-            conditions << "contact_requests.id IN (0)"
-          else
-            contact_request_ids = current_account.contact_requests.all(:select => "id", :conditions => {:affiliate_id => affiliate_ids}).map(&:id)
-            if contact_request_ids.empty?
-              conditions << "contact_requests.id IN (0)"
-            else
-              conditions << "contact_requests.id in (#{contact_request_ids.join(',')})"
-            end 
+          unless affiliate_ids.empty?
+            contact_request_ids << current_account.contact_requests.all(:select => "id", :conditions => {:affiliate_id => affiliate_ids}).map(&:id)
           end
         end    
+        
+        if @options[:recipient_contact]
+          ids = []
+          party = nil
+          case context_options[:recipient_contact]
+          when String
+            party = current_account.parties.find(context_options[:recipient_contact].to_i)
+          when PartyDrop
+            party = context_options[:recipient_contact].party
+          when ProfileDrop
+            party = context_options[:recipient_contact].party
+          end
+          contact_request_ids << ContactRequestRecipient.find_all_by_party_id(party.id).map(&:contact_request_id) if party
+        end    
 
+        if @options[:affiliated_contact] || @options[:recipient_contact]
+          if contact_request_ids.compact.empty?
+            conditions << "contact_requests.id IN (0)"
+          else
+            conditions << "contact_requests.id in (#{contact_request_ids.join(',')})"
+          end 
+        end
+        
         conditions = [conditions.join(" AND ")]
         options.merge!(:conditions => conditions.to_s)
         
@@ -148,6 +166,8 @@ module XlSuite
                    when @options[:tagged_any]
                      ContactRequest.find_tagged_with(options.merge(:any => Tag.parse(context_options[:tagged_any])))
                    when @options[:all_contact_requests] || @options[:ids] || @options[:affiliated_contact]
+RAILS_DEFAULT_LOGGER.debug("^^^ #{options.inspect}")
+RAILS_DEFAULT_LOGGER.debug("^^^ #{ContactRequest.find(:all, options).inspect}")
                      ContactRequest.find(:all, options)
                    else
                      raise SyntaxError, "None of search, tagged_any, tagged_all, affiliated_contact, ids or all_contact_requests available"
@@ -184,4 +204,5 @@ module XlSuite
       end
     end
   end
+  
 end

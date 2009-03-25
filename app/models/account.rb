@@ -291,7 +291,7 @@ class Account < ActiveRecord::Base
         case accessible.item_type
           when /(blog|group)/i
             target_item = target_acct.send(accessible.item_type.tableize).find_by_label(accessible.item.label)
-          when Asset
+          when /asset/i
             target_item = target_acct.assets.find_by_uuid(accessible.item.uuid)
         end
         next unless target_item
