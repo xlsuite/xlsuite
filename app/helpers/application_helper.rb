@@ -294,8 +294,9 @@ module ApplicationHelper
 
   def render_forum_name(user)
     return "Unknown" if user.blank?
-    name = user.forum_alias || user.display_name
-    user.profile ? link_to(name, "/profiles/view?id=#{user.id}") : name
+    name = user.profile.display_name if user.profile
+    name = name || user.display_name
+    link_to_function(name, "")
   end
   
   def render_textile_help_box
