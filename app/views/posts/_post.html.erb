@@ -26,10 +26,10 @@
         <span class="forum_post_options">
         <% if current_user? && post.editable_by?(current_user) %>
           <!-- Current User Options -->
-            <%= link_to(image_tag("forum_edit.png", :class => "editEdit"), 
+            <%= link_to(image_tag("icons/pencil_go.png", :class => "editEdit"), 
               edit_forum_category_forum_topic_post_url(:forum_category_id => post.forum_category, :forum_id => post.forum, :topic_id => post.topic, 
                   :id => post, :page => params[:page], :show => params[:show], :sort => params[:sort], :escape => false)) %>
-            <%= link_to(image_tag("forum_delete.png", :class => "editDelete"), 
+            <%= link_to(image_tag("icons/delete.png", :class => "editDelete"), 
               forum_category_forum_topic_post_url(:forum_category_id => post.forum_category.id, :forum_id => post.forum.id, :topic_id => post.topic.id, :id => post.id,
                 :page => params[:page] || "1", :show => params[:show], :sort => params[:sort], :escape => false), :method => :delete, :confirm => "Are you sure you want to delete the post permanently?") %>          
           <!-- Post Options -->

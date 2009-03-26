@@ -196,10 +196,6 @@
 <% end %>
             <div class="xlsuite-account-install-selected-suite-details">
               <h2><a href="<%= @suite.demo_url %>"><%= @suite.name %></a></h2>
-              <dl>
-                <dt>Installation Fee</dt><dd><%= @suite.setup_fee.format(:with_currency, :no_blank) %></dd>
-                <dt>Monthly Fee</dt><dd><%= @suite.subscription_fee.format(:with_currency, :no_blank) %></dd>
-              </dl>
             </div>
           </div>
           <%= hidden_field_tag("acct[account_template_id]", @suite.id, :style => "display:none;") %>
