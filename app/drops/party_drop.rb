@@ -282,7 +282,7 @@ class PartyDrop < Liquid::Drop
   attr_reader :party
   delegate :id, :email, :honorific, :first_name, :last_name, :middle_name, :full_name, :biography, :avatar, :groups,
     :company_name, :position, :info, :forum_alias, :display_name, :quick_description, :gmap_query, :blogs,
-    :posts, :created_listings, :created_groups, :to => :party
+    :posts, :created_listings, :created_groups, :profile, :to => :party
 
   def initialize(party)
     @party = party
@@ -296,7 +296,7 @@ class PartyDrop < Liquid::Drop
     self.party.profile ? true : false
   end
   
-  def profile
+  def create_profile
     if self.party.profile
       return self.party.profile
     else
