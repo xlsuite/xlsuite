@@ -33,7 +33,7 @@
               forum_category_forum_topic_post_url(:forum_category_id => post.forum_category.id, :forum_id => post.forum.id, :topic_id => post.topic.id, :id => post.id,
                 :page => params[:page] || "1", :show => params[:show], :sort => params[:sort], :escape => false), :method => :delete, :confirm => "Are you sure you want to delete the post permanently?") %>          
           <!-- Post Options -->
-            <%= link_to_function(image_tag("forum_quote.png"), "
+            <%= link_to_function(image_tag("icons/quote.png"), "
               quote = $('contentOf#{post.dom_id}').innerHTML;
               $('newReply').down('form').action = #{forum_category_forum_topic_posts_path(:forum_category_id => @forum_category.id, :forum_id => @forum.id, :topic_id => @topic.id, :show => params[:show], :sort => params[:sort], :escape => false).inspect};
               $('newReply').down('form').down('.forumPost').value = $('newReply').down('form').down('.forumPost').value + '<blockquote>' + quote + '</blockquote>';
@@ -41,7 +41,7 @@
               return false;", 
               :class => "editQuote") if current_user? %>
             <!-- reply to THIS post, not to the thread: ie: this reply becomes a child of this post. -->
-            <%= link_to( image_tag("forum_reply.png", :class => "editReply"), new_forum_category_forum_topic_post_path(post.forum_category, post.forum, post.topic), 
+            <%= link_to( image_tag("icons/comment.png", :class => "editReply"), new_forum_category_forum_topic_post_path(post.forum_category, post.forum, post.topic), 
               :onclick => "$('newReply').down('.userPostHeading').down('.bold').innerHTML = #{post.topic.title.inspect};
               $('newReply').down('form').action = #{forum_category_forum_topic_posts_path(:forum_category_id => @forum_category.id, :forum_id => @forum.id, :topic_id => @topic.id, :show => params[:show], :sort => params[:sort], :escape => false).inspect};
               $('newReply').toggle();
