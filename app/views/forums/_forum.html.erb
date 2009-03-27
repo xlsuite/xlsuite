@@ -24,8 +24,8 @@
             <td colspan="4" class="cellFold">
               <%= '<p class="topicDescription">No topic found</p>' if forum.topics.blank? %> 
               <table class="post">
-                <tr colspan="4">
-                  <td class="addNew">
+                <tr>
+                  <td class="addNew" colspan="4">
                     <%= link_to("+Add New Topic", new_forum_category_forum_topic_path(forum.forum_category, forum), 
                         :onclick => "$('newTopic').down('.threadSubject').down('.title').innerHTML = #{forum.name.inspect};
                         $('newTopic').down('form').action = #{forum_category_forum_topics_path(forum.forum_category.id, forum.id).inspect};

@@ -16,8 +16,8 @@
     </tr>
         
     <!-- Link to add new category-->
-    <tr colspan="4">
-      <td class="addNew">
+    <tr>
+      <td class="addNew" colspan="4">
         <%= link_to("+Add New Forum", new_forum_category_forum_path(@forum_category),
             :onclick => "$('newForum').toggle();
             $('newForum').down('.threadSubject').down('.title').innerHTML = #{@forum_category.name.inspect};

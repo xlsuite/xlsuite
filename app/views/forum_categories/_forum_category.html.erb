@@ -24,8 +24,8 @@
       <td colspan="4" class="cellFold">
         <%= content_tag(:p, "No forum found", :class => "topicDescription") if forum_category.forums.blank? %> 
         <table class="thread">
-          <tr colspan="4">
-            <td class="addNew">
+          <tr>
+            <td class="addNew" colspan="4">
 <% when_user_can?(:admin_forum) do -%>
               <%= link_to("+Add New Forum", new_forum_category_forum_path(forum_category),
                   :onclick => "$('newForum').toggle();
