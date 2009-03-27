@@ -387,6 +387,8 @@ class Party < ActiveRecord::Base
   has_many :products, :foreign_key => :owner_id
 
   has_many :domain_points, :class_name => "PartyDomainPoint"
+  
+  after_destroy :set_blog_posts_author_to_account_owner
 
   def deliver_signup_confirmation_email(options)
     begin
@@ -1686,5 +1688,12 @@ class Party < ActiveRecord::Base
     ActiveRecord::Base.connection().execute(%Q~
       INSERT INTO effective_permissions (`party_id`,`permission_id`) VALUES #{values_array}
     ~)    
+  end
+  
+  def set_blog_posts_author_to_account_owner
+    self.blog_posts.each do |blog_post|
+      blog_post.author_id = self.account.owner.id
+      blog_post.save
+    end
   end
 end
