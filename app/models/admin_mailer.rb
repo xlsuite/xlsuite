@@ -428,4 +428,24 @@ class AdminMailer < ActionMailer::Base
     content_type "text/html"
     body :domain_name => domain_name, :account_owner => account_owner
   end
+  
+  def template_pushed_email(account, template)
+    account_owner = account.owner
+    domain_name = account.domains.first.name
+    recipients account_owner.main_email.email_address
+    from "admin@xlsuite.com"
+    subject "[XL] Your XLsuite account has been pushed as a Suite"
+    content_type "text/html"
+    body :domain_name => domain_name, :account_owner => account_owner, :account_template => template
+  end
+  
+  def template_updated_email(account, template)
+    account_owner = account.owner
+    domain_name = account.domains.first.name
+    recipients account_owner.main_email.email_address
+    from "admin@xlsuite.com"
+    subject "[XL] Your XLsuite account has been updated"
+    content_type "text/html"
+    body :domain_name => domain_name, :account_owner => account_owner, :account_template => template
+  end
 end

@@ -326,53 +326,66 @@ class InstalledAccountTemplate < ActiveRecord::Base
       options.merge!(:domain_patterns => domain_patterns)
       options.merge!(:target_account_id => self.account.id)
       options.merge!(:modified => false)
+      update_futures = []
       if options[:layouts]
-        MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_layouts_to!)
+        update_futures << MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_layouts_to!)
         object_pushed = true
       end
       if options[:snippets]
-        MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_snippets_to!)
+        update_futures << MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_snippets_to!)
         object_pushed = true
       end
       if options[:pages]
-        MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_pages_to!)
+        update_futures << MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_pages_to!)
         object_pushed = true
       end
       if options[:groups]
-        MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_groups_and_roles_to!)
+        update_futures << MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_groups_and_roles_to!)
         object_pushed = true
       end
       if options[:assets]
-        MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_assets_to!)
+        update_futures << MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_assets_to!)
         object_pushed = true
       end
       if options[:configurations]
-        MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_configurations_to!)
+        update_futures << MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_configurations_to!)
         object_pushed = true
       end
       if options[:products]
-        MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_products_and_product_categories_to!)
+        update_futures << MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_products_and_product_categories_to!)
         object_pushed = true
       end
       if options[:contacts]
-        MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_contacts_to!)
+        update_futures << MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_contacts_to!)
         object_pushed = true
       end
       if options[:blogs]
-        MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_blogs_and_blog_posts_to!)
+        update_futures << MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_blogs_and_blog_posts_to!)
         object_pushed = true
       end
       if options[:workflows]
-        MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_workflows_to!)
+        update_futures << MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_workflows_to!)
         object_pushed = true
       end
       if options[:feeds]
-        MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_feeds_to!)
+        update_futures << MethodCallbackFuture.create!(:account => self.account, :model => self.account_template.stable_account, :params => options, :method => :copy_all_feeds_to!)
         object_pushed = true
       end
       return false unless object_pushed
+      update_futures = MethodCallbackFuture.create!(:models => [self], :account => self.account, :method => :callbacks_after_template_update, :repeat_until_true => true, 
+            :params => {:future_ids => update_futures.map(&:id), :target_account_id => self.account.id}, :priority => 75)
       true
     end
+  end
+  
+  def callbacks_after_template_update(args)
+    future_ids = args[:future_ids]
+    status_hash = Future.get_status_of(future_ids)
+    if status_hash['isCompleted']
+      AdminMailer.deliver_template_updated_email(self.account, self.account_template)
+      return true
+    end
+    return false
   end
   
   def compare_with(target_acct)
