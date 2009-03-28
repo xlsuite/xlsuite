@@ -362,6 +362,22 @@ class Comment < ActiveRecord::Base
     self.created_by.profile
   end
   
+  def point_worth
+    return 0 if self.body.blank? || self.body.size < 20
+    case self.commentable_type
+    when /listing/i
+      50
+    when /blogpost/i
+      10
+    when /product/i
+      25
+    when /profile/i
+      50
+    else
+      0
+    end
+  end
+  
   protected
   def defensio
     @defensio ||= Mephisto::SpamDetectionEngines::DefensioEngine::new
