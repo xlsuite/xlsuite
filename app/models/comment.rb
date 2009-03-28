@@ -363,7 +363,7 @@ class Comment < ActiveRecord::Base
   end
   
   def point_worth
-    return 0 if self.body.blank? || self.body.size < 20
+    return 0 if self.body.blank? || self.comment.nil? || self.body.size < 20
     case self.commentable_type
     when /listing/i
       50
