@@ -1753,6 +1753,7 @@ CREATE TABLE `products` (
   `comment_approval_method` varchar(255) default NULL,
   `owner_id` int(11) default NULL,
   `private` tinyint(1) default '0',
+  `external_url` varchar(1024) default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_account_sku` (`account_id`,`sku`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -2513,3 +2514,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090326235757');
 INSERT INTO schema_migrations (version) VALUES ('20090328065830');
 
 INSERT INTO schema_migrations (version) VALUES ('20090330224853');
+
+INSERT INTO schema_migrations (version) VALUES ('20090330233118');
