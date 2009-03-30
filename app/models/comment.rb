@@ -363,7 +363,7 @@ class Comment < ActiveRecord::Base
   end
   
   def point_worth
-    return 0 if self.body.blank? || self.comment.nil? || self.body.size < 20
+    return 0 if self.body.blank? || self.rating.nil? || !self.approved? || self.body.size < 20
     case self.commentable_type
     when /listing/i
       50
@@ -376,6 +376,43 @@ class Comment < ActiveRecord::Base
     else
       0
     end
+  end
+  
+  def add_points!
+    return if self.point_added?
+    ActiveRecord::Base.transaction do
+      points = self.point_worth
+      return if points == 0
+      timestamp = self.created_at - 86400
+      count = self.account.comments.count(:conditions => ["created_at >= ? AND created_at <= ? AND point_added = ?", timestamp, self.created_at, true])
+      if count < 20
+        self.created_by.add_point_in_domain(points, self.domain)
+        self.set_point_added(true)
+      end
+      if self.commentable_type =~ /blogpost/
+        blog_post = comment.commentable
+        # Add points for the blog post author since somebody wrote a comment on his/her post
+        blog_post.author.add_point_in_domain(points, comment.domain) if blog_post.author.id != self.created_by_id
+      end
+    end
+  end
+  
+  def remove_points!
+    return unless self.point_added?
+    points = self.point_worth
+    return if points == 0    
+    self.created_by.add_point_in_domain(-points, self.domain)
+    self.set_point_added(false)
+  end
+  
+  # Calling this method will not execute callbacks
+  def set_point_added(new_value)
+    value = new_value ? "1" : "0"
+    Comment.update_all("point_added = #{value}", "id = #{self.id}")
+  end
+  
+  def approved?
+    !self.approved_at.blank?
   end
   
   protected
