@@ -4,14 +4,12 @@
     <td class="title"><a target="_blank" href="<%= account_template.demo_url %>"><%= account_template.name %></a></td>
     <td><%= account_template.industry ? account_template.industry.name : "None" %></td>
     <td><%= account_template.main_theme ? account_template.main_theme.name : "None" %></td>
-    <td><span class="btn-slide">Rating X/X</span></td>
-    <td>Comments #</td>
     <td><%= account_template.trunk_account.owner.display_name %></td>
     <td><%= account_template.setup_fee %></td>
     <td><%= account_template.subscription_fee %>&nbsp;/&nbsp;month</td>
   </tr>
   <tr>
-    <td colspan="10"><div class="details">
+    <td colspan="10"><%= image_tag account_template.main_image_url %><div class="details">
       <%= account_template.description.blank? ? "No Description" : account_template.description%></div>
     </td>
   </tr>
