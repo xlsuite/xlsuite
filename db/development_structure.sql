@@ -459,6 +459,7 @@ CREATE TABLE `comments` (
   `defensio_signature` varchar(255) default NULL,
   `spam` tinyint(1) default '1',
   `domain_id` int(11) default NULL,
+  `point_added` tinyint(1) default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -2506,3 +2507,7 @@ INSERT INTO schema_migrations (version) VALUES ('20090321012653');
 INSERT INTO schema_migrations (version) VALUES ('20090323224839');
 
 INSERT INTO schema_migrations (version) VALUES ('20090324005956');
+
+INSERT INTO schema_migrations (version) VALUES ('20090326235757');
+
+INSERT INTO schema_migrations (version) VALUES ('20090328065830');

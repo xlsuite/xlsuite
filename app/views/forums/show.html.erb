@@ -17,8 +17,8 @@
     </tr>
         
     <!-- Link to add new topic -->
-    <tr colspan="4">
-      <td class="addNew">
+    <tr>
+      <td class="addNew" colspan="4">
         <%= link_to("+Add New Topic", new_forum_category_forum_topic_path(@forum_category, @forum), 
             :onclick => "$('newTopic').down('.threadSubject').down('.title').innerHTML = #{@forum.name.inspect};
             $('newTopic').down('form').action = #{forum_category_forum_topics_path(@forum_category.id, @forum.id).inspect};

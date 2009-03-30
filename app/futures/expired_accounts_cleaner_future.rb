@@ -7,6 +7,7 @@ class ExpiredAccountsCleanerFuture < Future
     Account.all(:conditions => ["expires_at <= ?", EXPIRED_ACCOUNT_DEADLINE_IN_MONTH.months.ago]).each do |account|
       next if account.domains.count > 1
       next if account.domains.first.name =~ /template\./i
+      next if account.account_template_as_trunk
       result << account
       break if result.size > 10
     end

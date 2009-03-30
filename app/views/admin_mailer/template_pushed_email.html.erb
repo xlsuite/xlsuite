@@ -1,0 +1,6 @@
+<p>Hello <%= @account_owner.first_name %>,</p>
+
+<p>Your account at <%= @account_owner.account.name %> has successfully been pushed as a template <% if @account_template.approved_at %>and is ready for use. <% else %>, and can be used once if is approved by <a href="http://xlsuite.com">XLsuite</a>. <% end -%>
+
+<p>Thank you.</p>
+

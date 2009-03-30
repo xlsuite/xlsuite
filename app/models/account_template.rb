@@ -117,6 +117,7 @@ class AccountTemplate < ActiveRecord::Base
     status_hash = Future.get_status_of(future_ids)
     if status_hash['isCompleted']
       MethodCallbackFuture.create(:priority => 75, :models => [self.trunk_account], :account => self.trunk_account, :method => :attach_product_accessible_items_to!, :params => {:target_account_id => args[:target_account_id], :overwrite => true})
+      AdminMailer.deliver_template_pushed_email(self.trunk_account, self)
       return true
     end
     return false

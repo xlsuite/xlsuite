@@ -71,7 +71,7 @@ class ProfileRequestsController < ApplicationController
         raise "Sorry, this profile has already been claimed"
       elsif params[:profile][:email].blank? || params[:profile][:email][:main].blank? || params[:profile][:email][:main][:email_address].blank?
         raise "Email can't be blank"
-      elsif Party.find_by_account_and_email_address(current_account, params[:profile][:email][:main][:email_address])
+      elsif Party.find_by_account_and_email_address(current_account, params[:profile][:email][:main][:email_address]) && !@profile.party.email_addresses.map(&:email_address).include?(params[:profile][:email][:main][:email_address])
         raise "Email has already been taken"
       end
       @email = params[:profile].delete("email")
