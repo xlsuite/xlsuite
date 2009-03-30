@@ -440,7 +440,8 @@ page << create_tab_using_ajax_response("Product | #{truncate(@product.name, 20)}
           #{f.text_area(:description, :width => 200)},
           #{f.select(:classification, Product::ValidClassifications, :width => 200)},
           #{f.text_field(:free_period, :width => 200, :value => @product.free_period.to_s)},
-          #{f.text_field(:pay_period, :width => 200, :value => @product.pay_period.to_s)}
+          #{f.text_field(:pay_period, :width => 200, :value => @product.pay_period.to_s)},
+          #{f.text_field(:external_url, :width => 200, :value => @product.external_url)}
         ]
       },{
         layout: 'form',
