@@ -394,7 +394,7 @@ class Public::ListingsController < ApplicationController
     end
     snippet = self.current_account.snippets.find_by_title(self.current_domain.get_config("listing_embed_code_snippet"))
     if success && snippet
-      liquid_assigns = {"listing" => @listing.to_liquid, "profile" => @profile, "domain" => self.current_domain.to_liquid}
+      liquid_assigns = {"account" => self.current_account.to_liquid, "listing" => @listing.to_liquid, "profile" => @profile, "domain" => self.current_domain.to_liquid}
       liquid_context = Liquid::Context.new(liquid_assigns, {}, false)
       @text = Liquid::Template.parse(snippet.body).render!(liquid_context)
     else
