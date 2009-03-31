@@ -1,0 +1,4 @@
+[ ]  Check rails 2.0 new routes.reload! to make sure it still does minimal work
+[x]  Check compatibility with Rails 2.0
+[ ]  Check compatibility with Edge rails
+[ ]  why are db connections reset on every request for sqlite3 in dev mode?

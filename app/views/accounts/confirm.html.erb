@@ -45,7 +45,7 @@
       $("table tr.even:not(:first)").hide();
 
       $("table tr.odd").click(function(){
-        $(this).next("tr:even").slideToggle("slow", function(){$(this).css('display', '');})
+        $(this).next("tr:even").slideToggle("slow", function(){if($(this).css('display') != "none")$(this).css('display', '');})
         .siblings("tr.even:visible").slideUp("slow");
         $(this).toggleClass("active");
         $(this).siblings("tr.odd").removeClass("active");
@@ -231,8 +231,6 @@
               <col width="10%">
               <col width="15%">
               <col width="15%">
-              <col width="5%">
-              <col width="10%">
               <col width="15%">
               <col width="10%">
               <col width="15%">
@@ -243,8 +241,6 @@
                 <td>Name</td>
                 <td>Industry</td>
                 <td>Main theme</td>
-                <td>Rating</td>
-                <td>Comments</td>
                 <td>Author</td>
                 <td>Setup fee</td>
                 <td>Subscription fee</td>

@@ -110,6 +110,7 @@ class Party < ActiveRecord::Base
   has_many :products, :foreign_key => :owner_id
 
   has_many :domain_points, :class_name => "PartyDomainPoint"
+  has_many :domain_monthly_points, :class_name => "PartyDomainMonthlyPoint"
   
   after_destroy :set_blog_posts_author_to_account_owner
 
@@ -1272,6 +1273,7 @@ class Party < ActiveRecord::Base
   end
   
   def add_point_in_domain(points, domain)
+    current_time = Time.now.utc
     ActiveRecord::Base.transaction do
       self.update_attribute(:own_point, self.own_point + points)
       domain_point = self.domain_points.find(:first, :conditions => {:account_id => self.account_id, :domain_id => domain.id})
@@ -1279,6 +1281,14 @@ class Party < ActiveRecord::Base
         domain_point.update_attribute(:own_point, domain_point.own_point + points)
       else
         domain_point = self.domain_points.create!(:own_point => points, :domain_id => domain.id, :account_id => self.account_id, :party_id => self.id)
+      end
+      month = current_time.month
+      year = current_time.year
+      domain_monthly_point = self.domain_monthly_points.find(:first, :conditions => {:account_id => self.account.id, :domain_id => domain.id, :party_id => self.id, :month => month, :year => year})
+      if domain_monthly_point
+        domain_monthly_point.update_attribute(:own_point, domain_monthly_point.own_point + points)
+      else
+        domain_monthly_point = self.domain_monthly_points.create!(:own_point => points, :domain_id => domain.id, :account_id => self.account_id, :party_id => self.id, :month => month, :year => year)
       end
     end
   end

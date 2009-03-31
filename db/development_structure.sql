@@ -1542,6 +1542,19 @@ CREATE TABLE `parties_product_categories` (
   `product_category_id` int(11) default NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `party_domain_monthly_points` (
+  `id` int(11) NOT NULL auto_increment,
+  `account_id` int(11) default NULL,
+  `domain_id` int(11) default NULL,
+  `party_id` int(11) default NULL,
+  `own_point` int(11) default '0',
+  `referrals_point` int(11) default '0',
+  `year` smallint(6) default NULL,
+  `month` tinyint(4) default NULL,
+  `updated_at` datetime default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `party_domain_points` (
   `id` int(11) NOT NULL auto_increment,
   `account_id` int(11) default NULL,
@@ -1753,6 +1766,7 @@ CREATE TABLE `products` (
   `comment_approval_method` varchar(255) default NULL,
   `owner_id` int(11) default NULL,
   `private` tinyint(1) default '0',
+  `external_url` varchar(1024) default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_account_sku` (`account_id`,`sku`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -2511,3 +2525,9 @@ INSERT INTO schema_migrations (version) VALUES ('20090324005956');
 INSERT INTO schema_migrations (version) VALUES ('20090326235757');
 
 INSERT INTO schema_migrations (version) VALUES ('20090328065830');
+
+INSERT INTO schema_migrations (version) VALUES ('20090330224853');
+
+INSERT INTO schema_migrations (version) VALUES ('20090330233118');
+
+INSERT INTO schema_migrations (version) VALUES ('20090331011916');

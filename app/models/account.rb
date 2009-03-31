@@ -1060,6 +1060,10 @@ class Account < ActiveRecord::Base
     true
   end
   
+  def to_liquid
+    AccountDrop.new(self)
+  end
+  
   protected
   def available_names_by_role(role)
     domain_names = self.domains.find(:all, :order=> "name").map(&:name).reject(&:blank?)

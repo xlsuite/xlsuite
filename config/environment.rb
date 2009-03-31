@@ -30,7 +30,8 @@ Rails::Initializer.run do |config|
   config.action_controller.session_store = :active_record_store
 
   # Activate observers that should always be running
-  config.active_record.observers = :point_blog_observer, :point_blog_post_observer
+  config.active_record.observers = :point_blog_observer, :point_blog_post_observer, 
+    :point_comment_observer
 
   # Make Active Record use UTC-base instead of local time
   config.active_record.default_timezone = :utc
@@ -133,4 +134,16 @@ end
 # instantiate the correct classes, or else the objects are left as YAML::Object.
 Dir[File.join(RAILS_ROOT, "app", "actions", "*.rb")].each do |filename|
   File.basename(filename, ".rb").classify.constantize
+end
+
+if RAILS_ENV=="development"
+  # these hacks kind of change everything around
+  require 'dispatcher_hacks'
+  require 'dep_hacks'
+#  ActionView.eager_load_templates=false
+  
+  # for rails 2.1
+  # require 'template_finder_hacks'
+  # for rails 2.2
+  require 'template_renderable_hacks'
 end

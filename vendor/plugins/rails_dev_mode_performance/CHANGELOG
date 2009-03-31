@@ -1,0 +1,75 @@
+0.6.1 - Nov 9, 2008
+
+* add auto reload to TemplateFinder so if it doesn't find a view in it's cached 
+  directory scan then it will try again before failing
+
+0.6 - Nov 8, 2008
+
+* updated to work with rails 2.1.2
+
+
+
+OLD Rails 1.2x version
+
+* don't got thru all of ObjectSpace unless the constant we are removing actually derives from AR and might need the association patch ups
+* store the new timestamp when a file changes, don't just remove the old one
+* handle deleted files better
+* add a .dup call to prevent trying to modify a hash during iteration
+* remove files from the hash when deleted, not just nil the timestamp
+
+0.5 - August 30, 2007
+
+* adding documentation
+* piggyback on included to know which modules depend on which other modules
+* switch to using a hash and :defines or :related to determine a files relation to objects
+* when removing an object see which file defines it and remove any objects associated with that file as well
+
+The last is for edge cases...
+
+AccountController < AppController 
+(this is tracked at the object level)
+
+AccountController has AccountHelper
+(this is tracked at the file level)
+
+AccountHelper include FakeHelper
+(this is tracked at the object level)
+
+The problem is if I edit account_helper it knows I need to reload account controller... but if I edit fake_helper only account_helper is reloading because the account_helper file wasn't actually changed it didn't know to reload app controller as well.  So now file associations are checked as well to catch these edge cases.
+
+0.4 - August 29, 2007
+
+* keep track some depends by hooking depend_on (this lets us now reload controllers when referenced helpers are modified)
+
+0.3.3 - August 29, 2007
+
+* remove hack introduced in 0.3.2 to deal with ApplicationController and add true dependency tracking for classes as they are auto-loaded... and then removing them recursively when a top-level class is unloaded
+
+0.3.2 - August 29, 2007
+
+* apply a fix to nil out @through_reflection and @source_reflection that seems to fix an infinite looping problem corp was seeing
+* nil out @primary_key_name and @association_foreign_key as well
+* nil out @class_name and @table_name in reflections
+* completely evil hack to flush all the controllers if we've edited ApplicationController 
+
+0.3.1 - August 29,2007
+
+* put clear_reloadable_connections back into reset_app! as it may sometimes be needed for sqlite3 (to recognize schema changes?)
+
+0.3 - August 29, 2007
+
+* pull in reset_application! and hack it to do less (less is more, right?)
+** comment out the removing of Reloadable classes, this is depreciated anyways and very slow according to benchmarking 
+** comment out the clearing of reload-able connections, this probably has it's uses but doesn't sound like something that should be happening on EVERY request
+
+0.2.1 - August 28, 2007
+
+* prevent autoload_module from adding modules to the list on constants to be unloaded if our file dependency code is already tracking them for smart unloading
+
+0.2 - August 28, 2007
+
+* Adding support to only reload routes.rb if it has changed from the last request
+
+0.1 - August 28, 2007
+
+* Initial release

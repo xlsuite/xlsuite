@@ -7,7 +7,7 @@ class ProductDrop < Liquid::Drop
       :sku, :dom_id, :pictures, :free_period, :created_at, :updated_at, :polygons,
       :pay_period_unit, :pay_period_length, :free_period_unit, :free_period_length, 
       :approved_comments_count, :unapproved_comments_count, :description, 
-      :creator_id, :editor_id, :owner_id, :main_image, :to => :product
+      :creator_id, :editor_id, :owner_id, :main_image, :external_url, :to => :product
 
   def initialize(product)
     @product = product
