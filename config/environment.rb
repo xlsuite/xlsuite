@@ -135,3 +135,15 @@ end
 Dir[File.join(RAILS_ROOT, "app", "actions", "*.rb")].each do |filename|
   File.basename(filename, ".rb").classify.constantize
 end
+
+if RAILS_ENV=="development"
+  # these hacks kind of change everything around
+  require 'dispatcher_hacks'
+  require 'dep_hacks'
+#  ActionView.eager_load_templates=false
+  
+  # for rails 2.1
+  # require 'template_finder_hacks'
+  # for rails 2.2
+  require 'template_renderable_hacks'
+end

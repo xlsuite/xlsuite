@@ -1,0 +1,31 @@
+Rails Dev Mode Performence
+==========================
+
+So I use dev mode a lot... I'm tweaking a view, or playing around with some code I actually want to SEE working... The point is that with a large app (+15 models/controllers and some advanced routes) Rails dev mode really starts to suck just clicking thru your app or even refreshing a single page periodically.  I was looking at like 1.5 seconds (last gen. Powerbook) to just to check a box via some AJAX. (there are a lot of permission checks involved, but still that's silly)
+
+THE PROBLEM
+
+So, what is the problem?  It's the fact that classes aren't cached in development and that Rails insists on flushing them at the end of every request resulting in large chunks of your apps code having to be loaded, parsed, and reinterpreted for EVERY SINGLE request... which is SLOW.
+
+THE IDEA
+
+Why don't we only reload the files when they have actually changed?  Store the file names and their last modified time and then stat all the files before every request... if any are newer, kill the objects they originally defined and let the Dependency auto-loading code reload the objects from disk.
+
+Yeah, it sucks to stat 50 files for every request, but those requests are probably hitting the disk cache anyways, and it's way faster than Ruby loading and parsing even 10 or 20 of those files.
+
+THE SOLUTION
+
+So it wasn't completely trivial... I had to hack dispatch to reset the application BEFORE new requests instead of after... and then I had to add the ability to unload classes based on their last modification time... and then a hack to jump thru all of Rails inflection instances to fix a nagging issue with associations in related classes storing references to the original version of a class even if we've removed that class and want it to be reloaded.
+
+THE RESULT
+
+ * Rails dev mode runs about as fast as Rails production if you aren't editing but just clicking around
+ * Changing a few files now only incurs the cost of those files being reloaded, not half your app
+ * My 1.5 second checkbox request now takes between 0.15 and 0.20 seconds (same Powerbook) - which is an order of magnitude better
+
+
+Have fun,
+
+Josh Goebel
+dreamer3@gmail.com
+Pastie Author

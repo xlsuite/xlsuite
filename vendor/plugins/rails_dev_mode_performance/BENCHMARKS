@@ -1,0 +1,37 @@
+Benchmarks
+==========
+
+These benchmarks are from using ab to hit up the login page of an app (7.5k lines)
+that I'm working on.  All tests were run 3 times in a row and my machine was
+otherwise idle.  Default dev mode settings are used:
+
+  config.action_controller.perform_caching             = false
+  config.action_view.cache_template_extensions         = false
+  config.cache_classes = false
+
+Of course (obviously) the more files you edit force more reloading which will
+slow these numbers down.  I'm only showing that when just accessing an app
+in development mode it should approach the speed of production.
+
+# ab -n 100 -c1 http://127.0.0.1:3000/login
+
+
+BEFORE (normal dev mode)
+
+  Requests per second:    6.42 [#/sec] (mean)
+  Requests per second:    6.64 [#/sec] (mean)
+  Requests per second:    6.45 [#/sec] (mean)
+
+
+AFTER (with dev performance plugin)
+
+  Requests per second:    71.25 [#/sec] (mean)
+  Requests per second:    80.86 [#/sec] (mean)
+  Requests per second:    82.92 [#/sec] (mean)
+
+
+PRODUCTION (perform_cache=true, cache_classes=true)
+
+  Requests per second:    90.36 [#/sec] (mean)
+  Requests per second:    95.59 [#/sec] (mean)
+  Requests per second:    99.55 [#/sec] (mean)
