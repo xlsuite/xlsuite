@@ -50,6 +50,7 @@ page << create_tab_using_ajax_response("New Post") do
         },
         'render': function(component){
           component.getToolbar().insertButton(16, #{html_editor_image_video_embed_button(@blog_post)});
+          component.getToolbar().insertButton(16, #{html_editor_copy_paste_from_word_button(@blog_post)});
         }
       }
   });
@@ -280,7 +281,6 @@ var publishedCheckbox = new Ext.form.Checkbox({
       {layout: "form", title: "Advanced", collapsible: true, collapsed: true, items:[permalinkField]}
     ]
   });
-
   newPanel.add(formPanel);
 `
 end
