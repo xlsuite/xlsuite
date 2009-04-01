@@ -290,7 +290,7 @@ ActionController::Routing::Routes.draw do |map|
                       :tagged_collection => :post, :image_picker_upload => :post}
   map.connect "/assets/download/:filename", :controller => "assets", :action => "download", :filename => /[-.\w]+/
   map.z_download "/z/:filename", :controller => "assets", :action => "download", :filename => /[-.\w]+/
-  map.connect "/z/:folder/:filename", :controller => "assets", :action => "download", :folder => /[-.\w\s\/]+/, :filename => /[-.\w]+/
+  map.connect "/z/:folder/:filename", :controller => "assets", :action => "download", :folder => /[-\.\w\s\/\%]+/, :filename => /[-.\w]+/
 
   map.resources :rets, :path_prefix => "/admin",
       :collection => {:results => :get, :search => :get, :do_search => :post, :import => :get, :resources => :get, 
