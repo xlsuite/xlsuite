@@ -290,7 +290,7 @@ class PointBlogObserver < ActiveRecord::Observer
   def after_create(blog)
     owner = blog.owner
     return unless owner
-    owner.update_attribute(:own_point, owner.own_point + BLOG_CREATE)
+    owner.add_point_in_domain(BLOG_CREATE, blog.domain)
   end
   
   # Add points to the new owner and substract points from the old owner
