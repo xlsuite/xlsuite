@@ -432,6 +432,6 @@ class ProfileDrop < Liquid::Drop
   end
   
   def point
-    self.profile.party.own_point
+    self.profile.read_attribute(:point) || self.profile.read_attribute(:own_point)
   end
 end
