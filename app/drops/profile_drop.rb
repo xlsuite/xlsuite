@@ -153,4 +153,8 @@ class ProfileDrop < Liquid::Drop
   def confirmed
     return self.profile.party.confirmed?
   end
+  
+  def point
+    self.profile.read_attribute(:point) || self.profile.read_attribute(:own_point)
+  end
 end

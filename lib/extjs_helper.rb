@@ -76,6 +76,101 @@ module ExtjsHelper
 `
   end
   
+  def html_editor_copy_paste_from_word_button(object)
+%Q`
+        {
+          clickEvent:'mousedown',
+          icon: "images/icons/paste_word.png", 
+          cls: 'x-btn-icon x-edit-image-video',
+          tooltip: {
+            title: 'Paste Microsoft Word',
+            text: 'Copy selected text from Microsoft Word and paste in this window',
+            cls: 'x-html-editor-tip',
+            tabIndex: -1
+          },
+          handler: function(){
+            tmpeditor = new Ext.form.HtmlEditor({
+              width:520,
+              height:150
+            });
+            win = new Ext.Window({ 
+              title: "Paste from Microsoft Word - Copy text from WORD and paste with key CTR+V",  
+              modal:true,
+              width:537,
+              height:220,
+              shadow:true,
+              resizable: false,
+              plain:true,
+  
+              items: tmpeditor,
+              buttons: [{
+                text:'Paste',
+                handler: function(){
+                  var str = tmpeditor.getValue();
+                  
+                  str = str.replace(/MsoNormal/g,"");
+                  str=String(str).replace(/<\\?\\?xml[^>]*>/g,"");
+                  str=String(str).replace(/<\\/?o:p[^>]*>/g,"");
+                  str=String(str).replace(/<\\/?v:[^>]*>/g,"");
+                  str=String(str).replace(/<\\/?o:[^>]*>/g,"");
+                  str=String(str).replace(/<\\/?st1:[^>]*>/g,"");
+              
+                  str=String(str).replace(/&nbsp;/g,"");
+              
+                  str=String(str).replace(/<\\/?SPAN[^>]*>/g,"");
+                  str=String(str).replace(/<\\/?FONT[^>]*>/g,"");
+                  str=String(str).replace(/<\\/?STRONG[^>]*>/g,"");
+              
+                  str=String(str).replace(/<\\/?H1[^>]*>/g,"");
+                  str=String(str).replace(/<\\/?H2[^>]*>/g,"");
+                  str=String(str).replace(/<\\/?H3[^>]*>/g,"");
+                  str=String(str).replace(/<\\/?H4[^>]*>/g,"");
+                  str=String(str).replace(/<\\/?H5[^>]*>/g,"");
+                  str=String(str).replace(/<\\/?H6[^>]*>/g,"");
+                
+                  str=String(str).replace(/<\\/?P[^>]*><\\/P>/g,"");
+                  str = str.replace(/<!--(.*)-->/g, "");
+                  str = str.replace(/<!--(.*)>/g, "");
+                  str = str.replace(/<!(.*)-->/g, "");
+                  str = str.replace(/<\\\\?\\?xml[^>]*>/g,"");
+                  str = str.replace(/<\\/?o:p[^>]*>/g,"");
+                  str = str.replace(/<\\/?v:[^>]*>/g,"");
+                  str = str.replace(/<\\/?o:[^>]*>/g,"");
+                  str = str.replace(/<\\/?st1:[^>]*>/g,"");
+                  str = str.replace(/style=\\"[^\\"]*\\"/g,"");
+                  str = str.replace(/style=\\'[^\\"]*\\'/g,"");
+                  str = str.replace(/lang=\\"[^\\"]*\\"/g,"");
+                  str = str.replace(/lang=\\'[^\\"]*\\'/g,"");
+                  str = str.replace(/class=\\"[^\\"]*\\"/g,"");
+                  str = str.replace(/class=\\'[^\\"]*\\'/g,"");
+                  str = str.replace(/type=\\"[^\\"]*\\"/g,"");
+                  str = str.replace(/type=\\'[^\\"]*\\'/g,"");
+                  str = str.replace(/href=\\'#[^\\"]*\\'/g,"");
+                  str = str.replace(/href=\\"#[^\\"]*\\"/g,"");
+                  str = str.replace(/name=\\"[^\\"]*\\"/g,"");
+                  str = str.replace(/name=\\'[^\\"]*\\'/g,"");
+                  str = str.replace(/ clear=\\"all\\"/g,"");
+                  str = str.replace(/id=\\"[^\\"]*\\"/g,"");
+                  str = str.replace(/title=\\"[^\\"]*\\"/g,"");
+                  str = str.replace(/&nbsp;/g,"");
+                  str = str.replace(/<div[^>]*>/g,"<p>");
+                  str = str.replace(/<\\/?div[^>]*>/g,"</p>");
+                  str = str.replace(/<span[^>]*>/g,"");
+                  str = str.replace(/<\\/?span[^>]*>/g,"");
+                  str = str.replace(/class=/g,"");
+  
+                  component.focus();
+                  component.insertAtCursor(str);
+                  win.close();
+                }
+              }]
+            });
+            win.show();
+          }
+        }
+`
+  end
+  
   def party_auto_complete_display(p)
     p.display_name + "   (" + (p.main_email.email_address ? p.main_email.email_address : "") + ")"
   end

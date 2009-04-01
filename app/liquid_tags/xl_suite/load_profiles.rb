@@ -15,9 +15,15 @@ module XlSuite
     CitySyntax = /city:\s*([\w_]+)/
     StateSyntax = /state:\s*([\w_]+)/
     CountrySyntax = /country:\s*([\w_]+)/
-    SearchSyntax     = /search:\s*(#{Liquid::QuotedFragment})/
+    SearchSyntax = /search:\s*(#{Liquid::QuotedFragment})/
     RandomizeSyntax = /randomize:\s*(#{Liquid::QuotedFragment})/
     ExcludeSyntax = /exclude:\s*(#{Liquid::QuotedFragment})/
+    OrderByPointSyntax = /order_by_point:\s*(#{Liquid::QuotedFragment})/
+    PointDomainSyntax = /point_domain:\s*(#{Liquid::QuotedFragment})/
+    PointToYearSyntax = /point_to_year:\s*(#{Liquid::QuotedFragment})/
+    PointToMonthSyntax = /point_to_month:\s*(#{Liquid::QuotedFragment})/
+    PointFromYearSyntax = /point_from_year:\s*(#{Liquid::QuotedFragment})/
+    PointFromMonthSyntax = /point_from_month:\s*(#{Liquid::QuotedFragment})/
 
     def initialize(tag_name, markup, tokens)
       super
@@ -35,9 +41,15 @@ module XlSuite
       @options[:city] = $1 if markup =~ CitySyntax
       @options[:state] = $1 if markup =~ StateSyntax
       @options[:country] = $1 if markup =~ CountrySyntax
-      @options[:search]       = $1 if markup =~ SearchSyntax
+      @options[:search] = $1 if markup =~ SearchSyntax
       @options[:randomize] = $1 if markup =~ RandomizeSyntax
       @options[:exclude] = $1 if markup =~ ExcludeSyntax
+      @options[:order_by_point] = $1 if markup =~ OrderByPointSyntax
+      @options[:point_domain] = $1 if markup =~ PointDomainSyntax
+      @options[:point_to_year] = $1 if markup =~ PointToYearSyntax
+      @options[:point_to_month] = $1 if markup =~ PointToMonthSyntax
+      @options[:point_from_year] = $1 if markup =~ PointFromYearSyntax
+      @options[:point_from_month] = $1 if markup =~ PointFromMonthSyntax
 
       raise SyntaxError, "Missing in: parameter in #{markup.inspect}" unless @options[:in]
       if @options[:page_num] || @options[:per_page] then
@@ -50,7 +62,8 @@ module XlSuite
       options = Hash.new
       context_options = Hash.new
       
-      [:page_num, :per_page, :group, :search, :tag_option, :tags, :order, :city, :state, :country, :randomize, :exclude].each do |option_sym|
+      [:page_num, :per_page, :group, :search, :tag_option, :tags, :order, :city, :state, :country, :randomize, :exclude,
+      :order_by_point, :point_domain, :point_to_year, :point_to_month, :point_from_year, :point_from_month].each do |option_sym|
         context_options[option_sym] = context[@options[option_sym]]
         context_options[option_sym] = @options[option_sym] unless context_options[option_sym]
       end      
@@ -88,7 +101,6 @@ module XlSuite
           end.join(" ")
         end.join(",")
         orders << context_options[:order]
-        options.merge!(:order => orders.join(","))
       end
 
       joins = []
@@ -136,11 +148,41 @@ module XlSuite
         conditions << "profiles.id NOT IN (#{ids.join(',')})" unless ids.empty?
       end
       
+      if @options[:order_by_point] && context_options[:order_by_point] =~ /^(a|de)sc$/i
+        party_ids = nil
+        domain = nil
+        domain = Domain.find_by_name(context_options[:point_domain]) if @options[:point_domain]
+        if domain
+          if @options[:point_from_year] || @options[:point_from_month] || @options[:point_to_month] || @options[:point_to_year]
+            start_year = context_options[:point_from_year].blank? ? Time.now.utc.year : context_options[:point_from_year]
+            start_month = context_options[:point_from_month].blank? ? Time.now.utc.month : context_options[:point_from_month]
+            to_year = context_options[:point_to_year].blank? ? Time.now.utc.year : context_options[:point_to_year]
+            to_month = context_options[:point_to_month].blank? ? Time.now.utc.month : context_options[:point_to_month]
+            joins << "INNER JOIN parties ON parties.profile_id = profiles.id INNER JOIN party_domain_monthly_points mp ON mp.party_id = parties.id"
+            options[:select] = "profiles.*, SUM(mp.own_point) AS point"
+            conditions << "mp.domain_id = #{domain.id} AND mp.year >= #{start_year} AND mp.year <= #{to_year} AND mp.month >= #{start_month} AND mp.month <= #{to_month}"
+            options[:group] = "mp.party_id"
+            orders = ["point #{context_options[:order_by_point]}"]
+          else
+            options[:select] = "profiles.*, pp.own_point"
+            joins << "INNER JOIN parties parties ON parties.profile_id = profiles.id INNER JOIN party_domain_points pp ON pp.party_id = parties.id"
+            conditions << "pp.domain_id = #{domain.id}"
+            orders = ["pp.own_point #{context_options[:order_by_point]}"]
+          end
+        else
+          joins << "INNER JOIN parties parties ON parties.profile_id = profiles.id"
+          options[:select] = "profiles.*, parties.own_point"
+          orders = ["own_point #{context_options[:order_by_point]}"]
+        end
+      end
+      options.merge!(:order => orders.join(",")) unless orders.empty?
+      
       profile_ids = parties.find(:all, :conditions => "profile_id IS NOT NULL", :select => "parties.profile_id").map(&:profile_id)
       conditions << "profiles.id IN (:profile_ids)"
       condition_params.merge!(:profile_ids => profile_ids)
 
-      options.merge!(:conditions => [conditions.join(" AND "), condition_params], :joins => joins.join(" AND "), :select => "profiles.*")
+      options.merge!(:conditions => [conditions.join(" AND "), condition_params], :joins => joins.join(" AND "))
+      options.merge!(:select => "profiles.*") unless options[:select]
 
       if @options[:tag_option] && @options[:tags] && !context_options[:tag_option].blank? && !context_options[:tags].blank?
         profiles = current_account.profiles.find_tagged_with(options.merge(context_options[:tag_option].to_sym => Tag.parse(context_options[:tags]) ))
@@ -160,7 +202,7 @@ module XlSuite
       else
         options.delete(:limit)
         options.delete(:offset)
-        find_all_profiles = current_account.profiles.find(:all, options.merge(:conditions => [conditions.join(" AND "), condition_params], :joins => joins.join(" AND "), :select => "profiles.*"))
+        find_all_profiles = current_account.profiles.find(:all, options.merge(:conditions => [conditions.join(" AND "), condition_params], :joins => joins.join(" AND "), :select => options[:select]))
         if @options[:pages_count] || @options[:total_count]
           profiles_count = find_all_profiles.size
         end
