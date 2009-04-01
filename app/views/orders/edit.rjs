@@ -1,4 +1,4 @@
-addr_route = @order.ship_to
+addr_route = @order.ship_to || AddressContactRoute.new
 
 page << create_tab_using_ajax_response("Edit Order | #{@order.number}") do
 %Q`
