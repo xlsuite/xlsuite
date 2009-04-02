@@ -358,6 +358,7 @@ class Asset < ActiveRecord::Base
     def find_by_path_and_filename(path, filename)
       assets = find_all_by_filename(filename)
       return nil if assets.blank?
+      
       assets.each do |asset|
         object = asset.folder
         if path.blank?
@@ -366,8 +367,8 @@ class Asset < ActiveRecord::Base
           next if object.blank?
         end
         path_array = path.split('/')
-        skip_each_loop = false
-        for i in (path_array.size-1..0)
+        next_asset = false
+        (path_array.size-1).downto(0) do |i|
           if object.name.downcase != path_array[i].downcase
             #processing on this asset is done, do next asset
             next_asset = true
