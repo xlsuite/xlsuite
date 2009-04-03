@@ -408,7 +408,7 @@ var scheduledAtDateField = new Ext.form.DateField({
   format: 'F j, Y',
   width: 155,
   allowBlank: true,
-  value: #{(@email.scheduled_at ? @email.scheduled_at.strftime("%Y-%m-%d") : Date.today.to_s).to_json},
+  value: #{(@email.scheduled_at ? @email.scheduled_at.strftime("%Y-%m-%d") : Date.today.to_s).to_json}
 }); manager.add(scheduledAtDateField);
 
 var scheduledAtHourComboBox = new Ext.form.ComboBox({
@@ -428,7 +428,7 @@ var scheduledAtHourComboBox = new Ext.form.ComboBox({
   editable: true,
   valueField: 'text',
   triggerAction: 'all',
-  value: #{(@email.scheduled_at ? @email.scheduled_at.strftime("%I").to_i%12 : "0").to_json},  
+  value: #{(@email.scheduled_at ? @email.scheduled_at.strftime("%I").to_i%12 : "0").to_json}
 }); manager.add(scheduledAtHourComboBox);
 
 var scheduledAtMinuteComboBox = new Ext.form.ComboBox({
@@ -448,7 +448,7 @@ var scheduledAtMinuteComboBox = new Ext.form.ComboBox({
   editable: true,
   valueField: 'text',
   triggerAction: 'all',
-  value: #{(@email.scheduled_at ? @email.scheduled_at.strftime("%M") : "00").to_json},
+  value: #{(@email.scheduled_at ? @email.scheduled_at.strftime("%M") : "00").to_json}
 }); manager.add(scheduledAtMinuteComboBox);
 
 var scheduledAtAMPMComboBox = new Ext.form.ComboBox({
@@ -469,7 +469,7 @@ var scheduledAtAMPMComboBox = new Ext.form.ComboBox({
   hideLabel: true,
   valueField: 'text',
   triggerAction: 'all',
-  value: #{(@email.scheduled_at ? @email.scheduled_at.strftime("%p") : "AM").to_json},
+  value: #{(@email.scheduled_at ? @email.scheduled_at.strftime("%p") : "AM").to_json}
 }); manager.add(scheduledAtAMPMComboBox);
 
 var mailTypeComboBox = new Ext.form.ComboBox({
