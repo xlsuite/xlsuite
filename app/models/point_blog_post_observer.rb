@@ -324,6 +324,7 @@ class PointBlogPostObserver < ActiveRecord::Observer
 
   # Reduce points of the blog post author
   def after_destroy(blog_post)
+    return unless blog_post.author
     points = if BlogPost.count(:conditions => {:account_id => blog_post.account_id, :domain_id => blog_post.domain_id, :author_id => blog_post.author_id}) > 0
       BLOG_POST_CREATE
     else
