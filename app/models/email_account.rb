@@ -279,7 +279,7 @@
 # 
 # 		     END OF TERMS AND CONDITIONS
 class EmailAccount < ActiveRecord::Base
-  validates_presence_of :name, :server, :port, :username, :password, :account_id
+  validates_presence_of :server, :port, :username, :password, :account_id
   validates_inclusion_of :port, :within => 1..65535
   
   belongs_to :account
