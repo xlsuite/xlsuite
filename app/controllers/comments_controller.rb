@@ -508,7 +508,7 @@ class CommentsController < ApplicationController
     when Product
       [commentable.name, edit_product_path(commentable) ]
     when Profile
-      ["#{commentable.full_name}, #{commentable.company_name}", edit_profile_path(commentable.party)]
+      ["#{commentable.full_name}, #{commentable.company_name}", commentable.party ? edit_profile_path(commentable.party) : ""]
     when BlogPost
       [commentable.title, edit_blog_post_path(commentable)]
     else
