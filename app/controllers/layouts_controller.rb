@@ -424,7 +424,7 @@ class LayoutsController < ApplicationController
         revisions = []
         @layout.versions.all(:order => "version DESC").each do |v|
           revisions << {:id => v.id, :version => v.version, :created_at => v.updated_at.to_s, 
-            :updator => if (v.updator_id && Party.find(v.updator_id) &&(Party.find(:first, :conditions => "id = #{v.updator_id}", :select => "parties.account_id").account_id == current_account.id) )
+            :updator => if (v.updator_id && Party.find_by_id(v.updator_id) &&(Party.find(:first, :conditions => "id = #{v.updator_id}", :select => "parties.account_id").account_id == current_account.id) )
               u = current_account.parties.find(v.updator_id)
               u.full_name.blank? ? u.display_name : u.full_name
             else "Anonymous" end
