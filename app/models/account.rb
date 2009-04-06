@@ -76,8 +76,8 @@ class Account < ActiveRecord::Base
   # During signup, we ask the user for a template and modules to use
   attr_accessor :template_name, :selected_modules, :account_template_id
   
-  # Needed for embed suites feature, embed install form supposedly passes in both suite_id and referral_domain parameters
-  attr_accessor :suite_id, :referral_domain
+  # Needed for embed suites feature, embed install form supposedly passes in both suite_id parameters
+  attr_accessor :suite_id
 
   def selected_modules
     @selected_modules ||= []
