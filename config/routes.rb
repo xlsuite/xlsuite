@@ -327,7 +327,7 @@ ActionController::Routing::Routes.draw do |map|
         :member => {:update_new => :put},
         :collection => {:create_new => :post, :destroy_collection => :post}
     parties.resources :email_accounts, :controller => "email_accounts", :name_prefix => :party_,
-        :member => {:retrieve => :get}, :collection => { :retrieve_all => :get}
+        :member => {:test => :get}
     parties.resources :notes, :name_prefix => :party_
     map.with_options(:controller => "email_contact_routes", :action => "validate", :party_id => /\d+/) do |m|
       m.validate_emails "/admin/parties/:party_id/emails;validate"
