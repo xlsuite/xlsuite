@@ -1570,6 +1570,14 @@ class Party < ActiveRecord::Base
     end
   end
   
+  def own_imap_account?
+    ImapEmailAccount.count(:conditions => {:party_id => self.id, :account_id => self.account_id}) > 0 ? true : false
+  end
+  
+  def own_imap_account
+    ImapEmailAccount.first(:conditions => {:party_id => self.id, :account_id => self.account_id})
+  end
+  
   protected
   before_create :generate_random_uuid
 
