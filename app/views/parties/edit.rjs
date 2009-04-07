@@ -13,6 +13,8 @@ end
 tab_panel_title = @party.name.to_s.strip
 tab_panel_title = "Contact | Edit" if tab_panel_title.blank?
 
+conversations_with_url_json = formatted_conversations_with_emails_path(:format => :json, :party_id => @party.id).to_json
+
 page << create_tab_using_ajax_response(tab_panel_title) do
 %Q`
   #{self.initialize_contact_details_panel}
@@ -175,6 +177,49 @@ page << create_tab_using_ajax_response(tab_panel_title) do
     title:"Email Account"
     ,items:[imapSetupPanel]
   });
+  
+
+  var EmailRecord = new Ext.data.Record.create([
+    {name:'id'},
+    {name:'from'},
+    {name:'subject_with_body'},
+    {name:'date'},
+    {name: 'mailbox'},
+    {name:'email_account_id'}
+  ]);
+
+  var conversationReader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, EmailRecord);
+  var conversationProxy = new Ext.data.HttpProxy(new Ext.data.Connection({url:#{conversations_with_url_json}, method:'get'}));
+  var conversationStore = new Ext.data.Store({proxy:conversationProxy, reader:conversationReader, remoteSort:false});
+
+  var showEmailPath = #{email_path(:id => "__ID__").to_json};
+
+  var conversationGridPanel = new Ext.grid.GridPanel({
+    title:"Conversations",
+    store:conversationStore,
+    header:false,
+    cm: new Ext.grid.ColumnModel([
+      {id:"conversation-from", dataIndex:"from", sortable:false, width:200},
+      {id:"conversation-subject_with_body", dataIndex:"subject_with_body", sortable:false},
+      {id:"conversation-date", dataIndex:"date", sortable:false, width:100}
+    ]),
+    autoExpandColumn:"conversation-subject_with_body",
+    loadMask:true,
+    listeners:{
+      render:function(cpt){
+        cpt.getStore().load({params:{start:0}});
+      },
+      rowdblclick:function(cpt, rowIndex, event){
+        var record = cpt.getStore().getAt(rowIndex);
+        Ext.Ajax.request({
+          url:showEmailPath.replace(new RegExp("__ID__", "g"), record.get("id")),
+          params:{mailbox:record.get("mailbox"), email_account_id:record.get("email_account_id")},
+          method:"GET"
+        });
+      }
+    }
+  });
+
 
   var tabPanel = new Ext.TabPanel({
     activeTab: 0,
@@ -189,7 +234,8 @@ page << create_tab_using_ajax_response(tab_panel_title) do
       {title: "Notes", items:[notePanel], listeners: {show: function(panel){xl.viewport.render();}} },
       {title: "Testimonials", items:[testimonialsPanel], listeners: {show: function(panel){xl.viewport.render();}} },
       {title: "Organizations", html:"Under development", listeners: {show: function(panel){xl.viewport.render();}} },
-      emailAccountPanel
+      emailAccountPanel,
+      conversationGridPanel
     ]
   });
 
