@@ -242,6 +242,11 @@ xl.widget.FormField = function(config) {
     
     case 'datefield':
       field = new Ext.form.DateField(config);
+    break;
+    
+    case 'htmleditor':
+      field = new Ext.form.HtmlEditor(config);  
+    
   }
   
   if (config.noFieldLabel) {
@@ -317,51 +322,74 @@ xl.widget.InlineActiveField = function(config) {
   if (xl.widget.debug) { xl.log('About to set \'onchange\''); }
 
   var triggerEvent;
-  if (config.field.xtype == 'checkbox')
+  if (config.field.xtype == 'checkbox') 
     triggerEvent = 'check';
-  else
+  else 
     triggerEvent = 'change';
   
-  field.on(triggerEvent, function(me, newValue, oldValue) {
+  
+  var doAjaxUpdate = function(me, newValue, oldValue){
     // Ex - config.object = 'products', config.field.name = 'name' ->
     //      key = 'products[name]'
     param_name = "";
-    config.field.name.gsub('\\[', ',').gsub('\\]', ',').split(',').each(function(s){if(s.trim().length != 0)param_name = param_name.concat("\[", s, "\]");})
+    config.field.name.gsub('\\[', ',').gsub('\\]', ',').split(',').each(function(s){
+      if (s.trim().length != 0) 
+        param_name = param_name.concat("\[", s, "\]");
+    })
     var params = $H({}), key = config.object + param_name;
     
-    if (config.field.hiddenName){
+    if (config.field.hiddenName) {
       key = config.field.hiddenName;
     }
-  
-    if (config.field.xtype == 'datefield'){
+    
+    if (config.field.xtype == 'datefield') {
       newValue = me.value;
     }
     params.set(key, newValue.toString());
     params.update(config.params || {});
-    me.setDisabled(true);
-    me.getEl().setStyle('background-color', '#FFFCC4');
-
+    
+    if (config.field.xtype != 'htmleditor') {
+      me.setDisabled(true);
+      me.getEl().setStyle('background-color', '#FFFCC4');
+    }
+    
     Ext.Ajax.request({
       url: config.update.get('url'),
       params: params.toObject(),
       method: config.update.get('method') || 'put',
       
-      failure: function(xhr, options) {
+      failure: function(xhr, options){
         me.setRawValue(oldValue);
         me.setDisabled(false);
         me.getEl().setStyle('background-color', '#FFA091');
       },
-      success: function(xhr, options) {
+      success: function(xhr, options){
         if (xl.widget.debug) {
           xl.log('Changed ' + key + ' from ' + oldValue + ' to ' + newValue);
-          xl.log('Response was: ' + xhr.responseText);          
+          xl.log('Response was: ' + xhr.responseText);
         }
-        me.getEl().setStyle('background-color', 'white');
-        me.setDisabled(false);
-        if (config.afteredit) config.afteredit(oldValue, Ext.decode(xhr.responseText), xhr.responseText, me);
+        if (config.field.xtype != 'htmleditor') {
+          me.getEl().setStyle('background-color', 'white');
+          me.setDisabled(false);
+        }
+        if (config.afteredit) 
+          config.afteredit(oldValue, Ext.decode(xhr.responseText), xhr.responseText, me);
       }
     });
-  });
+  }
+  
+  if (config.field.xtype == 'htmleditor') {
+    field.on('render', function(me, html){
+      me.getEl().on('change', function(meEl, newValue, oldValue){
+        doAjaxUpdate(me, newValue.value, oldValue);
+      });
+    });
+    field.on('beforesync', function(me, html){
+      doAjaxUpdate(field, html, html);
+    }, this, {buffer:1500});
+  } else {
+    field.on(triggerEvent, doAjaxUpdate);
+  }
   
   if (xl.widget.debug) { xl.log('Leaving InlineActiveField'); }
   return field;
