@@ -79,6 +79,8 @@ end
 #   inflect.uncountable %w( fish sheep )
 # end
 
+require "net/imap"
+
 require "smalltalk"
 require 'extended_nil'
 require 'array_extensions'

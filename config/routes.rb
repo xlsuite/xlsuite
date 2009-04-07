@@ -327,7 +327,7 @@ ActionController::Routing::Routes.draw do |map|
         :member => {:update_new => :put},
         :collection => {:create_new => :post, :destroy_collection => :post}
     parties.resources :email_accounts, :controller => "email_accounts", :name_prefix => :party_,
-        :member => {:retrieve => :get}, :collection => { :retrieve_all => :get}
+        :member => {:test => :get}
     parties.resources :notes, :name_prefix => :party_
     map.with_options(:controller => "email_contact_routes", :action => "validate", :party_id => /\d+/) do |m|
       m.validate_emails "/admin/parties/:party_id/emails;validate"
@@ -397,7 +397,7 @@ ActionController::Routing::Routes.draw do |map|
       :async_get_mailbox_emails => :get, :async_get_email => :get,
       :sandbox => :get, :async_send => :post, :async_get_template_label_id_hashes => :get,
       :async_get_tags => :get, :async_get_searches => :get, :async_get_page_urls => :get, 
-      :save => :post, :update_west_console => :get
+      :save => :post, :update_west_console => :get, :conversations_with => :get
     }, :member => {
       :reply => :get, :reply_all => :get, :forward => :get, :release => :put, :async_mass_recipients_count => :get
     } do |email|

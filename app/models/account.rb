@@ -260,7 +260,8 @@ class Account < ActiveRecord::Base
         MethodCallbackFuture.create!(:priority => 75, :models => [stable_account], :account => self, :method => :copy_all_blogs_and_blog_posts_to!, :params => {:target_account_id => self.id, :overwrite => true}),
         MethodCallbackFuture.create!(:priority => 75, :models => [stable_account], :account => self, :method => :copy_all_workflows_to!, :params => {:target_account_id => self.id, :overwrite => true}),
         MethodCallbackFuture.create!(:priority => 75, :models => [stable_account], :account => self, :method => :copy_all_feeds_to!, :params => {:target_account_id => self.id, :overwrite => true}),
-        MethodCallbackFuture.create!(:priority => 75, :models => [stable_account], :account => self, :method => :copy_all_email_templates_to!, :params => {:target_account_id => self.id, :overwrite => true})
+        MethodCallbackFuture.create!(:priority => 75, :models => [stable_account], :account => self, :method => :copy_all_email_templates_to!, :params => {:target_account_id => self.id, :overwrite => true}),
+        MethodCallbackFuture.create!(:priority => 75, :models => [stable_account], :account => self, :method => :copy_all_links_to!, :params => {:target_account_id => self.id, :overwrite => true})
       ]
       callbacks_future = MethodCallbackFuture.create!(:models => [self], :account => self, :method => :callbacks_after_account_install, :repeat_until_true => true, 
             :params => {:future_ids => copy_futures.map(&:id), :type => "account_install", :stable_account => stable_account}, :priority => 75)
@@ -754,6 +755,15 @@ class Account < ActiveRecord::Base
       next if target_acct.templates.find_by_label(template.label)
       new_template = target_acct.templates.new(template.attributes_for_copy_to(target_acct))
       new_template.save(false)
+    end
+  end
+  
+  def copy_all_links_to!(options)
+    logger.debug("==> Copying links to target account")
+    target_acct = Account.find(options[:target_account_id])
+    self.links.each do |link|
+      new_link = target_acct.links.new(link.attributes_for_copy_to(target_acct))
+      new_link.save(false)
     end
   end
   

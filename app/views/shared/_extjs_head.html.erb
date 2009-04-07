@@ -70,26 +70,6 @@
 
 <iframe id='file-upload-iframe' name='file-upload-iframe' style="display: none"></iframe>
 
-<script> 
-  //Retreive any new email messages from pop3 and refresh unread messages
-  unreadMailRetrieve = function(){
-    var old_title = $('mail-panel-title').innerHTML;
-    new Ajax.Request("<%=retrieve_all_party_email_accounts_path(:party_id => current_user)%>", {asynchronous:true, evalScripts:true, method:'get', 
-      onCreate: function(){$('mail-panel-title').update("Unread Messages Loading...");}, 
-      onFailure: function(){$('mail-panel-title').update(old_title);}}); 
-  }
-  
-  emailOnClick = function(id, mailbox){
-    if (xl.runningTabs.get("emails_sandbox_nil")) {
-      xl.email.asyncLoadMessage(id, "email_sandbox_message_panel");
-    }
-    else{
-      xl.openNewTabPanel('emails_'+mailbox+'_nil', '<%=sandbox_emails_path%>?mailbox='+mailbox+'&email_to_open='+id);
-    }
-
-  }
-</script>
-
 <%= javascript_tag %Q~
     function toggleFolder(folder_id) {
       var ahrefIdName = "togglelink_" + folder_id

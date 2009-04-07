@@ -8,6 +8,9 @@ class Party < ActiveRecord::Base
   include WhiteListHelper
   include XlSuite::PicturesHelper
 
+  extend ActionView::Helpers::SanitizeHelper::ClassMethods
+  include ActionView::Helpers::SanitizeHelper
+
   attr_accessor :update_effective_permissions
   attr_protected :update_effective_permissions
   
@@ -1291,6 +1294,106 @@ class Party < ActiveRecord::Base
         domain_monthly_point = self.domain_monthly_points.create!(:own_point => points, :domain_id => domain.id, :account_id => self.account_id, :party_id => self.id, :month => month, :year => year)
       end
     end
+  end
+  
+  def own_imap_account?
+    ImapEmailAccount.count(:conditions => {:party_id => self.id, :account_id => self.account_id}) > 0 ? true : false
+  end
+  
+  def own_imap_account
+    ImapEmailAccount.first(:conditions => {:party_id => self.id, :account_id => self.account_id})
+  end
+  
+  def all_imap_accounts
+    out = []
+    out << self.own_imap_account if self.own_imap_account? && self.own_imap_account.enabled?
+    out
+  end
+  
+  def email_conversations_with(target_party, since=2.weeks.ago)
+    target_email_addresses = target_party.email_addresses.all(:select => "email_address").map(&:email_address)
+    email_address_prefixes = target_email_addresses.map{|e| e.split("@").first}.uniq
+    emails = []
+    t_emails = nil
+    all_imap_accounts.each do |imap_account|
+      begin
+      
+      # setup the IMAP connection and login
+      imap = Net::IMAP.new(imap_account.connecting_server, imap_account.connecting_port)
+      imap.login(imap_account.username, imap_account.password)
+      
+      # TODO need to implement a more powerful method than these two level checks
+      mailboxes = []
+      root_mailboxes = imap.list("", "%")
+      mailboxes += root_mailboxes
+      root_mailboxes.each do |root_mailbox|
+        result = imap.list("", (root_mailbox.name + root_mailbox.delim + "%"))
+        mailboxes += result if result
+      end
+      # END OF TODO
+      
+      # only include INBOX and SENT here      
+      mailboxes = mailboxes.map(&:name)
+      mailboxes.uniq!
+      inbox_mailbox = nil
+      sent_mailbox = nil
+      mailboxes.each do |mailbox|
+        case mailbox
+        when /inbox/i
+          inbox_mailbox = mailbox
+        when /sent/i
+          sent_mailbox = mailbox
+        end
+      end
+      
+      [inbox_mailbox, sent_mailbox].compact.each do |mailbox|
+        external_email_ids = []
+        imap.examine(mailbox)
+        email_address_prefixes.each do |prefix|
+          ["FROM", "CC", "TO"].each do |field|
+            temp = ["SINCE", since.strftime("%d-%b-%Y"), field, prefix]
+            external_email_ids += imap.uid_search(temp)
+          end
+        end
+
+        next if external_email_ids.empty?
+        t_emails = imap.uid_fetch(external_email_ids, ["ENVELOPE", "BODY[TEXT]", "UID"]).map{|e| {:envelope => e.attr["ENVELOPE"], :body_text => e.attr["BODY[TEXT]"], :uid => e.attr["UID"]}}
+        from_string, imap_address, envelope = nil, nil, nil
+        t_emails.each do |email_attr|
+          # TODO needs to perform another filtering here, check for the exact email address not just using prefix
+          envelope = email_attr[:envelope]
+          imap_address = envelope.from.first
+          from_string = imap_address.name
+          from_string = imap_address.mailbox unless from_string
+          
+          emails << {
+            :id => email_attr[:uid],
+            :from => from_string,
+            :subject_with_body => (envelope.subject + " - " + ActionView::Helpers::TextHelper.truncate(self.strip_tags(email_attr[:body_text]), :length => 50)),
+            :date => Time.parse(envelope.date),
+            :email_account_id => imap_account.id,
+            :mailbox => mailbox
+          }
+        end
+      end
+
+      ensure
+      imap.disconnect
+      end
+    end
+    emails = emails.sort_by{|e| e[:date]}.reverse
+    out = []
+    emails.each do |email|
+      out << {
+        :id => email[:id],
+        :from => email[:from],
+        :subject_with_body => email[:subject_with_body],
+        :date => email[:date].strftime("%b %d, %Y"),
+        :email_account_id => email[:email_account_id],
+        :mailbox => email[:mailbox]
+      }
+    end
+    out
   end
   
   protected

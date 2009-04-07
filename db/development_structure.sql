@@ -82,6 +82,7 @@ CREATE TABLE `accounts` (
   `confirmation_token` varchar(255) default NULL,
   `order_id` int(11) default NULL,
   `signup_account_id` int(11) default NULL,
+  `referral_domain` varchar(255) default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -614,6 +615,7 @@ CREATE TABLE `email_accounts` (
   `party_id` int(8) default NULL,
   `error_message` text,
   `failures` int(11) default NULL,
+  `enabled` tinyint(1) default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -2531,3 +2533,7 @@ INSERT INTO schema_migrations (version) VALUES ('20090330224853');
 INSERT INTO schema_migrations (version) VALUES ('20090330233118');
 
 INSERT INTO schema_migrations (version) VALUES ('20090331011916');
+
+INSERT INTO schema_migrations (version) VALUES ('20090403214728');
+
+INSERT INTO schema_migrations (version) VALUES ('20090406205518');

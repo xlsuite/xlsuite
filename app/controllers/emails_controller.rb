@@ -2,15 +2,89 @@
 #- Copyright 2005-2009 iXLd Media Inc.  See LICENSE for details.
 
 class EmailsController < ApplicationController
+  extend ActionView::Helpers::SanitizeHelper::ClassMethods
+  include ActionView::Helpers::SanitizeHelper
+  
   required_permissions %w(async_get_page_urls async_get_tags async_get_searches async_get_template_label_id_hashes 
       async_send sandbox async_get_email async_get_mailbox_emails async_get_account_addresses sandbox_new async_destroy_collection update_west_console
-      show_all_emails show_sent_and_read_emails show_unread_emails index new show reply reply_all forward save edit update release destroy async_mass_recipients_count) => "current_user?", 
+      index conversations_with show_all_emails show_sent_and_read_emails show_unread_emails index new show reply reply_all forward save edit update release destroy async_mass_recipients_count) => "current_user?", 
    %w(create) => :send_mail
 
-  before_filter :load_email, :only => %w(show edit update reply reply_all forward release async_mass_recipients_count)
+  before_filter :load_email, :only => %w(edit update reply reply_all forward release async_mass_recipients_count)
   with_options(:only => %w(new edit reply reply_all forward)) do |c|
     c.before_filter :get_email_addresses 
     c.before_filter :get_tags_and_groups_and_searches
+  end
+  
+  def index
+    respond_to do |format|
+      format.js
+      format.json do
+        limit = params[:limit].to_i || 50
+        start = params[:start].to_i || 0
+        out = []
+        total = 0
+
+        imap_account = self.current_user.own_imap_account? ? self.current_user.own_imap_account : nil
+        if imap_account
+          break unless imap_account.enabled?
+          imap = Net::IMAP.new(imap_account.connecting_server, imap_account.connecting_port)
+          imap.login(imap_account.username, imap_account.password)
+          total = imap.status("INBOX",["MESSAGES"])["MESSAGES"]
+          examine = imap.examine('INBOX')
+          latest_count = total - start
+          earliest_count = latest_count - limit + 1
+          earliest_count = 1 if earliest_count < 1
+          @emails = imap.fetch(earliest_count..latest_count, ["ENVELOPE", "BODY[TEXT]", "UID"]).map{|e| {:envelope => e.attr["ENVELOPE"], :body_text => e.attr["BODY[TEXT]"], :uid => e.attr["UID"]}}.reverse
+          from_string, imap_address, envelope = nil, nil, nil
+          @emails.each do |email_attr|
+            envelope = email_attr[:envelope]
+            imap_address = envelope.from.first
+            from_string = imap_address.name
+            from_string = imap_address.mailbox unless from_string
+            
+            out << {
+              :id => email_attr[:uid],
+              :from => from_string,
+              :subject_with_body => (envelope.subject + " - " + ActionView::Helpers::TextHelper.truncate(self.strip_tags(email_attr[:body_text]), :length => 50)),
+              :date => Time.parse(envelope.date).strftime("%b %d, %Y"),
+              :mailbox => "inbox"
+            }
+          end
+          imap.disconnect
+        end
+        render(:json => {:collection => out, :total => total}.to_json)
+      end
+    end
+  end
+  
+  def show
+    if params[:email_account_id]
+      @email_account = EmailAccount.find(params[:email_account_id])
+    else
+      @email_account = self.current_user.own_imap_account
+    end
+    imap = Net::IMAP.new(@email_account.connecting_server, @email_account.connecting_port) 
+    imap.login(@email_account.username, @email_account.password)
+    imap.examine(params[:mailbox])
+    @email = imap.uid_fetch(params[:id].to_i, ["ENVELOPE", "BODY[TEXT]"]).first
+    @content = @email.attr["BODY[TEXT]"]
+    @envelope = ImapEnvelope.new(@email.attr["ENVELOPE"])
+    imap.disconnect
+    respond_to do |format|
+      format.js
+    end
+  end
+  
+  def conversations_with
+    raise StandardError, "Please include party_id as one of the parameters" unless params[:party_id]
+    @target_party = self.current_account.parties.find(params[:party_id])
+    @emails = self.current_user.email_conversations_with(@target_party)
+    respond_to do |format|
+      format.json do
+        render(:json => {:collection => @emails, :total => @emails.size}.to_json)
+      end
+    end
   end
 
   def show_all_emails
@@ -183,6 +257,7 @@ class EmailsController < ApplicationController
     #render :partial => 'sandbox', :layout => false
   end
   
+=begin
   def index
     @mailboxNames = %w(inbox outbox draft sent)
   
@@ -214,7 +289,9 @@ class EmailsController < ApplicationController
       format.xml { render(:text => current_user.find_unread_emails({:limit => 30}).to_xml.sub("<emails>", "<emails total='#{@emails.size}'>")) }
     end
   end
+=end
 
+=begin
   def show
     respond_to do |format|
       format.html do
@@ -228,6 +305,7 @@ class EmailsController < ApplicationController
       end
     end
   end
+=end
   
   def update_west_console
     @unread_emails = current_user.find_unread_emails({:limit => 30})

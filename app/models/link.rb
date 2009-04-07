@@ -82,6 +82,9 @@ class Link < ActiveRecord::Base
     self.tags.map(&:name)
   end
   
+  def attributes_for_copy_to(account)
+    self.attributes.dup.symbolize_keys.merge(:account_id => account.id, :tag_list => self.tag_list)
+  end
 protected
   def normalize_url
     return if self.url.blank?

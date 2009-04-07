@@ -276,6 +276,9 @@ class PartiesController < ApplicationController
     @formatted_permission_denials_path = formatted_permission_denials_path(:assignee_id => @party.id, :assignee_type => "Party", :format => "json")
     @permission_denials_path = permission_denials_path(:assignee_type => "Party", :assignee_id => @party.id)
     @destroy_collection_permission_denials_path = destroy_collection_permission_denials_path(:assignee_type => "Party", :assignee_id => @party.id)
+    
+    @imap_account = @party.own_imap_account? ? @party.own_imap_account : ImapEmailAccount.new
+    
     respond_to do |format|
       format.js
     end

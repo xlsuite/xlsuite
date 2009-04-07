@@ -266,10 +266,18 @@ page << create_tab_using_ajax_response("Comments Index", after_render) do
 
     switch(columnIndex){
       case grid.getColumnModel().getIndexById("comment-type"):
-        xl.openNewTabPanel('blog_post_edit_'+record.data.commentable_id, record.data.commentable_path);
+        if(record.data.commentable_path.length == 0){
+          Ext.Msg.alert("Error", record.data.commentable_type + " has been deleted.");
+        }else{
+          xl.openNewTabPanel('blog_post_edit_'+record.data.commentable_id, record.data.commentable_path);
+        }
         break;
       case grid.getColumnModel().getIndexById("comment-description"):
-        xl.openNewTabPanel('blog_post_edit_'+record.data.commentable_id, record.data.commentable_path);
+        if(record.data.commentable_path.length == 0){
+          Ext.Msg.alert("Error", record.data.commentable_type + " has been deleted.");
+        }else{
+          xl.openNewTabPanel('blog_post_edit_'+record.data.commentable_id, record.data.commentable_path);
+        }
         break;
       default:
         break;
