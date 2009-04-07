@@ -279,6 +279,42 @@
 # 
 # 		     END OF TERMS AND CONDITIONS
 module EmailsHelper
+  def initialize_email_inbox_grid
+    %Q`
+    var inboxGridPanel = new Ext.grid.GridPanel({
+      title:"Inbox",
+      store:store,
+      header:false,
+      cm: new Ext.grid.ColumnModel([
+        {dataIndex:"from", sortable:false},
+        {dataIndex:"subject_with_body", sortable:false},
+        {dataIndex:"date", sortable:false}
+      ])
+    });
+    `
+  end
+  
+  def ccs_and_bccs_items
+    out = ""
+    logger.debug("^^^#{@envelope.ccs_name_with_address.inspect}")
+    unless @envelope.ccs_name_with_address.empty?
+      out <<
+        %Q`
+        ,{html:"Cc"}, {html:":"}
+        ,{html:#{html_escape(@envelope.ccs_name_with_address.join(",")).to_json}}
+        `
+    end
+    logger.debug("^^^#{@envelope.bccs_name_with_address.inspect}")
+    unless @envelope.bccs_name_with_address.empty? 
+      out <<
+        %Q`
+        ,{html:"Bcc"}, {html:":"}
+        ,{html:#{html_escape(@envelope.bccs_name_with_address.join(",")).to_json}}
+        `
+    end
+    out
+  end
+
   def open_email_after_render
     out = ""
     if @email_to_open
