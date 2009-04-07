@@ -367,6 +367,12 @@ module AccountTemplatesHelper
           name: "push[email_templates]",
           fieldLabel: "Email Templates"
         });
+
+        var pushLinksCheckboxField = new Ext.form.Checkbox({
+          checked: true,
+          name: "push[links]",
+          fieldLabel: "Links"
+        });
         
         var pushFormPanel = new Ext.form.FormPanel({
           items: [
@@ -380,7 +386,8 @@ module AccountTemplatesHelper
             pushBlogsCheckboxField,
             pushWorkflowsCheckboxField,
             pushFeedsCheckboxField,
-            pushEmailTemplatesCheckboxField
+            pushEmailTemplatesCheckboxField,
+            pushLinksCheckboxField
           ]
         });
         

@@ -380,6 +380,10 @@ class AccountTemplate < ActiveRecord::Base
         copy_futures << MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_email_templates_to!)
         object_pushed = true
       end
+      if options[:links]
+        copy_futures << MethodCallbackFuture.create!(:account => self.trunk_account, :model => self.trunk_account, :params => options, :method => :copy_all_links_to!)
+        object_pushed = true
+      end
       return false unless object_pushed
       callbacks_future = MethodCallbackFuture.create!(:models => [self], :account => new_account, :method => :callbacks_after_template_push, :repeat_until_true => true, 
             :params => {:future_ids => copy_futures.map(&:id), :target_account_id => new_account.id}, :priority => 75)
