@@ -1986,6 +1986,14 @@ CREATE TABLE `sessions` (
   UNIQUE KEY `sessid` (`sessid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `shared_email_accounts` (
+  `id` int(11) NOT NULL auto_increment,
+  `email_account_id` int(11) default NULL,
+  `target_type` varchar(255) default NULL,
+  `target_id` int(11) default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `sort_lines` (
   `id` int(11) NOT NULL auto_increment,
   `order_name` varchar(40) default NULL,
@@ -2537,3 +2545,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090331011916');
 INSERT INTO schema_migrations (version) VALUES ('20090403214728');
 
 INSERT INTO schema_migrations (version) VALUES ('20090406205518');
+
+INSERT INTO schema_migrations (version) VALUES ('20090407191547');
