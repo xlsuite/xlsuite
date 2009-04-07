@@ -1,0 +1,64 @@
+inbox_url_json = formatted_emails_path(:format => :json, :mailbox => "inbox").to_json
+limit=50
+page << create_tab_using_ajax_response("My Emails") do
+%Q`
+  var EmailRecord = new Ext.data.Record.create([
+    {name:'id'},
+	  {name:'from'},
+	  {name:'subject_with_body'},
+    {name:'date'},
+    {name:'mailbox'}
+  ]);
+
+  var inboxReader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, EmailRecord);
+  var inboxProxy = new Ext.data.HttpProxy(new Ext.data.Connection({url:#{inbox_url_json}, method:'get'}));
+  var inboxStore = new Ext.data.Store({proxy:inboxProxy, reader:inboxReader, remoteSort:false});
+
+  var inboxPagingToolbar = new Ext.PagingToolbar({
+    store:inboxStore,
+    pageSize:#{limit},
+    displayInfo:true,
+    displayMsg:'Displaying {0} to {1} of {2}',
+    emptyMsg:"No record to display",
+    cls:"bottom-toolbar paging-toolbar-bottom",
+    plugins:[new Ext.ux.PageSizePlugin]
+  });
+
+  var showEmailPath = #{email_path(:id => "__ID__").to_json};
+
+  var inboxGridPanel = new Ext.grid.GridPanel({
+    title:"Inbox",
+    store:inboxStore,
+    header:false,
+    cm: new Ext.grid.ColumnModel([
+      {id:"inbox-from", dataIndex:"from", sortable:false, width:200},
+      {id:"inbox-subject_with_body", dataIndex:"subject_with_body", sortable:false},
+      {id:"inbox-date", dataIndex:"date", sortable:false, width:100}
+    ]),
+    autoExpandColumn:"inbox-subject_with_body",
+    bbar:[inboxPagingToolbar],
+    loadMask:true,
+    listeners:{
+      render:function(cpt){
+        cpt.getStore().load({params:{start:0, limit:#{limit}}});
+      },
+      rowdblclick:function(cpt, rowIndex, event){
+        var record = cpt.getStore().getAt(rowIndex);
+        Ext.Ajax.request({
+          url:showEmailPath.replace(new RegExp("__ID__", "g"), record.get("id")),
+          params:{mailbox:record.get("mailbox")},
+          method:"GET"
+        });
+      }
+    }
+  });
+
+  var tabPanel = new Ext.TabPanel({
+    activeTab:0,
+    tabPosition:"bottom",
+    items:[inboxGridPanel]
+  });
+
+  newPanel.add(tabPanel);
+`
+end
