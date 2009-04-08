@@ -556,6 +556,13 @@ class PartiesController < ApplicationController
     
     @imap_account = @party.own_imap_account? ? @party.own_imap_account : ImapEmailAccount.new
     
+    @disable_share_imap = true
+    if self.current_user.id == @party.id
+      @disable_share_imap = true
+    else
+      @disable_share_imap = !self.current_user.own_imap_account?
+    end
+    @current_user_imap_account = self.current_user.own_imap_account? ? self.current_user.own_imap_account : ImapEmailAccount.new
     respond_to do |format|
       format.js
     end
