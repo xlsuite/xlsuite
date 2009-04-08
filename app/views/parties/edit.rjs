@@ -167,16 +167,55 @@ page << create_tab_using_ajax_response(tab_panel_title) do
   });
   
   var imapSetupPanel = new Ext.Panel({
-    title:"IMAP Setup"
-    ,layout:"form"
+    layout:"form"
     ,items:[imapTypeSelection,fakeImapServerPortWrapper,imapSetupUsername,imapSetupPassword]
-    ,bbar:[imapSaveButton, imapTestButton]
+    ,tbar:[imapSaveButton, imapTestButton]
   });
   
-  var emailAccountPanel = new Ext.Panel({
-    title:"Email Account"
-    ,items:[imapSetupPanel]
+  var emailAccountRolesRootTreeNode =  new Ext.tree.AsyncTreeNode({
+    text:"Role - Root"
+    ,expanded:true
+    ,id:0
   });
+
+  var emailAccountRolesFileTreePanel = new Ext.tree.TreePanel({
+    title:"Sharing with Roles"
+    ,root:emailAccountRolesRootTreeNode
+    ,rootVisible: false
+    ,disabled:#{!@party.own_imap_account?.to_json}
+    ,height:200
+    ,autoScroll:true
+    ,loader:new Ext.tree.TreeLoader({
+      requestMethod: "GET"
+      ,url: #{formatted_roles_tree_shared_email_accounts_path(:email_account_id => @imap_account.id, :format => :json).to_json}
+      ,baseAttrs: {uiProvider: Ext.tree.TreeCheckNodeUI}
+    })
+    ,listeners:{
+      check: function(node, checked){
+        var url = null;
+        var method = null;
+        if(checked){
+          url = #{shared_email_accounts_path.to_json};
+          method = "POST";
+        }
+        else{
+          url = #{remove_shared_email_accounts_path.to_json};
+          method = "DELETE";
+        }
+        Ext.Ajax.request({
+          url:url
+          ,method:method
+          ,params:{target_type:"Role",target_id:node.id,email_account_id:imapEmailAccountId}
+        });
+      }
+    }
+  });
+
+  var emailAccountPanel = new Ext.Panel({
+    title:"IMAP Setup"
+    ,items:[imapSetupPanel, emailAccountRolesFileTreePanel]
+  });
+
   
 
   var EmailRecord = new Ext.data.Record.create([

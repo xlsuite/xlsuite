@@ -12,4 +12,8 @@ class SnippetDrop < Liquid::Drop
   def split_body
     self.snippet.body.split(",")
   end
+  
+  def json_body
+    self.snippet.body.to_json
+  end
 end

@@ -85,9 +85,14 @@ module XlSuite
         from_ids = []
         if @options[:from]
           ids = [context_options[:from]].flatten.map(&:id)
-          if [context_options[:from]].flatten.first.class == BlogPost
+          
+          if [context_options[:from]].flatten.first.class.name =~ /BlogPost/i
             ids = ids.map(&:to_i)
-            conditions << "comments.commentable_id IN (#{ids.join(",")}) AND comments.commentable_type = 'BlogPost'" unless ids.empty?
+            if ids.empty?
+              conditions << "comments.commentable_id IN (0)"
+            else
+              conditions << "comments.commentable_id IN (#{ids.join(",")}) AND comments.commentable_type = 'BlogPost'" 
+            end
           end
         end
 

@@ -1,0 +1,31 @@
+page << create_tab_using_ajax_response("Email Show") do
+%Q`  
+  var headerPanel = new Ext.Panel({
+    layout:"table"
+    ,border:true
+    ,layoutConfig:{columns:3}
+    ,items:[
+      {html:"From"}, {html:":"}
+      ,{html:#{html_escape(@envelope.from_name_with_address).to_json}}
+      ,{html:"To"}, {html:":"}
+      ,{html:#{html_escape(@envelope.tos_name_with_address.join(",")).to_json}}
+      #{self.ccs_and_bccs_items}
+      ,{html:"Date"}, {html:":"}
+      ,{html:#{html_escape(@envelope.date).to_json}}
+      ,{html:"Subject"}, {html:":"}
+      ,{html:#{html_escape(@envelope.subject).to_json}}
+    ]
+  });
+
+  var bodyPanel = new Ext.Panel({
+    border:true
+    ,html:#{@content.to_json}
+  });
+  
+  var contentPanel = new Ext.Panel({
+    items:[headerPanel, {html:"<br/>"}, bodyPanel]
+  });
+  
+  newPanel.add(contentPanel)
+`
+end

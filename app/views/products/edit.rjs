@@ -822,7 +822,7 @@ page << create_tab_using_ajax_response("Product | #{truncate(@product.name, 20)}
     form: form,
     field: {
       name: "web_copy",
-      type: "textarea",
+      type: "htmleditor",
       value: #{@product.web_copy.to_json},
       listeners: {
         render: function(cpt){xl.fitToOwnerCtWidth(cpt); cpt.getEl().setHeight(200);},
