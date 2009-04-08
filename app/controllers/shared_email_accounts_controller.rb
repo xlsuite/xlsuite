@@ -287,9 +287,13 @@ class SharedEmailAccountsController < ApplicationController
     @shared_email_account = SharedEmailAccount.new(:target_type => params[:target_type], :target_id => params[:target_id])
     @shared_email_account.email_account = @email_account
     @created = @shared_email_account.save
+    errors = []
+    unless @created
+      errors = ["Sharing has already been setup"]
+    end
     respond_to do |format|
       format.js do
-        render(:json => {:success => @created, :errors => @shared_email_account.errors.full_messages}.to_json)
+        render(:json => {:success => @created, :errors => errors}.to_json)
       end
     end
   end
@@ -325,7 +329,7 @@ class SharedEmailAccountsController < ApplicationController
   def parties
     if params[:email_account_id]
       self.load_email_account
-      @shared_email_accounts = @email_account.all(
+      @shared_email_accounts = @email_account.shared_email_accounts.all(
         :select => "parties.id, parties.display_name",
         :joins => "INNER JOIN parties ON parties.id = target_id AND target_type='Party'",
         :conditions => {:target_type => "Party"})
