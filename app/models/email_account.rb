@@ -285,6 +285,8 @@ class EmailAccount < ActiveRecord::Base
   belongs_to :account
   belongs_to :party
 
+  has_many :shared_email_accounts
+
   def access_method
     self.class.name.gsub('EmailAccount', '').upcase
   end
