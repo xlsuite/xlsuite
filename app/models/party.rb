@@ -1582,9 +1582,18 @@ class Party < ActiveRecord::Base
   end
   
   def all_imap_accounts
-    out = []
-    out << self.own_imap_account if self.own_imap_account? && self.own_imap_account.enabled?
-    out
+    email_account_ids = []
+    t_role_ids = self.roles.all(:select => "roles.id").map(&:id)
+    t_shared_email_accounts = SharedEmailAccount.all(:select => "email_account_id",
+      :conditions => {:target_type => "Role", :target_id => t_role_ids}).map(&:email_account_id)
+    email_account_ids += t_shared_email_accounts
+    t_shared_email_accounts = SharedEmailAccount.all(:select => "email_account_id",
+      :conditions => {:target_type => "Party", :target_id => self.id}).map(&:email_account_id)
+    email_account_ids += t_shared_email_accounts
+    email_account_ids << self.own_imap_account.id if self.own_imap_account? && self.own_imap_account.enabled?
+    email_account_ids.uniq!
+    return [] if email_account_ids.empty?
+    ImapEmailAccount.all(:conditions => {:id => email_account_ids, :enabled => true})
   end
   
   def email_conversations_with(target_party, since=2.weeks.ago)
@@ -1592,7 +1601,7 @@ class Party < ActiveRecord::Base
     email_address_prefixes = target_email_addresses.map{|e| e.split("@").first}.uniq
     emails = []
     t_emails = nil
-    all_imap_accounts.each do |imap_account|
+    self.all_imap_accounts.each do |imap_account|
       begin
       
       # setup the IMAP connection and login
