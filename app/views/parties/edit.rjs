@@ -230,6 +230,9 @@ page << create_tab_using_ajax_response(tab_panel_title) do
           ,params:{target_type:"Role",target_id:node.id,email_account_id:imapEmailAccountId}
         });
       }
+      ,render:function(cpt){
+        cpt.setHeight(cpt.ownerCt.ownerCt.getSize().height-imapSetupPanel.getSize().height);
+      }
     }
   });
 
@@ -249,6 +252,48 @@ page << create_tab_using_ajax_response(tab_panel_title) do
     ,autoLoad:true
   });
   
+  var removeSharedPartyButton = new Ext.Toolbar.Button({
+    text:"Remove"
+    ,disabled:true
+    ,handler:function(btn){
+      Ext.Ajax.request({
+        url:#{remove_collection_shared_email_accounts_path.to_json}
+        ,params:{"target_type":"Party","target_ids":selectedSharedPartyIds.join(","),"email_account_id":#{@imap_account.id}}
+        ,method:"DELETE"
+        ,success:function(response, options){
+          var response = Ext.decode(response.responseText)
+          if(response.success){
+            sharedPartyStore.reload();
+          }
+        }
+      })
+    }
+  });
+  
+  var emailAccountPartiesTopToolbar = new Ext.Toolbar({
+    items:[removeSharedPartyButton]
+  });
+
+  var selectedSharedPartyIds = null;
+
+  var emailAccountPartiesSelectionModel = new Ext.grid.RowSelectionModel({
+    listeners:{
+      selectionchange:function(sm){
+        var records = sm.getSelections();
+        selectedSharedPartyIds = [];
+        for(var i=0;i<records.length;i++){
+          selectedSharedPartyIds.push(records[i].get("id"));
+        }
+        if(selectedSharedPartyIds.length>0){
+          removeSharedPartyButton.enable();
+        }
+        else{
+          removeSharedPartyButton.disable();
+        }
+      }
+    }
+  });
+  
   var emailAccountPartiesGridPanel = new Ext.grid.GridPanel({
     title:"Sharing with contacts"
     ,columnWidth:.5
@@ -256,8 +301,15 @@ page << create_tab_using_ajax_response(tab_panel_title) do
     ,cm:new Ext.grid.ColumnModel([
       {id:"name",header:"Name",dataIndex:"display_name"}
     ])
+    ,sm:emailAccountPartiesSelectionModel
+    ,bbar:emailAccountPartiesTopToolbar
     ,autoExpandColumn:"name"
     ,emptyText:"Not sharing with any contact"
+    ,listeners:{
+      render:function(cpt){
+        cpt.setHeight(cpt.ownerCt.ownerCt.getSize().height-imapSetupPanel.getSize().height);
+      }
+    }
   });
   
   var emailAccountPanel = new Ext.Panel({
