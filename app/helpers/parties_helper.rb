@@ -1164,7 +1164,6 @@ module PartiesHelper
       },
       autoScroll: true,
       autoWidth: true,
-      autoHeight: true,
       clicksToEdit:1
     `
   end
@@ -1860,6 +1859,7 @@ module PartiesHelper
       });
 
       var contactRoutesPanel = new Ext.Panel({
+        title: "Contact Routes",
         tbar: [
           {
             text:"Add",
@@ -1867,21 +1867,17 @@ module PartiesHelper
           }
         ],
         defaults: { style: "padding-bottom: 20px"},
+        layout: 'column',
         items:[
-          addressGridPanel,
-          {
-            layout: 'column',
-            defaults: {columnWidth: 1/3},
-            items: [
-              emailGridPanel,
-              {
+          {columnWidth:1, items:[addressGridPanel]},
+          {columnWidth: 1/3, items: [emailGridPanel]},
+          {columnWidth: 1/3, items: [{
                 style:"padding-left:5px; padding-right:5px",
                 items:[phoneGridPanel]
-              },
-              linkGridPanel
-            ]
-          }
-        ]
+              }]},
+          {columnWidth: 1/3, items: [linkGridPanel]}
+        ],
+        autoScroll:true
       });
     `
   end

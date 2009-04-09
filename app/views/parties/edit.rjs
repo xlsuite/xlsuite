@@ -370,7 +370,7 @@ page << create_tab_using_ajax_response(tab_panel_title) do
     layoutOnTabChange: true,
     items:[
       {title: "Contact Details", items:[contactDetailsPanel], autoScroll: true, listeners: {show: function(panel){xl.viewport.render();}} },
-      {title: "Contact Routes", items:[contactRoutesPanel], listeners: {show: function(panel){xl.viewport.render();}} },
+      contactRoutesPanel,
       #{memberships_and_permissions_tabpanels}
       {title: "Settings", items:[settingsPanel], listeners: {show: function(panel){xl.viewport.render();}} },
       {title: "Files", items:[filesPanel], listeners: {show: function(panel){xl.viewport.render();}} },
