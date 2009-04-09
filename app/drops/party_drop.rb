@@ -386,4 +386,11 @@ class PartyDrop < Liquid::Drop
       end
     end_eval
   end
+  
+  def before_method(method)
+    if method.to_s =~ /^has_permission_(.*)/i
+      return self.party.can?($1)
+    end
+    nil
+  end
 end
