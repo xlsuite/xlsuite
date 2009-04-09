@@ -168,7 +168,7 @@ page << create_tab_using_ajax_response(tab_panel_title) do
       Ext.Ajax.request({
         url:#{shared_email_accounts_path(:email_account_id => @current_user_imap_account.id).to_json}
         ,method:"POST"
-        ,params:{"target_type":"Party","target_id":#{@party.id}}
+        ,params:{"target_type":"Party","target_id":#{@party.id.to_json}}
         ,success:function(response,options){
           var response = Ext.decode(response.responseText);
           if(response.success){
@@ -258,7 +258,7 @@ page << create_tab_using_ajax_response(tab_panel_title) do
     ,handler:function(btn){
       Ext.Ajax.request({
         url:#{remove_collection_shared_email_accounts_path.to_json}
-        ,params:{"target_type":"Party","target_ids":selectedSharedPartyIds.join(","),"email_account_id":#{@imap_account.id}}
+        ,params:{"target_type":"Party","target_ids":selectedSharedPartyIds.join(","),"email_account_id":#{@imap_account.id.to_json}}
         ,method:"DELETE"
         ,success:function(response, options){
           var response = Ext.decode(response.responseText)
