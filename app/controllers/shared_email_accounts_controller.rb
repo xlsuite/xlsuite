@@ -281,7 +281,7 @@
 class SharedEmailAccountsController < ApplicationController
   required_permissions :none
   
-  before_filter :load_email_account, :only => [:create, :remove]
+  before_filter :load_email_account, :only => [:create, :remove, :remove_collection]
 
   def create
     @shared_email_account = SharedEmailAccount.new(:target_type => params[:target_type], :target_id => params[:target_id])
@@ -309,6 +309,18 @@ class SharedEmailAccountsController < ApplicationController
     respond_to do |format|
       format.js do
         render(:json => {:success => @removed}.to_json)
+      end
+    end
+  end
+  
+  def remove_collection
+    target_ids = params[:target_ids].split(",").map(&:strip)
+    @shared_email_accounts = SharedEmailAccount.all(:conditions => {:email_account_id => @email_account.id,
+      :target_id => target_ids, :target_type => params[:target_type]})
+    @shared_email_accounts.map(&:destroy)
+    respond_to do |format|
+      format.js do
+        render(:json => {:success => true}.to_json)
       end
     end
   end

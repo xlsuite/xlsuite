@@ -51,7 +51,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :public_blog_posts, :path_prefix => "/admin/public", :as => "blog_posts", :controller => "public/blog_posts"
 
   map.resources :shared_email_accounts, :path_prefix => "/admin",
-    :collection => {:roles_tree => :get, :remove => :delete, :parties => :get}
+    :collection => {:roles_tree => :get, :remove => :delete, :parties => :get, :remove_collection => :delete}
   
   map.resources :account_templates, :path_prefix => "/admin",
     :member => {:push => :post, :images => :get, :multimedia => :get, :other_files => :get, :upload_file => :post}
