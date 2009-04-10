@@ -496,8 +496,7 @@ var embedCodeAction = new Ext.Action({
                         width: 300,
                         value: response.text,
                         listeners: {
-                          focus:function(cpt){cpt.selectText()},
-                          render:function(cpt){cpt.selectText()}
+                          render : function(cpt){cpt.focus(true, 300);}
                         }
                       });
                       var embedCodeWindow = new Ext.Window({
