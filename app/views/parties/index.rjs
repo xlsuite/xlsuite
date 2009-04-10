@@ -107,7 +107,7 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
     valueField: 'value',
     fieldLabel: 'Filter By',
     emptyText: 'Groups',
-    width: 110,
+    autoWidth:true,
     store: filterByStore, 
     editable : false,
     triggerAction: 'all',

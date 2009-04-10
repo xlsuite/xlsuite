@@ -60,7 +60,7 @@ page << create_tab_using_ajax_response("Products", after_render) do
     valueField: 'value',
     fieldLabel: 'Filter By',
     emptyText: 'Product Category',
-    width: 110,
+    autoWidth:true,
     store: filterByStore, 
     editable : false,
     triggerAction: 'all',
