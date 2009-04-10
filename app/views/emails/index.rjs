@@ -3,11 +3,12 @@ limit=50
 page << create_tab_using_ajax_response("My Emails") do
 %Q`
   var EmailRecord = new Ext.data.Record.create([
-    {name:'id'},
-	  {name:'from'},
-	  {name:'subject_with_body'},
-    {name:'date'},
-    {name:'mailbox'}
+    {name:'id'}
+	  ,{name:'from'}
+	  ,{name:'subject_with_body'}
+    ,{name:'date'}
+    ,{name:'mailbox'}
+    ,{name:"email_address"}
   ]);
 
   var inboxReader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, EmailRecord);
@@ -25,38 +26,90 @@ page << create_tab_using_ajax_response("My Emails") do
   });
 
   var showEmailPath = #{email_path(:id => "__ID__").to_json};
+  var editPartyPath = #{edit_party_path(:id => "__ID__").to_json};
+  var inboxCreatePartyButton = new Ext.Toolbar.Button({
+    text:"Create Contact(s)"
+    ,tooltip:"Create contacts from selected emails' sender"
+    ,disabled:true
+    ,handler:function(btn){
+      var names = [];
+      var emailAddresses = [];
+      var records = selectedInboxRecords;
+      for(var i=0;i<records.length;i++){
+        names.push(records[i].get("from"));
+        emailAddresses.push(records[i].get("email_address"));
+      }
+      Ext.Ajax.request({
+        url:#{create_from_email_addresses_parties_path.to_json}
+        ,method:"POST"
+        ,params:{"names":names.join(","),"email_addresses":emailAddresses.join(",")}
+        ,success:function(response,options){
+          var response = Ext.decode(response.responseText);
+          var ids = response.ids;
+          for(var i=0;i<ids.length;i++){
+            Ext.Ajax.request({
+              url:editPartyPath.replace("__ID__", ids[i])
+              ,method:"GET"
+            });
+          }
+        }
+      });
+    }
+  });
+
+  var inboxTopToolbar = new Ext.Toolbar({
+    items:[inboxCreatePartyButton]
+  });
+
+  var selectedInboxRecords = null;
+  var inboxSelectionModel = new Ext.grid.RowSelectionModel({
+    listeners:{
+      selectionchange:function(sm){
+        var records = sm.getSelections();
+        selectedInboxRecords = records;
+        if(selectedInboxRecords.length>0){
+          inboxCreatePartyButton.enable();
+        }
+        else{
+          inboxCreatePartyButton.disable();
+        }
+      }
+    }
+  });
 
   var inboxGridPanel = new Ext.grid.GridPanel({
-    title:"Inbox",
-    store:inboxStore,
-    header:false,
-    cm: new Ext.grid.ColumnModel([
-      {id:"inbox-from", dataIndex:"from", sortable:false, width:200},
-      {id:"inbox-subject_with_body", dataIndex:"subject_with_body", sortable:false},
-      {id:"inbox-date", dataIndex:"date", sortable:false, width:100}
-    ]),
-    autoExpandColumn:"inbox-subject_with_body",
-    bbar:[inboxPagingToolbar],
-    loadMask:true,
-    listeners:{
+    title:"Inbox"
+    ,store:inboxStore
+    ,header:false
+    ,cm: new Ext.grid.ColumnModel([
+      {id:"inbox-from", dataIndex:"from", sortable:false, width:200}
+      ,{id:"inbox-subject_with_body", dataIndex:"subject_with_body", sortable:false}
+      ,{id:"inbox-date", dataIndex:"date", sortable:false, width:100}
+    ])
+    ,sm:inboxSelectionModel
+    ,autoExpandColumn:"inbox-subject_with_body"
+    ,tbar:inboxTopToolbar
+    ,bbar:[inboxPagingToolbar]
+    ,loadMask:true
+    ,listeners:{
       render:function(cpt){
         cpt.getStore().load({params:{start:0, limit:#{limit}}});
-      },
-      rowdblclick:function(cpt, rowIndex, event){
+      }
+      ,rowdblclick:function(cpt, rowIndex, event){
         var record = cpt.getStore().getAt(rowIndex);
         Ext.Ajax.request({
-          url:showEmailPath.replace(new RegExp("__ID__", "g"), record.get("id")),
-          params:{mailbox:record.get("mailbox")},
-          method:"GET"
+          url:showEmailPath.replace(new RegExp("__ID__", "g"), record.get("id"))
+          ,params:{mailbox:record.get("mailbox")}
+          ,method:"GET"
         });
       }
     }
   });
 
   var tabPanel = new Ext.TabPanel({
-    activeTab:0,
-    tabPosition:"bottom",
-    items:[inboxGridPanel]
+    activeTab:0
+    ,tabPosition:"bottom"
+    ,items:[inboxGridPanel]
   });
 
   newPanel.add(tabPanel);

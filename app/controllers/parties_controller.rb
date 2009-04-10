@@ -5,15 +5,13 @@ class PartiesController < ApplicationController
   required_permissions %w(change_password edit effective_permissions async_get_tag_name_id_hashes show network general profile tags security notes staff testimonials 
           update refresh_inbox send_new_password images multimedia other_files) => [:edit_party, :edit_own_account, :edit_own_contacts_only, {:any => true}],
       %w(import import_load plaxo address_book auto_complete new create destroy archive destroy_collection reset_collection_password tagged_collection 
-          add_collection_to_group publish_profiles) => [:edit_party, :edit_own_contacts_only, {:any => true}],
+          add_collection_to_group publish_profiles create_from_email_addresses) => [:edit_party, :edit_own_contacts_only, {:any => true}],
       %w(index) => [:edit_party, :edit_own_contacts_only, :view_own_contacts_only, :view_party, {:any => true}],
       %w(update_feeds forgot_password reset_password register signup confirm authorize subscribe extjs_auto_complete) => true
-  before_filter :load_party, :except => %w(index auto_complete forgot_password reset_password new create import_load import plaxo address_book register signup 
+  before_filter :load_party, :except => %w(index auto_complete forgot_password reset_password new create create_from_email_addresses import_load import plaxo address_book register signup 
        confirm destroy_collection reset_collection_password tagged_collection add_collection_to_group publish_profiles extjs_auto_complete)
   before_filter :check_own_access, :except => %w(index auto_complete forgot_password reset_password plaxo address_book register signup confirm authorize subscribe extjs_auto_complete)
   before_filter :keep_whitelisted_parameters_if_unauthorized, :only => %w(update authorize signup)
-  before_filter :set_page_title, :except => %w(index auto_complete forgot_password reset_password new create update destroy import_load import 
-       plaxo address_book register signup confirm authorize subscribe destroy_collection reset_collection_password tagged_collection add_collection_to_group publish_profiles extjs_auto_complete)
   before_filter :find_common_party_tags, :only => %w(new create edit show general tags security)
   before_filter :load_groups, :only => %w( index general network notes profile security staff tags testimonials )
   before_filter :set_routes_instance_variables, :only => %w( general profile tags notes security network staff testimonials)
@@ -264,6 +262,35 @@ class PartiesController < ApplicationController
       @force_editor = true
       render :action => "new", :layout => "new-party"
   end
+  
+  def create_from_email_addresses
+    ids = []
+    party = nil
+    names = []
+    if params[:names]
+      params[:names].split(",").map(&:strip).each do |name|
+        names << ((name =~ EmailContactRoute::ValidAddressRegexp) ? "" : name)
+      end
+    end
+    params[:email_addresses].split(",").map(&:strip).each_with_index do |email_address, index|
+      party = Party.find_by_account_and_email_address(self.current_account, email_address)
+      if party
+        ids << party.id 
+        next
+      end
+      ActiveRecord::Base.transaction do
+        party = self.current_account.parties.create!(:name => Name.parse(names[index] || ""))
+        EmailContactRoute.create!(:account => self.current_account, :routable => party,
+          :email_address => email_address, :name => "Main")
+        ids << party.id
+      end
+    end
+    respond_to do |format|
+      format.js do
+        render(:json => {:ids => ids}.to_json)
+      end
+    end
+  end
 
   def edit
     @formatted_total_group_permission_grants_path = formatted_permission_grants_path(:format => "json", :mode => "total", :assignee_type => "Group", :assignee_id => "__ID__")
@@ -279,6 +306,13 @@ class PartiesController < ApplicationController
     
     @imap_account = @party.own_imap_account? ? @party.own_imap_account : ImapEmailAccount.new
     
+    @disable_share_imap = true
+    if self.current_user.id == @party.id
+      @disable_share_imap = true
+    else
+      @disable_share_imap = !self.current_user.own_imap_account?
+    end
+    @current_user_imap_account = self.current_user.own_imap_account? ? self.current_user.own_imap_account : ImapEmailAccount.new
     respond_to do |format|
       format.js
     end
@@ -855,10 +889,6 @@ protected
     (params[:party] || {}).each_pair do |key, value|
       params[:party].delete(key) unless allow_fields.include?(key.to_s)
     end unless current_user? && current_user.can?(:edit_party)
-  end
-
-  def set_page_title
-    @title = [action_name == "general" ? nil : action_name.humanize.capitalize, @party.name.to_s].compact.join(" | ")
   end
 
   def choose_layout

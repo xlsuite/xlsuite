@@ -139,7 +139,7 @@ class AssetsController < ApplicationController
     end
     
     unless @asset
-      if params[:size]
+      if params[:size] || (params[:filename] && params[:filename] =~ /_(small|medium|mini|square)\./ && current_account.assets.find_by_path_and_filename(params[:folder], params[:filename].gsub(/_(small|medium|mini|square)\./, ".")))
         return send_file("public/images/thumbisbeinggen.gif", :type => "image/gif", :disposition => "inline")
       else
         return render(:missing)
@@ -249,11 +249,11 @@ class AssetsController < ApplicationController
         else
           flash_failure :now, "Upload failed: #{@asset.errors.full_messages.join(',')}"
         end
-        render :inline => %Q`<%= "{success:#{@created}, file_name: '#{@asset.reload.filename}', asset_id: #{@asset.id}, flash: '#{flash[:notice].to_s}',reload_store: '#{params[:object_type]}_#{@ar_object.blank? ? 0 : @ar_object.id}_#{params[:mode]}_#{params[:classification]}', asset_download_path: '#{download_asset_path(:id => @asset)}'}" %>`
+        render :inline => %Q`<%= "{success:#{@created}, file_name: '#{@asset.reload.filename}', asset_id: #{@asset.id}, flash: '#{flash[:notice].to_s}',reload_store: '#{params[:object_type]}_#{@ar_object.blank? ? 0 : @ar_object.id}_#{params[:mode]}_#{params[:classification]}', asset_download_path: '#{@asset.z_src}'}" %>`
       end
       format.js do
         if @created
-          render :json => {:success => true, :asset_url => download_asset_path(@asset), :asset_id => @asset.id, :messages => "Successfully uploaded"}.to_json
+          render :json => {:success => true, :asset_url => @asset.z_src, :asset_id => @asset.id, :messages => "Successfully uploaded"}.to_json
         else
           render :json => {:success => false, :messages => "Uploading failed"}.to_json
         end
@@ -380,7 +380,7 @@ class AssetsController < ApplicationController
         @assets.each do |asset|
           records << {
             :id => asset.id,
-            :url => download_asset_path(:id => asset.id),
+            :url => asset.z_src,
             :filename => asset.filename
           }
         end

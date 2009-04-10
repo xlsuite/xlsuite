@@ -350,6 +350,7 @@ module PartiesHelper
       });
 
       var noteGridPanel = new Ext.grid.EditorGridPanel({
+        title: "Notes",
         store: noteDataStore,
         cm: new Ext.grid.ColumnModel([
             {id: "delete", width: 10, dataIndex: 'id', renderer: editRenderer, sortable: false, menuDisabled: true, hideable: false, tooltip: "Delete row" },
@@ -372,7 +373,8 @@ module PartiesHelper
             {id: "updated_by_name", header: "Updated By", width: 30, sortable: true, dataIndex: 'updated_by_name'},
             privateNoteCheckColumn
           ]),
-        #{render_contact_route_grid_options},
+        autoWidth:true,
+        clicksToEdit: 1,
         selModel: new Ext.grid.RowSelectionModel({
           listeners:
             {
@@ -387,14 +389,14 @@ module PartiesHelper
             }
         }),
         autoScroll: true,
-        autoWidth: true,
         tbar: gridTopToolbar,
         bbar: paging,
         footer: true,
         autoExpandColumn: "note-body",
-        iconCls: 'icon-grid',
         plugins: privateNoteCheckColumn,
-        viewConfig: {autoFill: true}
+        viewConfig: {
+            forceFit: true
+        }
       });
 
       xl.runningGrids.set("#{typed_dom_id(@party, :notes_tab)}", noteGridPanel);
@@ -521,10 +523,6 @@ module PartiesHelper
           ]
       });
       noteDataStore.load();
-
-      notePanel = new Ext.Panel({
-        items:[noteGridPanel]
-      });
     `
   end
 
@@ -889,7 +887,6 @@ module PartiesHelper
       },
       autoScroll: true,
       autoWidth: true,
-      autoHeight: true,
       clicksToEdit:1
     `
   end
@@ -1585,6 +1582,7 @@ module PartiesHelper
       });
 
       var contactRoutesPanel = new Ext.Panel({
+        title: "Contact Routes",
         tbar: [
           {
             text:"Add",
@@ -1592,21 +1590,17 @@ module PartiesHelper
           }
         ],
         defaults: { style: "padding-bottom: 20px"},
+        layout: 'column',
         items:[
-          addressGridPanel,
-          {
-            layout: 'column',
-            defaults: {columnWidth: 1/3},
-            items: [
-              emailGridPanel,
-              {
+          {columnWidth:1, items:[addressGridPanel]},
+          {columnWidth: 1/3, items: [emailGridPanel]},
+          {columnWidth: 1/3, items: [{
                 style:"padding-left:5px; padding-right:5px",
                 items:[phoneGridPanel]
-              },
-              linkGridPanel
-            ]
-          }
-        ]
+              }]},
+          {columnWidth: 1/3, items: [linkGridPanel]}
+        ],
+        autoScroll:true
       });
     `
   end

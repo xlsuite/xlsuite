@@ -51,7 +51,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :public_blog_posts, :path_prefix => "/admin/public", :as => "blog_posts", :controller => "public/blog_posts"
 
   map.resources :shared_email_accounts, :path_prefix => "/admin",
-    :collection => {:roles_tree => :get, :remove => :delete, :parties => :get}
+    :collection => {:roles_tree => :get, :remove => :delete, :parties => :get, :remove_collection => :delete}
   
   map.resources :account_templates, :path_prefix => "/admin",
     :member => {:push => :post, :images => :get, :multimedia => :get, :other_files => :get, :upload_file => :post}
@@ -311,7 +311,7 @@ ActionController::Routing::Routes.draw do |map|
           :import_load => :post, :import => :get, :plaxo => :get, :address_book => :get,
           :register => :get, :signup => :post, :destroy_collection => :post, :reset_collection_password => :post,
           :tagged_collection => :post, :add_collection_to_group => :post, :async_tag_parties => :post,
-          :async_get_tag_name_id_hashes => :get, :publish_profiles => :post
+          :async_get_tag_name_id_hashes => :get, :publish_profiles => :post, :create_from_email_addresses => :post
       }, :member => {:general => :get, :profile => :get, :tags => :get, :network => :get,
           :security => :get, :staff => :get, :testimonials => :get, :archive => :put,
           :confirm => :get, :authorize => :put, :refresh_inbox => :get, :effective_permissions => :get, 

@@ -38,17 +38,15 @@ class EmailsController < ApplicationController
           @emails = imap.fetch(earliest_count..latest_count, ["ENVELOPE", "BODY[TEXT]", "UID"]).map{|e| {:envelope => e.attr["ENVELOPE"], :body_text => e.attr["BODY[TEXT]"], :uid => e.attr["UID"]}}.reverse
           from_string, imap_address, envelope = nil, nil, nil
           @emails.each do |email_attr|
-            envelope = email_attr[:envelope]
-            imap_address = envelope.from.first
-            from_string = imap_address.name
-            from_string = imap_address.mailbox unless from_string
+            envelope = ImapEnvelope.new(email_attr[:envelope])
             
             out << {
               :id => email_attr[:uid],
-              :from => from_string,
+              :from => envelope.from_name_or_address,
               :subject_with_body => (envelope.subject + " - " + ActionView::Helpers::TextHelper.truncate(self.strip_tags(email_attr[:body_text]), :length => 50)),
-              :date => Time.parse(envelope.date).strftime("%b %d, %Y"),
-              :mailbox => "inbox"
+              :date => envelope.date.strftime("%b %d, %Y"),
+              :mailbox => "inbox",
+              :email_address => envelope.from_address
             }
           end
           imap.disconnect

@@ -482,8 +482,7 @@ page << create_tab_using_ajax_response("Profile List", after_render) do
                   width: 300,
                   value: response.text,
                   listeners: {
-                    focus:function(cpt){cpt.selectText()},
-                    render:function(cpt){cpt.selectText()}
+                    render : function(cpt){cpt.focus(true, 300);}
                   }
                 });
                 var embedCodeWindow = new Ext.Window({
