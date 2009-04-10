@@ -702,12 +702,35 @@ class ProductsController < ApplicationController
       query_params = query_params.map {|q| q+"*"}.join(" ")
     end
 
-    if current_user.can?(:edit_catalog)
-      @products = current_account.products.search(query_params, search_options)
-      @products_count = current_account.products.count_results(query_params)
+    @products_proxy = case params[:product_category_id]
+    when nil
+      current_account.products 
+    when /^all$/i
+      current_account.products
+    when /^0$/
+      ids = current_account.products.find(:all, 
+        :joins => "INNER JOIN product_categories_products AS pcp ON pcp.product_id = products.id", 
+        :select => :id).map(&:id)
+        
+      ids = [0] if ids.empty? 
+      search_options.merge!(:conditions => "id NOT IN (#{ids.join(',')})")
+      current_account.products
     else
-      @products = current_account.products.find_readable_by(current_user, query_params, search_options)
-      @products_count = current_account.products.count_readable_by(current_user, query_params)
+      ProductCategory.find(params[:product_category_id]).products
+    end
+
+    if current_user.can?(:edit_catalog)
+      @products = @products_proxy.search(query_params, search_options)
+      search_options.delete(:order)
+      search_options.delete(:limit)
+      search_options.delete(:offset)
+      @products_count = @products_proxy.count_results(query_params, search_options)
+    else
+      @products = @products_proxy.find_readable_by(current_user, query_params, search_options)
+      search_options.delete(:order)
+      search_options.delete(:limit)
+      search_options.delete(:offset)
+      @products_count = @products_proxy.count_readable_by(current_user, query_params)
     end
   end
   

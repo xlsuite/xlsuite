@@ -49,13 +49,46 @@ page << create_tab_using_ajax_response("Products", after_render) do
   // selection fields of [Internal ISBN Model Sku UPC]
   var idSelection = #{render_ids_selection_field.to_json};
   
+  var filterByStore = new Ext.data.SimpleStore({
+    fields: ['display', 'value'],
+    data: #{([['All', 'all'], ['No Categories', 0]] + current_account.product_categories.find(:all, :order => :name).map{|g|[g.name, g.id]}).to_json}
+  });
+  
+  var filterBySelection = new Ext.form.ComboBox({
+    hiddenName: 'filter_by',
+    displayField: 'display', 
+    valueField: 'value',
+    fieldLabel: 'Filter By',
+    emptyText: 'Product Category',
+    width: 110,
+    store: filterByStore, 
+    editable : false,
+    triggerAction: 'all',
+    mode: 'local',
+    listeners: {
+      'select': function(me, record, index){
+        ds.baseParams['q'] = filterField.getValue();
+        ds.baseParams['product_category_id'] = record.data.value;
+        ds.reload({params: {start: 0, limit: ds.lastOptions.params.limit}});
+      }
+    }
+  });
+  
   #{create_grid_tbar_filter_field}
   
   #{create_grid_tbar_clear_button}
 
   var gridTopToolbar = new Ext.Toolbar({
     cls: "top-toolbar",
-    items: [idSelection, {text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+    items: [
+      { text: "Filter By: " },
+      filterBySelection,
+      { text: ""}, 
+      idSelection, 
+      {text:"&nbsp;&nbsp;&nbsp;Filter: "}, 
+      filterField, 
+      clearButton
+    ]
   });
 
   // create GridPanel object
