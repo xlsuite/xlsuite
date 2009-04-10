@@ -280,15 +280,14 @@
 # 		     END OF TERMS AND CONDITIONS
 class ProductCategoryDrop < Liquid::Drop
   attr_reader :product_category
-  delegate :id, :name, :children, :parent, :label, :products, :to => :product_category
+  delegate :id, :name, :children, :parent, :label, :products, :avatar, :to => :product_category
 
   def initialize(product_category)
     @product_category = product_category
   end
 
-  def picture
-    @picture ||= PictureDrop.new(self.product_category.picture)
-  end
+  alias_method :main_image, :avatar
+  alias_method :picture, :avatar
 
   def description
     product_category.web_copy.blank? ? (product_category.description || "") : product_category.web_copy
