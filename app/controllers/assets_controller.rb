@@ -416,7 +416,7 @@ class AssetsController < ApplicationController
     end
     
     unless @asset
-      if params[:size]
+      if params[:size] || (params[:filename] && params[:filename] =~ /_(small|medium|mini|square)\./ && current_account.assets.find_by_path_and_filename(params[:folder], params[:filename].gsub(/_(small|medium|mini|square)\./, ".")))
         return send_file("public/images/thumbisbeinggen.gif", :type => "image/gif", :disposition => "inline")
       else
         return render(:missing)
