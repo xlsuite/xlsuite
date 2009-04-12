@@ -585,6 +585,12 @@ class PagesController < ApplicationController
         params[:page][:no_update] = false
       end
     else
+      require_ssl_param = params[:page].delete(:require_ssl)
+      if require_ssl_param == "1"
+        params[:page][:require_ssl] = true
+      else
+        params[:page][:require_ssl] = false
+      end
       no_update_param = params[:page].delete(:no_update_flag)
       if no_update_param == "1"
         params[:page][:no_update] = true 
