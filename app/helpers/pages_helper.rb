@@ -731,6 +731,13 @@ module PagesHelper
       width: 665
     });
     
+    var sslRequiredCheckbox = new Ext.form.Checkbox({
+      checked:#{@page.require_ssl.to_json},
+      name:"page[require_ssl]",
+      fieldLabel:"SSL required",
+      inputValue:"1"
+    });
+    
     var noUpdateCheckbox = new Ext.form.Checkbox({
       checked: #{@page.no_update.to_json},
       name: "page[no_update_flag]",
@@ -794,7 +801,8 @@ module PagesHelper
             noUpdateCheckbox,
             {
               html: '<span class="italic" font-size="10px">Checking the no update checkbox will exclude this page when performing suite update</span>'
-            }
+            },
+            sslRequiredCheckbox
           ]
         }, 
         {
