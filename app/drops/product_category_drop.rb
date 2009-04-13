@@ -280,7 +280,8 @@
 # 		     END OF TERMS AND CONDITIONS
 class ProductCategoryDrop < Liquid::Drop
   attr_reader :product_category
-  delegate :id, :name, :children, :parent, :label, :products, :avatar, :to => :product_category
+  delegate :id, :name, :children, :ancestors, :siblings, :parent, :label, :products, :avatar, 
+           :to => :product_category
 
   def initialize(product_category)
     @product_category = product_category
