@@ -312,15 +312,15 @@ class EmailsController < ApplicationController
           latest_count = total - start
           earliest_count = latest_count - limit + 1
           earliest_count = 1 if earliest_count < 1
-          @emails = imap.fetch(earliest_count..latest_count, ["ENVELOPE", "BODY[TEXT]", "UID"]).map{|e| {:envelope => e.attr["ENVELOPE"], :body_text => e.attr["BODY[TEXT]"], :uid => e.attr["UID"]}}.reverse
+          @emails = imap.fetch(earliest_count..latest_count, ["ENVELOPE", "RFC822", "UID"]).map{|e| {:envelope => e.attr["ENVELOPE"], :rfc822 => e.attr["RFC822"], :uid => e.attr["UID"]}}.reverse
           from_string, imap_address, envelope = nil, nil, nil
           @emails.each do |email_attr|
             envelope = ImapEnvelope.new(email_attr[:envelope])
-            
+            tmail = TMail::Mail.parse(email_attr[:rfc822])
             out << {
               :id => email_attr[:uid],
               :from => envelope.from_name_or_address,
-              :subject_with_body => (envelope.subject + " - " + ActionView::Helpers::TextHelper.truncate(self.strip_tags(email_attr[:body_text]), :length => 50)),
+              :subject_with_body => (envelope.subject + " - " + ActionView::Helpers::TextHelper.truncate(self.strip_tags(tmail.body), :length => 50)),
               :date => envelope.date.strftime("%b %d, %Y"),
               :mailbox => "inbox",
               :email_address => envelope.from_address
@@ -342,9 +342,11 @@ class EmailsController < ApplicationController
     imap = Net::IMAP.new(@email_account.connecting_server, @email_account.connecting_port) 
     imap.login(@email_account.username, @email_account.password)
     imap.examine(params[:mailbox])
-    @email = imap.uid_fetch(params[:id].to_i, ["ENVELOPE", "BODY[TEXT]"]).first
-    @content = @email.attr["BODY[TEXT]"]
+    @email = imap.uid_fetch(params[:id].to_i, ["ENVELOPE", "RFC822"]).first
+    @body = @email.attr["RFC822"]
     @envelope = ImapEnvelope.new(@email.attr["ENVELOPE"])
+    @tmail = TMail::Mail.parse(@body)
+    @content = @tmail.body
     imap.disconnect
     respond_to do |format|
       format.js
