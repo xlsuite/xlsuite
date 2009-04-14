@@ -296,7 +296,6 @@ module EmailsHelper
   
   def ccs_and_bccs_items
     out = ""
-    logger.debug("^^^#{@envelope.ccs_name_with_address.inspect}")
     unless @envelope.ccs_name_with_address.empty?
       out <<
         %Q`
@@ -304,7 +303,6 @@ module EmailsHelper
         ,{html:#{html_escape(@envelope.ccs_name_with_address.join(",")).to_json}}
         `
     end
-    logger.debug("^^^#{@envelope.bccs_name_with_address.inspect}")
     unless @envelope.bccs_name_with_address.empty? 
       out <<
         %Q`
