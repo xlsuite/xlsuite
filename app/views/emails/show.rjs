@@ -16,14 +16,24 @@ page << create_tab_using_ajax_response("Email Show") do
       ,{html:#{html_escape(@envelope.subject).to_json}}
     ]
   });
+  
+  var inBetweenPanel = new Ext.Panel({
+    html:"<br/>"
+  });
 
   var bodyPanel = new Ext.Panel({
     border:true
+    ,autoScroll:true
     ,html:#{@content.to_json}
   });
   
   var contentPanel = new Ext.Panel({
-    items:[headerPanel, {html:"<br/>"}, bodyPanel]
+    items:[headerPanel, inBetweenPanel, bodyPanel]
+    ,listeners:{
+      afterlayout:function(cpt){
+        bodyPanel.setHeight(contentPanel.getSize().height-inBetweenPanel.getSize().height-headerPanel.getSize().height);
+      }
+    }
   });
   
   newPanel.add(contentPanel)

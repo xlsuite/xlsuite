@@ -11,7 +11,7 @@ class Layout < ActiveRecord::Base
   include DomainPatternsSplitter
   include CacheControl
 
-  validates_presence_of :title, :content_type, :encoding
+  validates_presence_of :title, :content_type
   belongs_to :creator, :class_name => "Party", :foreign_key => :creator_id
   belongs_to :updator, :class_name => 'Party', :foreign_key => :updator_id
 
@@ -48,7 +48,9 @@ class Layout < ActiveRecord::Base
 
   def render(liquid_context)
     text = self.parsed_template.render!(liquid_context)
-    {:text => text, :content_type => "#{self.content_type}; charset=#{self.encoding}"}
+    t_content_type = [self.content_type]
+    t_content_type << "charset=#{self.encoding}" unless self.encoding.blank?
+    {:text => text, :content_type => t_content_type.join("; ")}
   end
 
   def body=(value)

@@ -1074,6 +1074,17 @@ class Account < ActiveRecord::Base
     AccountDrop.new(self)
   end
   
+  def secure_xlsuite_subdomain
+    domain_names = self.domains.all(:select => "name").map(&:name)
+    domain_names.each do |domain_name|
+      return domain_name if domain_name =~ /\A(?:[a-z0-9][-\w])*secure(?:[a-z0-9][-\w])*\.xlsuite\.com\Z/i
+    end
+    domain_names.each do |domain_name|
+      return domain_name if domain_name =~ /\A(?:[a-z0-9][-\w]+)\.xlsuite\.com\Z/i
+    end
+    nil
+  end
+  
   protected
   def available_names_by_role(role)
     domain_names = self.domains.find(:all, :order=> "name").map(&:name).reject(&:blank?)

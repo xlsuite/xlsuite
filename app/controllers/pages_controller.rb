@@ -308,6 +308,12 @@ class PagesController < ApplicationController
         params[:page][:no_update] = false
       end
     else
+      require_ssl_param = params[:page].delete(:require_ssl)
+      if require_ssl_param == "1"
+        params[:page][:require_ssl] = true
+      else
+        params[:page][:require_ssl] = false
+      end
       no_update_param = params[:page].delete(:no_update_flag)
       if no_update_param == "1"
         params[:page][:no_update] = true 
@@ -415,11 +421,25 @@ class PagesController < ApplicationController
   # This ssl_required? method overwrites the one in ApplicationController
   def ssl_required?
     ssl_required = if (params[:action] =~ /show/i)
-                     load_page_by_slug
-                     @page && @page.require_ssl
-                   else
-                     (self.class.read_inheritable_attribute(:ssl_required_actions) || []).include?(action_name.to_sym)
-                   end
+      self.load_page_by_slug
+      @page && @page.require_ssl
+    else
+      (self.class.read_inheritable_attribute(:ssl_required_actions) || []).include?(action_name.to_sym)
+    end
     ssl_required && ENV["RAILS_ENV"] == "production"
   end
+
+  private
+  def ensure_proper_protocol
+    return true if self.ssl_allowed?
+    if self.ssl_required? && !request.ssl?
+      redirect_to("https://" + self.current_account.secure_xlsuite_subdomain + request.request_uri)
+      flash.keep
+      return false
+    elsif request.ssl? && !self.ssl_required?
+      redirect_to "http://" + request.host + request.request_uri
+      flash.keep
+      return false
+    end
+  end  
 end
