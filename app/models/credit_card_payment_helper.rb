@@ -288,7 +288,7 @@ class CreditCardPaymentHelper < PaymentHelper
         credit_card = ActiveMerchant::Billing::CreditCard.new(options[:credit_card])
         credit_card.number = credit_card.number.gsub(/[^\d]/i, "")
         unless credit_card.valid?
-          raise(StandardError, "Invalid credit card information: #{credit_card.errors.full_messages}")       
+          raise(StandardError, "Invalid credit card information: #{credit_card.errors.full_messages.join(', ')}")       
         end
       end
       gateway = ActiveMerchant::Billing::ExactGateway.new({:login => payable.account.get_config(:payment_gateway_username), :password => payable.account.get_config(:payment_gateway_password)})
