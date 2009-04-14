@@ -755,4 +755,9 @@ class ApplicationController < ActionController::Base
     return false unless self.current_user?
     self.current_user.id == self.current_account.owner.id
   end
+  
+  private
+  def ensure_proper_protocol
+    return true
+  end
 end
