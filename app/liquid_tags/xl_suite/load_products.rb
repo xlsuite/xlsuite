@@ -294,6 +294,7 @@ module XlSuite
     CreatorIDSyntax = /creator_id:\s*(#{Liquid::QuotedFragment})/
     OwnerIDSyntax = /owner_id:\s*(#{Liquid::QuotedFragment})/
     AllSyntax = /all_products\s*/
+    ExcludeSyntax = /exclude:\s*(#{Liquid::QuotedFragment})/
     InSyntax = /in:\s*(\w+)/
 
     PagesCountSyntax = /pages_count:\s*([\w_]+)/
@@ -320,6 +321,7 @@ module XlSuite
       @options[:creator_id] = $1 if markup =~ CreatorIDSyntax
       @options[:owner_id] = $1 if markup =~ OwnerIDSyntax
       @options[:all_products] = true if markup =~ AllSyntax
+      @options[:exclude] = $1 if markup =~ ExcludeSyntax
 
       raise SyntaxError, "Missing in: parameter in #{markup.inspect}" unless @options[:in]
 
@@ -332,7 +334,7 @@ module XlSuite
         options = Hash.new
         context_options = Hash.new
         
-        [:page_num, :per_page, :search, :category, :categories, :tagged_all, :tagged_any, :order, :randomize, :creator_id, :owner_id].each do |option_sym|
+        [:page_num, :per_page, :search, :category, :categories, :tagged_all, :tagged_any, :order, :randomize, :creator_id, :owner_id, :exclude].each do |option_sym|
           context_options[option_sym] = context[@options[option_sym]]
           context_options[option_sym] = @options[option_sym] unless context_options[option_sym]
         end
@@ -353,6 +355,12 @@ module XlSuite
         orders = []
         if @options[:order]
           orders << context_options[:order]
+        end
+
+        if @options[:exclude]
+          ids = [context_options[:exclude]].flatten.map(&:id)
+          ids = ids.map(&:to_i)
+          conditions << "products.id NOT IN (#{ids.join(',')})" unless ids.empty?
         end
         
         if @options[:creator_id]
