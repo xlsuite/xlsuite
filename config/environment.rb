@@ -102,6 +102,8 @@ require 'pp'
 require "active_record_warnings"
 require "actionpack_ext"
 
+require "tmail_mail_extension"
+
 Money.default_currency = 'CAD'
 InchesPerFeet = 12.0
 ItemsPerPage = 10 # 30 items per page, when navigation is required

@@ -43,7 +43,7 @@ class EmailsController < ApplicationController
             out << {
               :id => email_attr[:uid],
               :from => envelope.from_name_or_address,
-              :subject_with_body => (envelope.subject + " - " + ActionView::Helpers::TextHelper.truncate(self.strip_tags(tmail.body), :length => 50)),
+              :subject_with_body => (envelope.subject + " - " + ActionView::Helpers::TextHelper.truncate(self.strip_tags(tmail.html_or_plain_body.to_s), :length => 50)),
               :date => envelope.date.strftime("%b %d, %Y"),
               :mailbox => "inbox",
               :email_address => envelope.from_address
@@ -57,20 +57,24 @@ class EmailsController < ApplicationController
   end
   
   def show
-    if params[:email_account_id]
-      @email_account = EmailAccount.find(params[:email_account_id])
-    else
-      @email_account = self.current_user.own_imap_account
+    begin
+      if params[:email_account_id]
+        @email_account = EmailAccount.find(params[:email_account_id])
+      else
+        @email_account = self.current_user.own_imap_account
+      end
+      imap = Net::IMAP.new(@email_account.connecting_server, @email_account.connecting_port) 
+      imap.login(@email_account.username, @email_account.password)
+      imap.examine(params[:mailbox])
+      @email = imap.uid_fetch(params[:id].to_i, ["ENVELOPE", "RFC822"]).first
+      
+      @envelope = ImapEnvelope.new(@email.attr["ENVELOPE"])
+      
+      @tmail = TMail::Mail.parse(@email.attr["RFC822"])
+      @content = @tmail.html_or_plain_body
+    ensure
+      imap.disconnect
     end
-    imap = Net::IMAP.new(@email_account.connecting_server, @email_account.connecting_port) 
-    imap.login(@email_account.username, @email_account.password)
-    imap.examine(params[:mailbox])
-    @email = imap.uid_fetch(params[:id].to_i, ["ENVELOPE", "RFC822"]).first
-    @body = @email.attr["RFC822"]
-    @envelope = ImapEnvelope.new(@email.attr["ENVELOPE"])
-    @tmail = TMail::Mail.parse(@body)
-    @content = @tmail.body
-    imap.disconnect
     respond_to do |format|
       format.js
     end
