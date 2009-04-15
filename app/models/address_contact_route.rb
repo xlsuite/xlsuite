@@ -479,11 +479,16 @@ class AddressContactRoute < ContactRoute
   end
 
   # Address normalization methods
-  %w(line1 line2 line3 city).each do |attr|
+  %w(line1 line2 line3).each do |attr|
     define_method("#{attr}=") do |value|
-      value = (value || "").mb_chars.gsub(/\s{2,}/, ' ').titleize
+      value = (value || "").mb_chars.gsub(/\s{2,}/, ' ')
       write_attribute(attr, value.blank? || value.empty? ? nil : value)
     end
+  end
+
+  def city=(value)
+    value = (value || "").mb_chars.gsub(/\s{2,}/, ' ').titleize
+    write_attribute(:city, value.blank? || value.empty? ? nil : value)
   end
 
   def state=(value)
