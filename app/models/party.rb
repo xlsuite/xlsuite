@@ -1682,6 +1682,17 @@ class Party < ActiveRecord::Base
     out
   end
   
+  def purchased_products
+    orders = self.account.orders.all(:conditions => "invoice_to_id = #{self.id} AND paid_in_full_at IS NOT NULL")
+    products = []
+    orders.each do |o|
+      o.lines.each do |line|
+        products << line.product
+      end
+    end
+    products.compact.uniq
+  end
+  
   protected
   before_create :generate_random_uuid
 
