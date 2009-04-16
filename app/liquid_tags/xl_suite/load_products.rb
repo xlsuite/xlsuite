@@ -293,6 +293,7 @@ module XlSuite
     RandomizeSyntax = /randomize:\s*(#{Liquid::QuotedFragment})/
     CreatorIDSyntax = /creator_id:\s*(#{Liquid::QuotedFragment})/
     OwnerIDSyntax = /owner_id:\s*(#{Liquid::QuotedFragment})/
+    PurchasedBySyntax = /purchased_by:\s*(#{Liquid::QuotedFragment})/
     AllSyntax = /all_products\s*/
     ExcludeSyntax = /exclude:\s*(#{Liquid::QuotedFragment})/
     InSyntax = /in:\s*(\w+)/
@@ -320,6 +321,7 @@ module XlSuite
       @options[:randomize] = $1 if markup =~ RandomizeSyntax
       @options[:creator_id] = $1 if markup =~ CreatorIDSyntax
       @options[:owner_id] = $1 if markup =~ OwnerIDSyntax
+      @options[:purchased_by] = $1 if markup =~ PurchasedBySyntax
       @options[:all_products] = true if markup =~ AllSyntax
       @options[:exclude] = $1 if markup =~ ExcludeSyntax
 
@@ -334,7 +336,7 @@ module XlSuite
         options = Hash.new
         context_options = Hash.new
         
-        [:page_num, :per_page, :search, :category, :categories, :tagged_all, :tagged_any, :order, :randomize, :creator_id, :owner_id, :exclude].each do |option_sym|
+        [:page_num, :per_page, :search, :category, :categories, :tagged_all, :tagged_any, :order, :randomize, :creator_id, :owner_id, :exclude, :purchased_by].each do |option_sym|
           context_options[option_sym] = context[@options[option_sym]]
           context_options[option_sym] = @options[option_sym] unless context_options[option_sym]
         end
@@ -369,6 +371,29 @@ module XlSuite
         
         if @options[:owner_id]
           conditions << "products.owner_id=#{context_options[:owner_id].to_i}"
+        end
+        
+        if @options[:purchased_by]
+          ids = []
+          party = nil
+          case context_options[:purchased_by]
+          when String
+            party = current_account.parties.find(context_options[:purchased_by].to_i)
+          when PartyDrop
+            party = context_options[:purchased_by].party
+          when ProfileDrop
+            party = context_options[:purchased_by].party
+          end
+          if party            
+            products = party.purchased_products
+            if products.flatten.compact.empty?
+              conditions << "products.id IN (0)"
+            else
+              conditions << "products.id IN (#{products.map(&:id).join(',')})"
+            end
+          else
+            conditions << "products.id IN (0)"       
+          end
         end
         
         if @options[:private]
