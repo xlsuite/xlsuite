@@ -15,8 +15,7 @@ class Snippet < Item
   
   class << self
     def find_by_domain_and_title(domain, title)
-      snippets = find(:all, :conditions => ["title = ? AND published_at <= ?", title, Time.now.utc], 
-                      :order => "published_at DESC")
+      snippets = find(:all, :conditions => ["title = ? AND published_at <= ?", title, Time.now.utc])
       snippets.blank? ? nil : snippets.best_match_for_domain(domain)
     end
 

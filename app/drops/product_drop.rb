@@ -69,4 +69,10 @@ class ProductDrop < Liquid::Drop
   def category_ids
     self.product.category_ids.join(",")
   end
+  
+  def purchased_by_user
+    return false unless self.context && self.context["user"] && self.context["user"].party
+    return true if self.context["user"].party.purchased_products.include?(self.product)
+    return false
+  end
 end

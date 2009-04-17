@@ -9,7 +9,7 @@ class AddressDrop < Liquid::Drop
   def initialize(address)
     @address = address
   end
-
+  
   def province
     self.state
   end
@@ -20,5 +20,21 @@ class AddressDrop < Liquid::Drop
 
   def postal_code
     self.zip
+  end
+  
+  def before_method(method)
+    if method.to_s =~ /^latitude_(plus|minus)_(.*)/i
+      operator = $1
+      number = $2
+      return self.latitude + number.gsub("_", ".").to_f if operator =~ /plus/
+      return self.latitude - number.gsub("_", ".").to_f if operator =~ /minus/
+    end
+    if method.to_s =~ /^longitude_(plus|minus)_(.*)/i
+      operator = $1
+      number = $2
+      return self.longitude + number.gsub("_", ".").to_f if operator =~ /plus/
+      return self.longitude - number.gsub("_", ".").to_f if operator =~ /minus/
+    end
+    nil
   end
 end

@@ -82,7 +82,7 @@ class Comment < ActiveRecord::Base
   end
   
   def author_profile
-    self.created_by.profile
+    self.created_by ? self.created_by.profile : nil
   end
   
   def point_worth
