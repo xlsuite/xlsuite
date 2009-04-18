@@ -1273,10 +1273,6 @@ protected
     conditions[:account_id] = self.current_account.id
     conditions[:created_by_id] = self.current_user.id if view_own_contacts_only
     
-    start = (params[:start].blank? ? 0 : params[:start].to_i)
-    limit = (params[:limit].blank? ? 50 : params[:limit].to_i)
-    page = (start / limit + 1).to_i
-    
     params.delete(:group_id) if params[:group_id] =~ /all/i
     if params[:group_id]
       contains_member = (Membership.count(:conditions => {:group_id => params[:group_id].to_i}) > 0)
@@ -1295,20 +1291,9 @@ protected
         return
       end
     end
-
-    # When query params is blank use ActiveRecord#find otherwise use Sphinx search
-    if params[:q].blank?
-      @parties = Party.find(:all, :conditions => conditions, :limit => limit, :offset => start, :order => order_option)
-      @parties_count = Party.count(:conditions => conditions)
-    else
-      query = self.to_sphinx_query(params[:q])
-      logger.debug {"==> Sphinx Query: #{query.inspect}\n    Sphinx Conditions: #{conditions.inspect}"}
-      @parties = Party.sphinx_search(query, 
-        :with => {:archived_at => 0}, 
-        :conditions => conditions, :order => order_option, 
-        :per_page => limit, :page => page)
-      @parties_count = Party.search_count(query, :with => {:archived_at => 0}, :conditions => conditions)
-    end
+    
+    @parties = Party.xl_sphinx_search(params[:q], {:with => {:archived_at => 0}, :conditions => conditions, :limit => params[:limit], :start => params[:start], :order => order_option})
+    @parties_count = Party.xl_sphinx_search_count(params[:q], :with => {:archived_at => 0}, :conditions => conditions)
   end
 
   def load_groups
