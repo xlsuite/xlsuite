@@ -314,6 +314,7 @@ class Party < ActiveRecord::Base
 
     has :account_id, :created_by_id, :archived_at
   end
+  include XlSuite::SphinxSearch
 
   IMMEDIATELY = 'immediately'
   DAILY = 'daily'
