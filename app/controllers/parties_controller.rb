@@ -1236,56 +1236,79 @@ protected
   end
 
   def process_index
-    case params[:dir]
+    sort_order = case params[:dir]
     when "ASC", "DESC"
-      sort_dir = params[:dir]
+      params[:dir]
     else
-      sort_dir = "ASC"
+      "ASC"
     end
-
-    fields = case params[:sort]
-    when "lastName"
-      %w(last_name first_name company_name)
-    when "firstName"
-      %w(first_name last_name company_name)
-    when "company"
-      %w(company_name last_name first_name)
-    when "displayName"
-      %w(display_name company_name last_name first_name)
+    
+    params[:sort] = params[:sort].blank? ? "displayName" : params[:sort]
+    sort_fields = ["some_non_existant_column"]
+    # If query is blank the search will be done by normal ActiveRecord#find and so different ordering column 
+    # mapping needs to be used
+    if params[:q].blank?
+      sort_fields = case params[:sort]
+      when "lastName"
+        %w(last_name first_name company_name)
+      when "firstName"
+        %w(first_name last_name company_name)
+      when "company"
+        %w(company_name last_name first_name)
+      when "displayName"
+        %w(display_name company_name last_name first_name)
+      end    
+    else
+      sort_fields = case params[:sort]
+      when "company"
+        ["company_name"]
+      when "displayName"
+        ["name"]
+      end
     end
+    order_option = sort_fields.map {|field| "#{field} #{sort_order}"}.join(", ")
 
-    search_options = {:offset => params[:start], :limit => params[:limit]}
-    search_options.merge!(:order => fields.map {|field| "#{field} #{sort_dir}"}.join(", ")) if fields
-    if search_options[:order].blank? && params[:q].blank?
-      search_options.merge!(:order => "display_name")
-    end
-
-    conditions = []
+    conditions = {}
+    view_own_contacts_only = self.current_user.can?(:view_own_contacts_only, :edit_own_contacts_only, :any => true) && !self.current_user.can?(:view_party, :edit_party, :any => true)
+    conditions[:account_id] = self.current_account.id
+    conditions[:created_by_id] = self.current_user.id if view_own_contacts_only
+    
+    start = (params[:start].blank? ? 0 : params[:start].to_i)
+    limit = (params[:limit].blank? ? 50 : params[:limit].to_i)
+    page = (start / limit + 1).to_i
+    
     params.delete(:group_id) if params[:group_id] =~ /all/i
     if params[:group_id]
-      party_ids = current_account.groups.find(params[:group_id]).parties.map(&:id)
-      if party_ids.join.blank?
+      contains_member = (Membership.count(:conditions => {:group_id => params[:group_id].to_i}) > 0)
+      if contains_member
+        # If query params is blank, sphinx search will not be used
+        # Need to adjust conditions
+        if params[:q].blank?
+          party_ids = current_account.groups.find(params[:group_id]).parties.all(:select => "parties.id").map(&:id)
+          conditions[:id] = party_ids
+        else
+          conditions[:group_id] = params[:group_id].to_i 
+        end
+      else
         @parties = []
         @parties_count = 0
         return
-      else
-        conditions << "(parties.id IN (#{party_ids.join(",")}))" 
       end
     end
 
-    query_params = params[:q]
-    unless query_params.blank?
-      query_params = query_params.split(/\s+/)
-      query_params = query_params.map {|q| q+"*"}.join(" ")
+    # When query params is blank use ActiveRecord#find otherwise use Sphinx search
+    if params[:q].blank?
+      @parties = Party.find(:all, :conditions => conditions, :limit => limit, :offset => start, :order => order_option)
+      @parties_count = Party.count(:conditions => conditions)
+    else
+      query = self.to_sphinx_query(params[:q])
+      logger.debug {"==> Sphinx Query: #{query.inspect}\n    Sphinx Conditions: #{conditions.inspect}"}
+      @parties = Party.sphinx_search(query, 
+        :with => {:archived_at => 0}, 
+        :conditions => conditions, :order => order_option, 
+        :per_page => limit, :page => page)
+      @parties_count = Party.search_count(query, :with => {:archived_at => 0}, :conditions => conditions)
     end
-    view_own_contacts_only = current_user.can?(:view_own_contacts_only, :edit_own_contacts_only, :any => true) && !current_user.can?(:view_party, :edit_party, :any => true)
-    conditions << "(created_by_id = #{current_user.id} OR parties.id = #{current_user.id})" if view_own_contacts_only
-    search_options.merge!(:conditions => conditions.join(" AND ")) unless conditions.blank?
-
-    @parties = current_account.parties.search(query_params, search_options)
-    search_options = conditions.blank? ? {} : {:conditions => conditions.join(" AND ")} 
-
-    @parties_count = current_account.parties.count_results(query_params, search_options)
   end
 
   def load_groups
