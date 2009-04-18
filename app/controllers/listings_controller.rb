@@ -679,26 +679,12 @@ class ListingsController < ApplicationController
   end
   
   def find_listings
-    start = (params[:start].blank? ? 0 : params[:start].to_i)
-    limit = (params[:limit].blank? ? 50 : params[:limit].to_i)
-    page = (start / limit + 1).to_i
-
     conditions = {:account_id => self.current_account.id, :type => nil}
-
-    search_options = {:conditions => conditions}
+    search_options = {:conditions => conditions, :start => params[:start], :limit => params[:limit]}
     search_options.merge!(:order => "#{params[:sort]} #{params[:dir]}") if params[:sort]
     
-    if params[:q].blank?
-      search_options.merge!(:offset => start, :limit => limit)
-      @listings = Listing.find(:all, search_options)
-      @listings_count = Listing.count(:conditions => conditions)
-    else
-      query = self.to_sphinx_query(params[:q])
-      logger.debug {"==> Sphinx Query: #{query.inspect}\n    Sphinx Conditions: #{conditions.inspect}"}
-      search_options.merge!(:per_page => limit, :page => page)
-      @listings = Listing.sphinx_search(query, search_options)
-      @listings_count = Listing.search_count(query, :conditions => conditions)
-    end
+    @listings = Listing.xl_sphinx_search(params[:q], search_options)
+    @listings_count = Listing.xl_sphinx_search_count(params[:q], :conditions => conditions)
   end
   
   def load_listing 
