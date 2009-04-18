@@ -317,6 +317,7 @@ class Listing < ActiveRecord::Base
     has :price_cents, :as => :price
     has :public
   end
+  include XlSuite::SphinxSearch
   
   has_one :address, :class_name => "AddressContactRoute", :as => :routable, :dependent => :destroy
   belongs_to :realtor, :class_name => 'Party', :foreign_key => 'realtor_id'
