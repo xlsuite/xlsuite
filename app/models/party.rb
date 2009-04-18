@@ -301,6 +301,22 @@ class Party < ActiveRecord::Base
 
   acts_as_fulltext %w(display_name links_as_text phones_as_text addresses_as_text email_addresses_as_text tags_as_text position), :weight => 50 
 
+  define_index do
+    indexes [:last_name, :middle_name, :first_name], :as => :name, :sortable => true
+    indexes [:company_name], :sortable => true
+    indexes [:forum_alias]
+    indexes [:biography]
+    indexes tags.name, :as => :tag
+    indexes memberships.group_id, :as => :group_id
+    indexes notes.body, :as => :notes
+    indexes links.url, :as => :links
+    indexes email_addresses.email_address, :as => :email_addresses
+    indexes [addresses.line1, addresses.line2, addresses.line3, addresses.city, addresses.state, addresses.country, addresses.zip], :as => :addresses
+    indexes phones.number, :as => :phones
+
+    has :account_id, :created_by_id, :archived_at
+  end
+
   IMMEDIATELY = 'immediately'
   DAILY = 'daily'
   WEEKLY = 'weekly'
