@@ -305,11 +305,11 @@ class Listing < ActiveRecord::Base
     indexes [:open_house], :sortable => true
     indexes [address.line1, address.line2, address.line3, address.city, address.state, address.country, address.zip], :as => :address
     indexes [realtor.last_name, realtor.first_name, realtor.middle_name], :as => :realtor_name
-    indexes [:contact_email]
+    indexes [:contact_email], :as => :contact_email, :sortable => true
     indexes [:mls_no], :as => :mls_no_index
-    indexes [:status], :as => :status
-    indexes [:region]
-    indexes [:area]
+    indexes [:status], :as => :status, :sortable => true
+    indexes [:region], :sortable => true
+    indexes [:area], :sortable => true
 
     has :account_id, :type => :integer
     has :type, :type => :string
