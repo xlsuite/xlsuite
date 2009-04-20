@@ -307,7 +307,7 @@ class Listing < ActiveRecord::Base
     indexes [realtor.last_name, realtor.first_name, realtor.middle_name], :as => :realtor_name
     indexes [:contact_email]
     indexes [:mls_no], :as => :mls_no_index
-    indexes [:status]
+    indexes [:status], :as => :status
     indexes [:region]
     indexes [:area]
 
