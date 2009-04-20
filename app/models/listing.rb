@@ -19,6 +19,28 @@ class Listing < ActiveRecord::Base
 
   acts_as_taggable
   acts_as_fulltext %w(quick_description), %w(address_as_text mls_no realtor_name tags_as_text description status region contact_email)
+
+  define_index do
+    indexes [:features]
+    indexes [:description]
+    indexes [:extras]
+    indexes [:open_house_text]
+    indexes [address.line1, address.line2, address.line3, address.city, address.state, address.country, address.zip], :as => :address
+    indexes [realtor.last_name, realtor.first_name, realtor.middle_name], :as => :realtor_name
+    indexes [:contact_email]
+    indexes [:mls_no]
+    indexes [:status]
+    indexes [:region]
+    indexes [:area]
+
+    has :account_id
+    has :type
+    has 'RADIANS(listings.latitude)', :as => :latitude, :type => :float
+    has 'RADIANS(listings.longitude)', :as => :longitude, :type => :float
+    has :price_cents, :as => :price
+    has :public
+  end
+  include XlSuite::SphinxSearch
   
   has_one :address, :class_name => "AddressContactRoute", :as => :routable, :dependent => :destroy
   belongs_to :realtor, :class_name => 'Party', :foreign_key => 'realtor_id'

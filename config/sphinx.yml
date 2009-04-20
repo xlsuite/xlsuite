@@ -1,0 +1,7 @@
+development:
+  enable_star: true
+  min_infix_len: 1
+  
+production:
+  enable_star: true
+  min_infix_len: 1

@@ -461,7 +461,9 @@ CREATE TABLE `comments` (
   `spam` tinyint(1) default '1',
   `domain_id` int(11) default NULL,
   `point_added` tinyint(1) default '0',
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `by_commentable` (`commentable_type`,`commentable_id`),
+  KEY `by_account` (`account_id`,`commentable_type`,`commentable_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `configurations` (
@@ -963,8 +965,7 @@ CREATE TABLE `fulltext_rows` (
   KEY `by_account_weight_subject` (`account_id`,`weight`,`subject_id`,`subject_type`),
   KEY `by_account_weight_updated_subject` (`account_id`,`weight`,`subject_updated_at`,`subject_id`,`subject_type`),
   KEY `by_account_subject` (`account_id`,`subject_type`,`subject_id`),
-  KEY `by_subject` (`subject_type`,`subject_id`),
-  FULLTEXT KEY `by_label_body` (`label`,`body`)
+  KEY `by_subject` (`subject_type`,`subject_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `futures` (
@@ -2190,6 +2191,8 @@ INSERT INTO schema_migrations (version) VALUES ('1223072025');
 
 INSERT INTO schema_migrations (version) VALUES ('20081002193856');
 
+INSERT INTO schema_migrations (version) VALUES ('20081005125842');
+
 INSERT INTO schema_migrations (version) VALUES ('20081006181906');
 
 INSERT INTO schema_migrations (version) VALUES ('20081006182459');
@@ -2247,6 +2250,8 @@ INSERT INTO schema_migrations (version) VALUES ('20081024012423');
 INSERT INTO schema_migrations (version) VALUES ('20081024133524');
 
 INSERT INTO schema_migrations (version) VALUES ('20081024133711');
+
+INSERT INTO schema_migrations (version) VALUES ('20081024134829');
 
 INSERT INTO schema_migrations (version) VALUES ('20081024174344');
 
@@ -2547,3 +2552,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090403214728');
 INSERT INTO schema_migrations (version) VALUES ('20090406205518');
 
 INSERT INTO schema_migrations (version) VALUES ('20090407191547');
+
+INSERT INTO schema_migrations (version) VALUES ('20090409004839');
