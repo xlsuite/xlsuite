@@ -320,7 +320,7 @@ class Testimonial < ActiveRecord::Base
   end
   
   def writeable_by?(party)
-    self.author_id == party.id || self.created_by_id == party.id
+    self.author_id == party.id || self.created_by_id == party.id || party.can?(:edit_testimonials)
   end
 
   def approve!(who)
