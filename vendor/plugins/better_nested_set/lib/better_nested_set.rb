@@ -32,7 +32,7 @@ module SymetrieCom
                :left_column    => (options[:left_column]   || 'lft'),
                :right_column   => (options[:right_column]  || 'rgt'),
                :scope          => (options[:scope] || '1 = 1'),
-               :text_column    => (options[:text_column] || columns.collect{|c| (c.type == :string) ? c.name : nil }.compact.first),
+               :text_column    => ((options[:text_column] || columns.collect{|c| (c.type == :string) ? c.name : nil }.compact.first) rescue ""),
                :class          => self, # for single-table inheritance
                :dependent      => (options[:dependent] || :delete_all) # accepts :delete_all and :destroy
               } )
