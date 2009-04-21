@@ -1,3 +1,6 @@
+#- XLsuite, an integrated CMS, CRM and ERP for medium businesses
+#- Copyright 2005-2009 iXLd Media Inc.  See LICENSE for details.
+
 ##
 # original author: http://fernandoguillen.info
 # date: 2008-08-27
