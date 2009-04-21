@@ -75,9 +75,13 @@ module XlSuite
         party.confirmation_token_expires_at = params[:confirmation_token_expires_at] if party.confirmation_token_expires_at.blank?
         party.confirmation_token_expires_at = party.account.get_config(:confirmation_token_duration_in_seconds).from_now \
             if party.confirmation_token_expires_at.blank?
-        party.profile = params[:profile] if params[:profile]
 
         party.tag_list = party.tag_list << "," << params[:domain].name if params[:domain]
+        if params[:profile]
+          party.profile = params[:profile] 
+          party.profile.tag_list = party.profile.tag_list << "," << party.tag_list
+          party.profile.save
+        end
         party.save
         group = party.account.groups.find_by_name(Configuration.get("add_to_group_on_signup", party.account))
         party.groups << group if group

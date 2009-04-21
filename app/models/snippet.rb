@@ -2,7 +2,13 @@
 #- Copyright 2005-2009 iXLd Media Inc.  See LICENSE for details.
 
 class Snippet < Item
-  acts_as_fulltext %w(title body domain_patterns behavior)
+  define_index do
+    indexes [:title], :sortable => true
+    indexes [:body]
+    indexes [:domain_patterns], :sortable => true
+    has :account_id
+  end
+  include XlSuite::SphinxSearch
   
   attr_accessor :ignore_warnings
   attr_protected :ignore_warnings
