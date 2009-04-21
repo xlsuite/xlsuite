@@ -34,7 +34,7 @@ module XlSuite
 
       base.acts_as_money :downpayment_amount
 
-      column_names = base.columns.map(&:name)
+      column_names = base.columns.map(&:name) rescue []
       %w(created updated sent confirmed paid completed voided).each do |attr|
         next unless column_names.include?("#{attr}_by_id")
         base.belongs_to "#{attr}_by".to_sym, :class_name => "Party", :foreign_key => "#{attr}_by_id"
