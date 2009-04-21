@@ -279,7 +279,8 @@
 # 
 # 		     END OF TERMS AND CONDITIONS
 class Layout < ActiveRecord::Base
-  acts_as_versioned :limit => 20
+  acts_as_versioned :limit => 20, :if_changed => [:title, :content_type, :body, :domain_patterns]
+  self.non_versioned_columns << 'delta'
   
   belongs_to :account
   validates_presence_of :account_id
