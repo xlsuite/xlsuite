@@ -9,11 +9,14 @@ require "uuidtools"
 module UuidGenerator
   # Generates a random UUID using UUID's #random_create.
   def generate_random_uuid
+    return if self.uuid?
     conditions = {}
     if self.respond_to?(:account_id) && self.respond_to?(:account)
       acct = self.account
-      acct = Account.find(self.account_id) unless acct
-      conditions.merge!(:account_id => acct.id)
+      if self.account_id then
+        acct = Account.find(self.account_id) unless acct
+        conditions.merge!(:account_id => acct.id)
+      end
     end
     loop do
       logger.debug {"==> Generating random UUID"}
