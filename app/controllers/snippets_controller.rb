@@ -293,31 +293,33 @@ class SnippetsController < ApplicationController
     respond_to do |format|
       format.js
       format.json do            
-        search_options = {:offset => params[:start], :limit => params[:limit]}
+        search_options = {:offset => params[:start], :limit => params[:limit], :conditions => {:account_id => self.current_account.id}}
         search_options.merge!(:order => params[:sort].blank? ? "title ASC" : "#{params[:sort]} #{params[:dir]}") 
         
-        query_params = params[:q]
-        unless query_params.blank? 
-          query_params = query_params.split(/\s+/)
-          query_params = query_params.map {|q| q+"*"}.join(" ")
-        end
         if params[:domain] && params[:domain].downcase != "all"
-          @domain = current_account.domains.find_by_name(params[:domain])
-          snippets = current_account.snippets.search(query_params).group_by(&:title).values.map do |group|
-            group.best_match_for_domain(@domain)
-          end.compact.flatten
+          @domain = self.current_account.domains.find_by_name(params[:domain])
+          pages = []
+          if params[:q].blank?
+            snippets = self.current_account.snippets.all.group_by(&:title).values.map do |group|
+              group.best_match_for_domain(@domain)
+            end.compact.flatten
+          else
+            #do nothing for now... not supported yet
+          end
+
           sort = params[:sort].blank? ? :title : params[:sort].to_sym
           dir = params[:dir] if !params[:dir].blank? && params[:dir] =~ /desc/i
           snippets = snippets.sort_by(&sort)
           snippets.reverse! if dir
-          logger.debug("^^^starte: #{params[:start]}, limit: #{params[:limit]}")
           @snippets = snippets[params[:start].to_i, params[:limit].to_i]
-          logger.debug("^^^snippets #{snippets.size}, @snippets #{@snippets.size}, actual count: #{@snippets_count}")
           @snippets_count = snippets.size
         else
-          @snippets = current_account.snippets.search(query_params, search_options)
-          @snippets_count = current_account.snippets.count_results(query_params, {})
+          @snippets = Snippet.xl_sphinx_search(params[:q], search_options.merge(:with => {:account_id => self.current_account.id}))
+          search_options.delete(:offset)
+          search_options.delete(:start)
+          @snippets_count = Snippet.xl_sphinx_search_count(params[:q], search_options.merge(:with => {:account_id => self.current_account.id}))
         end
+        
         render(:json => {:total => @snippets_count, :collection => assemble_records(@snippets)}.to_json)
       end
     end
