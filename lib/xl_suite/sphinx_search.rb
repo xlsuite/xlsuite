@@ -292,7 +292,7 @@ module XlSuite
         start = (params_start.blank? ? 0 : params_start.to_i)
         limit = (params_limit.blank? ? 50 : params_limit.to_i)
         if options[:offset]
-          start = options[:offset].to_i
+          start = options.delete(:offset).to_i
         end
         if query.blank?
           options.delete(:with)
