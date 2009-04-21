@@ -305,6 +305,10 @@ module XlSuite
       end
       
       def xl_sphinx_search_count(query, options)
+        options.delete(:limit)
+        options.delete(:offset)
+        options.delete(:start)
+        options.delete(:order)
         if query.blank?
           options.delete(:with)
           self.count(options)
