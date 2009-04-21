@@ -292,7 +292,15 @@ class Layout < ActiveRecord::Base
   belongs_to :creator, :class_name => "Party", :foreign_key => :creator_id
   belongs_to :updator, :class_name => 'Party', :foreign_key => :updator_id
 
-  acts_as_fulltext %w(title content_type body creator_as_text)
+  define_index do
+    indexes [:title], :sortable => true
+    indexes [:body]
+    indexes [:content_type], :sortable => true
+    indexes [:domain_patterns], :sortable => true
+
+    has :account_id, :type => :integer
+  end
+  include XlSuite::SphinxSearch
 
   validates_presence_of :domain_patterns
   before_validation :ensure_domain_patterns_not_empty
