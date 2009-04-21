@@ -50,7 +50,7 @@ class Asset < ActiveRecord::Base
 
   acts_as_taggable
   acts_as_fulltext %w(filename title content_type description folder_name tag_list)
-  has_attachment :max_size => 12.megabytes, :min_size => 0, :storage => :s3
+  has_attachment :max_size => 12.megabytes, :min_size => 0, :storage => :file_system
   belongs_to :parent, :class_name => "Asset", :foreign_key => :parent_id
   validates_as_attachment
 
