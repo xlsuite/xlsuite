@@ -16,11 +16,3 @@ test:
   username: root
   password:
   encoding: utf8
-
-production:
-  adapter: mysql
-  database: xlsuite_production
-  host: localhost
-  username: root
-  password:
-  encoding: utf8
