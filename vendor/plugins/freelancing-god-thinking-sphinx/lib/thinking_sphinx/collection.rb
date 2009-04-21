@@ -33,40 +33,60 @@ module ThinkingSphinx
     end
     
     def self.instances_from_matches(matches, options = {})
-      return matches.collect { |match|
-        instance_from_match match, options
-      } unless klass = options[:class]
-      
+      if klass = options[:class]
+        instances_from_class klass, matches, options
+      else
+        instances_from_classes matches, options
+      end
+    end
+    
+    def self.instances_from_class(klass, matches, options = {})
       index_options = klass.sphinx_index_options
-      
+
       ids = matches.collect { |match| match[:attributes]["sphinx_internal_id"] }
       instances = ids.length > 0 ? klass.find(
         :all,
         :conditions => {klass.primary_key.to_sym => ids},
         :include    => (options[:include] || index_options[:include]),
-        :select     => (options[:select] || index_options[:select])
+        :select     => (options[:select]  || index_options[:select]),
+        :order      => (options[:sql_order] || index_options[:sql_order])
       ) : []
-      
-      # Raise an exception if we find records in Sphinx but not in the DB, so the search method
-      # can retry without them. See ThinkingSphinx::Search.retry_search_on_stale_index.
+
+      # Raise an exception if we find records in Sphinx but not in the DB, so
+      # the search method can retry without them. See 
+      # ThinkingSphinx::Search.retry_search_on_stale_index.
       if options[:raise_on_stale] && instances.length < ids.length
         stale_ids = ids - instances.map {|i| i.id }
         raise StaleIdsException, stale_ids
       end
+
+      # if the user has specified an SQL order, return the collection
+      # without rearranging it into the Sphinx order
+      return instances if options[:sql_order]
 
       ids.collect { |obj_id|
         instances.detect { |obj| obj.id == obj_id }
       }
     end
     
-    def self.instance_from_match(match, options)
-      class_from_crc(match[:attributes]["class_crc"]).find(
-        match[:attributes]["sphinx_internal_id"],
-        :include => options[:include],
-        :select  => options[:select]
-      )
-    rescue ::ActiveRecord::RecordNotFound
-      nil
+    # Group results by class and call #find(:all) once for each group to reduce
+    # the number of #find's in multi-model searches.
+    # 
+    def self.instances_from_classes(matches, options = {})
+      groups = matches.group_by { |match| match[:attributes]["class_crc"] }
+      groups.each do |crc, group|
+        group.replace(
+          instances_from_class(class_from_crc(crc), group, options)
+        )
+      end
+      
+      matches.collect do |match|
+        groups.detect { |crc, group|
+          crc == match[:attributes]["class_crc"]
+        }[1].detect { |obj|
+          obj.id == match[:attributes]["sphinx_internal_id"]
+        }
+      end
     end
     
     def self.class_from_crc(crc)
@@ -98,9 +118,9 @@ module ThinkingSphinx
       each_with_attribute method.to_s.gsub(/^each_with_/, ''), &block
     end
     
-    def each_with_group_and_count(&block)
+    def each_with_groupby_and_count(&block)
       results[:matches].each_with_index do |match, index|
-        yield self[index], match[:attributes]["@group"], match[:attributes]["@count"]
+        yield self[index], match[:attributes]["@groupby"], match[:attributes]["@count"]
       end
     end
     
@@ -113,6 +133,14 @@ module ThinkingSphinx
     def each_with_weighting(&block)
       results[:matches].each_with_index do |match, index|
         yield self[index], match[:weight]
+      end
+    end
+    
+    def inject_with_groupby_and_count(initial = nil, &block)
+      index = -1
+      results[:matches].inject(initial) do |memo, match|
+        index += 1
+        yield memo, self[index], match[:attributes]["@groupby"], match[:attributes]["@count"]
       end
     end
   end

@@ -1,7 +1,8 @@
 require 'active_record'
-require 'active_record/connection_adapters/mysql_adapter'
+prefix = defined?(JRUBY_VERSION) ? "jdbc" : ""
+require "active_record/connection_adapters/#{prefix}mysql_adapter"
 begin
-  require 'active_record/connection_adapters/postgresql_adapter'
+  require "active_record/connection_adapters/#{prefix}postgresql_adapter"
 rescue LoadError
   # No postgres?  no prob...
 end
@@ -26,9 +27,13 @@ class SphinxHelper
     @path = File.expand_path(File.dirname(__FILE__))
   end
   
+  def mysql_adapter
+    defined?(JRUBY_VERSION) ? 'jdbcmysql' : 'mysql'
+  end
+  
   def setup_mysql
     ActiveRecord::Base.establish_connection(
-      :adapter  => 'mysql',
+      :adapter  => mysql_adapter,
       :database => 'thinking_sphinx',
       :username => @username,
       :password => @password,
@@ -52,7 +57,7 @@ class SphinxHelper
     @configuration = ThinkingSphinx::Configuration.instance.reset
     File.open("spec/fixtures/sphinx/database.yml", "w") do |file|
       YAML.dump({@configuration.environment => {
-        :adapter  => 'mysql',
+        :adapter  => mysql_adapter,
         :host     => @host,
         :database => "thinking_sphinx",
         :username => @username,

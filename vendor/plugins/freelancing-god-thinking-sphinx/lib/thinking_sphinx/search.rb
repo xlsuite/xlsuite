@@ -7,6 +7,11 @@ module ThinkingSphinx
   # called from a model.
   # 
   class Search
+    GlobalFacetOptions = {
+      :all_attributes => false,
+      :class_facet    => true
+    }
+    
     class << self
       # Searches for results that match the parameters provided. Will only
       # return the ids for the matching objects. See #search for syntax
@@ -21,7 +26,7 @@ module ThinkingSphinx
         
         options = args.extract_options!
         page    = options[:page] ? options[:page].to_i : 1
-
+        
         ThinkingSphinx::Collection.ids_from_results(results, page, client.limit, options)
       end
 
@@ -94,16 +99,24 @@ module ThinkingSphinx
       # == Searching by Attributes
       #
       # Also known as filters, you can limit your searches to documents that
-      # have specific values for their attributes. There are two ways to do
-      # this. The first is one that works in all scenarios - using the :with
-      # option.
+      # have specific values for their attributes. There are three ways to do
+      # this. The first two techniques work in all scenarios - using the :with
+      # or :with_all options.
       #
-      #   ThinkingSphinx::Search.search :with => {:parent_id => 10}
+      #   ThinkingSphinx::Search.search :with => {:tag_ids => 10}
+      #   ThinkingSphinx::Search.search :with => {:tag_ids => [10,12]}
+      #   ThinkingSphinx::Search.search :with_all => {:tag_ids => [10,12]}
       #
-      # The second is only viable if you're searching with a specific model
-      # (not multi-model searching). With a single model, Thinking Sphinx
-      # can figure out what attributes and fields are available, so you can
-      # put it all in the :conditions hash, and it will sort it out.
+      # The first :with search will match records with a tag_id attribute of 10.
+      # The second :with will match records with a tag_id attribute of 10 OR 12.
+      # If you need to find records that are tagged with ids 10 AND 12, you
+      # will need to use the :with_all search parameter. This is particuarly
+      # useful in conjunction with Multi Value Attributes (MVAs).
+      #
+      # The third filtering technique is only viable if you're searching with a
+      # specific model (not multi-model searching). With a single model,
+      # Thinking Sphinx can figure out what attributes and fields are available,
+      # so you can put it all in the :conditions hash, and it will sort it out.
       # 
       #   Node.search :conditions => {:parent_id => 10}
       # 
@@ -186,6 +199,12 @@ module ThinkingSphinx
       # documentation[http://sphinxsearch.com/doc.html] for that level of
       # detail though.
       #
+      # If desired, you can sort by a column in your model instead of a sphinx
+      # field or attribute. This sort only applies to the current page, so is
+      # most useful when performing a search with a single page of results.
+      #
+      #   User.search("pat", :sql_order => "name")
+      #
       # == Grouping
       # 
       # For this you can use the group_by, group_clause and group_function
@@ -194,7 +213,66 @@ module ThinkingSphinx
       # you read all the relevant
       # documentation[http://sphinxsearch.com/doc.html#clustering] first.
       # 
-      # Yes this section will be expanded, but this is a start.
+      # Grouping is done via three parameters within the options hash
+      # * <tt>:group_function</tt> determines the way grouping is done
+      # * <tt>:group_by</tt> determines the field which is used for grouping
+      # * <tt>:group_clause</tt> determines the sorting order 
+      #
+      # === group_function
+      #  
+      # Valid values for :group_function are
+      # * <tt>:day</tt>, <tt>:week</tt>, <tt>:month</tt>, <tt>:year</tt> - Grouping is done by the respective timeframes. 
+      # * <tt>:attr</tt>, <tt>:attrpair</tt> - Grouping is done by the specified attributes(s)
+      # 
+      # === group_by
+      #
+      # This parameter denotes the field by which grouping is done. Note that the
+      # specified field must be a sphinx attribute or index.
+      #
+      # === group_clause
+      #
+      # This determines the sorting order of the groups. In a grouping search,
+      # the matches within a group will sorted by the <tt>:sort_mode</tt> and <tt>:order</tt> parameters.
+      # The group matches themselves however, will be sorted by <tt>:group_clause</tt>. 
+      # 
+      # The syntax for this is the same as an order parameter in extended sort mode.
+      # Namely, you can specify an SQL-like sort expression with up to 5 attributes 
+      # (including internal attributes), eg: "@relevance DESC, price ASC, @id DESC"
+      #
+      # === Grouping by timestamp
+      # 
+      # Timestamp grouping groups off items by the day, week, month or year of the
+      # attribute given. In order to do this you need to define a timestamp attribute,
+      # which pretty much looks like the standard defintion for any attribute.
+      #
+      #   define_index do
+      #     #
+      #     # All your other stuff
+      #     #
+      #     has :created_at
+      #   end
+      #
+      # When you need to fire off your search, it'll go something to the tune of
+      #   
+      #   Fruit.search "apricot", :group_function => :day, :group_by => 'created_at'
+      #
+      # The <tt>@groupby</tt> special attribute will contain the date for that group.
+      # Depending on the <tt>:group_function</tt> parameter, the date format will be
+      #
+      # * <tt>:day</tt> - YYYYMMDD
+      # * <tt>:week</tt> - YYYYNNN (NNN is the first day of the week in question, 
+      #   counting from the start of the year )
+      # * <tt>:month</tt> - YYYYMM
+      # * <tt>:year</tt> - YYYY
+      #
+      #
+      # === Grouping by attribute
+      #
+      # The syntax is the same as grouping by timestamp, except for the fact that the 
+      # <tt>:group_function</tt> parameter is changed
+      #
+      #   Fruit.search "apricot", :group_function => :attr, :group_by => 'size'
+      # 
       #
       # == Geo/Location Searching
       #
@@ -291,8 +369,10 @@ module ThinkingSphinx
       def retry_search_on_stale_index(query, options, &block)
         stale_ids = []
         stale_retries_left = case options[:retry_stale]
-                              when true:       3  # default to three retries
-                              when nil, false: 0  # no retries
+                              when true
+                                3  # default to three retries
+                              when nil, false
+                                0  # no retries
                               else             options[:retry_stale].to_i
                               end
         begin
@@ -320,7 +400,7 @@ module ThinkingSphinx
 
       def count(*args)
         results, client = search_results(*args.clone)
-        results[:total] || 0
+        results[:total_found] || 0
       end
 
       # Checks if a document with the given id exists within a specific index.
@@ -352,6 +432,21 @@ module ThinkingSphinx
         end
       end
       
+      # Model.facets *args
+      # ThinkingSphinx::Search.facets *args
+      # ThinkingSphinx::Search.facets *args, :all_attributes  => true
+      # ThinkingSphinx::Search.facets *args, :class_facet     => false
+      # 
+      def facets(*args)
+        options = args.extract_options!
+        
+        if options[:class]
+          facets_for_model options[:class], args, options
+        else
+          facets_for_all_models args, options
+        end
+      end
+      
       private
       
       # This method handles the common search functionality, and returns both
@@ -377,6 +472,7 @@ module ThinkingSphinx
         
         client.limit  = options[:per_page].to_i if options[:per_page]
         page          = options[:page] ? options[:page].to_i : 1
+        page          = 1 if page <= 0
         client.offset = (page - 1) * client.limit
 
         begin
@@ -403,7 +499,7 @@ module ThinkingSphinx
         # per-server max to a smaller value in sphinx.yml, we need to override
         # the Riddle default or else we get search errors like
         # "per-query max_matches=1000 out of bounds (per-server max_matches=200)"
-        if per_server_max_matches = config.searchd_options[:max_matches]
+        if per_server_max_matches = config.configuration.searchd.max_matches
           options[:max_matches] ||= per_server_max_matches
         end
         
@@ -457,6 +553,13 @@ module ThinkingSphinx
           Riddle::Client::Filter.new attr.to_s, filter_value(val), true
         } if options[:without]
         
+        # every-match attribute filters
+        client.filters += options[:with_all].collect { |attr,vals|
+          Array(vals).collect { |val|
+            Riddle::Client::Filter.new attr.to_s, filter_value(val)
+          }
+        }.flatten if options[:with_all]
+        
         # exclusive attribute filter on primary key
         client.filters += Array(options[:without_ids]).collect { |id|
           Riddle::Client::Filter.new 'sphinx_internal_id', filter_value(id), true
@@ -484,12 +587,25 @@ module ThinkingSphinx
       def filter_value(value)
         case value
         when Range
-          value.first.is_a?(Time) ? value.first.to_i..value.last.to_i : value
+          value.first.is_a?(Time) ? timestamp(value.first)..timestamp(value.last) : value
         when Array
-          value.collect { |val| val.is_a?(Time) ? val.to_i : val }
+          value.collect { |val| val.is_a?(Time) ? timestamp(val) : val }
         else
           Array(value)
         end
+      end
+      
+      # Returns the integer timestamp for a Time object.
+      # 
+      # If using Rails 2.1+, need to handle timezones to translate them back to
+      # UTC, as that's what datetimes will be stored as by MySQL.
+      # 
+      # in_time_zone is a method that was added for the timezone support in
+      # Rails 2.1, which is why it's used for testing. I'm sure there's better
+      # ways, but this does the job.
+      # 
+      def timestamp(value)
+        value.respond_to?(:in_time_zone) ? value.utc.to_i : value.to_i
       end
       
       # Translate field and attribute conditions to the relevant search string
@@ -600,6 +716,64 @@ module ThinkingSphinx
         }
         
         string
+      end
+      
+      def facets_for_model(klass, args, options)
+        hash    = ThinkingSphinx::FacetCollection.new args + [options]
+        options = options.clone.merge! :group_function => :attr
+        
+        klass.sphinx_facets.inject(hash) do |hash, facet|
+          unless facet.name == :class && !options[:class_facet]
+            options[:group_by] = facet.attribute_name
+            hash.add_from_results facet, search(*(args + [options]))
+          end
+          
+          hash
+        end
+      end
+      
+      def facets_for_all_models(args, options)
+        options = GlobalFacetOptions.merge(options)
+        hash    = ThinkingSphinx::FacetCollection.new args + [options]
+        options = options.merge! :group_function => :attr
+        
+        facet_names(options).inject(hash) do |hash, name|
+          options[:group_by] = name
+          hash.add_from_results name, search(*(args + [options]))
+          hash
+        end
+      end
+      
+      def facet_classes(options)
+        options[:classes] || ThinkingSphinx.indexed_models.collect { |model|
+          model.constantize
+        }
+      end
+      
+      def facet_names(options)
+        classes = facet_classes(options)
+        names   = options[:all_attributes] ?
+          facet_names_for_all_classes(classes) :
+          facet_names_common_to_all_classes(classes)
+        
+        names.delete "class_crc" unless options[:class_facet]
+        names
+      end
+      
+      def facet_names_for_all_classes(classes)
+        classes.collect { |klass|
+          klass.sphinx_facets.collect { |facet| facet.attribute_name }
+        }.flatten.uniq
+      end
+      
+      def facet_names_common_to_all_classes(classes)
+        facet_names_for_all_classes(classes).select { |name|
+          classes.all? { |klass|
+            klass.sphinx_facets.detect { |facet|
+              facet.attribute_name == name
+            }
+          }
+        }
       end
     end
   end

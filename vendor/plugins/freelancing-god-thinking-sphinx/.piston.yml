@@ -1,0 +1,8 @@
+--- 
+format: 1
+handler: 
+  commit: ae40dd9b2e0265ade475050785fee299c76caeff
+  branch: master
+lock: false
+repository_url: git://github.com/freelancing-god/thinking-sphinx.git
+repository_class: Piston::Git::Repository

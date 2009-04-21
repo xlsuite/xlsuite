@@ -3,10 +3,12 @@ $:.unshift File.dirname(__FILE__) + '/../lib'
 require 'rubygems'
 require 'fileutils'
 require 'ginger'
+
+require 'lib/thinking_sphinx'
+
 require 'not_a_mock'
 require 'will_paginate'
 
-require 'lib/thinking_sphinx'
 require 'spec/sphinx_helper'
 
 ActiveRecord::Base.logger = Logger.new(StringIO.new)
@@ -28,10 +30,9 @@ Spec::Runner.configure do |config|
       FileUtils.mkdir_p "#{Dir.pwd}/#{path}"
     end
     
-    @sphinx = sphinx
-    
     ThinkingSphinx.updates_enabled = true
     ThinkingSphinx.deltas_enabled = true
+    ThinkingSphinx.suppress_delta_output = true
     
     ThinkingSphinx::Configuration.instance.reset
     ThinkingSphinx::Configuration.instance.database_yml_file = "spec/fixtures/sphinx/database.yml"
