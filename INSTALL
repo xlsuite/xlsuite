@@ -1,0 +1,20 @@
+= Basic Installation
+
+XLsuite is built on-top of MySQL and cannot currently use any other database servers.
+
+1. cp config/database.yml.sample config/database.yml
+2. Edit config/database.yml to suit you (must use MySQL)
+3. rake db:create db:structure:load db:bootstrap
+4. script/server
+5. http://localhost:3000/
+
+= Complete Installation
+
+You will need to register an account at Amazon's Web Services to use the Simple Storage Service (S3).  XLsuite stores it's assets in S3.  You may configure Asset to store the files on the local filesystem by changing the :storage key of the #has_attachment call to :file_system.
+
+If you want to integrate with Google Maps, you'll need a Google Maps API key.  Update the Configuration named :google_maps_api_key with your key.
+
+= Running the tests
+
+1. rake db:create RAILS_ENV=test
+2. rake
