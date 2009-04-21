@@ -104,14 +104,14 @@ class CmsController < ApplicationController
         @new_listing.external_id = listing.external_id
         @new_listing.save!
         listing.assets.each do |asset|
-          @new_asset = @account.assets.create!(:temp_data => asset.current_data, 
+          @new_asset = @account.assets.create!(:temp_data => asset.send(:current_data), 
               :filename => asset.filename, :content_type => asset.content_type, :size => asset.size, :tag_list => asset.tag_list,
               :width => asset.width, :height => asset.height, :title => asset.title, :description => asset.description)
           @new_listing.assets << @new_asset
           View.find_by_asset_id(@new_asset.id).update_attribute("classification", listing.views.find_by_asset_id(asset.id).classification)
           View.find_by_asset_id(@new_asset.id).update_attribute("position", listing.views.find_by_asset_id(asset.id).position)
           asset.thumbnails.each do |thumb|
-            new_thumb = @account.assets.create!(:temp_data => thumb.current_data, :parent_id => @new_asset.id,
+            new_thumb = @account.assets.create!(:temp_data => thumb.send(:current_data), :parent_id => @new_asset.id,
               :filename => thumb.filename, :content_type => thumb.content_type, :size => thumb.size, :tag_list => thumb.tag_list,
               :width => thumb.width, :height => thumb.height, :title => thumb.title, :description => thumb.description)
           end

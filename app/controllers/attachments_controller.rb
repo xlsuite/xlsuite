@@ -24,7 +24,7 @@ class AttachmentsController < ApplicationController
       send_data("", :filename => @asset.filename,
           :type => @asset.content_type, :disposition => disposition)
     else
-      send_data(@asset.current_data, :filename => @asset.filename,
+      send_data(@asset.send(:current_data), :filename => @asset.filename,
           :type => @asset.content_type, :disposition => disposition)
     end
   end

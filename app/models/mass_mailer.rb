@@ -36,7 +36,7 @@ class MassMailer < ActionMailer::Base
   protected
   def add_inline_attachments(email)
     email.attachments.each do |att|
-      attachment :content_type => att.content_type, :body => att.current_data, :filename => att.filename
+      attachment :content_type => att.content_type, :body => att.send(:current_data), :filename => att.filename
     end
   end
 

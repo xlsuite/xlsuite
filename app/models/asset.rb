@@ -76,8 +76,6 @@ class Asset < ActiveRecord::Base
   attr_accessor :zip_file
   def zip_file?; @zip_file == "1" || @zip_file == 1; end
 
-  public :current_data, :find_or_initialize_thumbnail
-
   attr_accessor :private_changed
   after_save :set_storage_access, :if => lambda{|r| r.private_changed}
 
@@ -216,7 +214,7 @@ class Asset < ActiveRecord::Base
       Tempfile.open(self.filename) do |zipfile|
         begin
           logger.debug {"==> Copying zip file to #{zipfile.path}"}
-          zipfile.write(self.current_data)
+          zipfile.write(current_data)
           zipfile.rewind
           logger.debug {"==> zipfile is #{zipfile.length} bytes in length"}
           Zip::Archive.new(zipfile.path).unzip_to(root)
@@ -508,6 +506,6 @@ class Asset < ActiveRecord::Base
   end
 
   def generate_etag_from_current_data
-    self.update_attribute(:etag, Digest::MD5.hexdigest(self.current_data))
+    self.update_attribute(:etag, Digest::MD5.hexdigest(current_data))
   end
 end
