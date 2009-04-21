@@ -16,7 +16,7 @@ config.action_mailer.raise_delivery_errors = false
 
 ActionMailer::Base.delivery_method = :smtp
 ActionMailer::Base.smtp_settings = {
-  :address => 'relais.videotron.ca'
+  :address => 'localhost'
 }
 
 after_initialize do
