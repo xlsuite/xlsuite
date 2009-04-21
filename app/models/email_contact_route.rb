@@ -4,7 +4,7 @@
 class EmailContactRoute < ContactRoute
   acts_as_reportable :columns => %w(email_address)
 
-  ValidAddressRegexp = %r{[A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z]{2,}}i.freeze
+  ValidAddressRegexp = %r{[A-Z0-9._%-]+@(?:localhost|[A-Z0-9.-]+\.[A-Z]{2,})}i.freeze
 
   validates_presence_of :email_address
   validates_uniqueness_of :email_address, :scope => [:account_id, :routable_type], :if => Proc.new {|email| email.routable_type == "Party"}
