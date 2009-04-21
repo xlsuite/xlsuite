@@ -15,11 +15,10 @@ module UuidGenerator
       acct = Account.find(self.account_id) unless acct
       conditions.merge!(:account_id => acct.id)
     end
-    self.uuid = UUID.random_create.to_s unless self.uuid
     loop do
-      break if self.class.count(:all, :conditions => conditions.merge(:uuid => self.uuid)).zero?
       logger.debug {"==> Generating random UUID"}
       self.uuid = UUID.random_create.to_s
+      break if self.class.count(:all, :conditions => conditions.merge(:uuid => self.uuid)).zero?
     end
   end
 
