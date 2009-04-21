@@ -22,7 +22,7 @@ module ThinkingSphinx
             # Searches for results limited to a single model. See
             # ThinkingSphinx::Search#search for syntax examples.
             #
-            def sphinx_search(*args)
+            def search(*args)
               options = args.extract_options!
               options[:class] = self
               args << options
@@ -41,6 +41,13 @@ module ThinkingSphinx
               options[:class] = self
               args << options
               ThinkingSphinx::Search.search_for_id(*args)
+            end
+            
+            def facets(*args)
+              options = args.extract_options!
+              options[:class] = self
+              args << options
+              ThinkingSphinx::Search.facets(*args)
             end
           end
         end

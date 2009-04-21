@@ -8,7 +8,8 @@ module ThinkingSphinx
   # associations. Which can get messy. Use Index.link!, it really helps.
   # 
   class Field
-    attr_accessor :alias, :columns, :sortable, :associations, :model, :infixes, :prefixes
+    attr_accessor :alias, :columns, :sortable, :associations, :model, :infixes,
+      :prefixes, :faceted
     
     # To create a new field, you'll need to pass in either a single Column
     # or an array of them, and some (optional) options. The columns are
@@ -58,10 +59,11 @@ module ThinkingSphinx
 
       raise "Cannot define a field with no columns. Maybe you are trying to index a field with a reserved name (id, name). You can fix this error by using a symbol rather than a bare name (:id instead of id)." if @columns.empty? || @columns.any? { |column| !column.respond_to?(:__stack) }
       
-      @alias        = options[:as]
-      @sortable     = options[:sortable] || false
-      @infixes      = options[:infixes]  || false
-      @prefixes     = options[:prefixes] || false
+      @alias    = options[:as]
+      @sortable = options[:sortable] || false
+      @infixes  = options[:infixes]  || false
+      @prefixes = options[:prefixes] || false
+      @faceted  = options[:facet]    || false
     end
     
     # Get the part of the SELECT clause related to this field. Don't forget
@@ -75,10 +77,10 @@ module ThinkingSphinx
         column_with_prefix(column)
       }.join(', ')
       
-      clause = concatenate(clause) if concat_ws?
-      clause = group_concatenate(clause) if is_many?
+      clause = adapter.concatenate(clause) if concat_ws?
+      clause = adapter.group_concatenate(clause) if is_many?
       
-      "#{cast_to_string clause } AS #{quote_column(unique_name)}"
+      "#{adapter.cast_to_string clause } AS #{quote_column(unique_name)}"
     end
     
     # Get the part of the GROUP BY clause related to this field - if one is
@@ -110,39 +112,16 @@ module ThinkingSphinx
       end
     end
     
+    def to_facet
+      return nil unless @faceted
+      
+      ThinkingSphinx::Facet.new(self)
+    end
+    
     private
     
-    def concatenate(clause)
-      case @model.connection.class.name
-      when "ActiveRecord::ConnectionAdapters::MysqlAdapter"
-        "CONCAT_WS(' ', #{clause})"
-      when "ActiveRecord::ConnectionAdapters::PostgreSQLAdapter"
-        clause.split(', ').join(" || ' ' || ")
-      else
-        clause
-      end
-    end
-    
-    def group_concatenate(clause)
-      case @model.connection.class.name
-      when "ActiveRecord::ConnectionAdapters::MysqlAdapter"
-        "GROUP_CONCAT(#{clause} SEPARATOR ' ')"
-      when "ActiveRecord::ConnectionAdapters::PostgreSQLAdapter"
-        "array_to_string(array_accum(#{clause}), ' ')"
-      else
-        clause
-      end
-    end
-    
-    def cast_to_string(clause)
-      case @model.connection.class.name
-      when "ActiveRecord::ConnectionAdapters::MysqlAdapter"
-        "CAST(#{clause} AS CHAR)"
-      when "ActiveRecord::ConnectionAdapters::PostgreSQLAdapter"
-        clause
-      else
-        clause
-      end
+    def adapter
+      @adapter ||= @model.sphinx_database_adapter
     end
     
     def quote_column(column)
@@ -156,16 +135,7 @@ module ThinkingSphinx
     def concat_ws?
       @columns.length > 1 || multiple_associations?
     end
-    
-    # Checks the association tree for each column - if they're all the same,
-    # returns false.
-    # 
-    def multiple_sources?
-      first = associations[@columns.first]
-      
-      !@columns.all? { |col| associations[col] == first }
-    end
-    
+        
     # Checks whether any column requires multiple associations (which only
     # happens for polymorphic situations).
     # 
@@ -197,10 +167,6 @@ module ThinkingSphinx
     #
     def is_many?
       associations.values.flatten.any? { |assoc| assoc.is_many? }
-    end
-    
-    def is_string?
-      columns.all? { |col| col.is_string? }
     end
   end
 end

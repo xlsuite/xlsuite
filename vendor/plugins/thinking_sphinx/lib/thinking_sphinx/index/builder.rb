@@ -18,7 +18,11 @@ module ThinkingSphinx
         # rails documentation. It's not needed though, so it gets undef'd.
         # Hopefully the list of methods that get in the way doesn't get too
         # long.
-        undef_method :parent
+        HiddenMethods = [:parent, :name, :id, :type].each { |method|
+          define_method(method) {
+            caller.grep(/irb.completion/).empty? ? method_missing(method) : super
+          }
+        }
         
         attr_accessor :fields, :attributes, :properties, :conditions,
           :groupings
@@ -83,22 +87,16 @@ module ThinkingSphinx
         def indexes(*args)
           options = args.extract_options!
           args.each do |columns|
-            fields << Field.new(FauxColumn.coerce(columns), options)
+            field = Field.new(FauxColumn.coerce(columns), options)
+            fields << field
             
-            if fields.last.sortable
-              attributes << Attribute.new(
-                fields.last.columns.collect { |col| col.clone },
-                options.merge(
-                  :type => :string,
-                  :as => fields.last.unique_name.to_s.concat("_sort").to_sym
-                )
-              )
-            end
+            add_sort_attribute field, options   if field.sortable
+            add_facet_attribute field, options  if field.faceted
           end
         end
         alias_method :field,    :indexes
         alias_method :includes, :indexes
-        
+                
         # This is the method to add attributes to your index (hence why it is
         # aliased as 'attribute'). The syntax is the same as #indexes, so use
         # that as starting point, but keep in mind the following points.
@@ -130,7 +128,7 @@ module ThinkingSphinx
         # when you would like to index a calculated value. Don't forget to set
         # the type of the attribute though:
         #
-        #   indexes "age < 18", :as => :minor, :type => :boolean
+        #   has "age < 18", :as => :minor, :type => :boolean
         # 
         # If you're creating attributes for latitude and longitude, don't
         # forget that Sphinx expects these values to be in radians.
@@ -138,10 +136,25 @@ module ThinkingSphinx
         def has(*args)
           options = args.extract_options!
           args.each do |columns|
-            attributes << Attribute.new(FauxColumn.coerce(columns), options)
+            attribute = Attribute.new(FauxColumn.coerce(columns), options)
+            attributes << attribute
+            
+            add_facet_attribute attribute, options if attribute.faceted
           end
         end
         alias_method :attribute, :has
+        
+        def facet(*args)
+          options = args.extract_options!
+          options[:facet] = true
+          
+          args.each do |columns|
+            attribute = Attribute.new(FauxColumn.coerce(columns), options)
+            attributes << attribute
+            
+            add_facet_attribute attribute, options
+          end
+        end
         
         # Use this method to add some manual SQL conditions for your index
         # request. You can pass in as many strings as you like, they'll get
@@ -172,6 +185,9 @@ module ThinkingSphinx
         # 
         #   set_property :delta => true
         #   set_property :field_weights => {"name" => 100}
+        #   set_property :order => "name ASC"
+        #   set_property :include => :picture
+        #   set_property :select => 'name'
         # 
         # Also, the following two properties are particularly relevant for
         # geo-location searching - latitude_attr and longitude_attr. If your
@@ -184,7 +200,17 @@ module ThinkingSphinx
         # 
         # Please don't forget to add a boolean field named 'delta' to your
         # model's database table if enabling the delta index for it.
+        # Valid options for the delta property are:
         # 
+        # true
+        # false
+        # :default
+        # :delayed
+        # :datetime
+        # 
+        # You can also extend ThinkingSphinx::Deltas::DefaultDelta to implement 
+        # your own handling for delta indexing.
+        
         def set_property(*args)
           options = args.extract_options!
           if options.empty?
@@ -208,8 +234,29 @@ module ThinkingSphinx
         # 
         # Example: indexes assoc(:properties).column
         # 
-        def assoc(assoc)
-          FauxColumn.new(method)
+        def assoc(assoc, *args)
+          FauxColumn.new(assoc, *args)
+        end
+        
+        private
+        
+        def add_sort_attribute(field, options)
+          add_internal_attribute field, options, "_sort"
+        end
+        
+        def add_facet_attribute(resource, options)
+          add_internal_attribute resource, options, "_facet", true
+        end
+        
+        def add_internal_attribute(resource, options, suffix, crc = false)
+          @attributes << Attribute.new(
+            resource.columns.collect { |col| col.clone },
+            options.merge(
+              :type => resource.is_a?(Field) ? :string : nil,
+              :as   => resource.unique_name.to_s.concat(suffix).to_sym,
+              :crc  => crc
+            ).except(:facet)
+          )
         end
       end
     end

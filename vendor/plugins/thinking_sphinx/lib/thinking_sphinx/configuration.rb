@@ -1,4 +1,5 @@
 require 'erb'
+require 'singleton'
 
 module ThinkingSphinx
   # This class both keeps track of the configuration settings for Sphinx and
@@ -41,47 +42,61 @@ module ThinkingSphinx
   # don't set allow_star to true.
   # 
   class Configuration
-    attr_accessor :config_file, :searchd_log_file, :query_log_file,
-      :pid_file, :searchd_file_path, :address, :port, :enable_star,
-      :allow_star, :min_prefix_len, :min_infix_len, :mem_limit, :max_matches,
-      :morphology, :charset_type, :charset_table, :ignore_chars, :html_strip,
-      :html_remove_elements, :database_yml_file, :app_root, :bin_path
+    include Singleton
     
-    attr_reader :environment
+    SourceOptions = %w( mysql_connect_flags sql_range_step sql_query_pre
+      sql_query_post sql_ranged_throttle sql_query_post_index )
+    
+    IndexOptions  = %w( charset_table charset_type docinfo enable_star
+      exceptions html_index_attrs html_remove_elements html_strip ignore_chars
+      min_infix_len min_prefix_len min_word_len mlock morphology ngram_chars
+      ngram_len phrase_boundary phrase_boundary_step preopen stopwords
+      wordforms )
+        
+    attr_accessor :config_file, :searchd_log_file, :query_log_file,
+      :pid_file, :searchd_file_path, :address, :port, :allow_star,
+      :database_yml_file, :app_root, :bin_path, :model_directories
+    
+    attr_accessor :source_options, :index_options
+    
+    attr_reader :environment, :configuration
     
     # Load in the configuration settings - this will look for config/sphinx.yml
     # and parse it according to the current environment.
     # 
     def initialize(app_root = Dir.pwd)
+      self.reset
+    end
+    
+    def reset
       self.app_root          = RAILS_ROOT if defined?(RAILS_ROOT)
       self.app_root          = Merb.root  if defined?(Merb)
       self.app_root        ||= app_root
       
+      @configuration = Riddle::Configuration.new
+      @configuration.searchd.address    = "127.0.0.1"
+      @configuration.searchd.port       = 3312
+      @configuration.searchd.pid_file   = "#{self.app_root}/log/searchd.#{environment}.pid"
+      @configuration.searchd.log        = "#{self.app_root}/log/searchd.log"
+      @configuration.searchd.query_log  = "#{self.app_root}/log/searchd.query.log"
+      
       self.database_yml_file    = "#{self.app_root}/config/database.yml"
       self.config_file          = "#{self.app_root}/config/#{environment}.sphinx.conf"
-      self.searchd_log_file     = "#{self.app_root}/log/searchd.log"
-      self.query_log_file       = "#{self.app_root}/log/searchd.query.log"
-      self.pid_file             = "#{self.app_root}/log/searchd.#{environment}.pid"
       self.searchd_file_path    = "#{self.app_root}/db/sphinx/#{environment}"
-      self.address              = "127.0.0.1"
-      self.port                 = 3312
       self.allow_star           = false
-      self.enable_star          = false
-      self.min_prefix_len       = nil
-      self.min_infix_len        = nil
-      self.mem_limit            = "64M"
-      self.max_matches          = 1000
-      self.morphology           = "stem_en"
-      self.charset_type         = "utf-8"
-      self.charset_table        = nil
-      self.ignore_chars         = nil
-      self.html_strip           = false
-      self.html_remove_elements = ""
       self.bin_path             = ""
+      self.model_directories    = ["#{app_root}/app/models/"] +
+        Dir.glob("#{app_root}/vendor/plugins/*/app/models/")
       
+      self.source_options  = {}
+      self.index_options   = {
+        :charset_type => "utf-8",
+        :morphology   => "stem_en"
+      }
+            
       parse_config
       
-      self.bin_path += '/' unless self.bin_path.blank?
+      self
     end
     
     def self.environment
@@ -94,6 +109,10 @@ module ThinkingSphinx
       self.class.environment
     end
     
+    def controller
+      @controller ||= Riddle::Controller.new(@configuration, self.config_file)
+    end
+    
     # Generate the config file for Sphinx by using all the settings defined and
     # looping through all the models with indexes to build the relevant
     # indexer and searchd configuration, and sources and indexes details.
@@ -101,58 +120,15 @@ module ThinkingSphinx
     def build(file_path=nil)
       load_models
       file_path ||= "#{self.config_file}"
-      database_confs = YAML::load(ERB.new(IO.read("#{self.database_yml_file}")).result)
-      database_confs.symbolize_keys!
-      database_conf  = database_confs[environment.to_sym]
-      database_conf.symbolize_keys!
+      
+      @configuration.indexes.clear
+      
+      ThinkingSphinx.indexed_models.each_with_index do |model, model_index|
+        @configuration.indexes.concat model.constantize.to_riddle(model_index)
+      end
       
       open(file_path, "w") do |file|
-        file.write <<-CONFIG
-indexer
-{
-  mem_limit = #{self.mem_limit}
-}
-
-searchd
-{
-  address = #{self.address}
-  port = #{self.port}
-  log = #{self.searchd_log_file}
-  query_log = #{self.query_log_file}
-  read_timeout = 5
-  max_children = 30
-  pid_file = #{self.pid_file}
-  max_matches = #{self.max_matches}
-}
-        CONFIG
-        
-        ThinkingSphinx.indexed_models.each_with_index do |model, model_index|
-          model           = model.constantize
-          sources         = []
-          delta_sources   = []
-          prefixed_fields = []
-          infixed_fields  = []
-          
-          model.sphinx_indexes.select { |index| index.model == model }.each_with_index do |index, i|
-            file.write index.to_config(model, i, database_conf, charset_type, model_index)
-            
-            create_array_accum if index.adapter == :postgres
-            sources << "#{ThinkingSphinx::Index.name(model)}_#{i}_core"
-            delta_sources << "#{ThinkingSphinx::Index.name(model)}_#{i}_delta" if index.delta?
-          end
-          
-          next if sources.empty?
-          
-          source_list = sources.collect       { |s| "source = #{s}" }.join("\n")
-          delta_list  = delta_sources.collect { |s| "source = #{s}" }.join("\n")
-          
-          file.write core_index_for_model(model, source_list)
-          unless delta_list.blank?
-            file.write delta_index_for_model(model, delta_list)
-          end
-          
-          file.write distributed_index_for_model(model)
-        end
+        file.write @configuration.render
       end
     end
     
@@ -161,23 +137,64 @@ searchd
     # messy dependencies issues).
     # 
     def load_models
-      base = "#{app_root}/app/models/"
-      Dir["#{base}**/*.rb"].each do |file|
-        model_name = file.gsub(/^#{base}([\w_\/\\]+)\.rb/, '\1')
+      self.model_directories.each do |base|
+        Dir["#{base}**/*.rb"].each do |file|
+          model_name = file.gsub(/^#{base}([\w_\/\\]+)\.rb/, '\1')
         
-        next if model_name.nil?
-        next if ::ActiveRecord::Base.send(:subclasses).detect { |model|
-          model.name == model_name
-        }
+          next if model_name.nil?
+          next if ::ActiveRecord::Base.send(:subclasses).detect { |model|
+            model.name == model_name
+          }
         
-        begin
-          model_name.camelize.constantize
-        rescue LoadError
-          model_name.gsub!(/.*[\/\\]/, '').nil? ? next : retry
-        rescue NameError
-          next
+          begin
+            model_name.camelize.constantize
+          rescue LoadError
+            model_name.gsub!(/.*[\/\\]/, '').nil? ? next : retry
+          rescue NameError
+            next
+          end
         end
       end
+    end
+    
+    def address
+      @configuration.searchd.address
+    end
+    
+    def address=(address)
+      @configuration.searchd.address = address
+    end
+    
+    def port
+      @configuration.searchd.port
+    end
+    
+    def port=(port)
+      @configuration.searchd.port = port
+    end
+    
+    def pid_file
+      @configuration.searchd.pid_file
+    end
+    
+    def pid_file=(pid_file)
+      @configuration.searchd.pid_file = pid_file
+    end
+    
+    def searchd_log_file
+      @configuration.searchd.log
+    end
+    
+    def searchd_log_file=(file)
+      @configuration.searchd.log = file
+    end
+    
+    def query_log_file
+      @configuration.searchd.query_log
+    end
+    
+    def query_log_file=(file)
+      @configuration.searchd.query_log = file
     end
     
     private
@@ -193,112 +210,28 @@ searchd
       
       conf.each do |key,value|
         self.send("#{key}=", value) if self.methods.include?("#{key}=")
+        
+        set_sphinx_setting self.source_options, key, value, SourceOptions
+        set_sphinx_setting self.index_options,  key, value, IndexOptions
+        set_sphinx_setting @configuration.searchd, key, value
+        set_sphinx_setting @configuration.indexer, key, value
       end unless conf.nil?
-    end
-    
-    def core_index_for_model(model, sources)
-      output = <<-INDEX
-
-index #{ThinkingSphinx::Index.name(model)}_core
-{
-#{sources}
-path = #{self.searchd_file_path}/#{ThinkingSphinx::Index.name(model)}_core
-charset_type = #{self.charset_type}
-INDEX
       
-      morphology  = model.sphinx_indexes.inject(self.morphology) { |morph, index|
-        index.options[:morphology] || morph
-      }
-      output += "  morphology     = #{morphology}\n"         unless morphology.blank?
-      output += "  charset_table  = #{self.charset_table}\n" unless self.charset_table.nil?
-      output += "  ignore_chars   = #{self.ignore_chars}\n"  unless self.ignore_chars.nil?
+      self.bin_path += '/' unless self.bin_path.blank?
       
       if self.allow_star
-        # Ye Olde way of turning on enable_star
-        output += "  enable_star    = 1\n"
-        output += "  min_prefix_len = #{self.min_prefix_len}\n"
-      else
-        # New, better way of turning on enable_star - thanks to James Healy
-        output += "  enable_star    = 1\n" if self.enable_star
-        output += "  min_prefix_len = #{self.min_prefix_len}\n" unless self.min_prefix_len.nil?
-        output += "  min_infix_len  = #{self.min_infix_len}\n" unless self.min_infix_len.nil?
+        self.index_options[:enable_star]    = true
+        self.index_options[:min_prefix_len] = 1
       end
-      
-
-      output += "  html_strip     = 1\n" if self.html_strip
-      output += "  html_remove_elements = #{self.html_remove_elements}\n" unless self.html_remove_elements.blank?
-
-      unless model.sphinx_indexes.collect(&:prefix_fields).flatten.empty?
-        output += "  prefix_fields = #{model.sphinx_indexes.collect(&:prefix_fields).flatten.map(&:unique_name).join(', ')}\n"
-      else
-        output += " prefix_fields = _\n" unless model.sphinx_indexes.collect(&:infix_fields).flatten.empty?
-      end
-      
-      unless model.sphinx_indexes.collect(&:infix_fields).flatten.empty?
-        output += "  infix_fields  = #{model.sphinx_indexes.collect(&:infix_fields).flatten.map(&:unique_name).join(', ')}\n"
-      else
-        output += " infix_fields = -\n" unless model.sphinx_indexes.collect(&:prefix_fields).flatten.empty?
-      end
-      
-      output + "}\n"
     end
     
-    def delta_index_for_model(model, sources)
-      <<-INDEX
-index #{ThinkingSphinx::Index.name(model)}_delta : #{ThinkingSphinx::Index.name(model)}_core
-{
-  #{sources}
-  path = #{self.searchd_file_path}/#{ThinkingSphinx::Index.name(model)}_delta
-}
-      INDEX
-    end
-    
-    def distributed_index_for_model(model)
-      sources = ["local = #{ThinkingSphinx::Index.name(model)}_core"]
-      if model.sphinx_indexes.any? { |index| index.delta? }
-        sources << "local = #{ThinkingSphinx::Index.name(model)}_delta"
+    def set_sphinx_setting(object, key, value, allowed = {})
+      if object.is_a?(Hash)
+        object[key.to_sym] = value if allowed.include?(key.to_s)
+      else
+        object.send("#{key}=", value) if object.methods.include?("#{key}")
+        send("#{key}=", value) if self.methods.include?("#{key}")
       end
-      
-      <<-INDEX
-index #{ThinkingSphinx::Index.name(model)}
-{
-  type = distributed
-  #{ sources.join("\n  ") }
-  charset_type = #{self.charset_type}
-}
-      INDEX
-    end
-    
-    def create_array_accum
-      ::ActiveRecord::Base.connection.execute "begin"
-      ::ActiveRecord::Base.connection.execute "savepoint ts"
-      begin
-        # see http://www.postgresql.org/docs/8.2/interactive/sql-createaggregate.html
-        if ::ActiveRecord::Base.connection.raw_connection.server_version > 80200
-          ::ActiveRecord::Base.connection.execute <<-SQL
-            CREATE AGGREGATE array_accum (anyelement)
-            (
-                sfunc = array_append,
-                stype = anyarray,
-                initcond = '{}'
-            );
-          SQL
-        else
-          ::ActiveRecord::Base.connection.execute <<-SQL
-            CREATE AGGREGATE array_accum
-            (
-                basetype = anyelement,
-                sfunc = array_append,
-                stype = anyarray,
-                initcond = '{}'
-            );
-          SQL
-        end
-      rescue
-        ::ActiveRecord::Base.connection.execute "rollback to savepoint ts"
-      end
-      ::ActiveRecord::Base.connection.execute "release savepoint ts"
-      ::ActiveRecord::Base.connection.execute "commit"
     end
   end
 end

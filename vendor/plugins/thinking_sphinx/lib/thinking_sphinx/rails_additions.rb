@@ -30,6 +30,18 @@ Array.send(
 ) unless Array.instance_methods.include?("extract_options!")
 
 module ThinkingSphinx
+  module AbstractQuotedTableName
+    def quote_table_name(name)
+      quote_column_name(name)
+    end
+  end
+end
+
+ActiveRecord::ConnectionAdapters::AbstractAdapter.send(
+  :include, ThinkingSphinx::AbstractQuotedTableName
+) unless ActiveRecord::ConnectionAdapters::AbstractAdapter.instance_methods.include?("quote_table_name")
+
+module ThinkingSphinx
   module MysqlQuotedTableName
     def quote_table_name(name) #:nodoc:
       quote_column_name(name).gsub('.', '`.`')
@@ -37,10 +49,13 @@ module ThinkingSphinx
   end
 end
 
-if ActiveRecord::ConnectionAdapters.constants.include?("MysqlAdapter")
-  ActiveRecord::ConnectionAdapters::MysqlAdapter.send(
-    :include, ThinkingSphinx::MysqlQuotedTableName
-  ) unless ActiveRecord::ConnectionAdapters::MysqlAdapter.instance_methods.include?("quote_table_name")
+if ActiveRecord::ConnectionAdapters.constants.include?("MysqlAdapter") or ActiveRecord::Base.respond_to?(:jdbcmysql_connection)
+  adapter = ActiveRecord::ConnectionAdapters.const_get(
+    defined?(JRUBY_VERSION) ? :JdbcAdapter : :MysqlAdapter
+  )
+  unless adapter.instance_methods.include?("quote_table_name")
+    adapter.send(:include, ThinkingSphinx::MysqlQuotedTableName)
+  end
 end
 
 module ThinkingSphinx
@@ -54,3 +69,68 @@ end
 ActiveRecord::Base.extend(
   ThinkingSphinx::ActiveRecordQuotedName
 ) unless ActiveRecord::Base.respond_to?("quoted_table_name")
+
+module ThinkingSphinx
+  module ActiveRecordStoreFullSTIClass
+    def store_full_sti_class
+      false
+    end
+  end
+end
+
+ActiveRecord::Base.extend(
+  ThinkingSphinx::ActiveRecordStoreFullSTIClass
+) unless ActiveRecord::Base.respond_to?(:store_full_sti_class)
+
+module ThinkingSphinx
+  module ClassAttributeMethods
+    def cattr_reader(*syms)
+      syms.flatten.each do |sym|
+        next if sym.is_a?(Hash)
+        class_eval(<<-EOS, __FILE__, __LINE__)
+          unless defined? @@#{sym}
+            @@#{sym} = nil
+          end
+
+          def self.#{sym}
+            @@#{sym}
+          end
+
+          def #{sym}
+            @@#{sym}
+          end
+        EOS
+      end
+    end
+
+    def cattr_writer(*syms)
+      options = syms.extract_options!
+      syms.flatten.each do |sym|
+        class_eval(<<-EOS, __FILE__, __LINE__)
+          unless defined? @@#{sym}
+            @@#{sym} = nil
+          end
+
+          def self.#{sym}=(obj)
+            @@#{sym} = obj
+          end
+
+          #{"
+          def #{sym}=(obj)
+            @@#{sym} = obj
+          end
+          " unless options[:instance_writer] == false }
+        EOS
+      end
+    end
+
+    def cattr_accessor(*syms)
+      cattr_reader(*syms)
+      cattr_writer(*syms)
+    end
+  end
+end
+
+Class.extend(
+  ThinkingSphinx::ClassAttributeMethods
+) unless Class.respond_to?(:cattr_reader)

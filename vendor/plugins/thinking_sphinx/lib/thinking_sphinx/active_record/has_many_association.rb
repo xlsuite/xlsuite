@@ -1,7 +1,7 @@
 module ThinkingSphinx
   module ActiveRecord
     module HasManyAssociation
-      def sphinx_search(*args)
+      def search(*args)
         foreign_key = @reflection.primary_key_name
         stack = [@reflection.options[:through]].compact
         
@@ -22,7 +22,7 @@ module ThinkingSphinx
         options[:with][attribute.unique_name] = @owner.id
         
         args << options
-        @reflection.klass.sphinx_search(*args)
+        @reflection.klass.search(*args)
       end
     end
   end

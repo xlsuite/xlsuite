@@ -11,83 +11,65 @@ module ThinkingSphinx
       #
       def self.included(base)
         base.class_eval do
-          # The define_callbacks method was added post Rails 2.0.2 - if it
-          # doesn't exist, we define the callback manually
-          #
-          if respond_to?(:define_callbacks)
-            define_callbacks :after_commit
-          else
-            class << self
-              # Handle after_commit callbacks - call all the registered callbacks.
-              #
-              def after_commit(*callbacks, &block)
-                callbacks << block if block_given?
-                write_inheritable_array(:after_commit, callbacks)
+          class << self
+            # Temporarily disable delta indexing inside a block, then perform a single
+            # rebuild of index at the end.
+            #
+            # Useful when performing updates to batches of models to prevent
+            # the delta index being rebuilt after each individual update.
+            #
+            # In the following example, the delta index will only be rebuilt once,
+            # not 10 times.
+            #
+            #   SomeModel.suspended_delta do
+            #     10.times do
+            #       SomeModel.create( ... )
+            #     end
+            #   end
+            #
+            def suspended_delta(reindex_after = true, &block)
+              original_setting = ThinkingSphinx.deltas_enabled?
+              ThinkingSphinx.deltas_enabled = false
+              begin
+                yield
+              ensure
+                ThinkingSphinx.deltas_enabled = original_setting
+                self.index_delta if reindex_after
               end
+            end
+
+            # Build the delta index for the related model. This won't be called
+            # if running in the test environment.
+            #
+            def index_delta(instance = nil)
+              delta_object.index(self, instance)
+            end
+            
+            def delta_object
+              self.sphinx_indexes.first.delta_object
             end
           end
           
-          def after_commit
-            # Deliberately blank.
+          def toggled_delta?
+            self.class.delta_object.toggled(self)
           end
-          
-          # Normal boolean save wrapped in a handler for the after_commit
-          # callback.
-          # 
-          def save_with_after_commit_callback(*args)
-            value = save_without_after_commit_callback(*args)
-            callback(:after_commit) if value
-            return value
-          end
-          
-          alias_method_chain :save, :after_commit_callback
-          
-          # Forceful save wrapped in a handler for the after_commit callback.
-          #
-          def save_with_after_commit_callback!(*args)
-            value = save_without_after_commit_callback!(*args)
-            callback(:after_commit) if value
-            return value
-          end
-          
-          alias_method_chain :save!, :after_commit_callback
-          
-          # Normal destroy wrapped in a handler for the after_commit callback.
-          #
-          def destroy_with_after_commit_callback
-            value = destroy_without_after_commit_callback
-            callback(:after_commit) if value
-            return value
-          end
-          
-          alias_method_chain :destroy, :after_commit_callback
           
           private
           
           # Set the delta value for the model to be true.
           def toggle_delta
-            self.delta = true
+            self.class.delta_object.toggle(self) if should_toggle_delta?
           end
           
           # Build the delta index for the related model. This won't be called
           # if running in the test environment.
           # 
           def index_delta
-            return true unless ThinkingSphinx.updates_enabled? &&
-              ThinkingSphinx.deltas_enabled?
-            
-            config = ThinkingSphinx::Configuration.new
-            client = Riddle::Client.new config.address, config.port
-            
-            client.update(
-              "#{self.class.sphinx_indexes.first.name}_core",
-              ['sphinx_deleted'],
-              {self.sphinx_document_id => 1}
-            ) if self.in_core_index?
-            
-            system "#{config.bin_path}indexer --config #{config.config_file} --rotate #{self.class.sphinx_indexes.first.name}_delta"
-            
-            true
+            self.class.index_delta(self) if self.class.delta_object.toggled(self)
+          end
+          
+          def should_toggle_delta?
+            !self.respond_to?(:changed?) || self.changed? || self.new_record?
           end
         end
       end
