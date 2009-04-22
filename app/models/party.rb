@@ -313,6 +313,7 @@ class Party < ActiveRecord::Base
     indexes phones.number, :as => :phones
 
     has :account_id, :created_by_id, :archived_at
+    set_property :delta => true
   end
   include XlSuite::SphinxSearch
 
