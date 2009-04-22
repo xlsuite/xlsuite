@@ -1240,6 +1240,7 @@ CREATE TABLE `items` (
   `http_code` int(11) default '200',
   `updator_id` int(11) default NULL,
   `no_update` tinyint(1) default NULL,
+  `delta` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_uuid` (`account_id`,`uuid`),
   KEY `by_account_fullslug_status` (`account_id`,`fullslug`,`status`),
@@ -2557,3 +2558,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090407191547');
 INSERT INTO schema_migrations (version) VALUES ('20090409004839');
 
 INSERT INTO schema_migrations (version) VALUES ('20090421221932');
+
+INSERT INTO schema_migrations (version) VALUES ('20090421235113');
