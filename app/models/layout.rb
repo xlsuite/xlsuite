@@ -300,6 +300,7 @@ class Layout < ActiveRecord::Base
     indexes [:domain_patterns], :sortable => true
 
     has :account_id, :type => :integer
+    set_property :delta => true
   end
   include XlSuite::SphinxSearch
 
