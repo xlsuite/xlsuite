@@ -279,7 +279,9 @@
 # 
 # 		     END OF TERMS AND CONDITIONS
 class Item < ActiveRecord::Base
-  acts_as_versioned :limit => 20
+  acts_as_versioned :limit => 20, :if_changed => [:title, :body, :behavior, :status, :fullslug, :domain_patterns, 
+    :layout, :require_ssl, :meta_description, :meta_keywords, :no_update]
+  self.non_versioned_columns << 'delta'
   
   belongs_to :account
   validates_presence_of :account_id
