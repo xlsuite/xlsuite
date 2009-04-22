@@ -295,7 +295,6 @@ class Listing < ActiveRecord::Base
   validates_presence_of :account_id
 
   acts_as_taggable
-  acts_as_fulltext %w(quick_description), %w(address_as_text mls_no realtor_name tags_as_text description status region contact_email)
 
   define_index do
     indexes [:features]
@@ -318,6 +317,8 @@ class Listing < ActiveRecord::Base
     has :price_cents, :as => :price_cents, :type => :integer
     has :mls_no, :type => :string
     has :public, :type => :boolean
+    
+    set_property :delta => true
   end
   include XlSuite::SphinxSearch
   
