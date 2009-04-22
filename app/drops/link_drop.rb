@@ -281,7 +281,7 @@
 class LinkDrop < Liquid::Drop
   attr_reader :link
   delegate :title, :url, :description, :active_at, :inactive_at, :approved, :created_at, 
-           :assets, :pictures, :to => :link
+           :assets, :pictures, :id, :to => :link
 
   def initialize(link)
     @link = link
