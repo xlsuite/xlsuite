@@ -297,6 +297,7 @@ class Page < Item
     has :account_id
     has :status
     has :fullslug
+    set_property :delta => true
   end
   include XlSuite::SphinxSearch
 

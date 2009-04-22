@@ -284,6 +284,7 @@ class Snippet < Item
     indexes [:body]
     indexes [:domain_patterns], :sortable => true
     has :account_id
+    set_property :delta => true
   end
   include XlSuite::SphinxSearch
   
