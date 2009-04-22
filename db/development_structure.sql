@@ -1368,6 +1368,7 @@ CREATE TABLE `listings` (
   `creator_id` int(11) default NULL,
   `comment_approval_method` varchar(255) default NULL,
   `open_house` tinyint(1) default '0',
+  `delta` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_ext_id` (`account_id`,`external_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -2560,3 +2561,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090409004839');
 INSERT INTO schema_migrations (version) VALUES ('20090421221932');
 
 INSERT INTO schema_migrations (version) VALUES ('20090421235113');
+
+INSERT INTO schema_migrations (version) VALUES ('20090422005456');
