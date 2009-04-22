@@ -2,7 +2,8 @@
 #- Copyright 2005-2009 iXLd Media Inc.  See LICENSE for details.
 
 class Layout < ActiveRecord::Base
-  acts_as_versioned :limit => 20
+  acts_as_versioned :limit => 20, :if_changed => [:title, :content_type, :body, :domain_patterns]
+  self.non_versioned_columns << 'delta'
   
   belongs_to :account
   validates_presence_of :account_id
@@ -22,6 +23,7 @@ class Layout < ActiveRecord::Base
     indexes [:domain_patterns], :sortable => true
 
     has :account_id, :type => :integer
+    set_property :delta => true
   end
   include XlSuite::SphinxSearch
 

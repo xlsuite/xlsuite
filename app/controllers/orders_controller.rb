@@ -157,7 +157,7 @@ class OrdersController < ApplicationController
       return_url = params[:return_url].blank? ? "" : params[:return_url].gsub(/__uuid__/i, @order.uuid)    
       case @payment.payment_method
       when "paypal"
-        options = {:return => return_url.as_absolute_url(current_domain.name), :notify_url => "http://24.83.160.187:3001/admin/ipn"}
+        options = {:return => return_url.as_absolute_url(current_domain.name), :notify_url => ipn_url}
         options.merge!(:cancel_return => params[:cancel_url].gsub(/__uuid__/i, @order.uuid).as_absolute_url(current_domain.name)) if params[:cancel_url] 
         result = @payment.start!(who, options)
         redirect_to result.first

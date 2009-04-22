@@ -1240,6 +1240,7 @@ CREATE TABLE `items` (
   `http_code` int(11) default '200',
   `updator_id` int(11) default NULL,
   `no_update` tinyint(1) default NULL,
+  `delta` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_uuid` (`account_id`,`uuid`),
   KEY `by_account_fullslug_status` (`account_id`,`fullslug`,`status`),
@@ -1293,6 +1294,7 @@ CREATE TABLE `layouts` (
   `modified` tinyint(1) default NULL,
   `updator_id` int(11) default NULL,
   `no_update` tinyint(1) default NULL,
+  `delta` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
   KEY `by_account_title` (`account_id`,`title`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1366,6 +1368,7 @@ CREATE TABLE `listings` (
   `creator_id` int(11) default NULL,
   `comment_approval_method` varchar(255) default NULL,
   `open_house` tinyint(1) default '0',
+  `delta` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_ext_id` (`account_id`,`external_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1534,6 +1537,7 @@ CREATE TABLE `parties` (
   `confirmed` tinyint(1) default '0',
   `own_point` int(11) default '0',
   `referrals_point` int(11) default '0',
+  `delta` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_token` (`account_id`,`token`),
   UNIQUE KEY `by_profile` (`profile_id`),
@@ -2554,3 +2558,11 @@ INSERT INTO schema_migrations (version) VALUES ('20090406205518');
 INSERT INTO schema_migrations (version) VALUES ('20090407191547');
 
 INSERT INTO schema_migrations (version) VALUES ('20090409004839');
+
+INSERT INTO schema_migrations (version) VALUES ('20090421221932');
+
+INSERT INTO schema_migrations (version) VALUES ('20090421235113');
+
+INSERT INTO schema_migrations (version) VALUES ('20090422005456');
+
+INSERT INTO schema_migrations (version) VALUES ('20090422010229');

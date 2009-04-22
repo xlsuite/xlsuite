@@ -42,28 +42,31 @@ class PagesController < ApplicationController
       format.json do
         search_options = {:offset => params[:start], :limit => params[:limit]}
         search_options.merge!(:order => params[:sort].blank? ? "fullslug ASC" : "#{params[:sort]} #{params[:dir]}")
-        conditions = {:conditions => "type != 'Redirect'"}
+        conditions = {:conditions => {:type => "Page", :account_id => self.current_account.id}}
         search_options.merge!(conditions)
 
-        query_params = params[:q]
-        unless query_params.blank?
-          query_params = query_params.split(/\s+/)
-          query_params = query_params.map {|q| q+"*"}.join(" ")
-        end
         if params[:domain] && params[:domain].downcase != "all"
-          @domain = current_account.domains.find_by_name(params[:domain])
-          pages = current_account.pages.search(query_params).group_by(&:fullslug).values.map do |group|
-            group.best_match_for_domain(@domain)
-          end.compact.flatten.reject(&:redirect?)
-          sort = params[:sort].blank? ? :fullslug : params[:sort].to_sym
+          @domain = self.current_account.domains.find_by_name(params[:domain])
+          pages = []
+          if params[:q].blank?
+            pages = self.current_account.pages.all.group_by(&:fullslug).values.map do |group|
+              group.best_match_for_domain(@domain)
+            end.compact.flatten.reject(&:redirect?)
+          else
+            #do nothing for now... not supported yet
+          end
+
+          sort = params[:sort].blank? ? :title : params[:sort].to_sym
           dir = params[:dir] if !params[:dir].blank? && params[:dir] =~ /desc/i
           pages = pages.sort_by(&sort)
           pages.reverse! if dir
           @pages = pages[params[:start].to_i, params[:limit].to_i]
           @pages_count = pages.size
         else
-          @pages = current_account.pages.search(query_params, search_options)
-          @pages_count = current_account.pages.count_results(query_params, conditions)
+          @pages = Page.xl_sphinx_search(params[:q], search_options.merge(:with => {:account_id => self.current_account.id}))
+          search_options.delete(:offset)
+          search_options.delete(:start)
+          @pages_count = Page.xl_sphinx_search_count(params[:q], search_options.merge(:with => {:account_id => self.current_account.id}))
         end
 
         render(:json => {:total => @pages_count, :collection => assemble_records(@pages)}.to_json)
