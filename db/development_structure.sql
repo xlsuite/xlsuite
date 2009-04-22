@@ -1537,6 +1537,7 @@ CREATE TABLE `parties` (
   `confirmed` tinyint(1) default '0',
   `own_point` int(11) default '0',
   `referrals_point` int(11) default '0',
+  `delta` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_token` (`account_id`,`token`),
   UNIQUE KEY `by_profile` (`profile_id`),
@@ -2563,3 +2564,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090421221932');
 INSERT INTO schema_migrations (version) VALUES ('20090421235113');
 
 INSERT INTO schema_migrations (version) VALUES ('20090422005456');
+
+INSERT INTO schema_migrations (version) VALUES ('20090422010229');
