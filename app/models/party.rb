@@ -1597,6 +1597,14 @@ class Party < ActiveRecord::Base
     ImapEmailAccount.first(:conditions => {:party_id => self.id, :account_id => self.account_id})
   end
   
+  def own_smtp_account?
+    SmtpEmailAccount.count(:conditions => {:party_id => self.id, :account_id => self.account_id}) > 0 ? true : false
+  end
+  
+  def own_smtp_account
+    SmtpEmailAccount.first(:conditions => {:party_id => self.id, :account_id => self.account_id})
+  end
+  
   def all_imap_accounts
     email_account_ids = []
     t_role_ids = self.roles.all(:select => "roles.id").map(&:id)
