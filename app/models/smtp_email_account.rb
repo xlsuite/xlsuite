@@ -320,11 +320,12 @@ class SmtpEmailAccount < EmailAccount
   end
   
   def test
-    out = nil
-    Net::SMTP.start(self.connecting_server, self.connecting_port, 'localhost.localdomain', self.username, self.password, "plain") do |smtp|
-      smtp.send_message("This is an XLsuite test. If you see this email that means your SMTP is setup properly", self.username, [self.username])
-      out = true
+    begin
+      SmtpMailer.deliver_email_account_test(self)
+      true
+    rescue
+      RAILS_DEFAULT_LOGGER.warn("===> SMTP Test failed " + $!.to_s)
+      false
     end
-    out
   end
 end
