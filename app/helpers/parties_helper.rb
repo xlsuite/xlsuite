@@ -279,6 +279,299 @@
 # 
 # 		     END OF TERMS AND CONDITIONS
 module PartiesHelper
+  def initialize_imap_account_panel
+    %Q`
+      var imapSetupUsername = new Ext.form.TextField({
+        fieldLabel:"Username"
+        ,grow:true
+        ,growMin:200
+        ,value:#{@imap_account.username.to_json}
+      });
+      
+      var realImapServerField = new Ext.form.Hidden({
+        value:#{@imap_account.default_server.to_json}
+      });
+      
+      var fakeImapServerField = new Ext.form.TextField({
+        fieldLabel:"Server"
+        ,value:#{@imap_account.server.to_json}
+        ,listeners:{
+          "keyup":function(cpt, event){
+            realImapServerField.setValue(cpt.getValue());
+          }
+        }
+      });
+
+      var realImapPortField = new Ext.form.Hidden({
+        value:#{@imap_account.default_port.to_json}
+      });
+      
+      var fakeImapPortField = new Ext.form.TextField({
+        fieldLabel:"Port"
+        ,value:#{@imap_account.port.to_json}
+        ,listeners:{
+          "keyup":function(cpt, event){
+            realImapPortField.setValue(cpt.getValue());
+          }
+        }
+      });
+      
+      var fakeImapServerPortWrapper = new Ext.Panel({
+        layout:"form"
+        ,hidden:true
+        ,items:[fakeImapServerField,fakeImapPortField]
+      });
+      
+      var imapTypeSelection = new Ext.form.ComboBox({
+        store:#{ImapEmailAccount::DEFAULT_SELECTIONS.to_json}
+        ,forceSelection:true
+        ,editable:false
+        ,mode:"local"
+        ,triggerAction:"all"
+        ,fieldLabel:"Provider"
+        ,value:#{@imap_account.default_server_name.to_json}
+        ,listeners:{
+          "select":function(cpt, record, index){
+            switch(record.get("text")){
+              case "Other":
+                fakeImapServerPortWrapper.show();
+                break;
+              case "Google Mail":
+                fakeImapServerPortWrapper.hide();
+                realImapServerField.setValue("imap.google.com");
+                realImapPortField.setValue("993");
+                break;
+            }
+          }
+        }
+      });
+      
+      var imapSetupPassword = new Ext.form.TextField({
+        fieldLabel:"Password"
+        ,grow:true
+        ,growMin:200
+        ,inputType:"password"
+        ,value:#{@imap_account.password.to_json}
+      });
+      
+      var imapEmailAccountId = #{@imap_account.id.to_json};
+      
+      var imapTestFunction = function(btn){
+        var url = #{test_party_email_account_path(:party_id => @party.id, :id => "__ID__").to_json};
+        Ext.Ajax.request({
+          url:url.replace("__ID__", imapEmailAccountId)
+          ,method:"GET"
+          ,success:function(response,options){
+            var response = Ext.decode(response.responseText);
+            if(response.success){
+              Ext.Msg.alert("IMAP Account Setup", "Proper connection established with your email account")
+            }
+            else{
+              Ext.Msg.alert("IMAP Account Setup - FAILED", response.error)
+            }
+          }
+        });
+      }
+      
+      var imapSaveButton = new Ext.Toolbar.Button({
+        text:"Save"
+        ,handler:function(btn){
+          var params = {"type":"imap"};
+          var method = "POST";
+          var url = #{party_email_accounts_path(:party_id => @party.id).to_json};
+          params["email_account[server]"] = realImapServerField.getValue();
+          params["email_account[port]"] = realImapPortField.getValue();
+          params["email_account[username]"] = imapSetupUsername.getValue();
+          params["email_account[password]"] = imapSetupPassword.getValue();
+          if(imapEmailAccountId){
+            params["id"] = imapEmailAccountId;
+            method = "PUT"
+            url = #{party_email_account_path(:party_id => @party.id, :id => "__ID__").to_json};
+            url = url.replace("__ID__", imapEmailAccountId);
+          }
+          Ext.Ajax.request({
+            url:url
+            ,params:params
+            ,method:method
+            ,success:function(response,options){
+              var response = Ext.decode(response.responseText);
+              if(response.success){
+                imapEmailAccountId = response.id;
+                Ext.Msg.alert("IMAP Account Setup"
+                  ,"Your IMAP setting has been saved. Your IMAP setting will be validated shortly."
+                  ,imapTestFunction
+                );
+              }
+              else{
+                Ext.Msg.alert("IMAP Account Setup - FAILED", response.errors.join("<br/>"));
+              }
+            }
+          });
+        }
+      });
+      
+      var shareMyImapButton = new Ext.Toolbar.Button({
+        text:"Share IMAP"
+        ,tooltip:"Clicking this button will enable you to share your contact IMAP with this contact"
+        ,disabled:#{@disable_share_imap.to_json}
+        ,handler:function(btn){
+          Ext.Ajax.request({
+            url:#{shared_email_accounts_path(:email_account_id => @current_user_imap_account.id).to_json}
+            ,method:"POST"
+            ,params:{"target_type":"Party","target_id":#{@party.id.to_json}}
+            ,success:function(response,options){
+              var response = Ext.decode(response.responseText);
+              if(response.success){
+                Ext.Msg.alert("IMAP Sharing", "Your IMAP has been successfully shared with this contact");
+              }
+              else{
+                Ext.Msg.alert("IMAP Sharing", response.errors.join("<br/>"));
+              }
+            }
+          })
+        }
+      });
+      
+      var imapTestButton = new Ext.Toolbar.Button({
+        text:"Test"
+        ,disabled:#{(!@party.own_imap_account?).to_json}
+        ,handler:function(btn){imapTestFunction(btn)}
+      });
+      
+      var imapSetupPanel = new Ext.Panel({
+        layout:"form"
+        ,items:[imapTypeSelection,fakeImapServerPortWrapper,imapSetupUsername,imapSetupPassword]
+        ,tbar:[imapSaveButton, imapTestButton, shareMyImapButton]
+      });
+      
+      var emailAccountRolesRootTreeNode =  new Ext.tree.AsyncTreeNode({
+        text:"Role - Root"
+        ,expanded:true
+        ,id:0
+      });
+
+      var emailAccountRolesFileTreePanel = new Ext.tree.TreePanel({
+        title:"Sharing with Roles"
+        ,columnWidth:.5
+        ,root:emailAccountRolesRootTreeNode
+        ,rootVisible: false
+        ,disabled:#{!@party.own_imap_account?.to_json}
+        ,autoScroll:true
+        ,loader:new Ext.tree.TreeLoader({
+          requestMethod: "GET"
+          ,url: #{formatted_roles_tree_shared_email_accounts_path(:email_account_id => @imap_account.id, :format => :json).to_json}
+          ,baseAttrs: {uiProvider: Ext.tree.TreeCheckNodeUI}
+        })
+        ,listeners:{
+          check: function(node, checked){
+            var url = null;
+            var method = null;
+            if(checked){
+              url = #{shared_email_accounts_path.to_json};
+              method = "POST";
+            }
+            else{
+              url = #{remove_shared_email_accounts_path.to_json};
+              method = "DELETE";
+            }
+            Ext.Ajax.request({
+              url:url
+              ,method:method
+              ,params:{target_type:"Role",target_id:node.id,email_account_id:imapEmailAccountId}
+            });
+          }
+          ,render:function(cpt){
+            cpt.setHeight(cpt.ownerCt.ownerCt.getSize().height-imapSetupPanel.getSize().height);
+          }
+        }
+      });
+
+      var SharedPartyRecord = new Ext.data.Record.create([
+        {name:"id"}
+        ,{name:"display_name"}
+      ]);
+
+      var sharedPartyReader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, SharedPartyRecord);
+      var sharedPartyConnection = new Ext.data.Connection({url: #{parties_shared_email_accounts_path(:email_account_id => @imap_account.id).to_json}, method: 'get'});
+      var sharedPartyProxy = new Ext.data.HttpProxy(sharedPartyConnection);
+
+      var sharedPartyStore = new Ext.data.Store({
+        proxy:sharedPartyProxy 
+        ,reader:sharedPartyReader 
+        ,remoteSort:false
+        ,autoLoad:true
+      });
+      
+      var removeSharedPartyButton = new Ext.Toolbar.Button({
+        text:"Remove"
+        ,disabled:true
+        ,handler:function(btn){
+          Ext.Ajax.request({
+            url:#{remove_collection_shared_email_accounts_path.to_json}
+            ,params:{"target_type":"Party","target_ids":selectedSharedPartyIds.join(","),"email_account_id":#{@imap_account.id.to_json}}
+            ,method:"DELETE"
+            ,success:function(response, options){
+              var response = Ext.decode(response.responseText)
+              if(response.success){
+                sharedPartyStore.reload();
+              }
+            }
+          })
+        }
+      });
+      
+      var emailAccountPartiesTopToolbar = new Ext.Toolbar({
+        items:[removeSharedPartyButton]
+      });
+
+      var selectedSharedPartyIds = null;
+
+      var emailAccountPartiesSelectionModel = new Ext.grid.RowSelectionModel({
+        listeners:{
+          selectionchange:function(sm){
+            var records = sm.getSelections();
+            selectedSharedPartyIds = [];
+            for(var i=0;i<records.length;i++){
+              selectedSharedPartyIds.push(records[i].get("id"));
+            }
+            if(selectedSharedPartyIds.length>0){
+              removeSharedPartyButton.enable();
+            }
+            else{
+              removeSharedPartyButton.disable();
+            }
+          }
+        }
+      });
+      
+      var emailAccountPartiesGridPanel = new Ext.grid.GridPanel({
+        title:"Sharing with contacts"
+        ,columnWidth:.5
+        ,store:sharedPartyStore
+        ,cm:new Ext.grid.ColumnModel([
+          {id:"name",header:"Name",dataIndex:"display_name"}
+        ])
+        ,sm:emailAccountPartiesSelectionModel
+        ,bbar:emailAccountPartiesTopToolbar
+        ,autoExpandColumn:"name"
+        ,emptyText:"Not sharing with any contact"
+        ,listeners:{
+          render:function(cpt){
+            cpt.setHeight(cpt.ownerCt.ownerCt.getSize().height-imapSetupPanel.getSize().height);
+          }
+        }
+      });
+      
+      var imapAccountPanel = new Ext.Panel({
+        title:"IMAP Setup"
+        ,items:[
+          imapSetupPanel, 
+          {layout:"column", items:[emailAccountRolesFileTreePanel, emailAccountPartiesGridPanel]}
+        ]
+      });
+    `
+  end
+
   def initialize_testimonials_panel
     limit = params[:limit] || 50
     testimonials_url_json = formatted_testimonials_path(:author_id => @party.id, :format => :json).to_json
