@@ -56,5 +56,10 @@ class CustomerNotification < ActionMailer::Base
     from       "Payment Processor #{domain} <payments@#{mail_domain}>"
     sent_on    sent_at
     content_type "text/html"
+    
+    if payable_subject.account.get_config(:use_account_owner_smtp) && payable_subject.account.owner.own_smtp_account?
+      smtp_account = payable_subject.account.owner.own_smtp_account
+      self.alternate_smtp_settings = SmtpMailer.convert_email_account_to_smtp_settings(smtp_account)
+    end
   end
 end

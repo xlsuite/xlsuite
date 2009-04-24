@@ -278,54 +278,26 @@
 # POSSIBILITY OF SUCH DAMAGES.
 # 
 # 		     END OF TERMS AND CONDITIONS
-class SmtpEmailAccount < EmailAccount  
-  EXCEPTION_SERVERS = ["smtp.gmail.com"]
-  EXCEPTION_NAMES = ["Google Mail"]
-  EXCEPTION_PORTS = [587]
-
-  DEFAULT_SELECTIONS = EXCEPTION_NAMES + ["Other"]
-  LOCALHOST = "127.0.0.1"
+class SmtpMailer < ActionMailer::Base
+  def email_account_test(email_account)
+    from email_account.username
+    recipients email_account.username
+    subject "[XL] Your SMTP email has been successfully setup"
+    content_type "text/html"
+    self.alternate_smtp_settings = self.class.convert_email_account_to_smtp_settings(email_account)
+  end
   
-  def default_server_name
-    return EXCEPTION_NAMES[0] if self.server.blank?
-    index = EXCEPTION_SERVERS.index(self.server)
-    if index
-      EXCEPTION_NAMES[index]
-    else
-      DEFAULT_SELECTIONS[-1]
+  private
+  def self.convert_email_account_to_smtp_settings(email_account)
+    out = {}
+    if email_account
+      out[:address] = email_account.server
+      out[:port] = email_account.port
+      out[:user_name] =  email_account.username
+      out[:password] = email_account.password
+      # TODO: change this later
+      out[:authentication] = "plain"
     end
-  end
-  
-  def default_server
-    return EXCEPTION_SERVERS[0] if self.server.blank?
-    self.server
-  end
-  
-  def default_port
-    return EXCEPTION_PORTS[0] if self.port.blank?
-    self.port
-  end
-  
-  def connecting_server
-    self.server
-  end
-  
-  def connecting_port
-    self.port
-  end
-  
-  def set_enabled(flag)
-    value = flag ? "1" : "0"
-    self.class.update_all("enabled = #{value}", "id = #{self.id}")    
-  end
-  
-  def test
-    begin
-      SmtpMailer.deliver_email_account_test(self)
-      true
-    rescue
-      RAILS_DEFAULT_LOGGER.warn("===> SMTP Test failed " + $!.to_s)
-      false
-    end
+    out
   end
 end

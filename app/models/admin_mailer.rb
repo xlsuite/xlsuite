@@ -41,6 +41,12 @@ class AdminMailer < ActionMailer::Base
     subject "#{domain_name} Confirmation Email"
     body(:domain_name => domain_name, :confirmation_url => confirmation_url, :confirmation_code => confirmation_token)
     content_type "text/html"
+
+    account = Domain.find_by_name(domain_name.gsub("www.", "")).account
+    if account.get_config(:use_account_owner_smtp) && account.owner.own_smtp_account?
+      smtp_account = account.owner.own_smtp_account
+      self.alternate_smtp_settings = SmtpMailer.convert_email_account_to_smtp_settings(smtp_account)
+    end
   end
   
   def group_subscribe_confirmation_email(options={})
@@ -53,6 +59,12 @@ class AdminMailer < ActionMailer::Base
     subject "#{domain_name} Subscription Confirmation Email"
     body(:domain_name => domain_name, :confirmation_url => confirmation_url, :groups => options[:groups])
     content_type "text/html"
+
+    account = Domain.find_by_name(domain_name.gsub("www.", "")).account
+    if account.get_config(:use_account_owner_smtp) && account.owner.own_smtp_account?
+      smtp_account = account.owner.own_smtp_account
+      self.alternate_smtp_settings = SmtpMailer.convert_email_account_to_smtp_settings(smtp_account)
+    end
   end
   
   def account_confirmation_email(options={})

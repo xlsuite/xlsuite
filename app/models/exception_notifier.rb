@@ -64,8 +64,8 @@ class ExceptionNotifier
       :request_parameters    => filtered_params_request,
       :environment           => filtered_env_request,
       :session               => options[:session],
-      :current_account       => options[:current_account],
-      :current_domain        => options[:current_domain],
+      :current_account       => options[:current_account] || options[:account],
+      :current_domain        => options[:current_domain] || options[:domain],
       :current_user          => options[:current_user] || Nameless.instance,
       :version               => XlSuite.version
     )
