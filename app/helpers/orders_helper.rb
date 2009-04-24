@@ -336,11 +336,11 @@ module OrdersHelper
   end
   
   def order_status_selections
-    "['All'],['Cancelled'],['New'],['Pending'],['Shipped'],['Completed']"
+    "['All'],['Cancelled'],['Void'],['WriteOff'],['New'],['Pending'],['Shipped'],['Completed']"
   end
   
   def edit_order_status_selections
-    "['Cancelled'],['New'],['Pending'],['Shipped'],['Completed']"    
+    "['Cancelled'],['Void'],['WriteOff'],['New'],['Pending'],['Shipped'],['Completed']"    
   end
 
   def generateTotalMessage
