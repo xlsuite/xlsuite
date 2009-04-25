@@ -322,9 +322,11 @@ class SmtpEmailAccount < EmailAccount
   def test
     begin
       SmtpMailer.deliver_email_account_test(self)
+      self.set_enabled(true)
       true
     rescue
       RAILS_DEFAULT_LOGGER.warn("===> SMTP Test failed " + $!.to_s)
+      self.set_enabled(false)
       false
     end
   end
