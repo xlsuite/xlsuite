@@ -341,6 +341,11 @@ class EmailAccount < ActiveRecord::Base
     EmailAccount.find(:first, :order => "updated_at", :conditions => "error_message IS NULL AND failures < 3")
   end
 
+  def set_enabled(flag)
+    value = flag ? "1" : "0"
+    self.class.update_all("enabled = #{value}", "id = #{self.id}")    
+  end
+  
   protected
   # Must yield the raw E-Mail text (once per new E-Mail) and must return an
   # Email instance.  E-Mails that have already been processed MUST NOT be

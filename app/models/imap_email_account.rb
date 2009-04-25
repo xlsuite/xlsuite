@@ -320,11 +320,6 @@ class ImapEmailAccount < EmailAccount
     end
   end
   
-  def set_enabled(flag)
-    value = flag ? "1" : "0"
-    self.class.update_all("enabled = #{value}", "id = #{self.id}")    
-  end
-  
   def test
     out = nil
     imap = nil
