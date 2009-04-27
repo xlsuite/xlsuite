@@ -426,7 +426,8 @@ CREATE TABLE `categories` (
   `updated_at` datetime default NULL,
   `avatar_id` int(11) default NULL,
   `description` text,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `by_account_and_label` (`account_id`,`label`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `categorizables` (
@@ -2574,3 +2575,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090423221400');
 INSERT INTO schema_migrations (version) VALUES ('20090425021220');
 
 INSERT INTO schema_migrations (version) VALUES ('20090427223514');
+
+INSERT INTO schema_migrations (version) VALUES ('20090427230446');
