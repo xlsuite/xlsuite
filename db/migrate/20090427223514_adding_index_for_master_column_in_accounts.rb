@@ -4,5 +4,6 @@ class AddingIndexForMasterColumnInAccounts < ActiveRecord::Migration
   end
 
   def self.down
+    remove_index :accounts, :name => "by_master"
   end
 end
