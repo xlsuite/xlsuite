@@ -658,6 +658,7 @@ CREATE TABLE `emails` (
   `mail_type` varchar(12) default 'HTML+Plain',
   `parsed_subject` blob,
   `parsed_body` blob,
+  `smtp_email_account_id` int(11) default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_scheduled_sent_released` (`scheduled_at`,`sent_at`,`released_at`),
   KEY `by_account_uidl` (`account_id`,`unique_id_listing`),
@@ -2568,3 +2569,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090422005456');
 INSERT INTO schema_migrations (version) VALUES ('20090422010229');
 
 INSERT INTO schema_migrations (version) VALUES ('20090423221400');
+
+INSERT INTO schema_migrations (version) VALUES ('20090425021220');
