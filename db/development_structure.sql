@@ -83,7 +83,8 @@ CREATE TABLE `accounts` (
   `order_id` int(11) default NULL,
   `signup_account_id` int(11) default NULL,
   `referral_domain` varchar(255) default NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `by_master` (`master`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `affiliates` (
@@ -2571,3 +2572,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090422010229');
 INSERT INTO schema_migrations (version) VALUES ('20090423221400');
 
 INSERT INTO schema_migrations (version) VALUES ('20090425021220');
+
+INSERT INTO schema_migrations (version) VALUES ('20090427223514');
