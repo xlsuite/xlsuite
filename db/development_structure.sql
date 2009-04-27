@@ -436,7 +436,8 @@ CREATE TABLE `categorizables` (
   `subject_type` varchar(255) default NULL,
   `subject_id` int(11) default NULL,
   `created_at` datetime default NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `by_subject` (`subject_type`,`subject_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `comments` (
@@ -2577,3 +2578,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090425021220');
 INSERT INTO schema_migrations (version) VALUES ('20090427223514');
 
 INSERT INTO schema_migrations (version) VALUES ('20090427230446');
+
+INSERT INTO schema_migrations (version) VALUES ('20090427232009');
