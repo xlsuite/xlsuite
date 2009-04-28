@@ -18,7 +18,7 @@ page << create_tab_using_ajax_response("Templates | Index", after_render) do
     {name: 'updated_at', mapping: 'updated_at'},
     {name: 'label', mapping: 'label'},
     {name: 'description', mapping: 'description'},
-    {name: 'last_modified_by', mapping: 'last_modified_by'},
+    {name: 'last_modified_by', mapping: 'last_modified_by'}
   ]);
   
   // data reader to parse the json response
@@ -62,7 +62,7 @@ page << create_tab_using_ajax_response("Templates | Index", after_render) do
           {id: "description", header: "Description", sortable: true, dataIndex: 'description'},
           {id: "created_at", width: 65, header: "Created at", sortable: true, dataIndex: 'created_at', hidden: true},
           {id: "updated_at", width: 65, header: "Updated at", sortable: true, dataIndex: 'updated_at'},
-          {id: "last_modified_by", width: 50, header: "Last Modified By", sortable: true, dataIndex: 'last_modified_by'},
+          {id: "last_modified_by", width: 50, header: "Last Modified By", sortable: true, dataIndex: 'last_modified_by'}
         ]),
       autoScroll: true,
       autoWidth: true,
