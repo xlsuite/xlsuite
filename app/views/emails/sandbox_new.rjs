@@ -720,8 +720,6 @@ var layoutPanel = new Ext.Panel({
   
   bodyStyle: 'padding: 15px',
   autoScroll: true,
-  layout: 'table',
-  layoutConfig: { columns: 1 },
   width: '100%',
   defaults: formDefaults,
   
@@ -746,7 +744,7 @@ var layoutPanel = new Ext.Panel({
       defaults: formDefaults,
       items: [ // 2 Columns
         { width: 375, items: [toArea] },
-        { width: 125, items: [previewButton] }
+        { width: 150, items: [previewButton] }
       ]
     },
     { // ColumnLayout
@@ -758,17 +756,7 @@ var layoutPanel = new Ext.Panel({
         { width: 300, items: [ccArea] }
       ]
     },
-    
-    /*{ // ColumnLayout
-      style: 'padding-left: 50px;',
-      layout: 'column',
-      items: [{ // FormLayout
-        items: [bccButton]
-      },{
-        items: [ccButton]
-      }] // ColumnLayout items
-    },*/
-    
+        
     { // TableLayout
       layout: 'column',
       defaults: formDefaults,
