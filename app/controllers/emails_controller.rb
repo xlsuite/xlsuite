@@ -605,6 +605,8 @@ class EmailsController < ApplicationController
   
   # create and send the newly created email
   def create
+    params[:email][:sender][:address] = SmtpEmailAccount.find(:first, 
+      :conditions => {:account_id => self.current_account.id, :id => params[:email][:smtp_email_account_id]}).username
     scheduled_at = params[:email].delete(:scheduled_at)
     Email.transaction do
       @sender = params[:email].delete(:sender)
@@ -640,6 +642,8 @@ class EmailsController < ApplicationController
   end
   
   def save
+    params[:email][:sender][:address] = SmtpEmailAccount.find(:first, 
+      :conditions => {:account_id => self.current_account.id, :id => params[:email][:smtp_email_account_id]}).username
     scheduled_at = params[:email].delete(:scheduled_at)
     Email.transaction do
       @sender = params[:email].delete(:sender)
@@ -778,13 +782,14 @@ class EmailsController < ApplicationController
   end
   
   def async_get_account_addresses
-    email_addresses = get_email_addresses
-    # Making sure main_email is at the front of the array
-    email_addresses.unshift(email_addresses.delete(current_user.main_email)) if current_user.main_email
-    text_address_ids = email_addresses.collect { |contact_route| { 'text' => contact_route.to_alt_formatted_s, 'address' => contact_route.email_address.to_s, 'id' => contact_route.id.to_s } }
-    
-    wrapper = {'total' => text_address_ids.size, 'collection' => text_address_ids}
-    render :json => wrapper.to_json, :status => 200
+    email_accounts = self.current_user.all_smtp_accounts
+    address_ids = email_accounts.collect { |email_account| {'address' => email_account.username, 'id' => email_account.id.to_s } }
+    wrapper = {'total' => address_ids.size, 'collection' => address_ids}
+    respond_to do |format|
+      format.js do 
+        render(:json => wrapper.to_json, :status => 200)
+      end
+    end
   end
   
   def async_get_template_label_id_hashes
