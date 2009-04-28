@@ -1605,7 +1605,7 @@ class Party < ActiveRecord::Base
     SmtpEmailAccount.first(:conditions => {:party_id => self.id, :account_id => self.account_id})
   end
   
-  def all_imap_accounts
+  def shared_email_account_ids
     email_account_ids = []
     t_role_ids = self.roles.all(:select => "roles.id").map(&:id)
     t_shared_email_accounts = SharedEmailAccount.all(:select => "email_account_id",
@@ -1614,10 +1614,23 @@ class Party < ActiveRecord::Base
     t_shared_email_accounts = SharedEmailAccount.all(:select => "email_account_id",
       :conditions => {:target_type => "Party", :target_id => self.id}).map(&:email_account_id)
     email_account_ids += t_shared_email_accounts
+    email_account_ids
+  end
+  
+  def all_imap_accounts
+    email_account_ids = self.shared_email_account_ids
     email_account_ids << self.own_imap_account.id if self.own_imap_account? && self.own_imap_account.enabled?
     email_account_ids.uniq!
     return [] if email_account_ids.empty?
     ImapEmailAccount.all(:conditions => {:id => email_account_ids, :enabled => true})
+  end
+  
+  def all_smtp_accounts
+    email_account_ids = self.shared_email_account_ids
+    email_account_ids << self.own_smtp_account.id if self.own_smtp_account? && self.own_smtp_account.enabled?
+    email_account_ids.uniq!
+    return [] if email_account_ids.empty?
+    SmtpEmailAccount.all(:conditions => {:id => email_account_ids, :enabled => true})
   end
   
   def email_conversations_with(target_party, since=2.weeks.ago)
