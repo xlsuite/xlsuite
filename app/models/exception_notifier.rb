@@ -356,7 +356,7 @@ class ExceptionNotifier
     extra = Hash.new
     extra["Account"]              = params[:current_account].domain_name if params[:current_account] && params[:current_account].respond_to?(:domain_name)
     extra["Account"]            ||= "xlsuite.com (inferred)"
-    extra["Domain"]               = params[:current_domain] if params[:current_domain]
+    extra["Domain"]               = params[:current_domain].name if params[:current_domain]
     extra["User"]                 = params[:current_user].name.to_s if params[:current_user]
     extra["Message"]              = params[:original_message] if params[:original_message]
     extra["Request Parameters"]   = params[:request_parameters]
