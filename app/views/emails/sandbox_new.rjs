@@ -1,3 +1,8 @@
+if current_user.all_smtp_accounts.size < 1
+page << %Q`Ext.Msg.alert("New Email - FAILED", "You do not have access to any SMTP email account.<br/>Feel free to setup one of your own on the <b>SMTP Setup</b> panel of your contact edit.")`
+return
+end
+
 page_title = @mass ? 'Mass Mailing | New' : 'Email | New'
 enable_mass_mail_checkbox = 'isMassMailCheckbox.setValue(true);' if @mass
 
