@@ -434,11 +434,12 @@ class AdminMailer < ActionMailer::Base
   def account_installed_email(account)
     account_owner = account.owner
     domain_name = account.domains.first.name
+    parent_domain_name = account.domains.first.parent ? account.domains.first.parent.name : "XLsuite"
     recipients account_owner.main_email.email_address
     from "admin@xlsuite.com"
     subject "[XL] Your XLsuite account has been installed"
     content_type "text/html"
-    body :domain_name => domain_name, :account_owner => account_owner
+    body :domain_name => domain_name, :account_owner => account_owner, :parent_domain_name => parent_domain_name
   end
   
   def template_pushed_email(account, template)
