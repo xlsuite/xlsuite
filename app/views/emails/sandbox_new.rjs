@@ -131,34 +131,25 @@ var generateSendSaveToolbar = function() {
 };  // end generateSendSaveToolbar
 
 // Create Data Stores
-/*var fromComboBoxStore = xl.generateSimpleHttpJSONStore({
-  url: '#{async_get_account_addresses_emails_path}',
-  fieldNames: ['text', 'address', 'id'],
-  doLoad: true,
-  onLoad: function() {
-    fromComboBox.setValue(fromComboBoxStore.getAt(0).get('address'));
-    fromComboBox.mode = 'local';
-  }
-});*/
 var fromComboBox = new Ext.form.ComboBox({
-  store: xl.generateSimpleHttpJSONStore({
-    url: '#{async_get_account_addresses_emails_path}',
-    fieldNames: ['text', 'address', 'id'],
-    doLoad: true,
-    onLoad: function() {
-      fromComboBox.setValue(fromComboBox.store.getAt(0).get('address'));
+  store:xl.generateSimpleHttpJSONStore({
+    url:#{async_get_account_addresses_emails_path.to_json}
+    ,fieldNames:['address', 'id']
+    ,doLoad:true
+    ,onLoad:function() {
+      fromComboBox.setValue(fromComboBox.store.getAt(0).get('id'));
       fromComboBox.mode = 'local';
     }
-  }),
-  typeAhead: true,
-  mode: 'remote',
-  triggerAction: 'all',
-  fieldLabel: 'From',
-  name: 'email[sender][address]',
-  displayField: 'text',
-  width: 300,
-  editable: false,
-  valueField: 'address'
+  })
+  ,typeAhead:true
+  ,mode:'remote'
+  ,triggerAction:'all'
+  ,fieldLabel:'From'
+  ,name:'email[smtp_email_account_id]'
+  ,displayField:'address'
+  ,width:300
+  ,editable:false
+  ,valueField:'id'
 });
 manager.add(fromComboBox);
 
