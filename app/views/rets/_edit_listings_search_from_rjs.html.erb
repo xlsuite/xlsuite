@@ -7,7 +7,8 @@
 
 <%#= render :partial => "listings_menu" %>
 
-<form id="listingsSearchForm" action="<%=do_listings_search_rets_path%>" method="POST" class="listCombinedView">
+<form id="listingsSearchForm<%=@rets_search_future.id.to_s%>" action="<%=update_listings_search_ret_path(:id => @rets_search_future.id)%>" method="POST" class="listCombinedView">
+  <input type="hidden" name="_method" value="PUT" />
   <div class="tableHeader">
   <h2>Search Listings</h2>
   </div>
@@ -46,7 +47,7 @@
     <tr>
       <td class="bold">Search Results Limit</td>
       <td>
-        <%= text_field_tag("search[limit]", @search[:limit], :size => 3, :class => "text int_small", :value => 25) %>
+        <%= text_field_tag("search[limit]", @search[:limit], :size => 3, :class => "text int_small", :value => @rets_search_future.args[:search][:limit]) %>
         <%= hidden_field_tag "last_counter_of_search_lines", 15 %>
       </td>
     </tr>
@@ -108,23 +109,23 @@
 
     <tr>
       <td class="bold">Search by using:</td>
-      <td colspan="2"><%= select_tag("search_using", options_for_select(["Google Map", "Manual Address"]), :id => "area_chooser_selection")%></td>
+      <td colspan="2"><%= select_tag("search_using", options_for_select(["Google Map", "Manual Address"]), :id => "area_chooser_selection_"+@rets_search_future.id.to_s)%></td>
     </tr>
 
     <tr class="gmap">
       <td class="bold">
         Area Selection
         <p class="help">Select an area within which listings will be searched for.</p>
-        <%= hidden_field_tag "area_points", "", :id => "area_points" %>
+        <%= hidden_field_tag "area_points", "", :id => "area_points_"+@rets_search_future.id.to_s %>
       </td>
       <td colspan="2">
         <div class="gmap" id="map_canvas_controls">
           <p>
-            <%= link_to_function("Highlight region", '$("listing_search_map_canvas").googleMap.createRegion();') %>
-            <%= link_to_function("Clear all markers", '$("listing_search_map_canvas").googleMap.clearRegion();') %>
+            <%= link_to_function("Highlight region", '$("listing_search_map_canvas_'+@rets_search_future.id.to_s+'").googleMap.createRegion()') %>
+            <%= link_to_function("Clear all markers", '$("listing_search_map_canvas_'+@rets_search_future.id.to_s+'").googleMap.clearRegion()') %>
           </p>
         </div>
-        <div class="gmap" id="listing_search_map_canvas" style="height:400px;width:400px;"></div>
+        <div class="gmap" id="listing_search_map_canvas_<%=@rets_search_future.id%>" style="height:400px;width:400px;"></div>
       </td>
     </tr>
 
@@ -309,7 +310,7 @@
       </td>
       <td>&nbsp;</td>
       <td>
-        <%= text_field_tag "search[repeat_interval]", "", :class => "text" %>
+        <%= text_field_tag "search[repeat_interval]", @rets_search_future.args[:search][:repeat_interval], :class => "text" %>
         <p>Specify a string like <q>2 days</q> or <q>3 hours</q>.  The system will repeat this search every interval.</p>
       </td>
     </tr>
@@ -321,7 +322,7 @@
       <td>&nbsp;</td>
       <td>
         <div class="tag_cloud">
-          <%= text_area_tag "search[tag_list]", "", :size => "60x4", :id => "tag_list" %>
+          <%= text_area_tag "search[tag_list]", @rets_search_future.args[:search][:tag_list], :size => "60x4", :id => "tag_list" %>
           <%= throbber("tag_list_throbber") %>
           <div style="display:none" id="tag_list_autocomplete" class="auto_complete"></div>
         </div>

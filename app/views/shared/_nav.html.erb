@@ -109,6 +109,7 @@
               <% if current_account.rets_import_option %>
               <li><%= link_to_function 'MLS Search', "xl.openNewTabPanel('listings_search_nil', #{listings_search_rets_path.to_json})" %></li>
               <li><%= link_to_function 'Target # Import', "xl.openNewTabPanel('listings_import_nil', #{listings_import_rets_path.to_json})" %></li>
+              <li><%= link_to_function 'Saved Searches', "xl.openNewTabPanel('rets_index_nil', #{rets_path.to_json})" %></li>
               <% end -%>              
               <li><%= link_to_function 'New', "xl.openNewTabPanel('listings_new_nil', #{new_listing_path.to_json})" %></li>
             </ul>
