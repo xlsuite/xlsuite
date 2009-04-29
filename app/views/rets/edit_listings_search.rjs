@@ -1,12 +1,12 @@
 underbarLinks = link_to_function("New Listing&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('listings_new_nil', #{new_listing_path.to_json})")
 underbarLinks << link_to_function("Targeted MLS# Import&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('listings_import_nil', #{listings_import_rets_path.to_json})")
 
-after_render = %Q(
+after_render = [%Q(
 $$("#listingSearchLines tr.address").each(Element.hide);
 $$("#listingSearchLines tr.gmap").each(Element.show);
 
-$('area_chooser_selection').observe("change", function() {
-  var option = $('area_chooser_selection').options[$('area_chooser_selection').selectedIndex];
+$('area_chooser_selection_#{@rets_search_future.id}').observe("change", function() {
+  var option = $('area_chooser_selection_#{@rets_search_future.id}').options[$('area_chooser_selection_#{@rets_search_future.id}').selectedIndex];
   if (option.innerHTML.match(/Google Map/)) {
     $$("#listingSearchLines tr.address").each(Element.hide);
     $$("#listingSearchLines tr.gmap").each(Element.show);
@@ -18,22 +18,27 @@ $('area_chooser_selection').observe("change", function() {
   }
 });
 
-var map = new xl.GoogleMap("listing_search_map_canvas", {initialZoomLevel: 11});
+var map = new xl.GoogleMap("listing_search_map_canvas_#{@rets_search_future.id}", {initialZoomLevel: 11});
 map.on("click", (function(overlay, point) {
   if (point) this.appendMarker(point);
 }).bind(map));
 map.on("clearRegion", (function() {
-  $("area_points").value = "";
+  $("area_points_#{@rets_search_future.id}").value = "";
 }).bind(map));
-$("listing_search_map_canvas").googleMap = map;
-
-$('listingsSearchForm').onsubmit = function(){
+$("listing_search_map_canvas_#{@rets_search_future.id}").googleMap = map;
+)]
+after_render << %Q(
+map.pointsToMarkers(#{@rets_search_future.args[:polygon]});
+map.createRegion();
+) unless @rets_search_future.args[:polygon].blank?
+after_render << %Q(
+$('listingsSearchForm#{@rets_search_future.id}').onsubmit = function(){
   update_area_points();
   this.request({ method: 'post', onFailure: xl.logXHRFailure }); 
   return false;
 }
 var update_area_points = function(){
-  $("area_points").value = map.markersToPoints().map(function(point) {return [point.lat(), point.lng()]}).toJSON();
+  $("area_points_#{@rets_search_future.id}").value = map.markersToPoints().map(function(point) {return [point.lat(), point.lng()]}).toJSON();
 }
 
 var tag_list_auto_complete = new Ajax.Autocompleter("tag_list", "tag_list_autocomplete", #{auto_complete_tag_listings_url.to_json},
@@ -44,9 +49,10 @@ var tag_list_auto_complete = new Ajax.Autocompleter("tag_list", "tag_list_autoco
     tokens: [',', ' ']});
 )
 
-page << create_tab_using_ajax_response("Listing Search", after_render) do
+page << create_tab_using_ajax_response("Listing Search", after_render.join(" ")) do
 %Q`
-  var panel = { autoScroll: true, html: #{render(:partial => 'listings_search_from_rjs').to_json} };
+  var dude = "#{update_listings_search_ret_path(:id => @rets_search_future.id)}";
+  var panel = { autoScroll: true, html: #{render(:partial => 'edit_listings_search_from_rjs').to_json} };
   newPanel.add(panel);
 
   var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');

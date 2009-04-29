@@ -5,10 +5,138 @@ class RetsController < ApplicationController
   before_filter :check_account_authorization # Must go before required_permissions so account authorizations take precedence over permissions
   required_permissions :access_rets
   before_filter :load_operators, :only => %w(search)
-  before_filter :load_common_tags, :only => %w(search listings_search)
+  before_filter :load_common_tags, :only => %w(search listings_search edit_listings_search)
 
   def index
-    render
+    respond_to do |format|
+      format.js
+      format.json do
+    
+        @rets_search_futures = RetsSearchFuture.all(:conditions => "account_id = #{current_account.id} AND `interval` IS NOT NULL", 
+                                                    :order => "scheduled_at DESC")
+        render :json => {:collection => assemble_rets(@rets_search_futures), :total => @rets_search_futures.size}.to_json
+      end
+    end
+  end
+  
+  def edit_listings_search
+    @rets_search_future = RetsSearchFuture.first(:conditions => ["account_id = #{current_account.id} AND id=?", params[:id]])
+    @search = (params[:search] || {}).symbolize_keys.reverse_merge(:resource => "Property", :class => "11", :limit => 5)
+    find_default_resource_class_fields
+    
+    @mls_number_field     = lookup_field(@fields, "MLS Number")
+    @list_date_field      = lookup_field(@fields, "List Date")
+    @street_address_field = lookup_field(@fields, "Address")
+    @postal_code_field    = lookup_field(@fields, "Postal Code")
+    @list_price_field     = lookup_field(@fields, "List Price")
+
+    @status_field         = lookup_field(@fields, "Status")
+    @status               = lookup_values(@search[:resource], @status_field)
+
+    @city_field           = lookup_field(@fields, "City")
+    @cities               = lookup_values(@search[:resource], @city_field)
+
+    @area_field           = lookup_field(@fields, "Area")
+    @areas                = lookup_values(@search[:resource], @area_field)
+
+    @dwelling_style_field = lookup_field(@fields, "Style of Home")
+    @dwelling_styles      = lookup_values(@search[:resource], @dwelling_style_field)
+
+    @dwelling_type_field  = lookup_field(@fields, "Type of Dwelling")
+    @dwelling_types       = lookup_values(@search[:resource], @dwelling_type_field)
+
+    @dwelling_class_field = lookup_field(@fields, "Dwelling Classification")
+    @dwelling_classes     = lookup_values(@search[:resource], @dwelling_class_field)
+
+    @title_of_land_field  = lookup_field(@fields, "Title to Land")
+    @title_of_lands       = lookup_values(@search[:resource], @title_of_land_field)
+
+    @bedrooms_field       = lookup_field(@fields, "Total Bedrooms")
+    @bathrooms_field      = lookup_field(@fields, "Total Baths")
+
+    delete_default_fields
+
+    respond_to do |format|
+      format.js
+      format.html
+    end
+    
+  end
+  
+  def update_listings_search
+    @future = RetsSearchFuture.first(:conditions => ["account_id = #{current_account.id} AND id=?", params[:id]])
+    
+    if !params[:area_points].blank? && params[:search_using] == "Google Map" then
+      polygon = Polygon.new(:points => params[:area_points])
+      params[:line]["7"][:operator] = "eq"
+      params[:line]["7"][:from]     = polygon.to_geocodes.map(&:zip).map {|zip| "%s %s" % [zip.first(3), zip.last(3)]}.join("|")
+      # Even though RETS returns postal codes without spaces, we have
+      # to query *with* the space, or else the query will return bogus results
+    end
+
+    line_params = params[:line].clone
+    line_params["1"]["from"].upcase!
+    line_params.delete_if { |key,value| value["from"].blank? && value["to"].blank? }
+    
+    @future.args = {
+      :search   => (params[:search] || {}).symbolize_keys,
+      :lines    => (line_params || {}).values.map(&:symbolize_keys),
+      :polygon  => params[:area_points]
+    }
+    @future.interval = Period.parse(params[:search][:repeat_interval]).as_seconds if params[:search] && !params[:search][:repeat_interval].blank?
+    @future.save!
+    
+    flash_success "Saved search updated."
+    
+    respond_to do |format|
+      format.js
+      format.html
+    end
+  end
+  
+  def suspend_collection
+    count = RetsSearchFuture.update_all("status='suspended'", ["account_id = ? AND id in (?) ", current_account.id, params[:ids].split(",").map(&:strip).map(&:to_i)])
+    flash_success "#{count} saved searches suspended."
+    respond_to do |format|
+      format.js do
+        render :template => "rets/destroy_collection"
+      end
+    end
+  end
+  
+  def resume_collection
+    futures = RetsSearchFuture.all(:conditions => ["account_id = ? AND id in (?) ", current_account.id, params[:ids].split(",").map(&:strip).map(&:to_i)]).to_a
+    futures.each do |future|
+      future.reschedule!(Time.now)
+    end
+    
+    flash_success "#{futures.size} saved searches resumed."
+    respond_to do |format|
+      format.js do
+        render :template => "rets/destroy_collection"
+      end
+    end
+  end
+  
+  def destroy_collection
+    @destroyed_items_size = 0
+    @undestroyed_items_size = 0
+    RetsSearchFuture.all(:conditions => ["account_id = ? AND id in (?) ", current_account.id, params[:ids].split(",").map(&:strip).map(&:to_i)]).to_a.each do |future|
+      if future.destroy
+        @destroyed_items_size += 1
+      else
+        @undestroyed_items_size += 1
+      end
+    end
+
+    error_message = []
+    error_message << "#{@destroyed_items_size} saved searches successfully deleted" if @destroyed_items_size > 0
+    error_message << "#{@undestroyed_items_size} saved searches failed to be destroyed" if @undestroyed_items_size > 0
+
+    flash_success :now, error_message.join(", ")
+    respond_to do |format|
+      format.js
+    end
   end
 
   def search
@@ -388,5 +516,32 @@ class RetsController < ApplicationController
 
   def lookup_values(resource, field)
     field.stubbed? ? [] : RetsMetadata.find_lookup_values(resource, field.lookup_name)
+  end
+  
+  def assemble_rets(records)
+    results = []
+    records.each do |record|
+      results << truncate_rets(record)
+    end
+    results
+  end
+
+  def strftime(time)
+    time ? time.strftime("%b %d, %Y, %H:%M #{time.zone}") : ""
+  end
+
+  def truncate_rets(record)
+    {
+      :id => record.id,
+      :status => record.humanize_status, 
+      :started_at => strftime(record.started_at),
+      :created_at => strftime(record.created_at),
+      :ended_at => strftime(record.ended_at),
+      :updated_at => strftime(record.updated_at),
+      :scheduled_at => strftime(record.scheduled_at), 
+      :interval => record.interval, 
+      :progress => record.progress.to_s, 
+      :tag_list => (record.args[:search][:tag_list] rescue "")
+    }
   end
 end

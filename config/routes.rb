@@ -298,8 +298,9 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :rets, :path_prefix => "/admin",
       :collection => {:results => :get, :search => :get, :do_search => :post, :import => :get, :resources => :get, 
           :do_listings_import => :post, :do_listings_search => :post, :listings_search => :get,  
-          :classes => :get, :fields => :get, :lookup => :get, :listings_import => :get, :new_search_line => :post},
-      :member => {:done => :get, :get_photos => :post, :refresh_photos => :get, :do_import => :post}
+          :classes => :get, :fields => :get, :lookup => :get, :listings_import => :get, :new_search_line => :post, :destroy_collection => :post, 
+          :suspend_collection => :post, :resume_collection => :post},
+      :member => {:done => :get, :get_photos => :post, :refresh_photos => :get, :do_import => :post, :edit_listings_search => :get, :update_listings_search => :put}
 
   map.resources :posts, :name_prefix => "topic_", :path_prefix => "/admin/forum_categories/:forum_category_id/forums/:forum_id/topics/:topic_id"
   map.resources :posts, :name_prefix => "forum_", :path_prefix => "/admin/forum_categories/:forum_category_id/forums/:forum_id"

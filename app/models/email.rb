@@ -30,6 +30,8 @@ class Email < ActiveRecord::Base
   # We record the last exception's backtrace to help us trace the root cause of the problem.
   serialize :backtrace
 
+  belongs_to :smtp_email_account
+
   has_many :attachments
   has_many :assets, :through => :attachments
 

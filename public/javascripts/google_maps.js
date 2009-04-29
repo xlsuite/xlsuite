@@ -26,8 +26,19 @@ xl.GoogleMap = Class.create({
 
   appendMarker: function(point) {
     var marker = new GMarker(point, {draggable: true});
+    var obj = this;
+    GEvent.addListener(marker, "dragend", function(){
+      if (obj._markers.length > 2) {
+        obj.createRegion();
+      }
+    });
+    
     this._markers.push(marker);
     this._gmap.addOverlay(marker);
+
+    if (this._markers.length > 2) {
+      this.createRegion();
+    }
     return marker;
   },
 
@@ -67,6 +78,12 @@ xl.GoogleMap = Class.create({
     }
 
     return points;
+  },
+  
+  pointsToMarkers: function(points){
+    for (var k=0; k < points.length; k++) {
+      this.appendMarker(new GLatLng(points[k].first(), points[k].last()));
+    }   
   },
 
   on: function(eventName, handler) {

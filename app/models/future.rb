@@ -71,9 +71,17 @@ class Future < ActiveRecord::Base
     begin
       execute_without_interval
     ensure
-      if (self.completed? || self.system?) && !self.interval.blank? then
-        other = self.class.new(self.attributes)
-        other.reschedule!(self.ended_at + self.interval)
+      # If it needs to be rescheduled
+      if (!self.interval.blank?)
+        # If the future completed normally, reschedule itself
+        if (self.completed?)
+          self.reschedule!(self.ended_at + self.interval) 
+        # If it errored and it's not a RetsSearchFuture, or for whatever reason a system future did not 
+        # complete normally, reschedule a duplicate of itself
+        elsif (self.errored? and !(self.class.name =~ /RetsSearchFuture/i) || self.system?)
+          other = self.class.new(self.attributes)
+          other.reschedule!(self.ended_at + self.interval)
+        end
       end
     end
   end

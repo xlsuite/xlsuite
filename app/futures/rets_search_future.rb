@@ -130,4 +130,18 @@ class RetsSearchFuture < RetsFuture
 
     query.map {|q| ["(", q, ")"].join("")}.join(",")
   end
+  
+  def humanize_status
+    if self.status =~ /unstarted/i
+      if self.scheduled_at < Time.now
+        return "Waiting"
+      else
+        return "Sleeping"
+      end
+    end
+    if self.errored?
+      return "Errored"
+    end
+    return self.status.humanize
+  end
 end

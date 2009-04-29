@@ -1,3 +1,8 @@
+if current_user.all_smtp_accounts.size < 1
+page << %Q`Ext.Msg.alert("New Email - FAILED", "You do not have access to any SMTP email account.<br/>Feel free to setup one of your own on the <b>SMTP Setup</b> panel of your contact edit.")`
+return
+end
+
 page_title = @mass ? 'Mass Mailing | New' : 'Email | New'
 enable_mass_mail_checkbox = 'isMassMailCheckbox.setValue(true);' if @mass
 
@@ -131,34 +136,25 @@ var generateSendSaveToolbar = function() {
 };  // end generateSendSaveToolbar
 
 // Create Data Stores
-/*var fromComboBoxStore = xl.generateSimpleHttpJSONStore({
-  url: '#{async_get_account_addresses_emails_path}',
-  fieldNames: ['text', 'address', 'id'],
-  doLoad: true,
-  onLoad: function() {
-    fromComboBox.setValue(fromComboBoxStore.getAt(0).get('address'));
-    fromComboBox.mode = 'local';
-  }
-});*/
 var fromComboBox = new Ext.form.ComboBox({
-  store: xl.generateSimpleHttpJSONStore({
-    url: '#{async_get_account_addresses_emails_path}',
-    fieldNames: ['text', 'address', 'id'],
-    doLoad: true,
-    onLoad: function() {
-      fromComboBox.setValue(fromComboBox.store.getAt(0).get('address'));
+  store:xl.generateSimpleHttpJSONStore({
+    url:#{async_get_account_addresses_emails_path.to_json}
+    ,fieldNames:['address', 'id']
+    ,doLoad:true
+    ,onLoad:function() {
+      fromComboBox.setValue(fromComboBox.store.getAt(0).get('id'));
       fromComboBox.mode = 'local';
     }
-  }),
-  typeAhead: true,
-  mode: 'remote',
-  triggerAction: 'all',
-  fieldLabel: 'From',
-  name: 'email[sender][address]',
-  displayField: 'text',
-  width: 300,
-  editable: false,
-  valueField: 'address'
+  })
+  ,typeAhead:true
+  ,mode:'remote'
+  ,triggerAction:'all'
+  ,fieldLabel:'From'
+  ,name:'email[smtp_email_account_id]'
+  ,displayField:'address'
+  ,width:300
+  ,editable:false
+  ,valueField:'id'
 });
 manager.add(fromComboBox);
 
@@ -724,8 +720,6 @@ var layoutPanel = new Ext.Panel({
   
   bodyStyle: 'padding: 15px',
   autoScroll: true,
-  layout: 'table',
-  layoutConfig: { columns: 1 },
   width: '100%',
   defaults: formDefaults,
   
@@ -750,7 +744,7 @@ var layoutPanel = new Ext.Panel({
       defaults: formDefaults,
       items: [ // 2 Columns
         { width: 375, items: [toArea] },
-        { width: 125, items: [previewButton] }
+        { width: 150, items: [previewButton] }
       ]
     },
     { // ColumnLayout
@@ -762,17 +756,7 @@ var layoutPanel = new Ext.Panel({
         { width: 300, items: [ccArea] }
       ]
     },
-    
-    /*{ // ColumnLayout
-      style: 'padding-left: 50px;',
-      layout: 'column',
-      items: [{ // FormLayout
-        items: [bccButton]
-      },{
-        items: [ccButton]
-      }] // ColumnLayout items
-    },*/
-    
+        
     { // TableLayout
       layout: 'column',
       defaults: formDefaults,

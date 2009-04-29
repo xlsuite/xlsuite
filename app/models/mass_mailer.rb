@@ -21,6 +21,10 @@ class MassMailer < ActionMailer::Base
     end
 
     generate_bodies(email.mail_type, body_text)
+
+    if email.smtp_email_account
+      self.alternate_smtp_settings = SmtpMailer.convert_email_account_to_smtp_settings(email.smtp_email_account)
+    end
   end
   
   def mass_mailing(email, recipient)
@@ -31,6 +35,10 @@ class MassMailer < ActionMailer::Base
     generate_bodies(email.mail_type, body_text)
 
     add_inline_attachments(email) if email.inline_attachments?
+    
+    if email.smtp_email_account
+      self.alternate_smtp_settings = SmtpMailer.convert_email_account_to_smtp_settings(email.smtp_email_account)
+    end
   end
 
   protected

@@ -20,3 +20,4 @@ var _afterRenderCallback = function() {
 };
 `
 end
+page << refresh_grid_datastore_with_key("rets")
