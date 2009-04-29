@@ -532,7 +532,7 @@ class AssetsController < ApplicationController
         if @created
           render :json => {:success => true, :asset_url => @asset.z_src, :asset_id => @asset.id, :messages => "Successfully uploaded"}.to_json
         else
-          render :json => {:success => false, :messages => "Uploading failed"}.to_json
+          render :json => {:success => false, :messages => "Uploading failed: #{@asset.errors.full_messages.join(',')}"}.to_json
         end
       end
     end
