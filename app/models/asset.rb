@@ -327,7 +327,7 @@ class Asset < ActiveRecord::Base
 
   acts_as_taggable
   acts_as_fulltext %w(filename title content_type description folder_name tag_list)
-  has_attachment :max_size => 12.megabytes, :min_size => 0, :storage => :s3
+  has_attachment :max_size => 1.gigabyte, :min_size => 0, :storage => :s3
   belongs_to :parent, :class_name => "Asset", :foreign_key => :parent_id
   validates_as_attachment
 
@@ -337,7 +337,7 @@ class Asset < ActiveRecord::Base
   before_save :calculate_cache_directives
   before_validation :set_content_type_if_missing
   
-  before_save :ensure_cap_total_asset_size_not_exceeded
+  before_save :ensure_asset_size_caps_not_exceeded
   before_save :generate_etag
   after_create :update_parent_timestamps
   after_create :increase_current_total_asset_size
@@ -810,10 +810,14 @@ class Asset < ActiveRecord::Base
     self.account.update_attribute("current_total_asset_size", self.account.current_total_asset_size + self.size - old_size)
   end
   
-  def ensure_cap_total_asset_size_not_exceeded
+  def ensure_asset_size_caps_not_exceeded
+    if self.account.cap_asset_size < self.size
+      self.errors.add_to_base("File size #{number_to_human_size(self.account.cap_asset_size)} limit exceeded.")
+      return false
+    end
     if self.account.cap_total_asset_size < (self.account.current_total_asset_size + self.size)
       self.errors.add_to_base("Account storage size #{number_to_human_size(self.account.cap_total_asset_size)} limit exceeded.")
-      return false       
+      return false
     end
   end
 end
