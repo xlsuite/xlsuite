@@ -384,6 +384,10 @@ class AccountsController < ApplicationController
   end
 
   def update
+    cap_total_asset_size = params[:account].delete(:cap_total_asset_size)
+    if cap_total_asset_size
+      @acct.cap_total_asset_size = cap_total_asset_size.to_i * 1048576
+    end
     @acct.attributes = params[:account]
     if current_superuser? && params[:account] then
       @acct.expires_at = params[:account][:expires_at] unless params[:account][:expires_at].blank?

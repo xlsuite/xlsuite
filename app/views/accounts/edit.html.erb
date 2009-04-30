@@ -10,14 +10,14 @@ EOF
   <%= error_messages_for(:acct) %>
 
   <fieldset>
-    <h3>XL Account</h3>
+    <h3><b>XL Account</b></h3>
     <ol id="domains">
       <%= render :partial => 'domain', :collection => @domains %>
     </ol>
   </fieldset>
 
   <fieldset>
-    <h3>Available Modules</h3>
+    <h3><b>Available Modules</b></h3>
     <ol id="options">
       <%= render :partial => "option", :collection => AccountModule::AVAILABLE_MODULES, :locals => {:account => @acct} %>
     </ol>
@@ -25,7 +25,13 @@ EOF
 
   <br/>
   <fieldset>
-    <h3>Account Master Login</h3>
+    <h3><b>Features</b></h3>
+    <p>Total File Size Limit: <%= f.text_field :cap_total_asset_size, :value => @acct.cap_total_asset_size/1048576, :size => 20 %> MB (current usage: <%= number_to_human_size(@acct.current_total_asset_size)%>)</p> 
+  </fieldset>
+  
+  <br />
+  <fieldset>
+    <h3><b>Account Master Login</b></h3>
     <p>Username is 
 <% if @acct.owner %>
     <%= f.view_field(:owner, :value => link_to(h(@acct.owner.display_name), "mailto:#{@acct.owner.main_email.address}"), :label => "Account owner") %>
