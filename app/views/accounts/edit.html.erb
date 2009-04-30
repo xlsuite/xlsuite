@@ -26,7 +26,8 @@ EOF
   <br/>
   <fieldset>
     <h3><b>Features</b></h3>
-    <p>Total File Size Limit: <%= f.text_field :cap_total_asset_size, :value => @acct.cap_total_asset_size/1048576, :size => 20 %> MB (current usage: <%= number_to_human_size(@acct.current_total_asset_size)%>)</p> 
+    <p>Total File Size Limit: <%= f.text_field :cap_total_asset_size, :value => @acct.cap_total_asset_size/1.megabyte, :size => 20 %> MB (current usage: <%= number_to_human_size(@acct.current_total_asset_size)%>)</p> 
+    <p>Single File Size Limit: <%= f.text_field :cap_asset_size, :value => @acct.cap_asset_size/1.megabyte, :size => 20 %> MB</p> 
   </fieldset>
   
   <br />
