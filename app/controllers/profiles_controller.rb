@@ -496,7 +496,7 @@ class ProfilesController < ApplicationController
             # we shouldn't log the user in
             self.current_user = @profile.party unless current_user? # Don't login unless we were anonymous
           end
-
+          flash_success "Profile has been successfully created"
           return redirect_to((params[:next] || "/profiles/view?id=__ID__").sub("__ID__", @profile.id.to_s))
         rescue
           %w(addresses phones links email_addresses).each do |method|
