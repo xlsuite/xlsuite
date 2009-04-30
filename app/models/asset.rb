@@ -386,10 +386,10 @@ class Asset < ActiveRecord::Base
     Asset::THUMBNAIL_SIZES.each { |suffix, size| create_or_update_thumbnail(temp_file, suffix, *size) }
   end
 
-  def self.find_users_files(user_ids, current_account)
+  def self.find_users_files(user_ids, current_account, limit=10)
     user_ids_arr = []
     user_ids.split(',').each{|id| user_ids_arr << id.to_i} unless user_ids.blank?
-    current_account.assets.find(:all, :conditions => ["owner_id IN (?)", user_ids_arr])
+    current_account.assets.find(:all, :conditions => ["owner_id IN (?)", user_ids_arr], :limit => limit)
   end
   
   def file_directory_path
