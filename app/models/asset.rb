@@ -337,9 +337,14 @@ class Asset < ActiveRecord::Base
   before_save :calculate_cache_directives
   before_validation :set_content_type_if_missing
   
+  before_save :ensure_cap_total_asset_size_not_exceeded
   before_save :generate_etag
   after_create :update_parent_timestamps
+  after_create :increase_current_total_asset_size
   after_destroy :update_parent_timestamps
+  after_destroy :decrease_current_total_asset_size
+  before_update :set_old_size
+  after_update :update_current_total_asset_size
   after_update :update_parent_timestamps
   before_save :get_old_folder_id
   after_save :update_old_folder_timestamps
@@ -786,5 +791,29 @@ class Asset < ActiveRecord::Base
 
   def generate_etag_from_current_data
     self.update_attribute(:etag, Digest::MD5.hexdigest(self.current_data))
+  end
+  
+  def increase_current_total_asset_size
+    self.account.update_attribute("current_total_asset_size", self.account.current_total_asset_size + self.size)
+  end
+  
+  def decrease_current_total_asset_size
+    self.account.update_attribute("current_total_asset_size", self.account.current_total_asset_size - self.size)
+  end
+  
+  def set_old_size
+    self.instance_variable_set(:@_old_size, self.size)
+  end
+  
+  def update_current_total_asset_size
+    old_size = self.instance_variable_get(:@_old_size)
+    self.account.update_attribute("current_total_asset_size", self.account.current_total_asset_size + self.size - old_size)
+  end
+  
+  def ensure_cap_total_asset_size_not_exceeded
+    if self.account.cap_total_asset_size < (self.account.current_total_asset_size + self.size)
+      self.errors.add_to_base("Account storage size #{number_to_human_size(self.account.cap_total_asset_size)} limit exceeded.")
+      return false       
+    end
   end
 end
