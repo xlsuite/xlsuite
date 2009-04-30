@@ -409,7 +409,7 @@ class FoldersController < ApplicationController
           @asset.owner = current_user
           @asset.folder = parent_folder if parent_folder
           saved = @asset.save
-          @errors << @asset.errors.full_messages unless @errors.index(@asset.errors.full_messages)
+          @errors << @asset.errors.full_messages unless @errors.index(@asset.errors.full_messages) || @asset.errors.full_messages.blank?
           @results[upload_data.first] = {:saved => saved, :errors => @asset.errors.full_messages}
         end
           respond_to do |format|
