@@ -26,23 +26,25 @@ EOF
   <br/>
   <fieldset>
     <h3><b>Features</b></h3>
-    <p>Total File Size Limit: <%= f.text_field :cap_total_asset_size, :value => @acct.cap_total_asset_size/1.megabyte, :size => 20 %> MB (current usage: <%= number_to_human_size(@acct.current_total_asset_size)%>)</p> 
-    <p>Single File Size Limit: <%= f.text_field :cap_asset_size, :value => @acct.cap_asset_size/1.megabyte, :size => 20 %> MB</p> 
+    <table>
+      <tr><td>Total File Size Limit: </td><td><%= f.text_field :cap_total_asset_size, :value => @acct.cap_total_asset_size/1.megabyte, :size => 20 %> MB (current usage: <%= number_to_human_size(@acct.current_total_asset_size)%>)</td></tr>
+      <tr><td>Single File Size Limit: </td><td><%= f.text_field :cap_asset_size, :value => @acct.cap_asset_size/1.megabyte, :size => 20 %> MB</td></tr>
+    </table>
   </fieldset>
   
   <br />
   <fieldset>
     <h3><b>Account Master Login</b></h3>
-    <p>Username is 
-<% if @acct.owner %>
-    <%= f.view_field(:owner, :value => link_to(h(@acct.owner.display_name), "mailto:#{@acct.owner.main_email.address}"), :label => "Account owner") %>
+    <table>
+      <tr><td>Username: </td><td><% if @acct.owner %>
+    <%= f.view_field(:owner, :value => link_to(h(@acct.owner.display_name), "mailto:#{@acct.owner.main_email.address}")) %>
 <% else %>
     <%= f.view_field(:owner, :value => "unknown", :label => "Account owner") %>
-<% end %>
-    </p>
-    <p>Password is ******</p>
-    <p>Title: <%= f.text_field :title, :size => 40 %></p>
-    <p>Expires at: <%= f.text_field :expires_at, :value => format_date_time(@acct.expires_at), :size => 20 %></p>    
+<% end %></td></tr>
+      <tr><td>Password: </td><td>******</td></tr>
+      <tr><td>Title: </td><td><%= f.text_field :title, :size => 40 %></td></tr>
+      <tr><td>Expires at: </td><td><%= f.text_field :expires_at, :value => format_date_time(@acct.expires_at), :size => 20 %></td></tr>
+    </table>
   </fieldset>
 
   <br/>
