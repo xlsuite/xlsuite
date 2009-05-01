@@ -22,7 +22,8 @@ class FoldersController < ApplicationController
         conditions = "assets.folder_id IS NULL"
       end
     end
-    
+    @current_total_asset_size = current_account.current_total_asset_size
+    @cap_total_asset_size = current_account.cap_total_asset_size
     respond_to do |format|
       format.html
       format.js 
@@ -125,12 +126,14 @@ class FoldersController < ApplicationController
         parent_folder = current_account.folders.find_by_path(params[:path].gsub(/^root\//i, ''))
         @results = {}
         @uploaded_data_param = params.select{|k,v| k =~ /ext-gen\d+/}
+        @errors = []
         @uploaded_data_param.each do |upload_data|
           @asset = current_account.assets.build(:uploaded_data => upload_data.last, :zip_file => params[:zip_file], :tag_list => params[:tag_list])
           @asset.owner = current_user
           @asset.folder = parent_folder if parent_folder
-          
-          @results[upload_data.first] = @asset.save
+          saved = @asset.save
+          @errors << @asset.errors.full_messages unless @errors.index(@asset.errors.full_messages) || @asset.errors.full_messages.blank?
+          @results[upload_data.first] = {:saved => saved, :errors => @asset.errors.full_messages}
         end
           respond_to do |format|
             format.html do
@@ -138,17 +141,20 @@ class FoldersController < ApplicationController
                 render :update do |page|
                   @results.each do |k, v|
                     page << "var record = xl.fileTreePanel.getUploadPanel().store.getById(#{k.to_json});"
-                    if v
+                    if v[:saved]
                       page << "record.set('state', 'done');"
                       page << "record.set('error', '');"
                     else
                       page << "record.set('state', 'failed');"
-                      page << "record.set('error', 'Upload failed');"
+                      page << "record.set('error', 'Upload failed: #{v[:errors]}');"
                     end
                   end
                   page << "record.commit();"
-                  page << "xl.fileTreePanel.getUploadPanel().fireEvent('allfinished');"
                   page << "xl.runningGrids.get('assets').getStore().reload();"
+                  unless @errors.blank?
+                    page << "Ext.Msg.alert('Upload failed', '#{@errors.join(",")}')" 
+                  end
+                  page << "xl.fileTreePanel.getUploadPanel().fireEvent('allfinished');"
                 end
               end            
             end

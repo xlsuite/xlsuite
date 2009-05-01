@@ -50,7 +50,7 @@ class Asset < ActiveRecord::Base
 
   acts_as_taggable
   acts_as_fulltext %w(filename title content_type description folder_name tag_list)
-  has_attachment :max_size => 12.megabytes, :min_size => 0, :storage => :file_system
+  has_attachment :max_size => 1.gigabyte, :min_size => 0, :storage => :file_system
   belongs_to :parent, :class_name => "Asset", :foreign_key => :parent_id
   validates_as_attachment
 
@@ -60,9 +60,14 @@ class Asset < ActiveRecord::Base
   before_save :calculate_cache_directives
   before_validation :set_content_type_if_missing
   
+  before_save :ensure_asset_size_caps_not_exceeded
   before_save :generate_etag
   after_create :update_parent_timestamps
+  after_create :increase_current_total_asset_size
   after_destroy :update_parent_timestamps
+  after_destroy :decrease_current_total_asset_size
+  before_update :set_old_size
+  after_update :update_current_total_asset_size
   after_update :update_parent_timestamps
   before_save :get_old_folder_id
   after_save :update_old_folder_timestamps
@@ -102,10 +107,10 @@ class Asset < ActiveRecord::Base
     Asset::THUMBNAIL_SIZES.each { |suffix, size| create_or_update_thumbnail(temp_file, suffix, *size) }
   end
 
-  def self.find_users_files(user_ids, current_account)
+  def self.find_users_files(user_ids, current_account, limit=10)
     user_ids_arr = []
     user_ids.split(',').each{|id| user_ids_arr << id.to_i} unless user_ids.blank?
-    current_account.assets.find(:all, :conditions => ["owner_id IN (?)", user_ids_arr])
+    current_account.assets.find(:all, :conditions => ["owner_id IN (?)", user_ids_arr], :limit => limit)
   end
   
   def file_directory_path
@@ -507,5 +512,33 @@ class Asset < ActiveRecord::Base
 
   def generate_etag_from_current_data
     self.update_attribute(:etag, Digest::MD5.hexdigest(current_data))
+  end
+  
+  def increase_current_total_asset_size
+    self.account.update_attribute("current_total_asset_size", self.account.current_total_asset_size + self.size)
+  end
+  
+  def decrease_current_total_asset_size
+    self.account.update_attribute("current_total_asset_size", self.account.current_total_asset_size - self.size)
+  end
+  
+  def set_old_size
+    self.instance_variable_set(:@_old_size, self.size)
+  end
+  
+  def update_current_total_asset_size
+    old_size = self.instance_variable_get(:@_old_size)
+    self.account.update_attribute("current_total_asset_size", self.account.current_total_asset_size + self.size - old_size)
+  end
+  
+  def ensure_asset_size_caps_not_exceeded
+    if self.account.cap_asset_size < self.size
+      self.errors.add_to_base("File size #{number_to_human_size(self.account.cap_asset_size)} limit exceeded.")
+      return false
+    end
+    if self.account.cap_total_asset_size < (self.account.current_total_asset_size + self.size)
+      self.errors.add_to_base("Account storage size #{number_to_human_size(self.account.cap_total_asset_size)} limit exceeded.")
+      return false
+    end
   end
 end

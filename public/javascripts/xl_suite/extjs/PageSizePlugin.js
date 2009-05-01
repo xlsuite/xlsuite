@@ -4,7 +4,7 @@ Ext.ux.PageSizePlugin = function() {
     Ext.ux.PageSizePlugin.superclass.constructor.call(this, {
         store: new Ext.data.SimpleStore({
             fields: ['text', 'value'],
-            data: [['10', 10], ['25', 25], ['50', 50], ['100', 100], ["All", "all"]]
+            data: [['10', 10], ['25', 25], ['50', 50], ['100', 100], ['200', 200]]
         }),
         mode: 'local',
         displayField: 'text',

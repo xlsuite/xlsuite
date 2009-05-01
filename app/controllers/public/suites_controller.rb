@@ -86,6 +86,7 @@ class Public::SuitesController < ApplicationController
       format.json do
         result = []
         @suites.each do |suite|
+          next unless suite.trunk_account
           result << self.assemble_record(suite)          
         end
         json_response = {:collection => result, :total => result.size, :pages_count => pages_count}.to_json

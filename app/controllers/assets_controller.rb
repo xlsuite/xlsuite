@@ -249,13 +249,13 @@ class AssetsController < ApplicationController
         else
           flash_failure :now, "Upload failed: #{@asset.errors.full_messages.join(',')}"
         end
-        render :inline => %Q`<%= "{success:#{@created}, file_name: '#{@asset.reload.filename}', asset_id: #{@asset.id}, flash: '#{flash[:notice].to_s}',reload_store: '#{params[:object_type]}_#{@ar_object.blank? ? 0 : @ar_object.id}_#{params[:mode]}_#{params[:classification]}', asset_download_path: '#{@asset.z_src}'}" %>`
+        render :inline => %Q`<%= "{success:#{@created}, file_name: '#{@created ? @asset.reload.filename : @asset.filename}', asset_id: #{@created ? @asset.id : 0}, flash: '#{flash_messages_to_s}',reload_store: '#{params[:object_type]}_#{@ar_object.blank? ? 0 : @ar_object.id}_#{params[:mode]}_#{params[:classification]}', asset_download_path: '#{@asset.z_src}'}" %>`
       end
       format.js do
         if @created
           render :json => {:success => true, :asset_url => @asset.z_src, :asset_id => @asset.id, :messages => "Successfully uploaded"}.to_json
         else
-          render :json => {:success => false, :messages => "Uploading failed"}.to_json
+          render :json => {:success => false, :messages => "Uploading failed: #{@asset.errors.full_messages.join(',')}"}.to_json
         end
       end
     end

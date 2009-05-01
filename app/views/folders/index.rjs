@@ -504,5 +504,8 @@ page << create_tab_using_ajax_response("Files", after_render) do
     });
     
     grid.getTopToolbar().add(expandAllAction, collapseAllAction);
+    
+    grid.getTopToolbar().add({ xtype:'tbtext', text: "<div class='x-paging-info'>Using #{number_to_human_size(@current_total_asset_size)} of #{number_to_human_size(@cap_total_asset_size)} (#{(@current_total_asset_size.to_f/@cap_total_asset_size.to_f).to_percentage}%)</div>"});  
+    
 `
 end

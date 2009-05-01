@@ -866,8 +866,16 @@ xl.widget.OpenSingleImagePicker = function(elId, url, objectType, objectId, conf
                     }
                   }
                   else{
+                    xl.updateStatusBar(response.flash);                 
+                    uploadPanel.el.unmask;
                     Ext.Msg.alert("Status:", "Upload Failed: "+response.flash);
                   }
+                },
+                failure: function(form, action){
+                  response = action.result;
+                  xl.updateStatusBar(response.flash);              
+                  uploadPanel.el.unmask();              
+                  Ext.Msg.alert("Upload Failed: ", response.flash);
                 }
               }
             );

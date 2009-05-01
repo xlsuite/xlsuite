@@ -185,12 +185,12 @@ class AccountTemplate < ActiveRecord::Base
   
   def main_image_url
     main_image = self.images.first
-    return "" unless main_image
+    return "" unless main_image && self.trunk_account
     "http://" + self.trunk_account.domains.first.name + "/assets/download/" + main_image.filename
   end
   
   def designer
-    self.trunk_account.owner
+    self.trunk_account ? self.trunk_account.owner : "Unavailable"
   end
   
   def installed_count
