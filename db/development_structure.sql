@@ -1333,7 +1333,8 @@ CREATE TABLE `links` (
   `account_id` int(11) default NULL,
   `approved` tinyint(1) default '0',
   `created_at` datetime default NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `by_account_title_approved_active_at` (`account_id`,`title`,`approved`,`active_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `listings` (
@@ -2600,3 +2601,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090501002357');
 INSERT INTO schema_migrations (version) VALUES ('20090502022730');
 
 INSERT INTO schema_migrations (version) VALUES ('20090502065613');
+
+INSERT INTO schema_migrations (version) VALUES ('20090502070446');
