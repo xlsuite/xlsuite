@@ -83,6 +83,9 @@ CREATE TABLE `accounts` (
   `order_id` int(11) default NULL,
   `signup_account_id` int(11) default NULL,
   `referral_domain` varchar(255) default NULL,
+  `current_total_asset_size` bigint(20) default '0',
+  `cap_total_asset_size` bigint(20) default '209715200',
+  `cap_asset_size` int(11) default '8388608',
   PRIMARY KEY  (`id`),
   KEY `by_master` (`master`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -213,8 +216,8 @@ CREATE TABLE `blog_posts` (
   `domain_id` int(11) default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_blog_published_at` (`blog_id`,`published_at`),
-  KEY `by_account_blog_published_at` (`account_id`,`blog_id`,`published_at`),
-  KEY `by_blog_id_published_at_updated_at` (`blog_id`,`published_at`,`updated_at`)
+  KEY `by_blog_id_published_at_updated_at` (`blog_id`,`published_at`,`updated_at`),
+  KEY `by_account_blog_published_at` (`account_id`,`blog_id`,`published_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `blogs` (
@@ -969,7 +972,8 @@ CREATE TABLE `fulltext_rows` (
   KEY `by_account_weight_subject` (`account_id`,`weight`,`subject_id`,`subject_type`),
   KEY `by_account_weight_updated_subject` (`account_id`,`weight`,`subject_updated_at`,`subject_id`,`subject_type`),
   KEY `by_account_subject` (`account_id`,`subject_type`,`subject_id`),
-  KEY `by_subject` (`subject_type`,`subject_id`)
+  KEY `by_subject` (`subject_type`,`subject_id`),
+  FULLTEXT KEY `by_label_body` (`label`,`body`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `futures` (
@@ -1243,7 +1247,7 @@ CREATE TABLE `items` (
   `modified` tinyint(1) default NULL,
   `http_code` int(11) default '200',
   `updator_id` int(11) default NULL,
-  `no_update` tinyint(1) default NULL,
+  `no_update` tinyint(1) default '0',
   `delta` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_uuid` (`account_id`,`uuid`),
@@ -1297,7 +1301,7 @@ CREATE TABLE `layouts` (
   `uuid` varchar(36) default NULL,
   `modified` tinyint(1) default NULL,
   `updator_id` int(11) default NULL,
-  `no_update` tinyint(1) default NULL,
+  `no_update` tinyint(1) default '0',
   `delta` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
   KEY `by_account_title` (`account_id`,`title`)
@@ -1564,7 +1568,7 @@ CREATE TABLE `party_domain_monthly_points` (
   `month` tinyint(4) default NULL,
   `updated_at` datetime default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `party_domain_points` (
   `id` int(11) NOT NULL auto_increment,
@@ -1574,7 +1578,7 @@ CREATE TABLE `party_domain_points` (
   `own_point` int(11) default '0',
   `referrals_point` int(11) default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `payables` (
   `id` int(11) NOT NULL auto_increment,
@@ -2001,7 +2005,7 @@ CREATE TABLE `shared_email_accounts` (
   `target_type` varchar(255) default NULL,
   `target_id` int(11) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `sort_lines` (
   `id` int(11) NOT NULL auto_increment,
@@ -2139,7 +2143,8 @@ CREATE TABLE `testimonials` (
   `author_company_name` varchar(255) default NULL,
   `avatar_id` int(11) default NULL,
   `show_avatar` tinyint(1) default NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `by_account` (`account_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `timelines` (
@@ -2198,8 +2203,6 @@ INSERT INTO schema_migrations (version) VALUES ('1222983535');
 INSERT INTO schema_migrations (version) VALUES ('1223072025');
 
 INSERT INTO schema_migrations (version) VALUES ('20081002193856');
-
-INSERT INTO schema_migrations (version) VALUES ('20081005125842');
 
 INSERT INTO schema_migrations (version) VALUES ('20081006181906');
 
@@ -2580,3 +2583,17 @@ INSERT INTO schema_migrations (version) VALUES ('20090427223514');
 INSERT INTO schema_migrations (version) VALUES ('20090427230446');
 
 INSERT INTO schema_migrations (version) VALUES ('20090427232009');
+
+INSERT INTO schema_migrations (version) VALUES ('20090428191410');
+
+INSERT INTO schema_migrations (version) VALUES ('20090428215320');
+
+INSERT INTO schema_migrations (version) VALUES ('20090428225536');
+
+INSERT INTO schema_migrations (version) VALUES ('20090430005243');
+
+INSERT INTO schema_migrations (version) VALUES ('20090430195837');
+
+INSERT INTO schema_migrations (version) VALUES ('20090501002357');
+
+INSERT INTO schema_migrations (version) VALUES ('20090502022730');
