@@ -152,16 +152,17 @@ page << %Q`
           type: 'textarea'
         }})
       ],
-      width: 400
+      width: 380
     },{
       layout: 'form',
       style: "padding-left: 25px",
+      labelWidth: 120,
       items: [
         xl.widget.InlineActiveField({form: form, afteredit: #{afteredit_function}, field: {
           width: 100,
-          fieldLabel: 'Interval',
+          fieldLabel: 'Interval in minutes',
           name: 'interval',
-          value: #{(@step.interval.to_s).to_json}          
+          value: #{(@step.interval / 60).to_json}          
         }}),
         selectObjectField,
         {
