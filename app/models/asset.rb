@@ -794,11 +794,11 @@ class Asset < ActiveRecord::Base
   end
   
   def increase_current_total_asset_size
-    self.account.update_attribute("current_total_asset_size", self.account.current_total_asset_size + self.size)
+    Account.connection.execute("UPDATE accounts SET current_total_asset_size = current_total_asset_size + #{self.size} WHERE id=#{self.account.id}")
   end
   
   def decrease_current_total_asset_size
-    self.account.update_attribute("current_total_asset_size", self.account.current_total_asset_size - self.size)
+    Account.connection.execute("UPDATE accounts SET current_total_asset_size = current_total_asset_size - #{self.size} WHERE id=#{self.account.id}")
   end
   
   def set_old_size
@@ -807,7 +807,7 @@ class Asset < ActiveRecord::Base
   
   def update_current_total_asset_size
     old_size = self.instance_variable_get(:@_old_size)
-    self.account.update_attribute("current_total_asset_size", self.account.current_total_asset_size + self.size - old_size)
+    Account.connection.execute("UPDATE accounts SET current_total_asset_size = current_total_asset_size + #{self.size - old_size} WHERE id=#{self.account.id}")
   end
   
   def ensure_asset_size_caps_not_exceeded
