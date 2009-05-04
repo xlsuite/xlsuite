@@ -1874,7 +1874,9 @@ CREATE TABLE `recipients` (
   PRIMARY KEY  (`id`),
   KEY `by_party_type_email` (`party_id`,`type`,`email_id`),
   KEY `by_email_type` (`email_id`,`type`),
-  KEY `by_party_read_email` (`party_id`,`read_at`,`email_id`)
+  KEY `by_party_read_email` (`party_id`,`read_at`,`email_id`),
+  KEY `by_account_type` (`account_id`,`type`),
+  KEY `by_account_uuid` (`account_id`,`uuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `referrals` (
@@ -2028,11 +2030,10 @@ CREATE TABLE `steps` (
   `model_class_name` varchar(80) default NULL,
   `lines` text,
   `last_run_at` datetime NOT NULL default '1970-01-01 00:00:00',
-  `interval_length` int(11) NOT NULL default '5',
-  `interval_unit` varchar(8) NOT NULL default 'minutes',
   `activated_at` datetime default NULL,
   `disabled_at` datetime default NULL,
   `uuid` varchar(36) default NULL,
+  `interval` int(11) default '900',
   PRIMARY KEY  (`id`),
   KEY `by_last_run_at` (`last_run_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -2598,8 +2599,12 @@ INSERT INTO schema_migrations (version) VALUES ('20090430195837');
 
 INSERT INTO schema_migrations (version) VALUES ('20090501002357');
 
+INSERT INTO schema_migrations (version) VALUES ('20090501224543');
+
 INSERT INTO schema_migrations (version) VALUES ('20090502022730');
 
 INSERT INTO schema_migrations (version) VALUES ('20090502065613');
 
 INSERT INTO schema_migrations (version) VALUES ('20090502070446');
+
+INSERT INTO schema_migrations (version) VALUES ('20090504220133');
