@@ -11,7 +11,6 @@ class Step < ActiveRecord::Base
   belongs_to :workflow
 
   acts_as_list :scope => :workflow
-  acts_as_period :interval
 
   has_many :tasks, :order => "position", :dependent => :destroy
 
@@ -91,8 +90,8 @@ class Step < ActiveRecord::Base
   end
 
   class << self
-    def find_next_runnable_steps(interval_in_seconds=1.minute)    
-      find(:all, :conditions => ["activated_at <= NOW() AND (disabled_at IS NULL OR disabled_at > NOW()) AND last_run_at < ?", interval_in_seconds.ago])
+    def find_next_runnable_steps
+      find(:all, :conditions => ["activated_at <= NOW() AND (disabled_at IS NULL OR disabled_at > NOW()) AND (`interval` < TIMESTAMPDIFF(SECOND, last_run_at, NOW()))"])
     end
   end
 end

@@ -65,6 +65,9 @@ class StepsController < ApplicationController
   end
   
   def update
+    if params[:step][:interval]
+      params[:step][:interval] = params[:step][:interval].to_i * 60
+    end
     activated = params[:step].delete(:activated)
     if activated =~ /true/i
       @step.activated_at = Time.now
@@ -195,7 +198,7 @@ class StepsController < ApplicationController
   
   def render_json_response
     errors = (@step.errors.full_messages.blank? ? ($! ? $!.message : "")  : render_to_string(:partial => "/shared/error_messages_for", :locals => {:symbol => :step})).to_s
-    render :json => {:flash => flash[:notice].to_s, :errors => errors, :interval => @step.interval.to_s,
+    render :json => {:flash => flash[:notice].to_s, :errors => errors, :interval => @step.interval/60,
                      :id => @step.id, :success => @updated || @created || false}.to_json
   end
   
