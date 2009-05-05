@@ -1382,7 +1382,8 @@ CREATE TABLE `listings` (
   `delta` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_ext_id` (`account_id`,`external_id`),
-  KEY `by_account_public_status` (`account_id`,`public`,`status`)
+  KEY `by_account_public_status` (`account_id`,`public`,`status`),
+  KEY `by_account_public_open_house` (`account_id`,`public`,`open_house`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `mappers` (
@@ -1553,7 +1554,8 @@ CREATE TABLE `parties` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_token` (`account_id`,`token`),
   UNIQUE KEY `by_profile` (`profile_id`),
-  KEY `by_account_display` (`account_id`,`display_name`)
+  KEY `by_account_display` (`account_id`,`display_name`),
+  KEY `by_account_profile` (`account_id`,`profile_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `parties_product_categories` (
@@ -2614,3 +2616,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090504220133');
 INSERT INTO schema_migrations (version) VALUES ('20090504234617');
 
 INSERT INTO schema_migrations (version) VALUES ('20090505000439');
+
+INSERT INTO schema_migrations (version) VALUES ('20090505002429');
