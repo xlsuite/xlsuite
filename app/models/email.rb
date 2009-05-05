@@ -310,6 +310,7 @@ class Email < ActiveRecord::Base
           :name => self.sender.name, :address => self.sender.address)
       non_delivery.build_sender(:party => self.sender.party, :account => self.account,
         :address => self.sender.address, :name => self.sender.name)
+      non_delivery.priority = 150
       non_delivery.save!
       non_delivery.release!
       non_delivery

@@ -68,17 +68,13 @@ class ContactRequestsController < ApplicationController
     end
     
     ContactRequest.transaction do
-      if current_user? then
-        @party = current_user
-      else
-        if params.has_key?(:email_address) then
-          params[:email_address].each do |name, attrs|
-            route = current_account.email_contact_routes.find_by_address_and_routable_type(attrs[:email_address], "Party")
-            next unless route
-            next unless route.routable_type =~ /party/i
-            @party = route.routable
-            break
-          end
+      if params.has_key?(:email_address) then
+        params[:email_address].each do |name, attrs|
+          route = current_account.email_contact_routes.find_by_address_and_routable_type(attrs[:email_address], "Party")
+          next unless route
+          next unless route.routable_type =~ /party/i
+          @party = route.routable
+          break
         end
       end
       
