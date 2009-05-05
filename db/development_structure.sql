@@ -1381,7 +1381,8 @@ CREATE TABLE `listings` (
   `open_house` tinyint(1) default '0',
   `delta` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
-  UNIQUE KEY `by_account_ext_id` (`account_id`,`external_id`)
+  UNIQUE KEY `by_account_ext_id` (`account_id`,`external_id`),
+  KEY `by_account_public_status` (`account_id`,`public`,`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `mappers` (
@@ -2611,3 +2612,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090502070446');
 INSERT INTO schema_migrations (version) VALUES ('20090504220133');
 
 INSERT INTO schema_migrations (version) VALUES ('20090504234617');
+
+INSERT INTO schema_migrations (version) VALUES ('20090505000439');
