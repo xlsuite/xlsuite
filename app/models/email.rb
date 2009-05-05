@@ -570,8 +570,6 @@ class Email < ActiveRecord::Base
     self.bad_recipient_count += 1
     self.released_at = nil
     self.save!
-
-    self.return_non_delivery_to_sender!(reason)
   end
 
   def return_non_delivery_to_sender!(reason)
