@@ -308,7 +308,7 @@ class Public::AccountTemplatesController < ApplicationController
         end
         account_template_ids = [0] if account_template_ids.empty?
         
-        conditions << "id IN (#{account_template_ids.join(',')})"
+        conditions << "account_templates.id IN (#{account_template_ids.join(',')})"
       end
       
       feature_conditions = params_search.select{|k,v| k =~ /^f_/i && v == "1"}
