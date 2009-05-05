@@ -1059,7 +1059,8 @@ CREATE TABLE `groups` (
   `private` tinyint(1) default '1',
   `private_description` text,
   PRIMARY KEY  (`id`),
-  KEY `by_account_label` (`account_id`,`label`)
+  KEY `by_account_label` (`account_id`,`label`),
+  KEY `by_account_parent` (`account_id`,`parent_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `imports` (
@@ -2608,3 +2609,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090502065613');
 INSERT INTO schema_migrations (version) VALUES ('20090502070446');
 
 INSERT INTO schema_migrations (version) VALUES ('20090504220133');
+
+INSERT INTO schema_migrations (version) VALUES ('20090504234617');
