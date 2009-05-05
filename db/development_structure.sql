@@ -644,7 +644,7 @@ CREATE TABLE `emails` (
   `created_at` datetime default NULL,
   `updated_at` datetime default NULL,
   `released_at` datetime default NULL,
-  `bad_recipient_count` int(11) default NULL,
+  `bad_recipient_count` int(11) default '0',
   `generate_password` tinyint(1) NOT NULL default '0',
   `unique_id_listing` varchar(255) default NULL,
   `received_at` datetime default NULL,
@@ -665,6 +665,7 @@ CREATE TABLE `emails` (
   `parsed_subject` blob,
   `parsed_body` blob,
   `smtp_email_account_id` int(11) default NULL,
+  `priority` int(11) default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_scheduled_sent_released` (`scheduled_at`,`sent_at`,`released_at`),
   KEY `by_account_uidl` (`account_id`,`unique_id_listing`),
@@ -2618,3 +2619,7 @@ INSERT INTO schema_migrations (version) VALUES ('20090504234617');
 INSERT INTO schema_migrations (version) VALUES ('20090505000439');
 
 INSERT INTO schema_migrations (version) VALUES ('20090505002429');
+
+INSERT INTO schema_migrations (version) VALUES ('20090505004227');
+
+INSERT INTO schema_migrations (version) VALUES ('20090505215447');
