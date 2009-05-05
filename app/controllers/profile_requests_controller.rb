@@ -464,7 +464,7 @@ class ProfileRequestsController < ApplicationController
   
   def truncate_record(record)
     timestamp_format = "%d/%m/%Y"
-    view_profile = record.profile ? "<a href='#' onclick='xl.openNewTabPanel(\"profiles_edit_#{record.profile_id}\", \"/admin/profiles/#{record.profile.party.id}/edit\")'>View</a>" : ""
+    view_profile = (record.profile && record.profile.party) ? "<a href='#' onclick='xl.openNewTabPanel(\"profiles_edit_#{record.profile_id}\", \"/admin/profiles/#{record.profile.party.id}/edit\")'>View</a>" : ""
     info = record.info.blank? ? "" : record.info.map{|k,v|"#{k.to_s}: #{v.to_s}<br />"}.join(" ")
     {
       :id => record.id,
