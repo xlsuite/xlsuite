@@ -283,7 +283,7 @@ class MailSender < Future
     status!(:initializing, 0)
     emails = Email.pluck_next_ready_mails
     emails.each do |email|
-      MethodCallbackFuture.create!(:model => email, :method => :send!, :system => true, :priority => 10)
+      MethodCallbackFuture.create!(:model => email, :method => :send!, :system => true, :priority => email.priority || 10)
     end
 
     self.complete!
