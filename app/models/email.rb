@@ -562,7 +562,7 @@ class Email < ActiveRecord::Base
   end
 
   def error_limit_reached?
-    self.error_count >= 5
+    self.error_count >= 1
   end
 
   def mark_bad_recipient!(recipient, reason)
