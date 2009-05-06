@@ -285,7 +285,7 @@ class Public::FlaggingsController < ApplicationController
   def create
     begin
       @flagging = current_account.flaggings.build(params[:flagging])
-      @flagging.created_by_id = current_user if current_user?
+      @flagging.created_by = current_user if current_user?
       @flagging.flaggable = @flaggable
       
       @flagging.referrer_url = request.env["HTTP_REFERER"]
