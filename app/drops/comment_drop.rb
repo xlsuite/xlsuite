@@ -280,7 +280,7 @@
 # 		     END OF TERMS AND CONDITIONS
 class CommentDrop < Liquid::Drop
   attr_reader :comment
-  delegate :rating, :body, :name, :url, :email, :user_agent, :referrer_url, :commentable_type, :commentable,
+  delegate :id, :rating, :body, :name, :url, :email, :user_agent, :referrer_url, :commentable_type, :commentable,
       :approved_at, :created_at, :updated_at, :author, :author_profile, :to => :comment
 
   def initialize(comment)
