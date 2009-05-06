@@ -2,6 +2,8 @@
 #- Copyright 2005-2009 iXLd Media Inc.  See LICENSE for details.
 
 class Comment < ActiveRecord::Base
+  include XlSuite::Flaggable
+  
   attr_protected :approved_at, :referrer_url, :user_agent
   
   acts_as_reportable :columns => %w(name url email referrer_url body rating commentable_type spam spaminess)

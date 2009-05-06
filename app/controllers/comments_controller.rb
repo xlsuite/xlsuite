@@ -246,7 +246,7 @@ class CommentsController < ApplicationController
       :approved_at => record.approved_at ? record.approved_at.strftime(TIMESTAMP_FORMAT) : "",
       :created_at => record.created_at.strftime(TIMESTAMP_FORMAT),
       :referrer_url => record.referrer_url,
-      :body => (record.body||"")[0..50],
+      :body => (ERB::Util.html_escape(record.body)||"")[0..50],
       :user_agent => record.user_agent,
       :commentable_type => record.commentable_type,
       :commentable_id => record.commentable_id,

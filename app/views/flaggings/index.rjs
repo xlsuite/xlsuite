@@ -1,0 +1,365 @@
+limit = params[:limit] || 50
+
+after_render = %Q`
+  ds.load({params: {start: 0, limit: #{limit} }});
+`
+
+page << create_tab_using_ajax_response("Flaggings Index", after_render) do
+%Q`
+  // create file record
+  var FlaggingRecord = new Ext.data.Record.create([
+    {name: 'id', mapping: 'id'},
+    {name: 'created_at', mapping: 'created_at'},
+    {name: 'created_by_id', mapping: 'created_by_id'},
+    {name: 'completed', mapping: 'completed'},
+    {name: 'created_by_name', mapping: 'created_by_name'},
+    {name: 'approved_at', mapping: 'approved_at'},
+    {name: 'referrer_url', mapping: 'referrer_url'},
+    {name: 'request_ip', mapping: 'request_ip'},
+    {name: 'reason', mapping: 'reason'},
+    {name: 'user_agent', mapping: 'user_agent'},
+    {name: 'flaggable_type', mapping: 'flaggable_type'},
+    {name: 'flaggable_id', mapping: 'flaggable_id'},
+    {name: 'flaggable_description', mapping: 'flaggable_description'},
+    {name: 'flaggable_path', mapping: 'flaggable_path'}
+  ]);
+
+  // data reader to parse the json response
+  var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, FlaggingRecord);
+
+  // set up connection of the data
+  var connection = new Ext.data.Connection({url: #{@formatted_flaggings_path.to_json}, method: 'get'});
+
+  var proxy = new Ext.data.HttpProxy(connection);
+
+  // set up the data store and then send request to the server
+  var ds = new Ext.data.Store({proxy: proxy, reader: reader, remoteSort: true, baseParams: {q: ''}});
+
+  // define paging toolbar that is going to be appended to the footer of the grid panel
+  var paging = new Ext.PagingToolbar({
+    store: ds,
+    pageSize: #{limit},
+    displayInfo: true,
+    displayMsg: 'Displaying {0} to {1} of {2}',
+    emptyMsg: "No record to display",
+    cls: "bottom-toolbar paging-toolbar-bottom",
+    plugins: [new Ext.ux.PageSizePlugin]
+  });
+  
+  #{create_grid_tbar_filter_field}
+  
+  #{create_grid_tbar_clear_button}
+  
+  var selectAllAction = new Ext.Action({
+    text: "Select all",
+    iconCls: "display_none"
+  });
+
+  var clearAllAction = new Ext.Action({
+    text: "Clear all",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var approveAction = new Ext.Action({
+    text: "Approve",
+    iconCls: "display_none",
+    disabled: true
+  });
+    
+  var unapproveAction = new Ext.Action({
+    text: "Unapprove",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var deleteAction = new Ext.Action({
+    text: "Delete",
+    iconCls: "display_none",
+    disabled: true
+  });
+  
+  var selectionMenu =  new Ext.menu.Menu({
+    items: [selectAllAction, clearAllAction]
+  });
+  
+  selectionMenu.addSeparator();
+  selectionMenu.add(approveAction, unapproveAction);
+  selectionMenu.addSeparator();  
+  selectionMenu.add(deleteAction);
+
+  var gridTopToolbar = new Ext.Toolbar({
+    cls: "top-toolbar",
+    items: [
+      {text:"&nbsp;&nbsp;&nbsp;Filter: "}, 
+      filterField, 
+      clearButton,
+      { text: "Actions", menu: selectionMenu }]
+  });
+  
+  var urlRenderer = function(value, cell, record) {
+    if(value)
+      return '<a href="'+value+'" target="_blank">'+value+'</a>';
+    else
+      return "";
+  };
+  
+  var completedCheckColumn = new Ext.grid.CheckColumn({
+    id: 'completed', 
+    header: "Completed",
+    dataIndex: 'completed',
+    width: 60
+  });
+  
+  var updateFlaggingPath = #{flagging_path(:id => "__ID__").to_json};
+  
+  completedCheckColumn.addListener("click", function(element, event, record){
+    var params = {};
+    var method = null;
+    params["flagging[completed]"] = record.get('completed');
+    objectId = record.get('id');
+    method = "PUT";
+    Ext.Ajax.request({
+      url: updateFlaggingPath.sub("__ID__", objectId),
+      params: params,
+      method: method,
+      success: function(transport, options){
+        response = Ext.util.JSON.decode(transport.responseText);
+        if(response.flash && response.flash.include("Error:"))
+          event.grid.getView().getCell(event.row, event.column).highlight({startcolor: "FF5721"});
+        else
+          event.grid.getView().getCell(event.row, event.column).highlight();
+      }
+    });
+  });
+  
+  var grid = new Ext.grid.EditorGridPanel({
+      store: ds,
+      cm: new Ext.grid.ColumnModel([
+          {id: "flagging-user", width: 250, header: "Flagged By", sortable: true, dataIndex: 'created_by_name'},
+          {id: "flagging-body", width: 250, header: "Reason", sortable: true, dataIndex: 'reason'},
+          {id: "flagging-type", width: 75, header: "Flaggable type", sortable: true, dataIndex: 'flaggable_type'},
+          {id: "flagging-description", width: 150, header: "Flaggable Description", sortable: true, dataIndex: 'flaggable_description'},
+          {id: "flagging-url", width: 150, header: "Flagged From URL", sortable: true, dataIndex: 'referrer_url', renderer:urlRenderer},
+          {id: "flagging-approved_at", header: "Approved at", sortable: true, dataIndex: 'approved_at'},
+          {id: "flagging-created_at", header: "Created at", sortable: true, dataIndex: 'created_at'},
+          {id: "flagging-referrer_url", width: 100, header: "Referrer url", hidden: true, sortable: true, dataIndex: 'referrer_url'},
+          {id: "flagging-user_agent", width: 100, header: "User agent", sortable: true, hidden: true, dataIndex: 'user_agent'}, 
+          completedCheckColumn
+        ]),
+      autoScroll: true,
+      width: "100%",
+      tbar: gridTopToolbar, 
+      bbar: paging,
+      selModel: new Ext.grid.RowSelectionModel,
+      viewConfig: {autoFill: true, forceFit: true},
+      autoExpandColumn: "flagging-body",
+      height: #{get_default_grid_height(nil)}-61,
+      plugins: completedCheckColumn,
+      loadMask: true
+  });
+  
+  grid.doNotSyncSize = true;
+  Ext.EventManager.onWindowResize(function() {grid.setWidth(xl.centerPanel.getInnerWidth());});
+  Ext.EventManager.onWindowResize(function() {grid.setHeight(xl.centerPanel.getInnerHeight());});
+  
+  xl.runningGrids.set("flaggings_index", grid);
+  newPanel.on("destroy", function(){
+    xl.runningGrids.unset("flaggings_index");
+  });
+  
+  newPanel.add(grid);
+  xl.viewport.render();
+  
+  var editFlaggingUrl = #{@edit_flagging_path.to_json};
+  // set double click action on grid cells
+  grid.on("cellclick", function(gr, rowIndex, columnIndex, e) {
+    var record = ds.getAt(rowIndex);
+    var id = record.data.id;
+
+    switch(columnIndex){
+      case grid.getColumnModel().getIndexById("edit"):
+        xl.openNewTabPanel('flaggings_edit_'+id, 
+          editFlaggingUrl.sub("__ID__", id).sub("__COM_ID__", record.data.flaggable_id).sub("__COM_TYPE__", record.data.flaggable_type));
+        break;
+      default:
+        break;
+    }
+  });
+  
+  var editPartyPath = #{edit_party_path(:id => "__ID__").to_json};
+  
+  grid.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
+    var record = ds.getAt(rowIndex);
+    var id = record.data.id;
+
+    switch(columnIndex){
+      case grid.getColumnModel().getIndexById("flagging-type"):
+        if(record.data.flaggable_path.length == 0){
+          Ext.Msg.alert("Error", record.data.flaggable_type + " has been deleted.");
+        }else{
+          xl.openNewTabPanel('blog_post_edit_'+record.data.flaggable_id, record.data.flaggable_path);
+        }
+        break;
+      case grid.getColumnModel().getIndexById("flagging-description"):
+        if(record.data.flaggable_path.length == 0){
+          Ext.Msg.alert("Error", record.data.flaggable_type + " has been deleted.");
+        }else{
+          xl.openNewTabPanel('blog_post_edit_'+record.data.flaggable_id, record.data.flaggable_path);
+        }
+        break;
+      case grid.getColumnModel().getIndexById("flagging-user"):
+        if(record.data.created_by_id){
+          xl.openNewTabPanel('party_edit_'+record.data.created_by_id, editPartyPath.sub("__ID__", record.data.created_by_id));
+        }else{
+          Ext.Msg.alert("Error", "Party does not exist");
+        }
+        break;
+      default:
+        break;
+    }
+  });
+  function alertNoPostsSelected() {
+    Ext.Msg.alert('No flaggings Selected', 'Please select one or more flaggings to perform that action.');
+  }
+
+  function getSelectedIdsString(records){ 
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    return ids.toString();
+  }
+  
+  clearAllAction.setHandler(function(e) {
+    grid.getSelectionModel().clearSelections();
+    e.disable();
+  });
+
+  selectAllAction.setHandler(function(e) {
+    grid.getSelectionModel().selectAll();
+    e.disable();
+  });
+
+  deleteAction.setHandler(function(e) {
+    var records = grid.getSelectionModel().getSelections();
+    if (records.length == 0) {
+      alertNoPostsSelected();
+      return false;
+    }
+    
+    Ext.Msg.confirm("", "Delete selected flaggings permanently?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        var com_types = [];
+        var com_ids = [];
+        var ids = [];
+        records.forEach(function(element, index){
+          com_types.push(element.data.flaggable_type);
+          com_ids.push(element.data.flaggable_id);
+          ids.push(element.data.id);
+        });
+        grid.disable();
+        params['flaggable_types'] = com_types.join();
+        params['flaggable_ids'] = com_ids.join();
+        params['ids'] = ids.join();
+        new Ajax.Request("#{destroy_collection_flaggings_path}", {
+          method: 'post',
+          parameters: params,
+          onSuccess: function(transport){
+            grid.enable();
+          }
+        });
+      }
+    });
+  });
+
+  approveAction.setHandler(function(e) {
+    var records = grid.getSelectionModel().getSelections();
+    if (records.length == 0) {
+      alertNoPostsSelected();
+      return false;
+    }
+    
+    Ext.Msg.confirm("", "Approved selected flaggings?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        var com_types = [];
+        var com_ids = [];
+        var ids = [];
+        records.forEach(function(element, index){
+          com_types.push(element.data.flaggable_type);
+          com_ids.push(element.data.flaggable_id);
+          ids.push(element.data.id);
+        });
+        grid.disable();
+        params['flaggable_types'] = com_types.join();
+        params['flaggable_ids'] = com_ids.join();
+        params['ids'] = ids.join();
+        new Ajax.Request("#{approve_collection_flaggings_path}", {
+          method: 'post',
+          parameters: params,
+          onSuccess: function(transport){
+            grid.enable();
+          }
+        });
+      }
+    });
+  });
+
+  unapproveAction.setHandler(function(e) {
+    var records = grid.getSelectionModel().getSelections();
+    if (records.length == 0) {
+      alertNoPostsSelected();
+      return false;
+    }
+    
+    Ext.Msg.confirm("", "Unapproved selected flaggings?", function(btn){
+      if ( btn.match(new RegExp("yes","i")) ) {
+        var params = {};
+        var com_types = [];
+        var com_ids = [];
+        var ids = [];
+        records.forEach(function(element, index){
+          com_types.push(element.data.flaggable_type);
+          com_ids.push(element.data.flaggable_id);
+          ids.push(element.data.id);
+        });
+        grid.disable();
+        params['flaggable_types'] = com_types.join();
+        params['flaggable_ids'] = com_ids.join();
+        params['ids'] = ids.join();
+        new Ajax.Request("#{unapprove_collection_flaggings_path}", {
+          method: 'post',
+          parameters: params,
+          onSuccess: function(transport){
+            grid.enable();
+          }
+        });
+      }
+    });
+  });
+
+  grid.getSelectionModel().on("selectionchange", function(){
+    records = grid.getSelectionModel().getSelections();
+    var ids = new Array();
+    records.each( function(e) {
+      ids.push(e.data.id);
+    });
+    
+    if(ids.length>0){
+      clearAllAction.enable();
+      approveAction.enable();
+      unapproveAction.enable();
+      deleteAction.enable();
+    }
+    else {
+      deleteAction.disable();
+      approveAction.disable();
+      unapproveAction.disable();
+      selectAllAction.enable();
+    }
+  });
+  
+`
+end

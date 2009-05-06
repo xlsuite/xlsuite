@@ -285,16 +285,13 @@ class Email < ActiveRecord::Base
   end
 
   def error_limit_reached?
-    self.error_count >= 5
+    self.error_count >= 1
   end
 
   def mark_bad_recipient!(recipient, reason)
-    self.bad_recipient_count ||= 0
-    self.bad_recipient_count += 1
+    self.increment_bad_recipient_count
     self.released_at = nil
     self.save!
-
-    self.return_non_delivery_to_sender!(reason)
   end
 
   def return_non_delivery_to_sender!(reason)
@@ -802,4 +799,8 @@ EOF
   def load_body_template
     @liquid_body_template ||= Marshal.load(self.parsed_body)
   end
+
+  def increment_bad_recipient_count
+    self.class.connection.execute("UPDATE emails SET bad_recipient_count = bad_recipient_count + 1 WHERE id=#{self.id}")
+  end  
 end
