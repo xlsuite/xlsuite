@@ -280,8 +280,8 @@
 #          END OF TERMS AND CONDITIONS
 class FlaggingsController < ApplicationController
   required_permissions %w(index new) => true,
-      %w(approve_collection unapprove_collection destroy_collection) => :edit_flaggings
-  
+      %w(approve_collection unapprove_collection destroy_collection update) => :edit_flaggings
+  before_filter :load_flagging, :only => %w(update)
   before_filter :load_flaggings, :only => %w(approve_collection unapprove_collection destroy_collection)
   
   def index    
@@ -308,6 +308,19 @@ class FlaggingsController < ApplicationController
         @flaggings_count = current_account.flaggings.count_results(query_params)
         
         render :json => {:collection => self.assemble_records(@flaggings), :total => @flaggings_count}.to_json
+      end
+    end
+  end
+
+  def update
+    @flagging.attributes = params[:flagging]
+    @updated = @flagging.save
+    respond_to do |format|
+      format.html do
+        redirect_to_return_to_or_back
+      end
+      format.js do
+        render_json_response
       end
     end
   end
@@ -379,8 +392,18 @@ class FlaggingsController < ApplicationController
   end
   
   protected
+  def load_flagging
+    @flagging = current_account.flaggings.find(params[:id])
+  end
+  
   def load_flaggings
     @flaggings = current_account.flaggings.find(params[:ids].split(",").map(&:strip).reject(&:blank?))
+  end
+
+  def render_json_response
+    errors = (@flagging.errors.full_messages.blank? ? ($! ? $!.message : "")  : render_to_string(:partial => "/shared/error_messages_for", :locals => {:symbol => :comment})).to_s
+    render :json => {:flash => flash[:notice].to_s, :errors => errors,
+                     :id => @flagging.id, :success => @updated || @created }.to_json
   end
   
   def assemble_records(records)
@@ -413,6 +436,7 @@ class FlaggingsController < ApplicationController
       :created_at => record.created_at.strftime(timestamp_format),
       :approved_at => record.approved_at ? record.approved_at.strftime(timestamp_format) : "",
       :created_by_id => record.created_by_id,
+      :completed => record.completed,
       :created_by_name => record.created_by ? record.created_by.display_name : record.request_ip,
       :flaggable_type => record.flaggable_type,
       :flaggable_id => record.flaggable_id,

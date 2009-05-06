@@ -11,6 +11,7 @@ page << create_tab_using_ajax_response("Flaggings Index", after_render) do
     {name: 'id', mapping: 'id'},
     {name: 'created_at', mapping: 'created_at'},
     {name: 'created_by_id', mapping: 'created_by_id'},
+    {name: 'completed', mapping: 'completed'},
     {name: 'created_by_name', mapping: 'created_by_name'},
     {name: 'approved_at', mapping: 'approved_at'},
     {name: 'referrer_url', mapping: 'referrer_url'},
@@ -103,7 +104,36 @@ page << create_tab_using_ajax_response("Flaggings Index", after_render) do
       return "";
   };
   
-  var grid = new Ext.grid.GridPanel({
+  var completedCheckColumn = new Ext.grid.CheckColumn({
+    id: 'completed', 
+    header: "Completed",
+    dataIndex: 'completed',
+    width: 60
+  });
+  
+  var updateFlaggingPath = #{flagging_path(:id => "__ID__").to_json};
+  
+  completedCheckColumn.addListener("click", function(element, event, record){
+    var params = {};
+    var method = null;
+    params["flagging[completed]"] = record.get('completed');
+    objectId = record.get('id');
+    method = "PUT";
+    Ext.Ajax.request({
+      url: updateFlaggingPath.sub("__ID__", objectId),
+      params: params,
+      method: method,
+      success: function(transport, options){
+        response = Ext.util.JSON.decode(transport.responseText);
+        if(response.flash && response.flash.include("Error:"))
+          event.grid.getView().getCell(event.row, event.column).highlight({startcolor: "FF5721"});
+        else
+          event.grid.getView().getCell(event.row, event.column).highlight();
+      }
+    });
+  });
+  
+  var grid = new Ext.grid.EditorGridPanel({
       store: ds,
       cm: new Ext.grid.ColumnModel([
           {id: "flagging-user", width: 250, header: "Flagged By", sortable: true, dataIndex: 'created_by_name'},
@@ -114,7 +144,8 @@ page << create_tab_using_ajax_response("Flaggings Index", after_render) do
           {id: "flagging-approved_at", header: "Approved at", sortable: true, dataIndex: 'approved_at'},
           {id: "flagging-created_at", header: "Created at", sortable: true, dataIndex: 'created_at'},
           {id: "flagging-referrer_url", width: 100, header: "Referrer url", hidden: true, sortable: true, dataIndex: 'referrer_url'},
-          {id: "flagging-user_agent", width: 100, header: "User agent", sortable: true, hidden: true, dataIndex: 'user_agent'}          
+          {id: "flagging-user_agent", width: 100, header: "User agent", sortable: true, hidden: true, dataIndex: 'user_agent'}, 
+          completedCheckColumn
         ]),
       autoScroll: true,
       width: "100%",
@@ -124,6 +155,7 @@ page << create_tab_using_ajax_response("Flaggings Index", after_render) do
       viewConfig: {autoFill: true, forceFit: true},
       autoExpandColumn: "flagging-body",
       height: #{get_default_grid_height(nil)}-61,
+      plugins: completedCheckColumn,
       loadMask: true
   });
   
