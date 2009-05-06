@@ -64,6 +64,9 @@
               <% if current_user.can?(:edit_comments) %>
                 <li><%= link_to_function 'Comments', "xl.openNewTabPanel('comments_index_nil', #{comments_path.to_json})" %></li>
               <% end -%>
+              <% if current_user.can?(:edit_flaggings) %>
+                <li><%= link_to_function 'Flaggings', "xl.openNewTabPanel('flaggings_index_nil', #{flaggings_path.to_json})" %></li>
+              <% end -%>
               <% if current_user.can?(:view_link, :edit_link, :any => true) -%>
                 <li><%= link_to_function 'Links', "xl.openNewTabPanel('links_index_nil', #{links_path.to_json})" %></li>
               <% end -%>

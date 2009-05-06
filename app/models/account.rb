@@ -321,6 +321,7 @@ class Account < ActiveRecord::Base
       folders referrals reports filters email_labels
       polygons
       rents 
+      flaggings
       assignees steps tasks workflows
       installed_account_templates account_modules account_module_subscriptions subscriptions
       categories affiliates party_domain_points).each do |table|

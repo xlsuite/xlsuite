@@ -1,12 +1,12 @@
-# 		    GNU GENERAL PUBLIC LICENSE
-# 		       Version 2, June 1991
+#         GNU GENERAL PUBLIC LICENSE
+#            Version 2, June 1991
 # 
 #  Copyright (C) 1989, 1991 Free Software Foundation, Inc.,
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #  Everyone is permitted to copy and distribute verbatim copies
 #  of this license document, but changing it is not allowed.
 # 
-# 			    Preamble
+#           Preamble
 # 
 #   The licenses for most software are designed to take away your
 # freedom to share and change it.  By contrast, the GNU General Public
@@ -56,7 +56,7 @@
 #   The precise terms and conditions for copying, distribution and
 # modification follow.
 # 
-# 		    GNU GENERAL PUBLIC LICENSE
+#         GNU GENERAL PUBLIC LICENSE
 #    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 # 
 #   0. This License applies to any program or other work which contains
@@ -255,7 +255,7 @@
 # of preserving the free status of all derivatives of our free software and
 # of promoting the sharing and reuse of software generally.
 # 
-# 			    NO WARRANTY
+#           NO WARRANTY
 # 
 #   11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
 # FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN
@@ -277,182 +277,36 @@
 # PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGES.
 # 
-# 		     END OF TERMS AND CONDITIONS
-class Comment < ActiveRecord::Base
-  include XlSuite::Flaggable
-  
-  attr_protected :approved_at, :referrer_url, :user_agent
-  
-  acts_as_reportable :columns => %w(name url email referrer_url body rating commentable_type spam spaminess)
-  
-  belongs_to :account
-  belongs_to :domain
-  belongs_to :commentable, :polymorphic => true
-  
-  validates_inclusion_of :rating, :in => 1..5, :allow_nil => true
-  
-  validates_presence_of :account_id, :commentable_id, :commentable_type, :name
-  validates_format_of :email, :with => EmailContactRoute::ValidAddressRegexp, :allow_nil => true
-  validates_format_of :url, :with => %r{\A(?:ftp|https?)://.*\Z}, :message => "must be absolute url", :if => :url_not_blank
-  validates_format_of :referrer_url, :with => %r{\A(?:ftp|https?)://.*\Z}, :message => "must be absolute url", :if => :referrer_url_not_blank
-  
-  belongs_to :created_by, :class_name => "Party", :foreign_key => :created_by_id
-  belongs_to :updated_by, :class_name => "Party", :foreign_key => :updated_by_id
-  
-  before_validation :set_rating
-  before_create :set_approved
-  
-  after_save :set_commentable_average_rating
-  after_destroy :set_commentable_average_rating
-  
-  def to_liquid
-    CommentDrop.new(self)
-  end
-  
-  def contains_blacklist_words
-    return false unless self.domain
-    blacklist_words = self.domain.get_config("blacklist_words")
-    blacklist_words_array = blacklist_words.split(',').map(&:strip).reject(&:blank?)
-    return false if blacklist_words_array.join("").blank?
-    blacklist_regex = Regexp.new("(#{blacklist_words_array.join('|')})", true)
-    %w(name url email body).each do |column|
-      return true if self.send(column) =~ blacklist_regex
+#          END OF TERMS AND CONDITIONS
+module XlSuite
+  module Flaggable
+    def self.included(base)      
+      base.has_many :flaggings, :as => :flaggable, :order => "created_at DESC", :dependent => :destroy
     end
-    false
-  end
-  
-  def do_spam_check!
-    response = defensio.ham?(
-      self.request_ip, self.created_at, self.name, "comment", {:body => self.body, :email => self.email, :referrer => self.referrer_url, 
-      :authenticated => !self.created_by_id.blank?, :author_url => self.url}
-    )
-    if response[:status] == "fail"
-      raise response[:message]
-    else
-      (response[:spam] || self.contains_blacklist_words) ? mark_as_spam!(response[:spaminess], response[:signature]) : mark_as_ham!(response[:spaminess], response[:signature])
-      self.save!
+    
+    def approved_flaggings
+      self.flaggings.find(:all, :conditions => "approved_at IS NOT NULL")
     end
-  end
-
-  def mark_as_ham!(spaminess, signature)
-    self.spam = false
-    self.spaminess = spaminess
-    self.defensio_signature = signature
-  end
-
-  def mark_as_spam!(spaminess, signature)
-    self.spam = true
-    self.spaminess = spaminess
-    self.defensio_signature = signature
-  end
-
-  def confirm_as_ham!
-    self.update_attribute("spam", false)
-    defensio.mark_as_ham(self)
-  end
-
-  def confirm_as_spam!
-    self.update_attribute("spam", true)
-    defensio.mark_as_spam(self)
-  end
   
-  def author
-    self.created_by
-  end
-  
-  def author_profile
-    self.created_by ? self.created_by.profile : nil
-  end
-  
-  def point_worth
-    return 0 if self.body.blank? || self.rating.nil? || !self.approved? || self.body.size < 20
-    case self.commentable_type
-    when /listing/i
-      50
-    when /blogpost/i
-      10
-    when /product/i
-      25
-    when /profile/i
-      50
-    else
-      0
+    def unapproved_flaggings
+      self.flaggings.find(:all, :conditions => "approved_at IS NULL")
     end
-  end
   
-  def add_points!
-    return if self.point_added?
-    ActiveRecord::Base.transaction do
-      points = self.point_worth
-      return if points == 0
-      timestamp = self.created_at - 86400
-      count = self.account.comments.count(:conditions => ["created_at >= ? AND created_at <= ? AND point_added = ?", timestamp, self.created_at, true])
-      if count < 20
-        self.created_by.add_point_in_domain(points, self.domain)
-        self.set_point_added(true)
+    def approved_flaggings_count
+      self.flaggings.count(:conditions => "approved_at IS NOT NULL")
+    end
+  
+    def unapproved_flaggings_count
+      self.flaggings.count(:conditions => "approved_at IS NULL")
+    end
+  
+    def approve_all_flaggings
+      count = 0
+      self.flaggings.find(:all, :conditions => "approved_at IS NULL").each do |flagging|
+        flagging.approved_at = Time.now
+        count += 1 if flagging.save
       end
-      if self.commentable_type =~ /blogpost/
-        blog_post = comment.commentable
-        # Add points for the blog post author since somebody wrote a comment on his/her post
-        blog_post.author.add_point_in_domain(points, comment.domain) if blog_post.author.id != self.created_by_id
-      end
-    end
-  end
-  
-  def remove_points!
-    return unless self.point_added?
-    points = self.point_worth
-    return if points == 0    
-    self.created_by.add_point_in_domain(-points, self.domain)
-    self.set_point_added(false)
-  end
-  
-  # Calling this method will not execute callbacks
-  def set_point_added(new_value)
-    value = new_value ? "1" : "0"
-    Comment.update_all("point_added = #{value}", "id = #{self.id}")
-  end
-  
-  def approved?
-    !self.approved_at.blank?
-  end
-  
-  protected
-  def defensio
-    @defensio ||= Mephisto::SpamDetectionEngines::DefensioEngine::new
-  end
-  
-  def set_rating
-    self.rating = self.rating.blank? ? nil : self.rating.to_i
-  end
-  
-  def url_not_blank
-    !self.url.blank?
-  end
-  
-  def referrer_url_not_blank
-    !self.referrer_url.blank?
-  end
-  
-  def set_approved
-    if self.commentable.respond_to?(:author_id) && (self.created_by_id == self.commentable.author_id)
-      self.approved_at = Time.now
-      return true
-    end
-    if self.commentable.respond_to?(:comment_approval_method)
-      case self.commentable.comment_approval_method
-        when /always approved/i
-          self.approved_at = Time.now
-        when /no comments/i
-          self.errors.add_to_base("Sorry, comments are disabled for this #{self.commentable_type.titleize}")
-          return false
-      end
-    end
-  end
-  
-  def set_commentable_average_rating
-    if self.commentable.respond_to?(:average_rating=) && self.commentable.respond_to?(:average_comments_rating)
-      self.commentable.update_attribute("average_rating", self.commentable.reload.average_comments_rating)
+      count
     end
   end
 end
