@@ -186,6 +186,9 @@ page << create_tab_using_ajax_response("Flaggings Index", after_render) do
         break;
     }
   });
+  
+  var editPartyPath = #{edit_party_path(:id => "__ID__").to_json};
+  
   grid.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
     var record = ds.getAt(rowIndex);
     var id = record.data.id;
@@ -203,6 +206,13 @@ page << create_tab_using_ajax_response("Flaggings Index", after_render) do
           Ext.Msg.alert("Error", record.data.flaggable_type + " has been deleted.");
         }else{
           xl.openNewTabPanel('blog_post_edit_'+record.data.flaggable_id, record.data.flaggable_path);
+        }
+        break;
+      case grid.getColumnModel().getIndexById("flagging-user"):
+        if(record.data.created_by_id){
+          xl.openNewTabPanel('party_edit_'+record.data.created_by_id, editPartyPath.sub("__ID__", record.data.created_by_id));
+        }else{
+          Ext.Msg.alert("Error", "Party does not exist");
         }
         break;
       default:
