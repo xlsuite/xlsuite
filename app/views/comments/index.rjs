@@ -20,7 +20,8 @@ page << create_tab_using_ajax_response("Comments Index", after_render) do
     {name: 'commentable_type', mapping: 'commentable_type'},
     {name: 'commentable_id', mapping: 'commentable_id'},
     {name: 'commentable_description', mapping: 'commentable_description'},
-    {name: 'commentable_path', mapping: 'commentable_path'}
+    {name: 'commentable_path', mapping: 'commentable_path'},
+    {name: 'flaggings', mapping: 'flaggings'}
   ]);
 
   // data reader to parse the json response
@@ -220,7 +221,8 @@ page << create_tab_using_ajax_response("Comments Index", after_render) do
           {id: "comment-approved_at", header: "Approved at", sortable: true, dataIndex: 'approved_at'},
           {id: "comment-created_at", header: "Created at", sortable: true, dataIndex: 'created_at'},
           {id: "comment-referrer_url", width: 100, header: "Referrer url", hidden: true, sortable: true, dataIndex: 'referrer_url'},
-          {id: "comment-user_agent", width: 100, header: "User agent", sortable: true, hidden: true, dataIndex: 'user_agent'}          
+          {id: "comment-user_agent", width: 100, header: "User agent", sortable: true, hidden: true, dataIndex: 'user_agent'},
+          {id: "comment-flaggings", header: "Flaggings", hidden:true, sortable: true, dataIndex: 'flaggings'}
         ]),
       autoScroll: true,
       width: "100%",

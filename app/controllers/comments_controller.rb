@@ -529,6 +529,7 @@ class CommentsController < ApplicationController
       :commentable_id => record.commentable_id,
       :commentable_description => commentable_info.first,
       :commentable_path => commentable_info.last,
+      :flaggings => "#{record.approved_flaggings_count} / #{record.unapproved_flaggings_count}"
     }
   end
 
