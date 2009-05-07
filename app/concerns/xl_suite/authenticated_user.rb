@@ -322,8 +322,8 @@ module XlSuite
 
       # Attempts to authenticate using the specified token.  If this token is
       # unknown, this method raises UnknownUser.
-      def authenticate_with_token!(token)
-        user = self.find_by_token(token)
+      def authenticate_with_token!(token, account)
+        user = self.find(:first, :conditions => {:token => token, :account_id => account.id})
         raise UnknownUser unless user
         user.attempt_token_authentication!(token)
       end
