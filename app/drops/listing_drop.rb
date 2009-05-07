@@ -279,7 +279,7 @@
 # 
 # 		     END OF TERMS AND CONDITIONS
 class ListingDrop < Liquid::Drop
-  delegate :id, :guid, :created_at, :updated_at, :dom_id, :gmap_query, :quick_description, 
+  delegate :id, :guid, :created_at, :updated_at, :dom_id, :gmap_query, :quick_description, :tag_list, :tags,
            :link, :date, :title, :approved_comments_count, :unapproved_comments_count, :creator, :to => :listing
   attr_reader :listing
 
