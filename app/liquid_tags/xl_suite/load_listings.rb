@@ -11,6 +11,7 @@ module XlSuite
     TaggedAllSyntax  = /tagged_all:\s*(#{Liquid::QuotedFragment})/
     TaggedAnySyntax  = /tagged_any:\s*(#{Liquid::QuotedFragment})/
     OrderSyntax      = /order:\s*(#{Liquid::QuotedFragment})/
+    NoOrderByOpenHouseSyntax = /no_order_by_open_house:\s*(#{Liquid::QuotedFragment})/
     RandomizeSyntax  = /randomize:\s*(#{Liquid::QuotedFragment})/
     OwnerEmailSyntax = /owner_email:\s*(#{Liquid::QuotedFragment})/    
     IdsSyntax        = /ids:\s*(#{Liquid::QuotedFragment})/    
@@ -35,6 +36,7 @@ module XlSuite
       @options[:tagged_all]   = $1 if markup =~ TaggedAllSyntax
       @options[:tagged_any]   = $1 if markup =~ TaggedAnySyntax
       @options[:order]        = $1 if markup =~ OrderSyntax
+      @options[:no_order_by_open_house] = true if markup =~ NoOrderByOpenHouseSyntax
       @options[:price_min]    = $1 if markup =~ PriceMinSyntax
       @options[:price_max]    = $1 if markup =~ PriceMaxSyntax
       @options[:ids]          = $1 if markup =~ IdsSyntax
@@ -77,7 +79,7 @@ module XlSuite
         options = {:limit => limit, :offset => offset} unless @options[:randomize]
         
         orders = []
-        orders << "open_house DESC"
+        orders << "open_house DESC" unless @options[:no_order_by_open_house]
         orders << context_options[:order] if @options[:order]
         orders << "mls_no DESC" unless context_options[:order] =~ /mls_no/i
         
