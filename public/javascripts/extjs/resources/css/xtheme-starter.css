@@ -634,5 +634,8 @@ div.x-panel-bbar {
 /** ACCOUNT MODULE SUBSCRIPTION GRID **/
 .x-grid3-col-installed_account_modules {white-space:normal;}
 
+/** FLAGGINGS GRID **/
+.x-grid3-col-flagging-body {white-space:normal;}
+
 .tags_panel_selection {font-size: 13px;}
 .toolbar_auto_width table {width:auto;}

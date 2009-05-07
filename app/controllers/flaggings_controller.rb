@@ -297,7 +297,17 @@ class FlaggingsController < ApplicationController
         
         search_options = {:offset => params[:start], :limit => params[:limit]}
         search_options.merge!(:order => params[:sort].blank? ? "created_at DESC" : "#{params[:sort]} #{params[:dir]}") 
-    
+        
+        conditions = []
+        if params[:flaggable_type] && params[:flaggable_id]
+          self.load_flaggable
+          conditions = conditions << ["flaggable_type=? AND flaggable_id=?"]
+          search_options.merge!(:conditions => [conditions.join(" AND "), @flaggable.class.name, @flaggable.id])
+        elsif params[:flaggable_type]
+          conditions = conditions << ["flaggable_type=? "]
+          search_options.merge!(:conditions => [conditions.join(" AND "), params[:flaggable_type]])
+        end
+        
         query_params = params[:q]
         unless query_params.blank? 
           query_params = query_params.split(/\s+/)
@@ -305,7 +315,9 @@ class FlaggingsController < ApplicationController
         end
         
         @flaggings = current_account.flaggings.search(query_params, search_options)
-        @flaggings_count = current_account.flaggings.count_results(query_params)
+        search_options.delete(:offset)
+        search_options.delete(:limit)
+        @flaggings_count = current_account.flaggings.count_results(query_params, search_options)
         
         render :json => {:collection => self.assemble_records(@flaggings), :total => @flaggings_count}.to_json
       end
@@ -398,6 +410,12 @@ class FlaggingsController < ApplicationController
   
   def load_flaggings
     @flaggings = current_account.flaggings.find(params[:ids].split(",").map(&:strip).reject(&:blank?))
+  end
+
+  def load_flaggable
+    if params[:flaggable_type] && params[:flaggable_id]
+      @flaggable = current_account.send(params[:flaggable_type].classify.underscore.pluralize).find(params[:flaggable_id])
+    end
   end
 
   def render_json_response
