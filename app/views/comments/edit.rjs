@@ -9,6 +9,7 @@ page << create_tab_using_ajax_response("Edit Comment | #{dom_id(@commentable)}",
   #{generate_save_close_cancel_toolbar(@comment, @toolbar_url, @toolbar_close_url)}
   
   var formPanel = new Ext.form.FormPanel({
+    title: "Main Info",
     autoScroll: true,
     tbar: tbarbbarButtons,
     bbar: tbarbbarButtons,
@@ -155,6 +156,7 @@ page << create_tab_using_ajax_response("Edit Comment | #{dom_id(@commentable)}",
           completedCheckColumn
         ]),
       autoScroll: true,
+      title: "Flaggings", 
       width: "100%",
       tbar: gridTopToolbar, 
       bbar: paging,
@@ -179,8 +181,8 @@ page << create_tab_using_ajax_response("Edit Comment | #{dom_id(@commentable)}",
     activeTab: 0,
     tabPosition: "bottom",
     items: [
-      {title: "Main Info", items: formPanel, listeners: {show: function(panel){xl.viewport.render();}} },
-      {id: #{self.generate_inside_tab_panel_id(:flaggings).to_json}, title: "Flaggings", layout: 'ux.rowfit', items: [grid], listeners: {show: function(panel){xl.viewport.render();}} }
+      formPanel,
+      grid
     ]
   });
   newPanel.add(tabPanel);
