@@ -399,6 +399,7 @@ page << create_tab_using_ajax_response("Post | #{truncate(@blog_post.title, 15)}
   };
   
   var grid = new Ext.grid.GridPanel({
+      title: "Comments", 
       store: ds,
       cm: new Ext.grid.ColumnModel([
           {id: "edit", width: 35, dataIndex: 'id', renderer: editRenderer, sortable: false, menuDisabled: true, hideable: false, tooltip: "Click here to go to full edit mode" },
@@ -425,16 +426,6 @@ page << create_tab_using_ajax_response("Post | #{truncate(@blog_post.title, 15)}
   grid.doNotSyncSize = true;
   Ext.EventManager.onWindowResize(function() {grid.setWidth(xl.centerPanel.getInnerWidth());});
   Ext.EventManager.onWindowResize(function() {grid.setHeight(xl.centerPanel.getInnerHeight());});
-
-  var commentsGridPanel = new Ext.Panel({
-    title: #{"Editing: #{@blog_post.title}".to_json},
-    items: [grid]
-  });
-  
-  xl.runningGrids.set("comments_BlogPost_#{@blog_post.id}", grid);
-  commentsGridPanel.on("destroy", function(){
-    xl.runningGrids.unset("comments_BlogPost_#{@blog_post.id}");
-  });
   
   var editCommentUrl = #{@edit_comment_path.to_json};
   // set double click action on grid cells
@@ -558,6 +549,7 @@ page << create_tab_using_ajax_response("Post | #{truncate(@blog_post.title, 15)}
   });
   
   var formPanel = new Ext.form.FormPanel({
+    title: "Main Info", 
     autoScroll: true,
     tbar: tbarbbarButtons,
     bbar: tbarbbarButtons,
@@ -735,14 +727,17 @@ page << create_tab_using_ajax_response("Post | #{truncate(@blog_post.title, 15)}
   });
   
   var extrasPanel = new Ext.Panel({
+    title: "Extras", 
     layout:"form",
     items: [
       tagsPanelWrapper,
       advancedSettingsPanel
-    ]
+    ],
+    autoScroll:true
   });
   
   var excerptPanel = new Ext.FormPanel({  
+    title: "Excerpt", 
     autoScroll: true,
     tbar: tbarbbarButtons2,
     bbar: tbarbbarButtons2,
@@ -757,10 +752,10 @@ page << create_tab_using_ajax_response("Post | #{truncate(@blog_post.title, 15)}
     tabPosition: "bottom",
     layoutOnTabChange: true, 
     items: [
-      {title: "Main Info", autoScroll: true, items: [formPanel], listeners: {show: function(panel){xl.viewport.render();}} },
-      {title: "Excerpt", items: [excerptPanel]},
-      {title: "Extras", items: [extrasPanel]},
-      {id: #{self.generate_inside_tab_panel_id(:comments).to_json}, title: "Comments", layout: 'ux.rowfit', items: [commentsGridPanel], listeners: {show: function(panel){xl.viewport.render();}} }
+      formPanel,
+      excerptPanel,
+      extrasPanel,
+      grid
     ]
   });
   
@@ -770,6 +765,11 @@ page << create_tab_using_ajax_response("Post | #{truncate(@blog_post.title, 15)}
   });
   
   newPanel.add(tabPanel);
+  
+  xl.runningGrids.set("comments_BlogPost_#{@blog_post.id}", grid);
+  tabPanel.on("destroy", function(){
+    xl.runningGrids.unset("comments_BlogPost_#{@blog_post.id}");
+  });
   
   xl.viewport.render();
 

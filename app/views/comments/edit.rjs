@@ -165,6 +165,7 @@ page << create_tab_using_ajax_response("Edit Comment | #{dom_id(@commentable)}",
       autoExpandColumn: "flagging-body",
       height: #{get_default_grid_height(nil)}-61,
       plugins: completedCheckColumn,
+      autoScroll: true,
       loadMask: true
   });
   
