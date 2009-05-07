@@ -287,8 +287,13 @@ class Flagging < ActiveRecord::Base
   validates_presence_of :account_id, :flaggable_id, :flaggable_type
   validates_format_of :referrer_url, :with => %r{\A(?:ftp|https?)://.*\Z}, :message => "must be absolute url", :if => :referrer_url_not_blank
   
+  after_save :flaggable_flagging_approved_callback
   belongs_to :created_by, :class_name => "Party", :foreign_key => :created_by_id
-    
+  
+  def flaggable_flagging_approved_callback
+    self.flaggable.after_flagging_approved_callback
+  end
+  
   def approve!
     self.approved_at = Time.now
     self.save!

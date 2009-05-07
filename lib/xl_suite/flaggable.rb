@@ -284,6 +284,10 @@ module XlSuite
       base.has_many :flaggings, :as => :flaggable, :order => "created_at DESC", :dependent => :destroy
     end
     
+    def after_flagging_approved_callback
+      raise "Subclass responsibility"
+    end
+    
     def approved_flaggings
       self.flaggings.find(:all, :conditions => "approved_at IS NOT NULL")
     end
