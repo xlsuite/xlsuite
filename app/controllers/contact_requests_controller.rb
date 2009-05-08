@@ -573,7 +573,7 @@ class ContactRequestsController < ApplicationController
     begin
       @email = Email.create!(options)
       @email.tag_list = 'sent, bug'
-      unless params[:attachment][:uploaded_data].blank?
+      unless (params[:attachment] && params[:attachment][:uploaded_data].blank?)
         asset = current_account.assets.create!(params[:attachment].merge(:owner => current_user)) 
         @email.assets << asset
       end
