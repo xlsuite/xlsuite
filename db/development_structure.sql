@@ -874,6 +874,21 @@ CREATE TABLE `filters` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `flaggings` (
+  `id` int(11) NOT NULL auto_increment,
+  `account_id` int(11) default NULL,
+  `created_by_id` int(11) default NULL,
+  `request_ip` varchar(255) default NULL,
+  `flaggable_type` varchar(255) default NULL,
+  `flaggable_id` int(11) default NULL,
+  `reason` text,
+  `created_at` datetime default NULL,
+  `approved_at` datetime default NULL,
+  `referrer_url` varchar(255) default NULL,
+  `completed` tinyint(1) default '0',
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `folder_editors` (
   `folder_id` int(11) default NULL,
   `group_id` int(11) default NULL
@@ -1556,7 +1571,8 @@ CREATE TABLE `parties` (
   UNIQUE KEY `by_account_token` (`account_id`,`token`),
   UNIQUE KEY `by_profile` (`profile_id`),
   KEY `by_account_display` (`account_id`,`display_name`),
-  KEY `by_account_profile` (`account_id`,`profile_id`)
+  KEY `by_account_profile` (`account_id`,`profile_id`),
+  KEY `by_referred_by` (`referred_by_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `parties_product_categories` (
@@ -2622,6 +2638,16 @@ INSERT INTO schema_migrations (version) VALUES ('20090505002429');
 
 INSERT INTO schema_migrations (version) VALUES ('20090505004227');
 
+INSERT INTO schema_migrations (version) VALUES ('20090505014816');
+
 INSERT INTO schema_migrations (version) VALUES ('20090505215447');
 
 INSERT INTO schema_migrations (version) VALUES ('20090505220949');
+
+INSERT INTO schema_migrations (version) VALUES ('20090505221405');
+
+INSERT INTO schema_migrations (version) VALUES ('20090506001125');
+
+INSERT INTO schema_migrations (version) VALUES ('20090506013427');
+
+INSERT INTO schema_migrations (version) VALUES ('20090508214707');
