@@ -292,7 +292,7 @@ class Public::FlaggingsController < ApplicationController
       @flagging.request_ip = request.remote_ip
         
       @flagging.save!
-      flash_success params[:success_message] || "#{@flagging.class.name} flagged" 
+      flash_success params[:success_message] || "#{@flagging.flaggable.class.name} flagged" 
       respond_to do |format|
         format.html do
           return redirect_to_next_or_back_or_home
