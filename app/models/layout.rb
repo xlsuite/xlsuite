@@ -294,12 +294,12 @@ class Layout < ActiveRecord::Base
   belongs_to :updator, :class_name => 'Party', :foreign_key => :updator_id
 
   define_index do
-    indexes [:title], :sortable => true
-    indexes [:body]
-    indexes [:content_type], :sortable => true
-    indexes [:domain_patterns], :sortable => true
+    indexes :title, :sortable => true
+    indexes :body
+    indexes :content_type, :sortable => true
+    indexes :domain_patterns
 
-    has :account_id, :type => :integer
+    has :account_id
     set_property :delta => true
   end
   include XlSuite::SphinxSearch

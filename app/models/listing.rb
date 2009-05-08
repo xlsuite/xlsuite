@@ -297,25 +297,24 @@ class Listing < ActiveRecord::Base
   acts_as_taggable
 
   define_index do
-    indexes [:features]
-    indexes [:description]
-    indexes [:extras]
-    indexes [:open_house_text]
-    indexes [:open_house], :sortable => true
+    indexes :features
+    indexes :description
+    indexes :extras
+    indexes :open_house_text
+    indexes :open_house, :sortable => true
     indexes [address.line1, address.line2, address.line3, address.city, address.state, address.country, address.zip], :as => :address
     indexes [realtor.last_name, realtor.first_name, realtor.middle_name], :as => :realtor_name
-    indexes [:contact_email], :as => :contact_email, :sortable => true
-    indexes [:mls_no], :as => :mls_no_index
-    indexes [:status], :as => :status, :sortable => true
-    indexes [:region], :sortable => true
-    indexes [:area], :sortable => true
+    indexes :contact_email, :as => :contact_email, :sortable => true
+    indexes :mls_no, :as => :mls_no_index
+    indexes :status, :as => :status, :sortable => true
+    indexes :region, :sortable => true
+    indexes :area, :sortable => true
 
     has :account_id, :type => :integer
     has :type, :type => :string
     has 'RADIANS(listings.latitude)', :as => :latitude, :type => :float
     has 'RADIANS(listings.longitude)', :as => :longitude, :type => :float
     has :price_cents, :as => :price_cents, :type => :integer
-    has :mls_no, :type => :string
     has :public, :type => :boolean
     
     set_property :delta => true

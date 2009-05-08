@@ -301,9 +301,9 @@ class Party < ActiveRecord::Base
 
   define_index do
     indexes [:last_name, :middle_name, :first_name], :as => :name, :sortable => true
-    indexes [:company_name], :sortable => true
-    indexes [:forum_alias]
-    indexes [:biography]
+    indexes :company_name, :sortable => true
+    indexes :forum_alias
+    indexes :biography
     indexes tags.name, :as => :tag
     indexes memberships.group_id, :as => :group_id
     indexes notes.body, :as => :notes

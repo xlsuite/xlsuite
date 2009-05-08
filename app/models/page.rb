@@ -286,17 +286,15 @@ class Page < Item
   acts_as_taggable
 
   define_index do
-    indexes [:title], :sortable => true
-    indexes [:fullslug], :as => :fullslug_index
-    indexes [:body]
-    indexes [:domain_patterns], :sortable => true
-    indexes [:meta_description]
-    indexes [:meta_keywords]
-    indexes [layout.title], :as => :layout, :sortable => true
+    indexes :title, :sortable => true
+    indexes :fullslug
+    indexes :body
+    indexes :domain_patterns, :sortable => true
+    indexes :meta_description
+    indexes :meta_keywords
+    indexes layout.title, :as => :layout, :sortable => true
 
     has :account_id
-    has :status
-    has :fullslug
     set_property :delta => true
   end
   include XlSuite::SphinxSearch

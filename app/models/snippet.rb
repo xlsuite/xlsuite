@@ -280,9 +280,10 @@
 # 		     END OF TERMS AND CONDITIONS
 class Snippet < Item
   define_index do
-    indexes [:title], :sortable => true
-    indexes [:body]
-    indexes [:domain_patterns], :sortable => true
+    indexes :title, :sortable => true
+    indexes :body
+    indexes :domain_patterns
+
     has :account_id
     set_property :delta => true
   end
