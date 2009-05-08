@@ -1,7 +1,11 @@
 development:
   enable_star: true
   min_infix_len: 1
+  mem_limit: 256M
+  html_strip: 1
   
 production:
   enable_star: true
   min_infix_len: 1
+  mem_limit: 512M
+  html_strip: 1
