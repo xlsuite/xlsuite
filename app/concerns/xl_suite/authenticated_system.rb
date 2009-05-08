@@ -131,7 +131,7 @@ module XlSuite
         # XlSuite::AuthenticatedUser enforces strict uniqueness on the #token
         # column.  That allows us to do a plain search here, instead of
         # checking the account
-        user = Party.authenticate_with_token!(cookies[XlSuite::AuthenticatedSystem::AUTH_TOKEN])
+        user = Party.authenticate_with_token!(cookies[XlSuite::AuthenticatedSystem::AUTH_TOKEN], current_account)
 
         # But as a sanity check, we'll do it anyway
         raise AuthenticationException, "Wrong cookie value for domain" unless user.account == current_account

@@ -178,4 +178,13 @@ class Comment < ActiveRecord::Base
       self.commentable.update_attribute("average_rating", self.commentable.reload.average_comments_rating)
     end
   end
+  
+  def after_flagging_approved_callback
+    return unless self.approved?
+    flagging_limit = self.domain.get_config("unapprove_comment_after_x_flaggings")
+    return if flagging_limit == 0
+    if flagging_limit <= self.reload.approved_flaggings_count
+      self.update_attribute("approved_at", nil)
+    end
+  end
 end

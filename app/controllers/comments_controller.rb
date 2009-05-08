@@ -70,6 +70,7 @@ class CommentsController < ApplicationController
   def edit
     respond_to do |format|
       format.js do
+        @formatted_flaggings_path = formatted_flaggings_path(:flaggable_type => @comment.class.name, :flaggable_id => @comment.id, :format => :json)
         @toolbar_url = comment_path(:commentable_type => @commentable.class.name, :commentable_id => @commentable.id, :id => @comment.id)
         @toolbar_close_url = comment_path(:commentable_type => @commentable.class.name, :commentable_id => @commentable.id, :id => @comment.id, :commit_type => "close")
         @toolbar_page_to_open_after_new_url = edit_comment_path(:commentable_type => @commentable.class.name, :commentable_id => @commentable.id, :id => "__ID__")
@@ -252,6 +253,7 @@ class CommentsController < ApplicationController
       :commentable_id => record.commentable_id,
       :commentable_description => commentable_info.first,
       :commentable_path => commentable_info.last,
+      :flaggings => "#{record.approved_flaggings_count} / #{record.unapproved_flaggings_count}"
     }
   end
 
