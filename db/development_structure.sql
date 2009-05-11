@@ -1575,7 +1575,8 @@ CREATE TABLE `parties` (
   UNIQUE KEY `by_profile` (`profile_id`),
   KEY `by_account_display` (`account_id`,`display_name`),
   KEY `by_account_profile` (`account_id`,`profile_id`),
-  KEY `by_referred_by` (`referred_by_id`)
+  KEY `by_referred_by` (`referred_by_id`),
+  KEY `by_delta` (`delta`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `parties_product_categories` (
@@ -2662,3 +2663,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090511190108');
 INSERT INTO schema_migrations (version) VALUES ('20090511193959');
 
 INSERT INTO schema_migrations (version) VALUES ('20090511194610');
+
+INSERT INTO schema_migrations (version) VALUES ('20090511195003');
