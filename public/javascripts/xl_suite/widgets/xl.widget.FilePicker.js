@@ -57,7 +57,7 @@ xl.widget.FilePicker = Ext.extend(Ext.Window,{
     this.addEvents('filechecked','upload');
     
 		// call parent
-		Ext.ux.FilePicker.superclass.initComponent.apply(this, arguments);
+		xl.widget.FilePicker.superclass.initComponent.apply(this, arguments);
   }
   ,initFilesGrid:function(){
     if(this.filesGrid){return false;}
@@ -218,6 +218,9 @@ xl.widget.FilePicker = Ext.extend(Ext.Window,{
       title += temp.join("/");
     }
     this.filesGrid.setTitle(title);
+  },
+  getSelections:function(){
+    return(this.selectedRecords);
   }
 });
 // register xtype
