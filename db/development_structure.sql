@@ -1323,7 +1323,8 @@ CREATE TABLE `layouts` (
   `no_update` tinyint(1) default '0',
   `delta` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
-  KEY `by_account_title` (`account_id`,`title`)
+  KEY `by_account_title` (`account_id`,`title`),
+  KEY `by_delta` (`delta`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `link_categories` (
@@ -2659,3 +2660,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090508214707');
 INSERT INTO schema_migrations (version) VALUES ('20090511190108');
 
 INSERT INTO schema_migrations (version) VALUES ('20090511193959');
+
+INSERT INTO schema_migrations (version) VALUES ('20090511194610');
