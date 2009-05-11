@@ -1270,7 +1270,8 @@ CREATE TABLE `items` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_uuid` (`account_id`,`uuid`),
   KEY `by_account_fullslug_status` (`account_id`,`fullslug`,`status`),
-  KEY `by_account_type_title` (`account_id`,`type`,`title`)
+  KEY `by_account_type_title` (`account_id`,`type`,`title`),
+  KEY `by_delta` (`delta`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `job_slots_teams` (
@@ -2650,4 +2651,8 @@ INSERT INTO schema_migrations (version) VALUES ('20090506001125');
 
 INSERT INTO schema_migrations (version) VALUES ('20090506013427');
 
+INSERT INTO schema_migrations (version) VALUES ('20090508002614');
+
 INSERT INTO schema_migrations (version) VALUES ('20090508214707');
+
+INSERT INTO schema_migrations (version) VALUES ('20090511190108');
