@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -173,7 +173,7 @@ Ext.ToolTip = Ext.extend(Ext.Tip, {
 
     // private
     onDocMouseDown : function(e){
-        if(this.autoHide !== false && !e.within(this.el.dom)){
+        if(this.autoHide !== true && !e.within(this.el.dom)){
             this.disable();
             this.enable.defer(100, this);
         }
@@ -198,6 +198,7 @@ Ext.ToolTip = Ext.extend(Ext.Tip, {
     // private
     onDestroy : function(){
         Ext.ToolTip.superclass.onDestroy.call(this);
+        Ext.getDoc().un('mousedown', this.onDocMouseDown, this);
         if(this.target){
             this.target.un('mouseover', this.onTargetOver, this);
             this.target.un('mouseout', this.onTargetOut, this);

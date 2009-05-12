@@ -1,13 +1,13 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
  */
 
 
-Ext = {version: '2.1'};
+Ext = {version: '2.2.1'};
 
 // for old browsers
 window["undefined"] = window["undefined"];
@@ -45,20 +45,24 @@ Ext.apply = function(o, c, defaults){
 
     var isStrict = document.compatMode == "CSS1Compat",
         isOpera = ua.indexOf("opera") > -1,
-        isSafari = (/webkit|khtml/).test(ua),
+        isChrome = ua.indexOf("chrome") > -1,
+        isWebKit = ua.indexOf("webkit") > -1,
+        isSafari = !isChrome && (/webkit|khtml/).test(ua),
         isSafari3 = isSafari && ua.indexOf('webkit/5') != -1,
         isIE = !isOpera && ua.indexOf("msie") > -1,
         isIE7 = !isOpera && ua.indexOf("msie 7") > -1,
-        isGecko = !isSafari && ua.indexOf("gecko") > -1,
+        isIE8 = !isOpera && ua.indexOf("msie 8") > -1,
+        isGecko = !isSafari && !isChrome && ua.indexOf("gecko") > -1,
+        isGecko3 = isGecko && ua.indexOf("rv:1.9") > -1,
         isBorderBox = isIE && !isStrict,
         isWindows = (ua.indexOf("windows") != -1 || ua.indexOf("win32") != -1),
         isMac = (ua.indexOf("macintosh") != -1 || ua.indexOf("mac os x") != -1),
         isAir = (ua.indexOf("adobeair") != -1),
         isLinux = (ua.indexOf("linux") != -1),
-        isSecure = window.location.href.toLowerCase().indexOf("https") === 0;
+        isSecure = /^https/i.test(window.location.protocol);
 
     // remove css image flicker
-	if(isIE && !isIE7){
+    if(isIE && !(isIE7 || isIE8)){
         try{
             document.execCommand("BackgroundImageCache", false, true);
         }catch(e){}
@@ -66,7 +70,7 @@ Ext.apply = function(o, c, defaults){
 
     Ext.apply(Ext, {
         /**
-         * True if the browser is in strict mode
+         * True if the browser is in strict (standards-compliant) mode, as opposed to quirks mode
          * @type Boolean
          */
         isStrict : isStrict,
@@ -206,7 +210,7 @@ Ext.addBehaviors({
     MyGridPanel = Ext.extend(Ext.grid.GridPanel, {
         constructor: function(config) {
             // Your preprocessing here
-        	MyGridPanel.superclass.constructor.apply(this, arguments);
+            MyGridPanel.superclass.constructor.apply(this, arguments);
             // Your postprocessing here
         },
 
@@ -231,7 +235,7 @@ Ext.addBehaviors({
                 }
             };
             var oc = Object.prototype.constructor;
-            
+
             return function(sb, sp, overrides){
                 if(typeof sp == 'object'){
                     overrides = sp;
@@ -279,6 +283,9 @@ Ext.override(MyClass, {
                 for(var method in overrides){
                     p[method] = overrides[method];
                 }
+                if(Ext.isIE && overrides.toString != origclass.toString){
+                    p.toString = overrides.toString;
+                }
             }
         },
 
@@ -324,14 +331,17 @@ Company.data.CustomStore = function(config) { ... }
                     buf.push(k, "=&");
                 }else if(type != "function" && type != "object"){
                     buf.push(k, "=", encodeURIComponent(ov), "&");
+                }else if(Ext.isDate(ov)){
+                    var s = Ext.encode(ov).replace(/"/g, '');
+                    buf.push(k, "=", s, "&");
                 }else if(Ext.isArray(ov)){
                     if (ov.length) {
-	                    for(var i = 0, len = ov.length; i < len; i++) {
-	                        buf.push(k, "=", encodeURIComponent(ov[i] === undefined ? '' : ov[i]), "&");
-	                    }
-	                } else {
-	                    buf.push(k, "=&");
-	                }
+                        for(var i = 0, len = ov.length; i < len; i++) {
+                            buf.push(k, "=", encodeURIComponent(ov[i] === undefined ? '' : ov[i]), "&");
+                        }
+                    } else {
+                        buf.push(k, "=&");
+                    }
                 }
             }
             buf.pop();
@@ -339,7 +349,10 @@ Company.data.CustomStore = function(config) { ... }
         },
 
         /**
-         * Takes an encoded URL and and converts it to an object. e.g. Ext.urlDecode("foo=1&bar=2"); would return {foo: 1, bar: 2} or Ext.urlDecode("foo=1&bar=2&bar=3&bar=4", true); would return {foo: 1, bar: [2, 3, 4]}.
+         * Takes an encoded URL and and converts it to an object. Example: <pre><code>
+Ext.urlDecode("foo=1&bar=2"); // returns {foo: "1", bar: "2"}
+Ext.urlDecode("foo=1&bar=2&bar=3&bar=4", false); // returns {foo: "1", bar: ["2", "3", "4"]}
+         * </code></pre>
          * @param {String} string
          * @param {Boolean} overwrite (optional) Items of the same name will overwrite previous values instead of creating an an array (Defaults to false).
          * @return {Object} A literal with members
@@ -380,7 +393,7 @@ Company.data.CustomStore = function(config) { ... }
          * @param {Object} scope
          */
         each : function(array, fn, scope){
-            if(!Ext.isArray(array)){
+            if(typeof array.length == "undefined" || typeof array == "string"){
                 array = [array];
             }
             for(var i = 0, len = array.length; i < len; i++){
@@ -468,10 +481,8 @@ Company.data.CustomStore = function(config) { ... }
          * @return {Number} Value, if numeric, else defaultValue
          */
         num : function(v, defaultValue){
-            if(typeof v != 'number'){
-                return defaultValue;
-            }
-            return v;
+            v = Number(v == null? NaN : v);
+            return isNaN(v)? defaultValue : v;
         },
 
         /**
@@ -488,13 +499,13 @@ Company.data.CustomStore = function(config) { ... }
             for(var i = 0, a = arguments, len = a.length; i < len; i++) {
                 var as = a[i];
                 if(as){
-		            if(typeof as.destroy == 'function'){
-		                as.destroy();
-		            }
-		            else if(as.dom){
-		                as.removeAllListeners();
-		                as.remove();
-		            }
+                    if(typeof as.destroy == 'function'){
+                        as.destroy();
+                    }
+                    else if(as.dom){
+                        as.removeAllListeners();
+                        as.remove();
+                    }
                 }
             }
         },
@@ -525,6 +536,7 @@ Company.data.CustomStore = function(config) { ... }
          * <li><b>string</b>: If the object passed is a string</li>
          * <li><b>number</b>: If the object passed is a number</li>
          * <li><b>boolean</b>: If the object passed is a boolean value</li>
+         * <li><b>date</b>: If the object passed is a Date object</li>
          * <li><b>function</b>: If the object passed is a function reference</li>
          * <li><b>object</b>: If the object passed is an object</li>
          * <li><b>array</b>: If the object passed is an array</li>
@@ -554,6 +566,7 @@ Company.data.CustomStore = function(config) { ... }
                 switch(o.constructor) {
                     case Array: return 'array';
                     case RegExp: return 'regexp';
+                    case Date: return 'date';
                 }
                 if(typeof o.length == 'number' && typeof o.item == 'function') {
                     return 'nodelist';
@@ -563,70 +576,142 @@ Company.data.CustomStore = function(config) { ... }
         },
 
         /**
-         * Returns true if the passed value is null, undefined or an empty string (optional).
+         * Returns true if the passed value is null, undefined or an empty string.
          * @param {Mixed} value The value to test
-         * @param {Boolean} allowBlank (optional) Pass true if an empty string is not considered empty
+         * @param {Boolean} allowBlank (optional) true to allow empty strings (defaults to false)
          * @return {Boolean}
          */
         isEmpty : function(v, allowBlank){
             return v === null || v === undefined || (!allowBlank ? v === '' : false);
         },
 
+        /**
+         * Utility method for validating that a value is non-empty (i.e. i) not null, ii) not undefined, and iii) not an empty string),
+         * returning the specified default value if it is.
+         * @param {Mixed} value The value to test
+         * @param {Mixed} defaultValue The value to return if the original value is empty
+         * @param {Boolean} allowBlank (optional) true to allow empty strings (defaults to false)
+         * @return {Mixed} value, if non-empty, else defaultValue
+         */
         value : function(v, defaultValue, allowBlank){
             return Ext.isEmpty(v, allowBlank) ? defaultValue : v;
         },
 
         /**
          * Returns true if the passed object is a JavaScript array, otherwise false.
-         * @param {Object} The object to test
+         * @param {Object} object The object to test
          * @return {Boolean}
          */
-		isArray : function(v){
-			return v && typeof v.pop == 'function';
-		},
+        isArray : function(v){
+            return v && typeof v.length == 'number' && typeof v.splice == 'function';
+        },
 
-		/**
+        /**
          * Returns true if the passed object is a JavaScript date object, otherwise false.
-         * @param {Object} The object to test
+         * @param {Object} object The object to test
          * @return {Boolean}
          */
-		isDate : function(v){
-			return v && typeof v.getFullYear == 'function';
-		},
+        isDate : function(v){
+            return v && typeof v.getFullYear == 'function';
+        },
 
-        /** @type Boolean */
+        /**
+         * True if the detected browser is Opera.
+         * @type Boolean
+         */
         isOpera : isOpera,
-        /** @type Boolean */
+        /**
+         * True if the detected browser uses WebKit.
+         * @type Boolean
+         */
+        isWebKit: isWebKit,
+        /**
+         * True if the detected browser is Chrome.
+         * @type Boolean
+         */
+        isChrome : isChrome,
+        /**
+         * True if the detected browser is Safari.
+         * @type Boolean
+         */
         isSafari : isSafari,
-        /** @type Boolean */
+        /**
+         * True if the detected browser is Safari 3.x.
+         * @type Boolean
+         */
         isSafari3 : isSafari3,
-        /** @type Boolean */
+        /**
+         * True if the detected browser is Safari 2.x.
+         * @type Boolean
+         */
         isSafari2 : isSafari && !isSafari3,
-        /** @type Boolean */
+        /**
+         * True if the detected browser is Internet Explorer.
+         * @type Boolean
+         */
         isIE : isIE,
-        /** @type Boolean */
-        isIE6 : isIE && !isIE7,
-        /** @type Boolean */
+        /**
+         * True if the detected browser is Internet Explorer 6.x.
+         * @type Boolean
+         */
+        isIE6 : isIE && !isIE7 && !isIE8,
+        /**
+         * True if the detected browser is Internet Explorer 7.x.
+         * @type Boolean
+         */
         isIE7 : isIE7,
-        /** @type Boolean */
+        /**
+         * True if the detected browser is Internet Explorer 8.x.
+         * @type Boolean
+         */
+        isIE8 : isIE8,
+        /**
+         * True if the detected browser uses the Gecko layout engine (e.g. Mozilla, Firefox).
+         * @type Boolean
+         */
         isGecko : isGecko,
-        /** @type Boolean */
+        /**
+         * True if the detected browser uses a pre-Gecko 1.9 layout engine (e.g. Firefox 2.x).
+         * @type Boolean
+         */
+        isGecko2 : isGecko && !isGecko3,
+        /**
+         * True if the detected browser uses a Gecko 1.9+ layout engine (e.g. Firefox 3.x).
+         * @type Boolean
+         */
+        isGecko3 : isGecko3,
+        /**
+         * True if the detected browser is Internet Explorer running in non-strict mode.
+         * @type Boolean
+         */
         isBorderBox : isBorderBox,
-        /** @type Boolean */
+        /**
+         * True if the detected platform is Linux.
+         * @type Boolean
+         */
         isLinux : isLinux,
-        /** @type Boolean */
+        /**
+         * True if the detected platform is Windows.
+         * @type Boolean
+         */
         isWindows : isWindows,
-        /** @type Boolean */
+        /**
+         * True if the detected platform is Mac OS.
+         * @type Boolean
+         */
         isMac : isMac,
-        /** @type Boolean */
+        /**
+         * True if the detected platform is Adobe Air.
+         * @type Boolean
+         */
         isAir : isAir,
 
-	    /**
-	     * By default, Ext intelligently decides whether floating elements should be shimmed. If you are using flash,
-	     * you may want to set this to true.
-	     * @type Boolean
-	     */
-        useShims : ((isIE && !isIE7) || (isGecko && isMac))
+        /**
+         * By default, Ext intelligently decides whether floating elements should be shimmed. If you are using flash,
+         * you may want to set this to true.
+         * @type Boolean
+         */
+        useShims : ((isIE && !(isIE7 || isIE8)) || (isMac && isGecko && !isGecko3))
     });
 
     // in intellij using keyword "namespace" causes parsing errors
@@ -649,7 +734,7 @@ Ext.apply(Function.prototype, {
      * callback, use {@link #createDelegate} instead.</b> The function returned by createCallback always
      * executes in the window scope.
      * <p>This method is required when you want to pass arguments to a callback function.  If no arguments
-     * are needed, you can simply pass a reference to the function as a callback (e.g., callback: myFn).  
+     * are needed, you can simply pass a reference to the function as a callback (e.g., callback: myFn).
      * However, if you tried to pass a function with arguments (e.g., callback: myFn(arg1, arg2)) the function
      * would simply execute immediately when the code is parsed. Example usage:
      * <pre><code>
@@ -695,7 +780,7 @@ var btn = new Ext.Button({
 });
 
 // This callback will execute in the scope of the
-// button instance. Clicking the button alerts 
+// button instance. Clicking the button alerts
 // "Hi, Fred. You clicked the "Say Hi" button."
 btn.on('click', sayHi.createDelegate(btn, ['Fred']));
 </code></pre>
@@ -734,7 +819,7 @@ sayHi('Fred');
 // executes after 2 seconds:
 sayHi.defer(2000, this, ['Fred']);
 
-// this syntax is sometimes useful for deferring 
+// this syntax is sometimes useful for deferring
 // execution of an anonymous function:
 (function(){
     alert('Anonymous');
@@ -755,7 +840,7 @@ sayHi.defer(2000, this, ['Fred']);
         fn();
         return 0;
     },
-    
+
     /**
      * Create a combined function call sequence of the original function + the passed function.
      * The resulting function returns the results of the original function.
@@ -790,7 +875,7 @@ sayGoodbye('Fred'); // both alerts show
     },
 
     /**
-     * Creates an interceptor function. The passed fcn is called before the original one. If it returns false, 
+     * Creates an interceptor function. The passed fcn is called before the original one. If it returns false,
      * the original one is not called. The resulting function returns the results of the original function.
      * The passed fcn is called with the parameters of the original function. Example usage:
      * <pre><code>
@@ -951,9 +1036,9 @@ Ext.applyIf(Array.prototype, {
      */
     indexOf : function(o){
        for (var i = 0, len = this.length; i < len; i++){
- 	      if(this[i] == o) return i;
+          if(this[i] == o) return i;
        }
- 	   return -1;
+       return -1;
     },
 
     /**
@@ -977,5 +1062,5 @@ Ext.applyIf(Array.prototype, {
  @member Date getElapsed
  */
 Date.prototype.getElapsed = function(date) {
-	return Math.abs((date || new Date()).getTime()-this.getTime());
+    return Math.abs((date || new Date()).getTime()-this.getTime());
 };

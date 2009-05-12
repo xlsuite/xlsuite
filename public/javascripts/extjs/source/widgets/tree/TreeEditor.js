@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -91,12 +91,27 @@ Ext.extend(Ext.tree.TreeEditor, Ext.Editor, {
         this.setSize(w, '');
     },
 
-    // private
+    /**
+     * Edit the text of the passed {@link Ext.tree.TreeNode TreeNode}.
+     * @param node {Ext.tree.TreeNode} The TreeNode to edit. The TreeNode must be {@link Ext.tree.TreeNode#editable editable}.
+     */
     triggerEdit : function(node, defer){
         this.completeEdit();
 		if(node.attributes.editable !== false){
+           /**
+            * The {@link Ext.tree.TreeNode TreeNode} this editor is bound to. Read-only.
+            * @type Ext.tree.TreeNode
+            * @property editNode
+            */
 			this.editNode = node;
-            this.autoEditTimer = this.startEdit.defer(this.editDelay, this, [node.ui.textNode, node.text]);
+            if(this.tree.autoScroll){
+                Ext.fly(node.ui.getEl()).scrollIntoView(this.tree.body);
+            }
+            var value = node.text || '';
+            if (!Ext.isGecko && Ext.isEmpty(node.text)){
+                node.setText('&nbsp;');
+            }
+            this.autoEditTimer = this.startEdit.defer(this.editDelay, this, [node.ui.textNode, value]);
             return false;
         }
     },

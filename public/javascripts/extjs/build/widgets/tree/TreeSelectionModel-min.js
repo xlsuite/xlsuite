@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -18,7 +18,7 @@ if(s.firstChild&&s.isExpanded()){return this.select(s.firstChild);}else if(s.nex
 return null;},onKeyDown:function(e){var s=this.selNode||this.lastSelNode;var sm=this;if(!s){return;}
 var k=e.getKey();switch(k){case e.DOWN:e.stopEvent();this.selectNext();break;case e.UP:e.stopEvent();this.selectPrevious();break;case e.RIGHT:e.preventDefault();if(s.hasChildNodes()){if(!s.isExpanded()){s.expand();}else if(s.firstChild){this.select(s.firstChild,e);}}
 break;case e.LEFT:e.preventDefault();if(s.hasChildNodes()&&s.isExpanded()){s.collapse();}else if(s.parentNode&&(this.tree.rootVisible||s.parentNode!=this.tree.getRootNode())){this.select(s.parentNode,e);}
-break;};}});Ext.tree.MultiSelectionModel=function(config){this.selNodes=[];this.selMap={};this.addEvents("selectionchange");Ext.apply(this,config);Ext.tree.MultiSelectionModel.superclass.constructor.call(this);};Ext.extend(Ext.tree.MultiSelectionModel,Ext.util.Observable,{init:function(tree){this.tree=tree;tree.getTreeEl().on("keydown",this.onKeyDown,this);tree.on("click",this.onNodeClick,this);},onNodeClick:function(node,e){this.select(node,e,e.ctrlKey);},select:function(node,e,keepExisting){if(keepExisting!==true){this.clearSelections(true);}
+break;};}});Ext.tree.MultiSelectionModel=function(config){this.selNodes=[];this.selMap={};this.addEvents("selectionchange");Ext.apply(this,config);Ext.tree.MultiSelectionModel.superclass.constructor.call(this);};Ext.extend(Ext.tree.MultiSelectionModel,Ext.util.Observable,{init:function(tree){this.tree=tree;tree.getTreeEl().on("keydown",this.onKeyDown,this);tree.on("click",this.onNodeClick,this);},onNodeClick:function(node,e){if(e.ctrlKey&&this.isSelected(node)){this.unselect(node);}else{this.select(node,e,e.ctrlKey);}},select:function(node,e,keepExisting){if(keepExisting!==true){this.clearSelections(true);}
 if(this.isSelected(node)){this.lastSelNode=node;return node;}
 this.selNodes.push(node);this.selMap[node.id]=node;this.lastSelNode=node;node.ui.onSelectedChange(true);this.fireEvent("selectionchange",this,this.selNodes);return node;},unselect:function(node){if(this.selMap[node.id]){node.ui.onSelectedChange(false);var sn=this.selNodes;var index=sn.indexOf(node);if(index!=-1){this.selNodes.splice(index,1);}
 delete this.selMap[node.id];this.fireEvent("selectionchange",this,this.selNodes);}},clearSelections:function(suppressEvent){var sn=this.selNodes;if(sn.length>0){for(var i=0,len=sn.length;i<len;i++){sn[i].ui.onSelectedChange(false);}

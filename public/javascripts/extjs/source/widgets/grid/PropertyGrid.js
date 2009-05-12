@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -214,6 +214,13 @@ Ext.extend(Ext.grid.PropertyColumnModel, Ext.grid.ColumnModel, {
         }else{
             return this.editors['string'];
         }
+    },
+    
+    destroy : function(){
+        Ext.grid.PropertyColumnModel.superclass.destroy.call(this);
+        for(var ed in this.editors){
+            Ext.destroy(ed);
+        }
     }
 });
 
@@ -242,6 +249,10 @@ var grid = new Ext.grid.PropertyGrid({
  * @param {Object} config The grid config object
  */
 Ext.grid.PropertyGrid = Ext.extend(Ext.grid.EditorGridPanel, {
+    /**
+    * @cfg {Object} propertyNames An object containing property name/display name pairs.
+    * If specified, the display name will be shown in the name column instead of the property name.
+    */
     /**
     * @cfg {Object} source A data object to use as the data source of the grid (see {@link #setSource} for details).
     */

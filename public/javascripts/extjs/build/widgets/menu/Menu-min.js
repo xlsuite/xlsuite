@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -8,17 +8,17 @@
 
 
 Ext.menu.Menu=function(config){if(Ext.isArray(config)){config={items:config};}
-Ext.apply(this,config);this.id=this.id||Ext.id();this.addEvents('beforeshow','beforehide','show','hide','click','mouseover','mouseout','itemclick');Ext.menu.MenuMgr.register(this);Ext.menu.Menu.superclass.constructor.call(this);var mis=this.items;this.items=new Ext.util.MixedCollection();if(mis){this.add.apply(this,mis);}};Ext.extend(Ext.menu.Menu,Ext.util.Observable,{minWidth:120,shadow:"sides",subMenuAlign:"tl-tr?",defaultAlign:"tl-bl?",allowOtherMenus:false,hidden:true,createEl:function(){return new Ext.Layer({cls:"x-menu",shadow:this.shadow,constrain:false,parentEl:this.parentEl||document.body,zindex:15000});},render:function(){if(this.el){return;}
+Ext.apply(this,config);this.id=this.id||Ext.id();this.addEvents('beforeshow','beforehide','show','hide','click','mouseover','mouseout','itemclick');Ext.menu.MenuMgr.register(this);Ext.menu.Menu.superclass.constructor.call(this);var mis=this.items;this.items=new Ext.util.MixedCollection();if(mis){this.add.apply(this,mis);}};Ext.extend(Ext.menu.Menu,Ext.util.Observable,{minWidth:120,shadow:"sides",subMenuAlign:"tl-tr?",defaultAlign:"tl-bl?",allowOtherMenus:false,ignoreParentClicks:false,hidden:true,createEl:function(){return new Ext.Layer({cls:"x-menu",shadow:this.shadow,constrain:false,parentEl:this.parentEl||document.body,zindex:15000});},render:function(){if(this.el){return;}
 var el=this.el=this.createEl();if(!this.keyNav){this.keyNav=new Ext.menu.MenuNav(this);}
 if(this.plain){el.addClass("x-menu-plain");}
 if(this.cls){el.addClass(this.cls);}
 this.focusEl=el.createChild({tag:"a",cls:"x-menu-focus",href:"#",onclick:"return false;",tabIndex:"-1"});var ul=el.createChild({tag:"ul",cls:"x-menu-list"});ul.on("click",this.onClick,this);ul.on("mouseover",this.onMouseOver,this);ul.on("mouseout",this.onMouseOut,this);this.items.each(function(item){var li=document.createElement("li");li.className="x-menu-list-item";ul.dom.appendChild(li);item.render(li,this);},this);this.ul=ul;this.autoWidth();},autoWidth:function(){var el=this.el,ul=this.ul;if(!el){return;}
-var w=this.width;if(w){el.setWidth(w);}else if(Ext.isIE){el.setWidth(this.minWidth);var t=el.dom.offsetWidth;el.setWidth(ul.getWidth()+el.getFrameWidth("lr"));}},delayAutoWidth:function(){if(this.el){if(!this.awTask){this.awTask=new Ext.util.DelayedTask(this.autoWidth,this);}
-this.awTask.delay(20);}},findTargetItem:function(e){var t=e.getTarget(".x-menu-list-item",this.ul,true);if(t&&t.menuItemId){return this.items.get(t.menuItemId);}},onClick:function(e){var t;if(t=this.findTargetItem(e)){t.onClick(e);this.fireEvent("click",this,t,e);}},setActiveItem:function(item,autoExpand){if(item!=this.activeItem){if(this.activeItem){this.activeItem.deactivate();}
+var w=this.width;if(w){el.setWidth(w);}else if(Ext.isIE&&!Ext.isIE8){el.setWidth(this.minWidth);var t=el.dom.offsetWidth;el.setWidth(ul.getWidth()+el.getFrameWidth("lr"));}},delayAutoWidth:function(){if(this.el){if(!this.awTask){this.awTask=new Ext.util.DelayedTask(this.autoWidth,this);}
+this.awTask.delay(20);}},findTargetItem:function(e){var t=e.getTarget(".x-menu-list-item",this.ul,true);if(t&&t.menuItemId){return this.items.get(t.menuItemId);}},onClick:function(e){var t;if(t=this.findTargetItem(e)){if(t.menu&&this.ignoreParentClicks){t.expandMenu();}else{t.onClick(e);this.fireEvent("click",this,t,e);}}},setActiveItem:function(item,autoExpand){if(item!=this.activeItem){if(this.activeItem){this.activeItem.deactivate();}
 this.activeItem=item;item.activate(autoExpand);}else if(autoExpand){item.expandMenu();}},tryActivate:function(start,step){var items=this.items;for(var i=start,len=items.length;i>=0&&i<len;i+=step){var item=items.get(i);if(!item.disabled&&item.canActivate){this.setActiveItem(item,false);return item;}}
 return false;},onMouseOver:function(e){var t;if(t=this.findTargetItem(e)){if(t.canActivate&&!t.disabled){this.setActiveItem(t,true);}}
-this.fireEvent("mouseover",this,e,t);},onMouseOut:function(e){var t;if(t=this.findTargetItem(e)){if(t==this.activeItem&&t.shouldDeactivate(e)){this.activeItem.deactivate();delete this.activeItem;}}
-this.fireEvent("mouseout",this,e,t);},isVisible:function(){return this.el&&!this.hidden;},show:function(el,pos,parentMenu){this.parentMenu=parentMenu;if(!this.el){this.render();}
+this.over=true;this.fireEvent("mouseover",this,e,t);},onMouseOut:function(e){var t;if(t=this.findTargetItem(e)){if(t==this.activeItem&&t.shouldDeactivate(e)){this.activeItem.deactivate();delete this.activeItem;}}
+this.over=false;this.fireEvent("mouseout",this,e,t);},isVisible:function(){return this.el&&!this.hidden;},show:function(el,pos,parentMenu){this.parentMenu=parentMenu;if(!this.el){this.render();}
 this.fireEvent("beforeshow",this);this.showAt(this.el.getAlignToXY(el,pos||this.defaultAlign),parentMenu,false);},showAt:function(xy,parentMenu,_e){this.parentMenu=parentMenu;if(!this.el){this.render();}
 if(_e!==false){this.fireEvent("beforeshow",this);xy=this.el.adjustForConstraints(xy);}
 this.el.setXY(xy);this.el.show();this.hidden=false;this.focus();this.fireEvent("show",this);},focus:function(){if(!this.hidden){this.doFocus.defer(50,this);}},doFocus:function(){if(!this.hidden){this.focusEl.focus();}},hide:function(deep){if(this.el&&this.isVisible()){this.fireEvent("beforehide",this);if(this.activeItem){this.activeItem.deactivate();this.activeItem=null;}

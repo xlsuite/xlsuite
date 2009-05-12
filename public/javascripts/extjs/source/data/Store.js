@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -34,7 +34,24 @@ Ext.data.Store = function(config){
      * @property
      */
     this.baseParams = {};
-    // private
+    /**
+     * <p>An object containing properties which specify the names of the paging and
+     * sorting parameters passed to remote servers when loading blocks of data. By default, this
+     * object takes the following form:</p><pre><code>
+{
+    start : "start",    // The parameter name which specifies the start row
+    limit : "limit",    // The parameter name which specifies number of rows to return
+    sort : "sort",      // The parameter name which specifies the column to sort on
+    dir : "dir"         // The parameter name which specifies the sort direction
+}
+</code></pre>
+     * <p>The server must produce the requested data block upon receipt of these parameter names.
+     * If different parameter names are required, this property can be overriden using a configuration
+     * property.</p>
+     * <p>A {@link Ext.PagingToolbar PagingToolbar} bound to this grid uses this property to determine
+     * the parameter names to use in its requests.
+     * @property
+     */
     this.paramNames = {
         "start" : "start",
         "limit" : "limit",
@@ -62,7 +79,20 @@ Ext.data.Store = function(config){
         }
     }
 
+    /**
+     * The {@link Ext.data.Record Record} constructor as supplied to (or created by) the {@link Ext.data.Reader#Reader Reader}. Read-only.
+     * <p>If the Reader was constructed by passing in an Array of field definition objects, instead of a created
+     * Record constructor it will have {@link Ext.data.Record#create created a constructor} from that Array.</p>
+     * <p>This property may be used to create new Records of the type held in this Store.</p>
+     * @property recordType
+     * @type Function
+     */
     if(this.recordType){
+        /**
+         * A MixedCollection containing the defined {@link Ext.data.Field Field}s for the Records stored in this Store. Read-only.
+         * @property fields
+         * @type Ext.util.MixedCollection
+         */
         this.fields = this.recordType.prototype.fields;
     }
     this.modified = [];
@@ -70,8 +100,8 @@ Ext.data.Store = function(config){
     this.addEvents(
         /**
          * @event datachanged
-         * Fires when the data cache has changed, and a widget which is using this Store
-         * as a Record cache should refresh its view.
+         * Fires when the data cache has changed in a bulk manner (e.g., it has been sorted, filtered, etc.) and a 
+         * widget that is using this Store as a Record cache should refresh its view.
          * @param {Store} this
          */
         'datachanged',
@@ -146,9 +176,9 @@ Ext.data.Store = function(config){
     }
 
     this.sortToggle = {};
-	if(this.sortInfo){
-		this.setDefaultSort(this.sortInfo.field, this.sortInfo.direction);
-	}
+    if(this.sortInfo){
+        this.setDefaultSort(this.sortInfo.field, this.sortInfo.direction);
+    }
 
     Ext.data.Store.superclass.constructor.call(this);
 
@@ -185,12 +215,14 @@ Ext.extend(Ext.data.Store, Ext.util.Observable, {
     * an Array of Ext.data.Record objects which are cached keyed by their <em>id</em> property.
     */
     /**
-    * @cfg {Object} baseParams An object containing properties which are to be sent as parameters
+    * @cfg {Object} baseParams<p>An object containing properties which are to be sent as parameters.</p>
+    * <p>Parameters are encoded as standard HTTP parameters using {@link Ext#urlEncode}.</p>
     * on any HTTP request
     */
     /**
-    * @cfg {Object} sortInfo A config object in the format: {field: "fieldName", direction: "ASC|DESC"}.  The direction
-    * property is case-sensitive.
+    * @cfg {Object} sortInfo A config object in the format: {field: "fieldName", direction: "ASC|DESC"} to 
+    * specify the sort order in the request of a remote Store's {@link #load} operation.  Note that for
+    * local sorting, the direction property is case-sensitive.
     */
     /**
     * @cfg {boolean} remoteSort True if sorting is to be handled by requesting the
@@ -222,7 +254,7 @@ Ext.extend(Ext.data.Store, Ext.util.Observable, {
    lastOptions : null,
 
     destroy : function(){
-        if(this.id){
+        if(this.storeId || this.id){
             Ext.StoreMgr.unregister(this);
         }
         this.data = null;
@@ -230,7 +262,7 @@ Ext.extend(Ext.data.Store, Ext.util.Observable, {
     },
 
     /**
-     * Add Records to the Store and fires the add event.
+     * Add Records to the Store and fires the {@link #add} event.
      * @param {Ext.data.Record[]} records An Array of Ext.data.Record objects to add to the cache.
      */
     add : function(records){
@@ -250,8 +282,8 @@ Ext.extend(Ext.data.Store, Ext.util.Observable, {
     },
 
     /**
-     * (Local sort only) Inserts the passed the record in the Store at the index where it
-     * should go based on the current sort information
+     * (Local sort only) Inserts the passed Record into the Store at the index where it
+     * should go based on the current sort information.
      * @param {Ext.data.Record} record
      */
     addSorted : function(record){
@@ -260,8 +292,8 @@ Ext.extend(Ext.data.Store, Ext.util.Observable, {
     },
 
     /**
-     * Remove a Record from the Store and fires the remove event.
-     * @param {Ext.data.Record} record Th Ext.data.Record object to remove from the cache.
+     * Remove a Record from the Store and fires the {@link #remove} event.
+     * @param {Ext.data.Record} record The Ext.data.Record object to remove from the cache.
      */
     remove : function(record){
         var index = this.data.indexOf(record);
@@ -274,9 +306,17 @@ Ext.extend(Ext.data.Store, Ext.util.Observable, {
         }
         this.fireEvent("remove", this, record, index);
     },
+    
+    /**
+     * Remove a Record from the Store at the specified index. Fires the {@link #remove} event.
+     * @param {Number} index The index of the record to remove.
+     */
+    removeAt : function(index){
+        this.remove(this.getAt(index));    
+    },
 
     /**
-     * Remove all Records from the Store and fires the clear event.
+     * Remove all Records from the Store and fires the {@link #clear} event.
      */
     removeAll : function(){
         this.data.clear();
@@ -290,7 +330,7 @@ Ext.extend(Ext.data.Store, Ext.util.Observable, {
     },
 
     /**
-     * Inserts Records to the Store at the given index and fires the add event.
+     * Inserts Records into the Store at the given index and fires the {@link #add} event.
      * @param {Number} index The start index at which to insert the passed Records.
      * @param {Ext.data.Record[]} records An Array of Ext.data.Record objects to add to the cache.
      */
@@ -366,7 +406,8 @@ Ext.extend(Ext.data.Store, Ext.util.Observable, {
      * and this call will return before the new data has been loaded. Perform any post-processing
      * in a callback function, or in a "load" event handler.</b></p>
      * @param {Object} options An object containing properties which control loading options:<ul>
-     * <li><b>params</b> :Object<p class="sub-desc">An object containing properties to pass as HTTP parameters to a remote data source.</p></li>
+     * <li><b>params</b> :Object<p class="sub-desc">An object containing properties to pass as HTTP parameters to a remote data source.</p>
+     * <p>Parameters are encoded as standard HTTP parameters using {@link Ext#urlEncode}.</p></li>
      * <li><b>callback</b> : Function<p class="sub-desc">A function to be called after the Records have been loaded. The callback is
      * passed the following arguments:<ul>
      * <li>r : Ext.data.Record[]</li>
@@ -395,9 +436,12 @@ Ext.extend(Ext.data.Store, Ext.util.Observable, {
     },
 
     /**
-     * Reloads the Record cache from the configured Proxy using the configured Reader and
-     * the options from the last load operation performed.
-     * @param {Object} options (optional) An object containing properties which may override the options
+     * <p>Reloads the Record cache from the configured Proxy using the configured Reader and
+     * the options from the last load operation performed.</p>
+     * <p><b>It is important to note that for remote data sources, loading is asynchronous,
+     * and this call will return before the new data has been loaded. Perform any post-processing
+     * in a callback function, or in a "load" event handler.</b></p>
+     * @param {Object} options (optional) An object containing loading options which may override the options
      * used in the last load operation. See {@link #load} for details (defaults to null, in which case
      * the most recently used options are reused).
      */
@@ -445,11 +489,13 @@ Ext.extend(Ext.data.Store, Ext.util.Observable, {
     },
 
     /**
-     * Loads data from a passed data block. A Reader which understands the format of the data
+     * Loads data from a passed data block and fires the {@link #load} event. A Reader which understands the format of the data
      * must have been configured in the constructor.
      * @param {Object} data The data block from which to read the Records.  The format of the data expected
      * is dependent on the type of Reader that is configured and should correspond to that Reader's readRecords parameter.
-     * @param {Boolean} append (Optional) True to append the new Records rather than replace the existing cache.
+     * @param {Boolean} append (Optional) True to append the new Records rather than replace the existing cache. <b>Remember that
+     * Records in a Store are keyed by their {@link Ext.data.Record#id id}, so added Records with ids which are already present in
+     * the Store will <i>replace</i> existing Records. Records with new, unique ids will be added.</b>
      */
     loadData : function(o, append){
         var r = this.reader.readRecords(o);
@@ -794,7 +840,11 @@ Ext.extend(Ext.data.Store, Ext.util.Observable, {
         this.recordType = rtype;
         this.fields = rtype.prototype.fields;
         delete this.snapshot;
-        this.sortInfo = meta.sortInfo;
+        if(meta.sortInfo){
+            this.sortInfo = meta.sortInfo;
+        }else if(this.sortInfo  && !this.fields.get(this.sortInfo.field)){
+            delete this.sortInfo;
+        }
         this.modified = [];
         this.fireEvent('metachange', this, this.reader.meta);
     },

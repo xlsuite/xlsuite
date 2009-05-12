@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -22,7 +22,7 @@ Ext.grid.EditorGridPanel = Ext.extend(Ext.grid.GridPanel, {
 	
     // private
     trackMouseOver: false, // causes very odd FF errors
-    
+
     // private
     initComponent : function(){
         Ext.grid.EditorGridPanel.superclass.initComponent.call(this);
@@ -47,8 +47,9 @@ Ext.grid.EditorGridPanel = Ext.extend(Ext.grid.GridPanel, {
     // private
     initEvents : function(){
         Ext.grid.EditorGridPanel.superclass.initEvents.call(this);
-        
+
         this.on("bodyscroll", this.stopEditing, this, [true]);
+        this.on("columnresize", this.stopEditing, this, [true]);
 
         if(this.clicksToEdit == 1){
             this.on("cellclick", this.onCellDblClick, this);
@@ -58,7 +59,6 @@ Ext.grid.EditorGridPanel = Ext.extend(Ext.grid.GridPanel, {
             }
             this.on("celldblclick", this.onCellDblClick, this);
         }
-        this.getGridEl().addClass("xedit-grid");
     },
 
     // private
@@ -144,22 +144,26 @@ Ext.grid.EditorGridPanel = Ext.extend(Ext.grid.GridPanel, {
                     ed.record = r;
                     ed.on("complete", this.onEditComplete, this, {single: true});
                     ed.on("specialkey", this.selModel.onEditorKey, this.selModel);
+                    
                     this.activeEditor = ed;
                     var v = this.preEditValue(r, field);
-                    ed.startEdit(this.view.getCell(row, col), v);
+                    ed.startEdit(this.view.getCell(row, col).firstChild, v === undefined ? '' : v);
                 }).defer(50, this);
             }
         }
     },
-    
+
+    // private
 	preEditValue : function(r, field){
-		return this.autoEncode && typeof value == 'string' ? Ext.util.Format.htmlDecode(r.data[field]) : r.data[field];
+        var value = r.data[field];
+		return this.autoEncode && typeof value == 'string' ? Ext.util.Format.htmlDecode(value) : value;
 	},
-	
+
+    // private
 	postEditValue : function(value, originalValue, r, field){
 		return this.autoEncode && typeof value == 'string' ? Ext.util.Format.htmlEncode(value) : value;
 	},
-	    
+
     
     stopEditing : function(cancel){
         if(this.activeEditor){
@@ -357,11 +361,19 @@ Ext.extend(Ext.grid.PropertyColumnModel, Ext.grid.ColumnModel, {
         }else{
             return this.editors['string'];
         }
+    },
+    
+    destroy : function(){
+        Ext.grid.PropertyColumnModel.superclass.destroy.call(this);
+        for(var ed in this.editors){
+            Ext.destroy(ed);
+        }
     }
 });
 
 
 Ext.grid.PropertyGrid = Ext.extend(Ext.grid.EditorGridPanel, {
+    
     
     
 

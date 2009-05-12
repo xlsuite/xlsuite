@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -22,7 +22,7 @@
  </code></pre>
  * @constructor
  * @param {Object} config The configuration options
-*/
+ */
 Ext.grid.RowNumberer = function(config){
     Ext.apply(this, config);
     if(this.rowspan){
@@ -42,6 +42,7 @@ Ext.grid.RowNumberer.prototype = {
     width: 23,
     /**
      * @cfg {Boolean} sortable True if the row number column is sortable (defaults to false).
+     * @hide
      */
     sortable: false,
 

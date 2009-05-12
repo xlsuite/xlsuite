@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -147,8 +147,8 @@
     font-size:1px;
     -moz-outline:0 none;
     outline:0 none;
-    -moz-user-select: normal;
-    -khtml-user-select: normal;  
+    -moz-user-select: text;
+    -khtml-user-select: text;
 }
 
 /* header styles */
@@ -183,7 +183,6 @@
 }
 .x-grid3-header-offset {
     padding-left:1px;
-	 width:10000px;
 }
 
 td.x-grid3-hd-over, td.sort-desc, td.sort-asc, td.x-grid3-hd-menu-open {

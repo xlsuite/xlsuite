@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -49,7 +49,7 @@ Ext.apply(Ext.QuickTips.getQuickTip(), {
 });
 
 // Manually register a quick tip for a specific element
-q.register({
+Ext.QuickTips.register({
     target: 'my-div',
     title: 'My Tooltip',
     text: 'This tooltip was added in code',
@@ -79,11 +79,21 @@ Ext.QuickTips = function(){
     return {
         /**
          * Initialize the global QuickTips instance and prepare any quick tips.
+         * @param {Boolean} autoRender True to render the QuickTips container immediately to preload images. (Defaults to true) 
          */
-        init : function(){
-            if(!tip){
-                tip = new Ext.QuickTip({elements:'header,body'});
-            }
+        init : function(autoRender){
+		    if(!tip){
+		        if(!Ext.isReady){
+		            Ext.onReady(function(){
+		                Ext.QuickTips.init(autoRender);
+		            });
+		            return;
+		        }
+		        tip = new Ext.QuickTip({elements:'header,body'});
+		        if(autoRender !== false){
+		            tip.render(Ext.getBody());
+		        }
+		    }
         },
 
         /**

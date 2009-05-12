@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -18,6 +18,7 @@ Ext.menu.DateItem = function(config){
     Ext.menu.DateItem.superclass.constructor.call(this, new Ext.DatePicker(config), config);
     /** The Ext.DatePicker object @type Ext.DatePicker */
     this.picker = this.component;
+    this.picker.purgeListeners();
     this.addEvents('select');
     
     this.picker.on("render", function(picker){

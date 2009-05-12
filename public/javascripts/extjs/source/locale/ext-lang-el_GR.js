@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -9,11 +9,13 @@
 /**
  * Greek translation
  * By thesilentman (utf8 encoding)
- * 22 Sep 2007
+ * 27 Apr 2008
  *
- * Changes since previous (first) Version:
- * - HTMLEditor Translation
- * - some minor corrections
+ * Changes since previous (second) Version:
+ * + added Date.shortMonthNames 
+ * + added Date.getShortMonthName 
+ * + added Date.monthNumbers
+ * + added Ext.grid.GroupingView
  */
 
 Ext.UpdateManager.defaults.indicatorText = '<div class="loading-indicator">Μεταφόρτωση δεδομένων...</div>';
@@ -53,6 +55,45 @@ Date.monthNames = [
    "Δεκέμβριος"
 ];
 
+Date.shortMonthNames = [
+   "Ιαν",
+   "Φεβ",
+   "Μάρ",
+   "Απρ",
+   "Μάι",
+   "Ιού",
+   "Ιού",
+   "Αύγ",
+   "Σεπ",
+   "Οκτ",
+   "Νοέ",
+   "Δεκ"
+];
+
+Date.getShortMonthName = function(month) {
+  return Date.monthNames[month].substring(0, 3);
+};
+
+Date.monthNumbers = {
+  Jan : 0,
+  Feb : 1,
+  Mar : 2,
+  Apr : 3,
+  May : 4,
+  Jun : 5,
+  Jul : 6,
+  Aug : 7,
+  Sep : 8,
+  Oct : 9,
+  Nov : 10,
+  Dec : 11
+};
+
+Date.getMonthNumber = function(name) {
+  return Date.monthNumbers[name.substring(0, 1).toUpperCase() + name.substring(1, 3).toLowerCase()];
+};
+
+
 Date.dayNames = [
    "Κυριακή",
    "Δευτέρα",
@@ -87,8 +128,8 @@ if(Ext.DatePicker){
       maxText           : "Η Ημερομηνία είναι μεταγενέστερη από την νεότερη αποδεκτή",
       disabledDaysText  : "",
       disabledDatesText : "",
-      monthNames	: Date.monthNames,
-      dayNames		: Date.dayNames,
+      monthNames  : Date.monthNames,
+      dayNames    : Date.dayNames,
       nextText          : 'Επόμενος Μήνας (Control+Δεξί Βέλος)',
       prevText          : 'Προηγούμενος Μήνας (Control + Αριστερό Βέλος)',
       monthYearText     : 'Επιλογή Μηνός (Control + Επάνω/Κάτω Βέλος για μεταβολή ετών)',
@@ -158,8 +199,8 @@ if(Ext.form.VTypes){
 
 if(Ext.form.HtmlEditor){
    Ext.apply(Ext.form.HtmlEditor.prototype, {
-	 createLinkText : 'Δώστε τη διεύθυνση (URL) για το σύνδεσμο (link):',
-	 buttonTips : {
+        createLinkText : 'Δώστε τη διεύθυνση (URL) για το σύνδεσμο (link):',
+        buttonTips : {
             bold : {
                title: 'Έντονα (Ctrl+B)',
                text: 'Κάνετε το προεπιλεγμένο κείμενο έντονο.',
@@ -243,6 +284,14 @@ if(Ext.grid.GridView){
       unlockText   : "Ξεκλείδωμα στήλης",
       columnsText  : "Στήλες"
    });
+}
+
+if(Ext.grid.GroupingView){
+  Ext.apply(Ext.grid.GroupingView.prototype, {
+  emptyGroupText : '(Καμμία)',
+  groupByText    : 'Ομαδοποίηση βάσει αυτού του πεδίου',
+  showGroupsText : 'Να εμφανίζεται στις ομάδες'
+  });
 }
 
 if(Ext.grid.PropertyColumnModel){

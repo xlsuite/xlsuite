@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -8,10 +8,13 @@
 
 /**
  * @class Ext.layout.ContainerLayout
- * Every layout is composed of one or more {@link Ext.Container} elements internally, and ContainerLayout provides
- * the basic foundation for all other layout classes in Ext.  It is a non-visual class that simply provides the
- * base logic required for a Container to function as a layout.  This class is intended to be extended and should
- * generally not need to be created directly via the new keyword.
+ * <p>Every {@link Ext.Container Container} delegates the rendering of its child {@link Ext.Component Component}s
+ * to a layout manager class which must be {@link Ext.Container#layout configured} into the Container.</p>
+ * <p>Some layouts also provide sizing and positioning of child Components.</p>
+ * <p>The ContainerLayout class is the default layout manager used when no layout is configured into a Container.
+ * It provides the basic foundation for all other layout classes in Ext. It simply renders all child Components
+ * into the Container, performing no sizing or positioning services.</p>
+ * <p>This class is intended to be extended and should generally not need to be created directly via the new keyword.</p>
  */
 Ext.layout.ContainerLayout = function(config){
     Ext.apply(this, config);
@@ -84,7 +87,8 @@ Ext.layout.ContainerLayout.prototype = {
             }
         }else if(c && !this.isValidParent(c, target)){
             if(this.extraCls){
-                c.addClass(this.extraCls);
+                var t = c.getPositionEl ? c.getPositionEl() : c;
+            	t.addClass(this.extraCls);
             }
             if(typeof position == 'number'){
                 position = target.dom.childNodes[position];
@@ -145,6 +149,13 @@ Ext.layout.ContainerLayout.prototype = {
             bottom:parseInt(ms[2], 10) || 0,
             left:parseInt(ms[3], 10) || 0
         };
-    }
+    },
+
+    /*
+     * Destroys this layout. This is a template method that is empty by default, but should be implemented
+     * by subclasses that require explicit destruction to purge event handlers or remove DOM nodes.
+     * @protected
+     */
+    destroy : Ext.emptyFn
 };
 Ext.Container.LAYOUTS['auto'] = Ext.layout.ContainerLayout;

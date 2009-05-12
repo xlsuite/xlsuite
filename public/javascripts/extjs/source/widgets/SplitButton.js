@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -22,7 +22,7 @@ new Ext.SplitButton({
         items: [
         	// these items will render as dropdown menu items when the arrow is clicked:
 	        {text: 'Item 1', handler: item1Handler},
-	        {text: 'Item 2', handler: item2Handler},
+	        {text: 'Item 2', handler: item2Handler}
         ]
    	})
 });
@@ -76,12 +76,13 @@ Ext.SplitButton = Ext.extend(Ext.Button, {
         }else{
             btn = tpl.append(ct, targs, true);
         }
-        var btnEl = btn.child(this.buttonSelector);
+        var btnEl = this.btnEl = btn.child(this.buttonSelector);
 
         this.initButtonEl(btn, btnEl);
         this.arrowBtnTable = btn.child("table:last");
+        this.arrowEl = btn.child(this.arrowSelector);
         if(this.arrowTooltip){
-            btn.child(this.arrowSelector).dom[this.tooltipType] = this.arrowTooltip;
+            this.arrowEl.dom[this.tooltipType] = this.arrowTooltip;
         }
     },
 
@@ -93,7 +94,7 @@ Ext.SplitButton = Ext.extend(Ext.Button, {
             this.el.setWidth("auto");
             tbl.setWidth("auto");
             if(Ext.isIE7 && Ext.isStrict){
-                var ib = this.el.child(this.buttonSelector);
+                var ib = this.btnEl;
                 if(ib && ib.getWidth() > 20){
                     ib.clip();
                     ib.setWidth(Ext.util.TextMetrics.measure(ib, this.text).width+ib.getFrameWidth('lr'));
@@ -149,29 +150,12 @@ Ext.SplitButton = Ext.extend(Ext.Button, {
         }
         return this.lastClickEl;
     },
-
-    // private
-    onDisable : function(){
-        if(this.el){
-            if(!Ext.isIE6){
-                this.el.addClass("x-item-disabled");
-            }
-            this.el.child(this.buttonSelector).dom.disabled = true;
-            this.el.child(this.arrowSelector).dom.disabled = true;
+    
+    onDisableChange: function(disabled){
+        Ext.SplitButton.superclass.onDisableChange.call(this, disabled);
+        if(this.arrowEl){
+            this.arrowEl.dom.disabled = disabled;
         }
-        this.disabled = true;
-    },
-
-    // private
-    onEnable : function(){
-        if(this.el){
-            if(!Ext.isIE6){
-                this.el.removeClass("x-item-disabled");
-            }
-            this.el.child(this.buttonSelector).dom.disabled = false;
-            this.el.child(this.arrowSelector).dom.disabled = false;
-        }
-        this.disabled = false;
     },
 
     // private

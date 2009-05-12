@@ -1,13 +1,13 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
  */
 
 
-Ext.form.Action=function(form,options){this.form=form;this.options=options||{};};Ext.form.Action.CLIENT_INVALID='client';Ext.form.Action.SERVER_INVALID='server';Ext.form.Action.CONNECT_FAILURE='connect';Ext.form.Action.LOAD_FAILURE='load';Ext.form.Action.prototype={type:'default',run:function(options){},success:function(response){},handleResponse:function(response){},failure:function(response){this.response=response;this.failureType=Ext.form.Action.CONNECT_FAILURE;this.form.afterAction(this,false);},processResponse:function(response){this.response=response;if(!response.responseText){return true;}
+Ext.form.Action=function(form,options){this.form=form;this.options=options||{};};Ext.form.Action.CLIENT_INVALID='client';Ext.form.Action.SERVER_INVALID='server';Ext.form.Action.CONNECT_FAILURE='connect';Ext.form.Action.LOAD_FAILURE='load';Ext.form.Action.prototype={type:'default',run:function(options){},success:function(response){},handleResponse:function(response){},failure:function(response){this.response=response;this.failureType=Ext.form.Action.CONNECT_FAILURE;this.form.afterAction(this,false);},processResponse:function(response){this.response=response;if(!response.responseText&&!response.responseXML){return true;}
 this.result=this.handleResponse(response);return this.result;},getUrl:function(appendParams){var url=this.options.url||this.form.url||this.form.el.dom.action;if(appendParams){var p=this.getParams();if(p){url+=(url.indexOf('?')!=-1?'&':'?')+p;}}
 return url;},getMethod:function(){return(this.options.method||this.form.method||this.form.el.dom.method||'POST').toUpperCase();},getParams:function(){var bp=this.form.baseParams;var p=this.options.params;if(p){if(typeof p=="object"){p=Ext.urlEncode(Ext.applyIf(p,bp));}else if(typeof p=='string'&&bp){p+='&'+Ext.urlEncode(bp);}}else if(bp){p=Ext.urlEncode(bp);}
 return p;},createCallback:function(opts){var opts=opts||{};return{success:this.success,failure:this.failure,scope:this,timeout:(opts.timeout*1000)||(this.form.timeout*1000),upload:this.form.fileUpload?this.success:undefined};}};Ext.form.Action.Submit=function(form,options){Ext.form.Action.Submit.superclass.constructor.call(this,form,options);};Ext.extend(Ext.form.Action.Submit,Ext.form.Action,{type:'submit',run:function(){var o=this.options;var method=this.getMethod();var isGet=method=='GET';if(o.clientValidation===false||this.form.isValid()){Ext.Ajax.request(Ext.apply(this.createCallback(o),{form:this.form.el.dom,url:this.getUrl(isGet),method:method,headers:o.headers,params:!isGet?this.getParams():null,isUpload:this.form.fileUpload}));}else if(o.clientValidation!==false){this.failureType=Ext.form.Action.CLIENT_INVALID;this.form.afterAction(this,false);}},success:function(response){var result=this.processResponse(response);if(result===true||result.success){this.form.afterAction(this,true);return;}

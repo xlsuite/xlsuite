@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -12,7 +12,9 @@
  * supporting the standard {@link Ext.Toolbar} interface for adding buttons, menus and other items, the StatusBar
  * provides a greedy status element that can be aligned to either side and has convenient methods for setting the
  * status text and icon.  You can also indicate that something is processing using the {@link #showBusy} method.</p>
- * <p>Example StatusBar configuration:</p> 
+ * <p><b>Note:</b> Although StatusBar supports xtype:'statusbar', at this time Ext.Toolbar (the base class) does
+ * not support xtype.  For this reason, if you are adding Toolbar items into the StatusBar you must declare it
+ * using the "new StatusBar()" syntax for the items to render correctly.</p> 
  * <pre><code>
 new Ext.Panel({
     title: 'StatusBar',

@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -16,7 +16,7 @@ Ext.MessageBox = function(){
     var handleButton = function(button){
         if(dlg.isVisible()){
             dlg.hide();
-            Ext.callback(opt.fn, opt.scope||window, [button, activeTextEl.dom.value], 1);
+            Ext.callback(opt.fn, opt.scope||window, [button, activeTextEl.dom.value, opt], 1);
         }
     };
 
@@ -156,6 +156,9 @@ Ext.MessageBox = function(){
             if(opt.progress === true || opt.wait === true){
                 progressBar.setSize(w-iw-fw-bw);
             }
+            if(Ext.isIE && w == bwidth){
+                w += 4; //Add offset when the content width is smaller than the buttons.    
+            }
             dlg.setSize(w, 'auto').center();
             return this;
         },
@@ -176,9 +179,13 @@ Ext.MessageBox = function(){
 
         
         hide : function(){
-            if(this.isVisible()){
+            var proxy = dlg ? dlg.activeGhost : null;
+            if(this.isVisible() || proxy){
                 dlg.hide();
                 handleHide();
+                if(proxy){
+                    proxy.hide();
+                } 
             }
             return this;
         },
@@ -227,7 +234,7 @@ Ext.MessageBox = function(){
                 }
             }
             if(opt.iconCls){
-            	d.setIconClass(opt.iconCls);
+              d.setIconClass(opt.iconCls);
             }
             this.setIcon(opt.icon);
             bwidth = updateButtons(opt.buttons);
@@ -267,9 +274,11 @@ Ext.MessageBox = function(){
             if(icon && icon != ''){
                 iconEl.removeClass('x-hidden');
                 iconEl.replaceClass(iconCls, icon);
+                bodyEl.addClass('x-dlg-icon');
                 iconCls = icon;
             }else{
                 iconEl.replaceClass(iconCls, 'x-hidden');
+                bodyEl.removeClass('x-dlg-icon')
                 iconCls = '';
             }
             return this;

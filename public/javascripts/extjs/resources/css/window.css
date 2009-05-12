@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -36,6 +36,7 @@
     z-index:1;
     position:relative;
     zoom:1;
+    left:0;top:0;
 }
 .x-window-tl .x-window-header {
     color:#15428b;
@@ -160,8 +161,8 @@
 .x-dlg-focus{
 	-moz-outline:0 none;
 	outline:0 none;
-	width:0;
-	height:0;
+	width:1px;
+	height:1px;
 	overflow:hidden;
 	position:absolute;
 	top:0;

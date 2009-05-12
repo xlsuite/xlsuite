@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -11,20 +11,20 @@
  * @extends Ext.Panel
  * Standard form container.
  * <p><b>Although they are not listed, this class also accepts all the config options required to configure its internal {@link Ext.form.BasicForm}</b></p>
- * <br><br>
- * FormPanel uses a {@link Ext.layout.FormLayout} internally, and that is required for fields and labels to work correctly
- * within the FormPanel's layout.  To nest additional layout styles within a FormPanel, you should nest additional Panels
- * or other containers that can provide additional layout functionality. <b>You should not override FormPanel's layout.</b>
- * <br><br>
- * By default, Ext Forms are submitted through Ajax, using {@link Ext.form.Action}.
+ * <p>The BasicForm is configured using the {@link #initialConfig} of the FormPanel - that is the configuration object passed to the constructor.
+ * This means that if you subclass FormPanel, and you wish to configure the BasicForm, you will need to insert any configuration options
+ * for the BasicForm into the <tt><b>initialConfig</b></tt> property. Applying BasicForm configuration settings to <b><tt>this</tt></b> will
+ * not affect the BasicForm's configuration.</p>
+ * <p>By default, FormPanel uses an {@link Ext.layout.FormLayout} layout manager, which styles and renders fields and labels correctly.
+ * When nesting additional Containers within a FormPanel, you should ensure that any descendant Containers which
+ * host input Fields use the {@link Ext.layout.FormLayout} layout manager.</p>
+ * <p>By default, Ext Forms are submitted through Ajax, using {@link Ext.form.Action}.
  * To enable normal browser submission of the Ext Form contained in this FormPanel,
- * override the Form's onSubmit, and submit methods:<br><br><pre><code>
-    var myForm = new Ext.form.FormPanel({
-        onSubmit: Ext.emptyFn,
-        submit: function() {
-            this.getForm().getEl().dom.submit();
-        }
-    });</code></pre><br>
+ * use the {@link Ext.form.BasicForm#standardSubmit standardSubmit) option:</p><pre><code>
+var myForm = new Ext.form.FormPanel({
+    standardSubmit: true,
+    items: myFieldset
+});</code></pre>
  * @constructor
  * @param {Object} config Configuration options
  */
@@ -33,10 +33,18 @@ Ext.FormPanel = Ext.extend(Ext.Panel, {
 	 * @cfg {String} formId (optional) The id of the FORM tag (defaults to an auto-generated id).
 	 */
     /**
-     * @cfg {Number} labelWidth The width of labels. This property cascades to child containers.
+     * @cfg {Number} labelWidth The width of labels. This property cascades to child containers and can be overridden
+     * on any child container (e.g., a fieldset can specify a different labelWidth for its fields).
      */
     /**
      * @cfg {String} itemCls A css class to apply to the x-form-item of fields. This property cascades to child containers.
+     */
+    /**
+     * @cfg {Array} buttons
+     * An array of {@link Ext.Button}s or {@link Ext.Button} configs used to add buttons to the footer of this FormPanel.<br>
+     * <p>Buttons in the footer of a FormPanel may be configured with the option <tt>formBind: true</tt>. This causes
+     * the form's {@link #monitorValid valid state monitor task} to enable/disable those Buttons depending on
+     * the form's valid/invalid state.</p>
      */
     /**
      * @cfg {String} buttonAlign Valid values are "left," "center" and "right" (defaults to "center")
@@ -50,14 +58,17 @@ Ext.FormPanel = Ext.extend(Ext.Panel, {
 
     /**
      * @cfg {String} labelAlign Valid values are "left," "top" and "right" (defaults to "left").
-     * This property cascades to child containers if not set.
+     * This property cascades to child containers and can be overridden on any child container 
+     * (e.g., a fieldset can specify a different labelAlign for its fields).
      */
     labelAlign:'left',
 
     /**
-     * @cfg {Boolean} monitorValid If true the form monitors its valid state <b>client-side</b> and
-     * fires a looping event with that state. This is required to bind buttons to the valid
-     * state using the config value formBind:true on the button.
+     * @cfg {Boolean} monitorValid If true, the form monitors its valid state <b>client-side</b> and
+     * regularly fires the {@link #clientvalidation} event passing that state.<br>
+     * <p>When monitoring valid state, the FormPanel enables/disables any of its configured
+     * {@link #button}s which have been configured with <tt>formBind: true</tt> depending
+     * on whether the form is valid or not.</p>
      */
     monitorValid : false,
 
@@ -74,8 +85,20 @@ Ext.FormPanel = Ext.extend(Ext.Panel, {
     // private
     initComponent :function(){
         this.form = this.createForm();
-        
+
+        this.bodyCfg = {
+            tag: 'form',
+            cls: this.baseCls + '-body',
+            method : this.method || 'POST',
+            id : this.formId || Ext.id()
+        };
+        if(this.fileUpload) {
+            this.bodyCfg.enctype = 'multipart/form-data';
+        }
+
         Ext.FormPanel.superclass.initComponent.call(this);
+
+        this.initItems();
 
         this.addEvents(
             /**
@@ -101,7 +124,9 @@ Ext.FormPanel = Ext.extend(Ext.Panel, {
         var f = this.form;
         var formPanel = this;
         var fn = function(c){
-            if(c.doLayout && c != formPanel){
+            if(c.isFormField){
+                f.add(c);
+            }else if(c.doLayout && c != formPanel){
                 Ext.applyIf(c, {
                     labelAlign: c.ownerCt.labelAlign,
                     labelWidth: c.ownerCt.labelWidth,
@@ -110,8 +135,6 @@ Ext.FormPanel = Ext.extend(Ext.Panel, {
                 if(c.items){
                     c.items.each(fn);
                 }
-            }else if(c.isFormField){
-                f.add(c);
             }
         }
         this.items.each(fn);
@@ -135,27 +158,20 @@ Ext.FormPanel = Ext.extend(Ext.Panel, {
         this.initFields();
 
         Ext.FormPanel.superclass.onRender.call(this, ct, position);
-        var o = {
-            tag: 'form',
-            method : this.method || 'POST',
-            id : this.formId || Ext.id()
-        };
-        if(this.fileUpload) {
-            o.enctype = 'multipart/form-data';
-        }
-        this.form.initEl(this.body.createChild(o));
+        this.form.initEl(this.body);
     },
     
     // private
     beforeDestroy: function(){
         Ext.FormPanel.superclass.beforeDestroy.call(this);
+        this.stopMonitoring();
         Ext.destroy(this.form);
     },
 
     // private
     initEvents : function(){
         Ext.FormPanel.superclass.initEvents.call(this);
-		this.items.on('remove', this.onRemove, this);
+        this.items.on('remove', this.onRemove, this);
 		this.items.on('add', this.onAdd, this);
         if(this.monitorValid){ // initialize after render
             this.startMonitoring();
@@ -182,9 +198,9 @@ Ext.FormPanel = Ext.extend(Ext.Panel, {
      * option "monitorValid"
      */
     startMonitoring : function(){
-        if(!this.bound){
-            this.bound = true;
-            Ext.TaskMgr.start({
+        if(!this.validTask){
+            this.validTask = new Ext.util.TaskRunner();
+            this.validTask.start({
                 run : this.bindHandler,
                 interval : this.monitorPoll || 200,
                 scope: this
@@ -196,7 +212,10 @@ Ext.FormPanel = Ext.extend(Ext.Panel, {
      * Stops monitoring of the valid state of this form
      */
     stopMonitoring : function(){
-        this.bound = false;
+        if(this.validTask){
+            this.validTask.stopAll();
+            this.validTask = null;
+        }
     },
 
     /**
@@ -229,9 +248,6 @@ Ext.FormPanel = Ext.extend(Ext.Panel, {
 
     // private
     bindHandler : function(){
-        if(!this.bound){
-            return false; // stops binding
-        }
         var valid = true;
         this.form.items.each(function(f){
             if(!f.isValid(true)){

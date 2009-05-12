@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -53,22 +53,30 @@
 }
 .x-menu-focus {
 	position:absolute;
-	left:0;
-	top:-5px;
-	width:0;
-	height:0;
+	left:-1px;
+	top:-1px;
+	width:1px;
+	height:1px;
     line-height:1px;
+    font-size:1px;
+    -moz-outline:0 none;
+    outline:0 none;
+    -moz-user-select: text;
+    -khtml-user-select: text;
+    overflow:hidden;
+    display:block;
 }
 .x-menu a.x-menu-item {
 	display:block;
 	line-height:16px;
-	padding:3px 21px 3px 3px;
+	padding:3px 21px 3px 27px;
 	white-space: nowrap;
 	text-decoration:none;
 	color:#222;
 	-moz-outline: 0 none;
 	outline: 0 none;
 	cursor:pointer;
+    position: relative; 
 }
 .x-menu-item-active {
 	background: #ebf3fd url(../images/default/menu/item-over.gif) repeat-x left bottom;
@@ -85,8 +93,22 @@
 	padding: 0;
 	vertical-align: top;
 	width: 16px;
-	margin: 0 8px 0 0;
-   background-position:center;
+	position: absolute;
+    left: 3px;
+    top: 3px;
+    margin: 0;
+    background-position:center;
+}
+
+.ext-ie .x-menu-item-icon {
+    left: -24px;
+}
+.ext-strict .x-menu-item-icon {
+    left: 3px;
+}
+
+.ext-ie6 .x-menu-item-icon {
+    left: -24px;
 }
 
 .x-menu-check-item .x-menu-item-icon{

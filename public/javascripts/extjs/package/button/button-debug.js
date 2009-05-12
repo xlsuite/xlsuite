@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -44,8 +44,10 @@ Ext.Button = Ext.extend(Ext.Component, {
     
     tooltipType : 'qtip',
 
-    buttonSelector : "button:first",
+    
+    buttonSelector : "button:first-child",
 
+    
     
     
 
@@ -97,7 +99,8 @@ Ext.Button = Ext.extend(Ext.Component, {
         }else{
             btn = this.template.append(ct, targs, true);
         }
-        var btnEl = btn.child(this.buttonSelector);
+        
+        var btnEl = this.btnEl = btn.child(this.buttonSelector);
         btnEl.on('focus', this.onFocus, this);
         btnEl.on('blur', this.onBlur, this);
 
@@ -115,6 +118,9 @@ Ext.Button = Ext.extend(Ext.Component, {
         this.el = btn;
         btn.addClass("x-btn");
 
+        if(this.id){
+            this.el.dom.id = this.el.id = this.id;
+        }
         if(this.icon){
             btnEl.setStyle('background-image', 'url(' +this.icon +')');
         }
@@ -153,10 +159,6 @@ Ext.Button = Ext.extend(Ext.Component, {
             this.menu.on("hide", this.onMenuHide, this);
         }
 
-        if(this.id){
-            this.el.dom.id = this.el.id = this.id;
-        }
-
         if(this.repeat){
             var repeater = new Ext.util.ClickRepeater(btn,
                 typeof this.repeat == "object" ? this.repeat : {}
@@ -180,22 +182,22 @@ Ext.Button = Ext.extend(Ext.Component, {
     
     setIconClass : function(cls){
         if(this.el){
-            this.el.child(this.buttonSelector).replaceClass(this.iconCls, cls);
+            this.btnEl.replaceClass(this.iconCls, cls);
         }
         this.iconCls = cls;
     },
 
     // private
     beforeDestroy: function(){
-    	if(this.rendered){
-	        var btn = this.el.child(this.buttonSelector);
-	        if(btn){
-	            btn.removeAllListeners();
-	        }
-	    }
-        if(this.menu){
-            Ext.destroy(this.menu);
+        if(this.rendered){
+            if(this.btnEl){
+                if(typeof this.tooltip == 'object'){
+                    Ext.QuickTips.unregister(this.btnEl);
+                }
+                Ext.destroy(this.btnEl);
+            }
         }
+        Ext.destroy(this.menu);
     },
 
     // private
@@ -210,7 +212,7 @@ Ext.Button = Ext.extend(Ext.Component, {
         if(this.el){
             this.el.setWidth("auto");
             if(Ext.isIE7 && Ext.isStrict){
-                var ib = this.el.child(this.buttonSelector);
+                var ib = this.btnEl;
                 if(ib && ib.getWidth() > 20){
                     ib.clip();
                     ib.setWidth(Ext.util.TextMetrics.measure(ib, this.text).width+ib.getFrameWidth('lr'));
@@ -245,49 +247,44 @@ Ext.Button = Ext.extend(Ext.Component, {
     },
 
     
-    toggle : function(state){
-        state = state === undefined ? !this.pressed : state;
+    toggle : function(state, suppressEvent){
+        state = state === undefined ? !this.pressed : !!state;
         if(state != this.pressed){
-            if(state){
-                this.el.addClass("x-btn-pressed");
-                this.pressed = true;
-                this.fireEvent("toggle", this, true);
-            }else{
-                this.el.removeClass("x-btn-pressed");
-                this.pressed = false;
-                this.fireEvent("toggle", this, false);
-            }
-            if(this.toggleHandler){
-                this.toggleHandler.call(this.scope || this, this, state);
+            this.el[state ? 'addClass' : 'removeClass']("x-btn-pressed");
+            this.pressed = state;
+            if(!suppressEvent){
+                this.fireEvent("toggle", this, state);
+                if(this.toggleHandler){
+                    this.toggleHandler.call(this.scope || this, this, state);
+                }
             }
         }
     },
 
     
     focus : function(){
-        this.el.child(this.buttonSelector).focus();
+        this.btnEl.focus();
     },
 
     // private
     onDisable : function(){
-        if(this.el){
-            if(!Ext.isIE6 || !this.text){
-                this.el.addClass(this.disabledClass);
-            }
-            this.el.dom.disabled = true;
-        }
-        this.disabled = true;
+        this.onDisableChange(true);
     },
 
     // private
     onEnable : function(){
+        this.onDisableChange(false);
+    },
+    
+    // private
+    onDisableChange : function(disabled){
         if(this.el){
             if(!Ext.isIE6 || !this.text){
-                this.el.removeClass(this.disabledClass);
+                this.el[disabled ? 'addClass' : 'removeClass'](this.disabledClass);
             }
-            this.el.dom.disabled = false;
+            this.el.dom.disabled = disabled;    
         }
-        this.disabled = false;
+        this.disabled = disabled;
     },
 
     
@@ -350,7 +347,10 @@ Ext.Button = Ext.extend(Ext.Component, {
             var internal = e.within(this.el,  true);
             if(!internal){
                 this.el.addClass("x-btn-over");
-                Ext.getDoc().on('mouseover', this.monitorMouseOver, this);
+                if(!this.monitoringMouseOver){
+                    Ext.getDoc().on('mouseover', this.monitorMouseOver, this);
+                    this.monitoringMouseOver = true;
+                }
                 this.fireEvent('mouseover', this, e);
             }
             if(this.isMenuTriggerOver(e, internal)){
@@ -362,7 +362,10 @@ Ext.Button = Ext.extend(Ext.Component, {
     // private
     monitorMouseOver : function(e){
         if(e.target != this.el.dom && !e.within(this.el)){
-            Ext.getDoc().un('mouseover', this.monitorMouseOver, this);
+            if(this.monitoringMouseOver){
+                Ext.getDoc().un('mouseover', this.monitorMouseOver, this);
+                this.monitoringMouseOver = false;
+            }
             this.onMouseOut(e);
         }
     },
@@ -500,12 +503,13 @@ Ext.SplitButton = Ext.extend(Ext.Button, {
         }else{
             btn = tpl.append(ct, targs, true);
         }
-        var btnEl = btn.child(this.buttonSelector);
+        var btnEl = this.btnEl = btn.child(this.buttonSelector);
 
         this.initButtonEl(btn, btnEl);
         this.arrowBtnTable = btn.child("table:last");
+        this.arrowEl = btn.child(this.arrowSelector);
         if(this.arrowTooltip){
-            btn.child(this.arrowSelector).dom[this.tooltipType] = this.arrowTooltip;
+            this.arrowEl.dom[this.tooltipType] = this.arrowTooltip;
         }
     },
 
@@ -517,7 +521,7 @@ Ext.SplitButton = Ext.extend(Ext.Button, {
             this.el.setWidth("auto");
             tbl.setWidth("auto");
             if(Ext.isIE7 && Ext.isStrict){
-                var ib = this.el.child(this.buttonSelector);
+                var ib = this.btnEl;
                 if(ib && ib.getWidth() > 20){
                     ib.clip();
                     ib.setWidth(Ext.util.TextMetrics.measure(ib, this.text).width+ib.getFrameWidth('lr'));
@@ -569,29 +573,12 @@ Ext.SplitButton = Ext.extend(Ext.Button, {
         }
         return this.lastClickEl;
     },
-
-    // private
-    onDisable : function(){
-        if(this.el){
-            if(!Ext.isIE6){
-                this.el.addClass("x-item-disabled");
-            }
-            this.el.child(this.buttonSelector).dom.disabled = true;
-            this.el.child(this.arrowSelector).dom.disabled = true;
+    
+    onDisableChange: function(disabled){
+        Ext.SplitButton.superclass.onDisableChange.call(this, disabled);
+        if(this.arrowEl){
+            this.arrowEl.dom.disabled = disabled;
         }
-        this.disabled = true;
-    },
-
-    // private
-    onEnable : function(){
-        if(this.el){
-            if(!Ext.isIE6){
-                this.el.removeClass("x-item-disabled");
-            }
-            this.el.child(this.buttonSelector).dom.disabled = false;
-            this.el.child(this.arrowSelector).dom.disabled = false;
-        }
-        this.disabled = false;
     },
 
     // private

@@ -1,16 +1,16 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
  */
 
 /**
-* @class Ext.tree.TreeFilter
-* Note this class is experimental and doesn't update the indent (lines) or expand collapse icons of the nodes
-* @param {TreePanel} tree
-* @param {Object} config (optional)
+ * @class Ext.tree.TreeFilter
+ * Note this class is experimental and doesn't update the indent (lines) or expand collapse icons of the nodes
+ * @param {TreePanel} tree
+ * @param {Object} config (optional)
  */
 Ext.tree.TreeFilter = function(tree, config){
     this.tree = tree;
@@ -26,7 +26,7 @@ Ext.tree.TreeFilter.prototype = {
 
      /**
      * Filter the data by a specific attribute.
-     * @param {String/RegExp} value Either string that the attribute value 
+     * @param {String/RegExp} value Either string that the attribute value
      * should start with or a RegExp to test against the attribute
      * @param {String} attr (optional) The attribute passed in your node's attributes collection. Defaults to "text".
      * @param {TreeNode} startNode (optional) The node to start the filter at.
@@ -54,13 +54,13 @@ Ext.tree.TreeFilter.prototype = {
         }
         this.filterBy(f, null, startNode);
 	},
-    
+
     /**
-     * Filter by a function. The passed function will be called with each 
-     * node in the tree (or from the startNode). If the function returns true, the node is kept 
+     * Filter by a function. The passed function will be called with each
+     * node in the tree (or from the startNode). If the function returns true, the node is kept
      * otherwise it is filtered. If a node is filtered, its children are also filtered.
      * @param {Function} fn The filter function
-     * @param {Object} scope (optional) The scope of the function (defaults to the current node) 
+     * @param {Object} scope (optional) The scope of the function (defaults to the current node)
      */
     filterBy : function(fn, scope, startNode){
         startNode = startNode || this.tree.root;
@@ -92,10 +92,10 @@ Ext.tree.TreeFilter.prototype = {
                        n.parentNode.removeChild(n);
                    }
                }
-           } 
+           }
         }
     },
-    
+
     /**
      * Clears the current filter. Note: with the "remove" option
      * set a filter cannot be cleared.
@@ -111,6 +111,6 @@ Ext.tree.TreeFilter.prototype = {
                 }
             }
         }
-        this.filtered = {}; 
+        this.filtered = {};
     }
 };

@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -34,6 +34,25 @@ if(Ext.LoadMask){
     Ext.LoadMask.prototype.msg = "En cours de chargement...";
 }
 
+Date.shortMonthNames = [
+   "Janv",
+   "Févr",
+   "Mars",
+   "Avr",
+   "Mai",
+   "Juin",
+   "Juil",
+   "Août",
+   "Sept",
+   "Oct",
+   "Nov",
+   "Déc"
+];
+
+Date.getShortMonthName = function(month) {
+  return Date.shortMonthNames[month];
+};
+
 Date.monthNames = [
    "Janvier",
    "Février",
@@ -49,6 +68,25 @@ Date.monthNames = [
    "Décembre"
 ];
 
+Date.monthNumbers = {
+  "Janvier" : 0,
+  "Février" : 1,
+  "Mars" : 2,
+  "Avril" : 3,
+  "Mai" : 4,
+  "Juin" : 5,
+  "Juillet" : 6,
+  "Août" : 7,
+  "Septembre" : 8,
+  "Octobre" : 9,
+  "Novembre" : 10,
+  "Décembre" : 11
+};
+
+Date.getMonthNumber = function(name) {
+  return Date.monthNumbers[Ext.util.Format.capitalize(name)];
+};
+
 Date.dayNames = [
    "Dimanche",
    "Lundi",
@@ -58,6 +96,10 @@ Date.dayNames = [
    "Vendredi",
    "Samedi"
 ];
+
+Date.getShortDayName = function(day) {
+  return Date.dayNames[day].substring(0, 3);
+};
 
 if(Ext.MessageBox){
    Ext.MessageBox.buttonText = {

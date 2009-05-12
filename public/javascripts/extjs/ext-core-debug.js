@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -506,6 +506,7 @@ Ext.DomQuery = function(){
     var modeRe = /^(\s?[\/>+~]\s?|\s|$)/;
     var tagTokenRe = /^(#)?([\w-\*]+)/;
     var nthRe = /(\d*)n\+?(\d*)/, nthRe2 = /\D/;
+    var opera = Ext.isOpera;
 
     function child(p, index){
         var i = 0;
@@ -594,7 +595,7 @@ Ext.DomQuery = function(){
         }else if(mode == "/" || mode == ">"){
             var utag = tagName.toUpperCase();
             for(var i = 0, ni, cn; ni = ns[i]; i++){
-                cn = ni.children || ni.childNodes;
+                cn = opera ? ni.childNodes : (ni.children || ni.childNodes);
                 for(var j = 0, cj; cj = cn[j]; j++){
                     if(cj.nodeName == utag || cj.nodeName == tagName  || tagName == '*'){
                         result[++ri] = cj;
@@ -610,10 +611,12 @@ Ext.DomQuery = function(){
                 }
             }
         }else if(mode == "~"){
+            var utag = tagName.toUpperCase();
             for(var i = 0, n; n = ns[i]; i++){
-                while((n = n.nextSibling) && (n.nodeType != 1 || (tagName == '*' || n.tagName.toLowerCase()!=tagName)));
-                if(n){
-                    result[++ri] = n;
+                while((n = n.nextSibling)){
+                    if (n.nodeName == utag || n.nodeName == tagName || tagName == '*'){
+                        result[++ri] = n;
+                    }
                 }
             }
         }
@@ -668,6 +671,9 @@ Ext.DomQuery = function(){
         var r = [], ri = -1, st = custom=="{";
         var f = Ext.DomQuery.operators[op];
         for(var i = 0, ci; ci = cs[i]; i++){
+            if(ci.nodeType != 1){
+                continue;
+            }
             var a;
             if(st){
                 a = Ext.DomQuery.getStyle(ci, attr);
@@ -1529,6 +1535,85 @@ Ext.EventManager = function(){
     var resizeEvent, resizeTask, textEvent, textSize;
     var E = Ext.lib.Event;
     var D = Ext.lib.Dom;
+    // fix parser confusion
+    var xname = 'Ex' + 't';
+
+    var elHash = {};
+
+    var addListener = function(el, ename, fn, wrap, scope){
+        var id = Ext.id(el);
+        if(!elHash[id]){
+            elHash[id] = {};
+        }
+        var es = elHash[id];
+        if(!es[ename]){
+            es[ename] = [];
+        }
+        var ls = es[ename];
+        ls.push({
+            id: id,
+            ename: ename,
+            fn: fn,
+            wrap: wrap,
+            scope: scope
+        });
+
+         E.on(el, ename, wrap);
+
+        if(ename == "mousewheel" && el.addEventListener){ // workaround for jQuery
+            el.addEventListener("DOMMouseScroll", wrap, false);
+            E.on(window, 'unload', function(){
+                el.removeEventListener("DOMMouseScroll", wrap, false);
+            });
+        }
+        if(ename == "mousedown" && el == document){ // fix stopped mousedowns on the document
+            Ext.EventManager.stoppedMouseDownEvent.addListener(wrap);
+        }
+    }
+
+    var removeListener = function(el, ename, fn, scope){
+        el = Ext.getDom(el);
+
+        var id = Ext.id(el), es = elHash[id], wrap;
+        if(es){
+            var ls = es[ename], l;
+            if(ls){
+                for(var i = 0, len = ls.length; i < len; i++){
+                    l = ls[i];
+                    if(l.fn == fn && (!scope || l.scope == scope)){
+                        wrap = l.wrap;
+                        E.un(el, ename, wrap);
+                        ls.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+        }
+        if(ename == "mousewheel" && el.addEventListener && wrap){
+            el.removeEventListener("DOMMouseScroll", wrap, false);
+        }
+        if(ename == "mousedown" && el == document && wrap){ // fix stopped mousedowns on the document
+            Ext.EventManager.stoppedMouseDownEvent.removeListener(wrap);
+        }
+    }
+
+    var removeAll = function(el){
+        el = Ext.getDom(el);
+        var id = Ext.id(el), es = elHash[id], ls;
+        if(es){
+            for(var ename in es){
+                if(es.hasOwnProperty(ename)){
+                    ls = es[ename];
+                    for(var i = 0, len = ls.length; i < len; i++){
+                        E.un(el, ename, ls[i].wrap);
+                        ls[i] = null;
+                    }
+                }
+                es[ename] = null;
+            }
+            delete elHash[id];
+        }
+    }
 
 
     var fireDocReady = function(){
@@ -1567,7 +1652,7 @@ Ext.EventManager = function(){
                     fireDocReady();
                 }
             };
-        }else if(Ext.isSafari){
+        }else if(Ext.isWebKit){
             docReadyProcId = setInterval(function(){
                 var rs = document.readyState;
                 if(rs == "complete") {
@@ -1588,9 +1673,9 @@ Ext.EventManager = function(){
         };
     };
 
-    var createSingle = function(h, el, ename, fn){
+    var createSingle = function(h, el, ename, fn, scope){
         return function(e){
-            Ext.EventManager.removeListener(el, ename, fn);
+            Ext.EventManager.removeListener(el, ename, fn, scope);
             h(e);
         };
     };
@@ -1613,6 +1698,10 @@ Ext.EventManager = function(){
             throw "Error listening for \"" + ename + '\". Element "' + element + '" doesn\'t exist.';
         }
         var h = function(e){
+            // prevent errors while unload occurring
+            if(!window[xname]){
+                return;
+            }
             e = Ext.EventObject.setEvent(e);
             var t;
             if(o.delegate){
@@ -1643,47 +1732,14 @@ Ext.EventManager = function(){
             h = createDelayed(h, o);
         }
         if(o.single){
-            h = createSingle(h, el, ename, fn);
+            h = createSingle(h, el, ename, fn, scope);
         }
         if(o.buffer){
             h = createBuffered(h, o);
         }
-        fn._handlers = fn._handlers || [];
-        fn._handlers.push([Ext.id(el), ename, h]);
 
-        E.on(el, ename, h);
-        if(ename == "mousewheel" && el.addEventListener){ // workaround for jQuery
-            el.addEventListener("DOMMouseScroll", h, false);
-            E.on(window, 'unload', function(){
-                el.removeEventListener("DOMMouseScroll", h, false);
-            });
-        }
-        if(ename == "mousedown" && el == document){ // fix stopped mousedowns on the document
-            Ext.EventManager.stoppedMouseDownEvent.addListener(h);
-        }
+        addListener(el, ename, fn, h, scope);
         return h;
-    };
-
-    var stopListening = function(el, ename, fn){
-        var id = Ext.id(el), hds = fn._handlers, hd = fn;
-        if(hds){
-            for(var i = 0, len = hds.length; i < len; i++){
-                var h = hds[i];
-                if(h[0] == id && h[1] == ename){
-                    hd = h[2];
-                    hds.splice(i, 1);
-                    break;
-                }
-            }
-        }
-        E.un(el, ename, hd);
-        el = Ext.getDom(el);
-        if(ename == "mousewheel" && el.addEventListener){
-            el.removeEventListener("DOMMouseScroll", hd, false);
-        }
-        if(ename == "mousedown" && el == document){ // fix stopped mousedowns on the document
-            Ext.EventManager.stoppedMouseDownEvent.removeListener(hd);
-        }
     };
 
     var propRe = /^(?:scope|delay|buffer|single|stopEvent|preventDefault|stopPropagation|normalized|args|delegate)$/;
@@ -1711,8 +1767,13 @@ Ext.EventManager = function(){
         },
 
         
-        removeListener : function(element, eventName, fn){
-            return stopListening(element, eventName, fn);
+        removeListener : function(element, eventName, fn, scope){
+            return removeListener(element, eventName, fn, scope);
+        },
+
+        
+        removeAll : function(element){
+            return removeAll(element);
         },
 
         
@@ -1726,16 +1787,23 @@ Ext.EventManager = function(){
             if(!docReadyEvent){
                 initDocReady();
             }
+            options = options || {};
+            if(!options.delay){
+                options.delay = 1;
+            }
             docReadyEvent.addListener(fn, scope, options);
+        },
+        
+        // private
+        doResizeEvent: function(){
+            resizeEvent.fire(D.getViewWidth(), D.getViewHeight());
         },
 
         
         onWindowResize : function(fn, scope, options){
             if(!resizeEvent){
                 resizeEvent = new Ext.util.Event();
-                resizeTask = new Ext.util.DelayedTask(function(){
-                    resizeEvent.fire(D.getViewWidth(), D.getViewHeight());
-                });
+                resizeTask = new Ext.util.DelayedTask(this.doResizeEvent);
                 E.on(window, "resize", this.fireWindowResize, this);
             }
             resizeEvent.addListener(fn, scope, options);
@@ -1799,33 +1867,43 @@ Ext.EventManager = function(){
 
 Ext.onReady = Ext.EventManager.onDocumentReady;
 
-Ext.onReady(function(){
-    var bd = Ext.getBody();
-    if(!bd){ return; }
 
-    var cls = [
-            Ext.isIE ? "ext-ie " + (Ext.isIE6 ? 'ext-ie6' : 'ext-ie7')
-            : Ext.isGecko ? "ext-gecko"
-            : Ext.isOpera ? "ext-opera"
-            : Ext.isSafari ? "ext-safari" : ""];
+// Initialize doc classes
+(function(){
+    var initExtCss = function(){
+        // find the body element
+        var bd = document.body || document.getElementsByTagName('body')[0];
+        if(!bd){ return false; }
+        var cls = [' ',
+                Ext.isIE ? "ext-ie " + (Ext.isIE6 ? 'ext-ie6' : (Ext.isIE7 ? 'ext-ie7' : 'ext-ie8'))
+                : Ext.isGecko ? "ext-gecko " + (Ext.isGecko2 ? 'ext-gecko2' : 'ext-gecko3')
+                : Ext.isOpera ? "ext-opera"
+                : Ext.isSafari ? "ext-safari"
+                : Ext.isChrome ? "ext-chrome" : ""];
 
-    if(Ext.isMac){
-        cls.push("ext-mac");
-    }
-    if(Ext.isLinux){
-        cls.push("ext-linux");
-    }
-    if(Ext.isBorderBox){
-        cls.push('ext-border-box');
-    }
-    if(Ext.isStrict){ // add to the parent to allow for selectors like ".ext-strict .ext-ie"
-        var p = bd.dom.parentNode;
-        if(p){
-            p.className += ' ext-strict';
+        if(Ext.isMac){
+            cls.push("ext-mac");
         }
+        if(Ext.isLinux){
+            cls.push("ext-linux");
+        }
+        if(Ext.isBorderBox){
+            cls.push('ext-border-box');
+        }
+        if(Ext.isStrict){ // add to the parent to allow for selectors like ".ext-strict .ext-ie"
+            var p = bd.parentNode;
+            if(p){
+                p.className += ' ext-strict';
+            }
+        }
+        bd.className += cls.join(' ');
+        return true;
     }
-    bd.addClass(cls.join(' '));
-});
+
+    if(!initExtCss()){
+        Ext.onReady(initExtCss);
+    }
+})();
 
 
 Ext.EventObject = function(){
@@ -1834,6 +1912,7 @@ Ext.EventObject = function(){
 
     // safari keypress events for special keys return bad keycodes
     var safariKeys = {
+        3 : 13, // enter
         63234 : 37, // left
         63235 : 39, // right
         63232 : 38, // up
@@ -1847,13 +1926,14 @@ Ext.EventObject = function(){
 
     // normalize button clicks
     var btnMap = Ext.isIE ? {1:0,4:1,2:2} :
-                (Ext.isSafari ? {1:0,2:1,3:2} : {0:0,1:1,2:2});
+                (Ext.isWebKit ? {1:0,2:1,3:2} : {0:0,1:1,2:2});
 
     Ext.EventObjectImpl = function(e){
         if(e){
             this.setEvent(e.browserEvent || e);
         }
     };
+
     Ext.EventObjectImpl.prototype = {
         
         browserEvent : null,
@@ -1867,41 +1947,182 @@ Ext.EventObject = function(){
         altKey : false,
 
         
-        BACKSPACE : 8,
+        BACKSPACE: 8,
         
-        TAB : 9,
+        TAB: 9,
         
-        RETURN : 13,
+        NUM_CENTER: 12,
         
-        ENTER : 13,
+        ENTER: 13,
         
-        SHIFT : 16,
+        RETURN: 13,
         
-        CONTROL : 17,
+        SHIFT: 16,
         
-        ESC : 27,
+        CTRL: 17,
+        CONTROL : 17, // legacy
         
-        SPACE : 32,
+        ALT: 18,
         
-        PAGEUP : 33,
+        PAUSE: 19,
         
-        PAGEDOWN : 34,
+        CAPS_LOCK: 20,
         
-        END : 35,
+        ESC: 27,
         
-        HOME : 36,
+        SPACE: 32,
         
-        LEFT : 37,
+        PAGE_UP: 33,
+        PAGEUP : 33, // legacy
         
-        UP : 38,
+        PAGE_DOWN: 34,
+        PAGEDOWN : 34, // legacy
         
-        RIGHT : 39,
+        END: 35,
         
-        DOWN : 40,
+        HOME: 36,
         
-        DELETE : 46,
+        LEFT: 37,
         
-        F5 : 116,
+        UP: 38,
+        
+        RIGHT: 39,
+        
+        DOWN: 40,
+        
+        PRINT_SCREEN: 44,
+        
+        INSERT: 45,
+        
+        DELETE: 46,
+        
+        ZERO: 48,
+        
+        ONE: 49,
+        
+        TWO: 50,
+        
+        THREE: 51,
+        
+        FOUR: 52,
+        
+        FIVE: 53,
+        
+        SIX: 54,
+        
+        SEVEN: 55,
+        
+        EIGHT: 56,
+        
+        NINE: 57,
+        
+        A: 65,
+        
+        B: 66,
+        
+        C: 67,
+        
+        D: 68,
+        
+        E: 69,
+        
+        F: 70,
+        
+        G: 71,
+        
+        H: 72,
+        
+        I: 73,
+        
+        J: 74,
+        
+        K: 75,
+        
+        L: 76,
+        
+        M: 77,
+        
+        N: 78,
+        
+        O: 79,
+        
+        P: 80,
+        
+        Q: 81,
+        
+        R: 82,
+        
+        S: 83,
+        
+        T: 84,
+        
+        U: 85,
+        
+        V: 86,
+        
+        W: 87,
+        
+        X: 88,
+        
+        Y: 89,
+        
+        Z: 90,
+        
+        CONTEXT_MENU: 93,
+        
+        NUM_ZERO: 96,
+        
+        NUM_ONE: 97,
+        
+        NUM_TWO: 98,
+        
+        NUM_THREE: 99,
+        
+        NUM_FOUR: 100,
+        
+        NUM_FIVE: 101,
+        
+        NUM_SIX: 102,
+        
+        NUM_SEVEN: 103,
+        
+        NUM_EIGHT: 104,
+        
+        NUM_NINE: 105,
+        
+        NUM_MULTIPLY: 106,
+        
+        NUM_PLUS: 107,
+        
+        NUM_MINUS: 109,
+        
+        NUM_PERIOD: 110,
+        
+        NUM_DIVISION: 111,
+        
+        F1: 112,
+        
+        F2: 113,
+        
+        F3: 114,
+        
+        F4: 115,
+        
+        F5: 116,
+        
+        F6: 117,
+        
+        F7: 118,
+        
+        F8: 119,
+        
+        F9: 120,
+        
+        F10: 121,
+        
+        F11: 122,
+        
+        F12: 123,
 
            
         setEvent : function(e){
@@ -1933,7 +2154,7 @@ Ext.EventObject = function(){
                 this.ctrlKey = false;
                 this.altKey = false;
                 this.keyCode = 0;
-                this.charCode =0;
+                this.charCode = 0;
                 this.target = null;
                 this.xy = [0, 0];
             }
@@ -1973,6 +2194,7 @@ Ext.EventObject = function(){
             (k >= 36 && k <= 39) ||
             (k >= 44 && k <= 45);
         },
+
         
         stopPropagation : function(){
             if(this.browserEvent){
@@ -2021,7 +2243,7 @@ Ext.EventObject = function(){
         getTarget : function(selector, maxDepth, returnEl){
             return selector ? Ext.fly(this.target).findParent(selector, maxDepth, returnEl) : (returnEl ? Ext.get(this.target) : this.target);
         },
-        
+
         
         getRelatedTarget : function(){
             if(this.browserEvent){
@@ -2048,9 +2270,9 @@ Ext.EventObject = function(){
         },
 
         
-        within : function(el, related){
+        within : function(el, related, allowEl){
             var t = this[related ? "getRelatedTarget" : "getTarget"]();
-            return t && Ext.fly(el).contains(t);
+            return t && ((allowEl ? (t === Ext.getDom(el)) : false) || Ext.fly(el).contains(t));
         },
 
         getPoint : function(){
@@ -2093,6 +2315,51 @@ Ext.Element = function(element, forceNew){
 var El = Ext.Element;
 
 El.prototype = {
+//  Mouse events
+    
+    
+    
+    
+    
+    
+    
+
+//  Keyboard events
+    
+    
+    
+
+
+//  HTML frame/object events
+    
+    
+    
+    
+    
+    
+
+//  Form events
+    
+    
+    
+    
+    
+    
+
+//  User Interface events
+    
+    
+    
+
+//  DOM Mutation events
+    
+    
+    
+    
+    
+    
+    
+
     
     originalDisplay : "",
 
@@ -2289,7 +2556,7 @@ El.prototype = {
     },
 
     
-    query : function(selector, unique){
+    query : function(selector){
         return Ext.DomQuery.select(selector, this.dom);
     },
 
@@ -2812,14 +3079,14 @@ El.prototype = {
     },
 
     
-    removeListener : function(eventName, fn){
-        Ext.EventManager.removeListener(this.dom,  eventName, fn);
+    removeListener : function(eventName, fn, scope){
+        Ext.EventManager.removeListener(this.dom,  eventName, fn, scope || this);
         return this;
     },
 
     
     removeAllListeners : function(){
-        E.purgeElement(this.dom);
+        Ext.EventManager.removeAll(this.dom);
         return this;
     },
 
@@ -2967,14 +3234,14 @@ El.prototype = {
 
     // private
 	setOverflow : function(v){
-    	if(v=='auto' && Ext.isMac && Ext.isGecko){ // work around stupid FF 2.0/Mac scroll bar bug
+    	if(v=='auto' && Ext.isMac && Ext.isGecko2){ // work around stupid FF 2.0/Mac scroll bar bug
     		this.dom.style.overflow = 'hidden';
         	(function(){this.dom.style.overflow = 'auto';}).defer(1, this);
     	}else{
     		this.dom.style.overflow = v;
     	}
 	},
-	
+
     
      setLeftTop : function(left, top){
         this.dom.style.left = this.addUnits(left);
@@ -3484,7 +3751,7 @@ El.prototype = {
     
     mask : function(msg, msgCls){
         if(this.getStyle("position") == "static"){
-            this.setStyle("position", "relative");
+            this.addClass("x-masked-relative");
         }
         if(this._maskMsg){
             this._maskMsg.remove();
@@ -3506,7 +3773,7 @@ El.prototype = {
             mm.center(this);
         }
         if(Ext.isIE && !(Ext.isIE7 && Ext.isStrict) && this.getStyle('height') == 'auto'){ // ie will not expand full height automatically
-            this._mask.setSize(this.dom.clientWidth, this.getHeight());
+            this._mask.setSize(this.getWidth(), this.getHeight());
         }
         return this._mask;
     },
@@ -3521,7 +3788,7 @@ El.prototype = {
             this._mask.remove();
             delete this._mask;
         }
-        this.removeClass("x-masked");
+        this.removeClass(["x-masked", "x-masked-relative"]);
     },
 
     
@@ -3532,7 +3799,7 @@ El.prototype = {
     
     createShim : function(){
         var el = document.createElement('iframe');
-        el.frameBorder = 'no';
+        el.frameBorder = '0';
         el.className = 'ext-shim';
         if(Ext.isIE && Ext.isSecure){
             el.src = Ext.SSL_SECURE_URL;
@@ -3698,12 +3965,12 @@ El.prototype = {
     
     insertFirst: function(el, returnDom){
         el = el || {};
-        if(typeof el == 'object' && !el.nodeType && !el.dom){ // dh config
-            return this.createChild(el, this.dom.firstChild, returnDom);
-        }else{
+        if(el.nodeType || el.dom){ // dh config
             el = Ext.getDom(el);
             this.dom.insertBefore(el, this.dom.firstChild);
             return !returnDom ? Ext.get(el) : el;
+        }else{
+            return this.createChild(el, this.dom.firstChild, returnDom);
         }
     },
 
@@ -3720,17 +3987,16 @@ El.prototype = {
         el = el || {};
         var refNode = where == 'before' ? this.dom : this.dom.nextSibling;
 
-        if(typeof el == 'object' && !el.nodeType && !el.dom){ // dh config
+        if(el.nodeType || el.dom){ // dh config
+            rt = this.dom.parentNode.insertBefore(Ext.getDom(el), refNode);
+            if(!returnDom){
+                rt = Ext.get(rt);
+            }
+        }else{
             if(where == 'after' && !this.dom.nextSibling){
                 rt = Ext.DomHelper.append(this.dom.parentNode, el, !returnDom);
             }else{
                 rt = Ext.DomHelper[where == 'after' ? 'insertAfter' : 'insertBefore'](this.dom, el, !returnDom);
-            }
-
-        }else{
-            rt = this.dom.parentNode.insertBefore(Ext.getDom(el), refNode);
-            if(!returnDom){
-                rt = Ext.get(rt);
             }
         }
         return rt;
@@ -3756,14 +4022,14 @@ El.prototype = {
 
     
     replaceWith: function(el){
-        if(typeof el == 'object' && !el.nodeType && !el.dom){ // dh config
-            el = this.insertSibling(el, 'before');
-        }else{
+        if(el.nodeType || el.dom){ // dh config
             el = Ext.getDom(el);
             this.dom.parentNode.insertBefore(el, this.dom);
+        }else{
+            el = this.insertSibling(el, 'before');
         }
         El.uncache(this.id);
-        this.dom.parentNode.removeChild(this.dom);
+        Ext.removeNode(this.dom);
         this.dom = el;
         this.id = Ext.id(el);
         El.cache[this.id] = this;
@@ -3983,6 +4249,7 @@ El.prototype = {
         return d.getAttributeNS(ns, name) || d.getAttribute(ns+":"+name) || d.getAttribute(name) || d[name];
     },
 
+    
     getTextWidth : function(text, min, max){
         return (Ext.util.TextMetrics.measure(this.dom, Ext.value(text, this.dom.innerHTML, true)).width).constrain(min || 0, max || 1000000);
     }
@@ -4125,7 +4392,7 @@ El.garbageCollect = function(){
         if(!d || !d.parentNode || (!d.offsetParent && !document.getElementById(eid))){
             delete El.cache[eid];
             if(d && Ext.enableListenerCollection){
-                E.purgeElement(d);
+                Ext.EventManager.removeAll(d);
             }
         }
     }
@@ -4569,14 +4836,17 @@ Ext.Fx = {
         var el = this.getFxEl();
         o = o || {};
         el.queueFx(o, function(){
-            arguments.callee.anim = this.fxanim({opacity:{to:o.endOpacity || 0}},
+            var to = o.endOpacity || 0;
+            arguments.callee.anim = this.fxanim({opacity:{to:to}},
                 o, null, .5, "easeOut", function(){
-                if(this.visibilityMode == Ext.Element.DISPLAY || o.useDisplay){
-                     this.dom.style.display = "none";
-                }else{
-                     this.dom.style.visibility = "hidden";
+                if(to === 0){
+                    if(this.visibilityMode == Ext.Element.DISPLAY || o.useDisplay){
+                         this.dom.style.display = "none";
+                    }else{
+                         this.dom.style.visibility = "hidden";
+                    }
+                    this.clearOpacity();
                 }
-                this.clearOpacity();
                 el.afterFx(o);
             });
         });
@@ -5157,6 +5427,10 @@ Ext.extend(Ext.data.Connection, Ext.util.Observable, {
 
     
     disableCaching: true,
+    
+    
+    disableCachingParam: '_dc',
+    
 
     
     request : function(o){
@@ -5207,10 +5481,11 @@ Ext.extend(Ext.data.Connection, Ext.util.Observable, {
                 timeout : o.timeout || this.timeout
             };
 
-            var method = o.method||this.method||(p ? "POST" : "GET");
+            var method = o.method||this.method||((p || o.xmlData || o.jsonData) ? "POST" : "GET");
 
             if(method == 'GET' && (this.disableCaching && o.disableCaching !== false) || o.disableCaching === true){
-                url += (url.indexOf('?') != -1 ? '&' : '?') + '_dc=' + (new Date().getTime());
+                var dcp = o.disableCachingParam || this.disableCachingParam;
+                url += (url.indexOf('?') != -1 ? '&' : '?') + dcp + '=' + (new Date().getTime());
             }
 
             if(typeof o.autoAbort == 'boolean'){ // options gets top priority
@@ -5384,59 +5659,62 @@ Ext.Ajax = new Ext.data.Connection({
     }
 });
 
-Ext.Updater = function(el, forceNew){
-    el = Ext.get(el);
-    if(!forceNew && el.updateManager){
-        return el.updateManager;
-    }
-    
-    this.el = el;
-    
-    this.defaultUrl = null;
-
-    this.addEvents(
+Ext.Updater = Ext.extend(Ext.util.Observable, {
+    constructor: function(el, forceNew){
+        el = Ext.get(el);
+        if(!forceNew && el.updateManager){
+            return el.updateManager;
+        }
         
-        "beforeupdate",
+        this.el = el;
         
-        "update",
+        this.defaultUrl = null;
+
+        this.addEvents(
+            
+            "beforeupdate",
+            
+            "update",
+            
+            "failure"
+        );
+        var d = Ext.Updater.defaults;
         
-        "failure"
-    );
-    var d = Ext.Updater.defaults;
-    
-    this.sslBlankUrl = d.sslBlankUrl;
-    
-    this.disableCaching = d.disableCaching;
-    
-    this.indicatorText = d.indicatorText;
-    
-    this.showLoadIndicator = d.showLoadIndicator;
-    
-    this.timeout = d.timeout;
-    
-    this.loadScripts = d.loadScripts;
-    
-    this.transaction = null;
-    
-    this.refreshDelegate = this.refresh.createDelegate(this);
-    
-    this.updateDelegate = this.update.createDelegate(this);
-    
-    this.formUpdateDelegate = this.formUpdate.createDelegate(this);
+        this.sslBlankUrl = d.sslBlankUrl;
+        
+        this.disableCaching = d.disableCaching;
+        
+        this.indicatorText = d.indicatorText;
+        
+        this.showLoadIndicator = d.showLoadIndicator;
+        
+        this.timeout = d.timeout;
+        
+        this.loadScripts = d.loadScripts;
+        
+        this.transaction = null;
+        
+        this.refreshDelegate = this.refresh.createDelegate(this);
+        
+        this.updateDelegate = this.update.createDelegate(this);
+        
+        this.formUpdateDelegate = this.formUpdate.createDelegate(this);
 
-    if(!this.renderer){
-     
-    this.renderer = new Ext.Updater.BasicRenderer();
-    }
-    Ext.Updater.superclass.constructor.call(this);
-};
-
-Ext.extend(Ext.Updater, Ext.util.Observable, {
+        if(!this.renderer){
+         
+        this.renderer = this.getDefaultRenderer();
+        }
+        Ext.Updater.superclass.constructor.call(this);
+    },
+    
+    getDefaultRenderer: function() {
+        return new Ext.Updater.BasicRenderer();
+    },
     
     getEl : function(){
         return this.el;
     },
-    
+
     
     update : function(url, params, callback, discardUrl){
         if(this.fireEvent("beforeupdate", this.el, url, params) !== false){
@@ -5462,7 +5740,7 @@ Ext.extend(Ext.Updater, Ext.util.Observable, {
                 url = url.call(this);
             }
 
-            var o = Ext.apply(cfg ||{}, {
+            var o = Ext.apply({}, {
                 url : url,
                 params: (typeof params == "function" && callerScope) ? params.createDelegate(callerScope) : params,
                 success: this.processSuccess,
@@ -5479,7 +5757,7 @@ Ext.extend(Ext.Updater, Ext.util.Observable, {
                     "scope": callerScope || window,
                     "params": params
                 }
-            });
+            }, cfg);
 
             this.transaction = Ext.Ajax.request(o);
         }
@@ -5541,7 +5819,7 @@ Ext.extend(Ext.Updater, Ext.util.Observable, {
     isAutoRefreshing : function(){
        return this.autoRefreshProcId ? true : false;
     },
-    
+
     
     showLoading : function(){
         if(this.showLoadIndicator){
@@ -5650,35 +5928,29 @@ Ext.UpdateManager = Ext.Updater;
 
 
 Ext.util.DelayedTask = function(fn, scope, args){
-    var id = null, d, t;
+    var id = null;
 
     var call = function(){
-        var now = new Date().getTime();
-        if(now - t >= d){
-            clearInterval(id);
-            id = null;
-            fn.apply(scope, args || []);
-        }
+        id = null;
+        fn.apply(scope, args || []);
     };
     
     this.delay = function(delay, newFn, newScope, newArgs){
-        if(id && delay != d){
+        if(id){
             this.cancel();
         }
-        d = delay;
-        t = new Date().getTime();
         fn = newFn || fn;
         scope = newScope || scope;
         args = newArgs || args;
         if(!id){
-            id = setInterval(call, d);
+            id = setTimeout(call, delay);
         }
     };
 
     
     this.cancel = function(){
         if(id){
-            clearInterval(id);
+            clearTimeout(id);
             id = null;
         }
     };

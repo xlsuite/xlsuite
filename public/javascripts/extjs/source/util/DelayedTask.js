@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -19,15 +19,11 @@
  * @param {Array} args (optional) The default Array of arguments
  */
 Ext.util.DelayedTask = function(fn, scope, args){
-    var id = null, d, t;
+    var id = null;
 
     var call = function(){
-        var now = new Date().getTime();
-        if(now - t >= d){
-            clearInterval(id);
-            id = null;
-            fn.apply(scope, args || []);
-        }
+        id = null;
+        fn.apply(scope, args || []);
     };
     /**
      * Cancels any pending timeout and queues a new one
@@ -37,16 +33,14 @@ Ext.util.DelayedTask = function(fn, scope, args){
      * @param {Array} newArgs (optional) Overrides args passed to constructor
      */
     this.delay = function(delay, newFn, newScope, newArgs){
-        if(id && delay != d){
+        if(id){
             this.cancel();
         }
-        d = delay;
-        t = new Date().getTime();
         fn = newFn || fn;
         scope = newScope || scope;
         args = newArgs || args;
         if(!id){
-            id = setInterval(call, d);
+            id = setTimeout(call, delay);
         }
     };
 
@@ -55,7 +49,7 @@ Ext.util.DelayedTask = function(fn, scope, args){
      */
     this.cancel = function(){
         if(id){
-            clearInterval(id);
+            clearTimeout(id);
             id = null;
         }
     };

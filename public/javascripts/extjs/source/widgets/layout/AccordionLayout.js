@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -53,6 +53,8 @@ Ext.layout.Accordion = Ext.extend(Ext.layout.FitLayout, {
     /**
      * @cfg {Boolean} autoWidth
      * True to set each contained item's width to 'auto', false to use the item's current width (defaults to true).
+     * Note that some components, in particular the {@link Ext.grid.GridPanel grid}, will not function properly within
+     * layouts if they have auto width, so in such cases this config should be set to false.
      */
     autoWidth : true,
     /**
@@ -92,6 +94,16 @@ Ext.layout.Accordion = Ext.extend(Ext.layout.FitLayout, {
      * false to keep the panels in the rendered order. <b>This is NOT compatible with "animate:true"</b> (defaults to false).
      */
     activeOnTop : false,
+    
+    /**
+     * Sets the active (expanded) item in the layout.
+     * @param {String/Number} item The string component id or numeric index of the item to activate
+     */
+    setActiveItem : function(item){
+        item = this.container.getComponent(item);
+        this.activeItem = item;
+        this.layout();
+    },
 
     renderItem : function(c){
         if(this.animate === false){
@@ -112,7 +124,7 @@ Ext.layout.Accordion = Ext.extend(Ext.layout.FitLayout, {
         }
         if(!this.activeItem && !c.collapsed){
             this.activeItem = c;
-        }else if(this.activeItem){
+        }else if(this.activeItem && this.activeItem != c){
             c.collapsed = true;
         }
         Ext.layout.Accordion.superclass.renderItem.apply(this, arguments);

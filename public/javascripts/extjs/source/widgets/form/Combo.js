@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -9,7 +9,11 @@
 /**
  * @class Ext.form.ComboBox
  * @extends Ext.form.TriggerField
- * A combobox control with support for autocomplete, remote-loading, paging and many other features.
+ * <p>A combobox control with support for autocomplete, remote-loading, paging and many other features.</p>
+ * A ComboBox works in a similar manner to a traditional HTML &lt;select> field. The difference is that to submit the
+ * {@link #valueField}, you must specify a {@link #hiddenName} to create a hidden input field to hold the
+ * value of the valueField. The <i>{@link #displayField}</i> is shown in the text field which is named
+ * according to the {@link #name}.
  * @constructor
  * Create a new ComboBox.
  * @param {Object} config Configuration options
@@ -29,11 +33,11 @@ Ext.form.ComboBox = Ext.extend(Ext.form.TriggerField, {
      * {tag: "input", type: "text", size: "24", autocomplete: "off"})
      */
     /**
-     * @cfg {Ext.data.Store/Array} store The data source to which this combo is bound (defaults to undefined).  This can be 
+     * @cfg {Ext.data.Store/Array} store The data source to which this combo is bound (defaults to undefined).  This can be
      * any {@link Ext.data.Store} subclass, a 1-dimensional array (e.g., ['Foo','Bar']) or a 2-dimensional array (e.g.,
      * [['f','Foo'],['b','Bar']]).  Arrays will be converted to a {@link Ext.data.SimpleStore} internally.
-     * 1-dimensional arrays will automatically be expanded (each array item will be the combo value and text) and 
-     * for multi-dimensional arrays, the value in index 0 of each item will be assumed to be the combo value, while 
+     * 1-dimensional arrays will automatically be expanded (each array item will be the combo value and text) and
+     * for multi-dimensional arrays, the value in index 0 of each item will be assumed to be the combo value, while
      * the value at index 1 is assumed to be the combo text.
      */
     /**
@@ -44,7 +48,7 @@ Ext.form.ComboBox = Ext.extend(Ext.form.TriggerField, {
     // private
     defaultAutoCreate : {tag: "input", type: "text", size: "24", autocomplete: "off"},
     /**
-     * @cfg {Number} listWidth The width in pixels of the dropdown list (defaults to the width of the ComboBox field)
+     * @cfg {Number} listWidth The width (used as a parameter to {@link Ext.Element#setWidth}) of the dropdown list (defaults to the width of the ComboBox field)
      */
     /**
      * @cfg {String} displayField The underlying data field name to bind to this ComboBox (defaults to undefined if
@@ -100,7 +104,7 @@ Ext.form.ComboBox = Ext.extend(Ext.form.TriggerField, {
      */
     minHeight: 90,
     /**
-     * @cfg {String} triggerAction The action to execute when the trigger field is activated.  Use 'all' to run the
+     * @cfg {String} triggerAction The action to execute when the trigger is clicked.  Use 'all' to run the
      * query specified by the allQuery config option (defaults to 'query')
      */
     triggerAction: 'query',
@@ -185,6 +189,27 @@ Ext.form.ComboBox = Ext.extend(Ext.form.TriggerField, {
      */
     lazyInit : true,
 
+    /**
+     * The value of the match string used to filter the store. Delete this property to force a requery.
+     * Example use:<pre><code>
+var combo = new Ext.form.ComboBox({
+    ...
+    mode: 'remote',
+    ...
+    listeners: {
+        // delete the previous query in the beforequery event or set 
+        // combo.lastQuery = null (this will reload the store the next time it expands)
+        beforequery: function(qe){
+            delete qe.combo.lastQuery;
+        }
+    }
+});
+</code></pre>
+     * @property lastQuery
+     * @type String
+     */
+
+    // private
     initComponent : function(){
         Ext.form.ComboBox.superclass.initComponent.call(this);
         this.addEvents(
@@ -240,7 +265,7 @@ Ext.form.ComboBox = Ext.extend(Ext.form.TriggerField, {
                 var d = [], opts = s.options;
                 for(var i = 0, len = opts.length;i < len; i++){
                     var o = opts[i];
-                    var value = (Ext.isIE ? o.getAttributeNode('value').specified : o.hasAttribute('value')) ? o.value : o.text;
+                    var value = (o.hasAttribute ? o.hasAttribute('value') : o.getAttribute('value') !== null) ? o.value : o.text;
                     if(o.selected) {
                         this.value = value;
                     }
@@ -266,24 +291,24 @@ Ext.form.ComboBox = Ext.extend(Ext.form.TriggerField, {
         }
         //auto-configure store from local array data
         else if(Ext.isArray(this.store)){
-			if (Ext.isArray(this.store[0])){
-				this.store = new Ext.data.SimpleStore({
-				    fields: ['value','text'],
-				    data: this.store
-				});
-		        this.valueField = 'value';
-			}else{
-				this.store = new Ext.data.SimpleStore({
-				    fields: ['text'],
-				    data: this.store,
-				    expandData: true
-				});
-		        this.valueField = 'text';
-			}
-			this.displayField = 'text';
-			this.mode = 'local';
-		}
-		
+            if (Ext.isArray(this.store[0])){
+                this.store = new Ext.data.SimpleStore({
+                    fields: ['value','text'],
+                    data: this.store
+                });
+                this.valueField = 'value';
+            }else{
+                this.store = new Ext.data.SimpleStore({
+                    fields: ['text'],
+                    data: this.store,
+                    expandData: true
+                });
+                this.valueField = 'text';
+            }
+            this.displayField = 'text';
+            this.mode = 'local';
+        }
+
         this.selectedIndex = -1;
         if(this.mode == 'local'){
             if(this.initialConfig.queryDelay === undefined){
@@ -299,11 +324,8 @@ Ext.form.ComboBox = Ext.extend(Ext.form.TriggerField, {
     onRender : function(ct, position){
         Ext.form.ComboBox.superclass.onRender.call(this, ct, position);
         if(this.hiddenName){
-            this.hiddenField = this.el.insertSibling({tag:'input', type:'hidden', name: this.hiddenName, id: (this.hiddenId||this.hiddenName)},
-                    'before', true);
-            this.hiddenField.value =
-                this.hiddenValue !== undefined ? this.hiddenValue :
-                this.value !== undefined ? this.value : '';
+            this.hiddenField = this.el.insertSibling({tag:'input', type:'hidden', name: this.hiddenName,
+                    id: (this.hiddenId||this.hiddenName)}, 'before', true);
 
             // prevent input submission
             this.el.dom.removeAttribute('name');
@@ -324,6 +346,17 @@ Ext.form.ComboBox = Ext.extend(Ext.form.TriggerField, {
         }
     },
 
+    // private
+    initValue : function(){
+        Ext.form.ComboBox.superclass.initValue.call(this);
+        if(this.hiddenField){
+            this.hiddenField.value =
+                this.hiddenValue !== undefined ? this.hiddenValue :
+                this.value !== undefined ? this.value : '';
+        }
+    },
+
+    // private
     initList : function(){
         if(!this.list){
             var cls = 'x-combo-list';
@@ -378,7 +411,7 @@ Ext.form.ComboBox = Ext.extend(Ext.form.TriggerField, {
                  * @cfg {String} itemSelector
                  * <b>This setting is required if a custom XTemplate has been specified in {@link #tpl}
                  * which assigns a class other than <pre>'x-combo-list-item'</pre> to dropdown list items</b>.
-                 * A simple CSS selector (e.g. div.some-class or span:first-child) that will be 
+                 * A simple CSS selector (e.g. div.some-class or span:first-child) that will be
                  * used to determine what nodes the DataView which handles the dropdown display will
                  * be working with.
                  */
@@ -414,7 +447,14 @@ Ext.form.ComboBox = Ext.extend(Ext.form.TriggerField, {
             }
         }
     },
-
+    
+    /**
+     * Returns the store associated with this combo.
+     * @return {Ext.data.Store} The store
+     */
+    getStore : function(){
+        return this.store;
+    },
 
     // private
     bindStore : function(store, initial){
@@ -501,26 +541,43 @@ Ext.form.ComboBox = Ext.extend(Ext.form.TriggerField, {
         }
     },
 
+    // private
     onDestroy : function(){
-        if(this.view){
-            this.view.el.removeAllListeners();
-            this.view.el.remove();
-            this.view.purgeListeners();
-        }
-        if(this.list){
-            this.list.destroy();
+        if (this.dqTask){
+            this.dqTask.cancel();
+            this.dqTask = null;
         }
         this.bindStore(null);
+        if(this.resizer){
+            this.resizer.destroy(true);
+        }
+        Ext.destroy(
+            this.view,
+            this.pageTb,
+            this.innerList,
+            this.list
+        );
         Ext.form.ComboBox.superclass.onDestroy.call(this);
     },
 
+    // private
     unsetDelayCheck : function(){
         delete this.delayedCheck;
     },
+
     // private
     fireKey : function(e){
-        if(e.isNavKeyPress() && !this.isExpanded() && !this.delayedCheck){
-            this.fireEvent("specialkey", this, e);
+        var fn = function(ev){
+            if (ev.isNavKeyPress() && !this.isExpanded() && !this.delayedCheck) {
+                this.fireEvent("specialkey", this, ev);
+            }
+        };
+        //For some reason I can't track down, the events fire in a different order in webkit.
+        //Need a slight delay here
+        if(this.inEditor && Ext.isWebKit && e.getKey() == e.TAB){
+            fn.defer(10, this, [new Ext.EventObjectImpl(e)]);
+        }else{
+            fn.call(this, e);
         }
     },
 
@@ -566,7 +623,7 @@ Ext.form.ComboBox = Ext.extend(Ext.form.TriggerField, {
             this.el.on('mousedown', this.onTriggerClick,  this);
             this.el.addClass('x-combo-noedit');
         }else{
-            this.el.dom.setAttribute('readOnly', false);
+            this.el.dom.removeAttribute('readOnly');
             this.el.un('mousedown', this.onTriggerClick,  this);
             this.el.removeClass('x-combo-noedit');
         }
@@ -736,7 +793,7 @@ Ext.form.ComboBox = Ext.extend(Ext.form.TriggerField, {
         var hb = Ext.lib.Dom.getViewHeight()-ha-this.getSize().height;
         var space = Math.max(ha, hb, this.minHeight || 0)-this.list.shadowOffset-pad-5;
         h = Math.min(h, space, this.maxHeight);
-        
+
         this.innerList.setHeight(h);
         this.list.beginUpdate();
         this.list.setHeight(h+pad);
@@ -845,7 +902,7 @@ Ext.form.ComboBox = Ext.extend(Ext.form.TriggerField, {
     },
 
     /**
-     * Execute a query to filter the dropdown list.  Fires the beforequery event prior to performing the
+     * Execute a query to filter the dropdown list.  Fires the {@link #beforequery} event prior to performing the
      * query allowing the query action to be canceled if needed.
      * @param {String} query The SQL query to execute
      * @param {Boolean} forceAll True to force the query to execute even if there are currently fewer characters
@@ -904,7 +961,7 @@ Ext.form.ComboBox = Ext.extend(Ext.form.TriggerField, {
     },
 
     /**
-     * Hides the dropdown list if it is currently expanded. Fires the 'collapse' event on completion.
+     * Hides the dropdown list if it is currently expanded. Fires the {@link #collapse} event on completion.
      */
     collapse : function(){
         if(!this.isExpanded()){
@@ -924,7 +981,7 @@ Ext.form.ComboBox = Ext.extend(Ext.form.TriggerField, {
     },
 
     /**
-     * Expands the dropdown list if it is currently hidden. Fires the 'expand' event on completion.
+     * Expands the dropdown list if it is currently hidden. Fires the {@link #expand} event on completion.
      */
     expand : function(){
         if(this.isExpanded() || !this.hasFocus){
@@ -938,6 +995,10 @@ Ext.form.ComboBox = Ext.extend(Ext.form.TriggerField, {
         this.fireEvent('expand', this);
     },
 
+    /**
+     * @method onTriggerClick
+     * @hide
+     */
     // private
     // Implements the default empty TriggerField.onTriggerClick function
     onTriggerClick : function(){
