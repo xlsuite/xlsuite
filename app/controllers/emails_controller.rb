@@ -882,6 +882,10 @@ protected
       asset = current_account.assets.create!(att_attrs.merge(:owner => current_user))
       @email.assets << asset
     end
+    if params[:asset_ids]
+      assets = self.current_account.assets.find(params[:asset_ids].split(",").map(&:strip).map(&:to_i))
+      @email.assets << assets
+    end
     logger.debug {"==> Done processing attachments"}
 
     logger.debug {"==> Processing assets #{params[:files].inspect}"}
