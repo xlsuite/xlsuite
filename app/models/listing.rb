@@ -309,6 +309,7 @@ class Listing < ActiveRecord::Base
     indexes :status, :as => :status, :sortable => true
     indexes :region, :sortable => true
     indexes :area, :sortable => true
+    indexes tags.name, :as => :tag
 
     has :account_id, :type => :integer
     has :type, :type => :string
