@@ -57,8 +57,6 @@ var generateSendSaveToolbar = function() {
           }
         });
         params["asset_ids"] = attachedFilesDataStore.collect("real_id").join(",");
-        console.log("params is %o", params);
-        return false;
         layoutPanel.el.mask('Sending...');
         xl.maskedPanels.push(layoutPanel);
         Ext.Ajax.request({
