@@ -334,6 +334,7 @@ class PaypalPaymentHelper < PaymentHelper
         product_index = 0
         
         order_or_invoice.lines.each_with_index do |line, index|
+          next unless line.retail_price
           product_line = line.product
           product_index = index + 1
           product_params.merge!({
