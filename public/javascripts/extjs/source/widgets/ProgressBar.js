@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -15,7 +15,7 @@
  * throughout an operation that has predictable points of interest at which you can update the control.</p>
  * <p>In automatic mode, you simply call {@link #wait} and let the progress bar run indefinitely, only clearing it
  * once the operation is complete.  You can optionally have the progress bar wait for a specific amount of time
- * and then clear itself.  Automatic mode is most appropriate for timed operations or asymchronous operations in
+ * and then clear itself.  Automatic mode is most appropriate for timed operations or asynchronous operations in
  * which you have no need for indicating intermediate progress.</p>
  * @cfg {Float} value A floating point value between 0 and 1 (e.g., .5, defaults to 0)
  * @cfg {String} text The progress bar text (defaults to '')
@@ -29,6 +29,12 @@ Ext.ProgressBar = Ext.extend(Ext.BoxComponent, {
     * The base CSS class to apply to the progress bar's wrapper element (defaults to 'x-progress')
     */
     baseCls : 'x-progress',
+    
+    /**
+    * @cfg {Boolean} animate
+    * True to animate the progress bar during transitions (defaults to false)
+    */
+    animate : false,
 
     // private
     waitTimer : null,
@@ -110,18 +116,22 @@ Ext.ProgressBar = Ext.extend(Ext.BoxComponent, {
      * determining when the progress is complete and calling {@link #reset} to clear and/or hide the control.
      * @param {Float} value (optional) A floating point value between 0 and 1 (e.g., .5, defaults to 0)
      * @param {String} text (optional) The string to display in the progress text element (defaults to '')
+     * @param {Boolean} animate (optional) Whether to animate the transition of the progress bar. If this value is
+     * not specified, the default for the class is used (default to false)
      * @return {Ext.ProgressBar} this
      */
-    updateProgress : function(value, text){
+    updateProgress : function(value, text, animate){
         this.value = value || 0;
         if(text){
             this.updateText(text);
         }
-        var w = Math.floor(value*this.el.dom.firstChild.offsetWidth);
-        this.progressBar.setWidth(w);
-        if(this.textTopEl){
-            //textTopEl should be the same width as the bar so overflow will clip as the bar moves
-            this.textTopEl.removeClass('x-hidden').setWidth(w);
+        if(this.rendered){
+	        var w = Math.floor(value*this.el.dom.firstChild.offsetWidth);
+	        this.progressBar.setWidth(w, animate === true || (animate !== false && this.animate));
+	        if(this.textTopEl){
+	            //textTopEl should be the same width as the bar so overflow will clip as the bar moves
+	            this.textTopEl.removeClass('x-hidden').setWidth(w);
+	        }
         }
         this.fireEvent('update', this, value, text);
         return this;
@@ -141,9 +151,12 @@ duration   Number        The length of time in milliseconds that the progress ba
                          will run indefinitely until reset is called)
 interval   Number        The length of time in milliseconds between each progress update
                          (defaults to 1000 ms)
+animate    Boolean       Whether to animate the transition of the progress bar. If this value is
+                         not specified, the default for the class is used.                                                   
 increment  Number        The number of progress update segments to display within the progress
                          bar (defaults to 10).  If the bar reaches the end and is still
                          updating, it will automatically wrap back to the beginning.
+text       String        Optional text to display in the progress bar element (defaults to '').
 fn         Function      A callback function to execute after the progress bar finishes auto-
                          updating.  The function will be called with no arguments.  This function
                          will be ignored if duration is not specified since in that case the
@@ -164,6 +177,7 @@ p.wait({
    interval: 100, //bar will move fast!
    duration: 5000,
    increment: 15,
+   text: 'Updating...',
    scope: this,
    fn: function(){
       Ext.fly('status').update('Done!');
@@ -184,10 +198,11 @@ myAction.on('complete', function(){
         if(!this.waitTimer){
             var scope = this;
             o = o || {};
+            this.updateText(o.text);
             this.waitTimer = Ext.TaskMgr.start({
                 run: function(i){
                     var inc = o.increment || 10;
-                    this.updateProgress(((((i+inc)%inc)+1)*(100/inc))*.01);
+                    this.updateProgress(((((i+inc)%inc)+1)*(100/inc))*.01, null, o.animate);
                 },
                 interval: o.interval || 1000,
                 duration: o.duration,
@@ -219,7 +234,22 @@ myAction.on('complete', function(){
      */
     updateText : function(text){
         this.text = text || '&#160;';
-        this.textEl.update(this.text);
+        if(this.rendered){
+            this.textEl.update(this.text);
+        }
+        return this;
+    },
+    
+    /**
+     * Synchronizes the inner bar width to the proper proportion of the total componet width based
+     * on the current progress {@link #value}.  This will be called automatically when the ProgressBar
+     * is resized by a layout, but if it is rendered auto width, this method can be called from
+     * another resize handler to sync the ProgressBar if necessary.
+     */
+    syncProgressBar : function(){
+        if(this.value){
+            this.updateProgress(this.value, this.text);
+        }
         return this;
     },
 
@@ -235,6 +265,7 @@ myAction.on('complete', function(){
             var inner = this.el.dom.firstChild;
             this.textEl.setSize(inner.offsetWidth, inner.offsetHeight);
         }
+        this.syncProgressBar();
         return this;
     },
 

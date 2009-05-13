@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -16,7 +16,7 @@ return this;},submit:function(options){if(this.standardSubmit){var v=this.isVali
 return v;}
 this.doAction('submit',options);return this;},load:function(options){this.doAction('load',options);return this;},updateRecord:function(record){record.beginEdit();var fs=record.fields;fs.each(function(f){var field=this.findField(f.name);if(field){record.set(f.name,field.getValue());}},this);record.endEdit();return this;},loadRecord:function(record){this.setValues(record.data);return this;},beforeAction:function(action){var o=action.options;if(o.waitMsg){if(this.waitMsgTarget===true){this.el.mask(o.waitMsg,'x-mask-loading');}else if(this.waitMsgTarget){this.waitMsgTarget=Ext.get(this.waitMsgTarget);this.waitMsgTarget.mask(o.waitMsg,'x-mask-loading');}else{Ext.MessageBox.wait(o.waitMsg,o.waitTitle||this.waitTitle||'Please Wait...');}}},afterAction:function(action,success){this.activeAction=null;var o=action.options;if(o.waitMsg){if(this.waitMsgTarget===true){this.el.unmask();}else if(this.waitMsgTarget){this.waitMsgTarget.unmask();}else{Ext.MessageBox.updateProgress(1);Ext.MessageBox.hide();}}
 if(success){if(o.reset){this.reset();}
-Ext.callback(o.success,o.scope,[this,action]);this.fireEvent('actioncomplete',this,action);}else{Ext.callback(o.failure,o.scope,[this,action]);this.fireEvent('actionfailed',this,action);}},findField:function(id){var field=this.items.get(id);if(!field){this.items.each(function(f){if(f.isFormField&&(f.dataIndex==id||f.id==id||f.getName()==id)){field=f;return false;}});}
+Ext.callback(o.success,o.scope,[this,action]);this.fireEvent('actioncomplete',this,action);}else{Ext.callback(o.failure,o.scope,[this,action]);this.fireEvent('actionfailed',this,action);}},findField:function(id){var field=this.items.get(id);if(typeof field!='object'){this.items.each(function(f){if(f.isFormField&&(f.dataIndex==id||f.id==id||f.getName()==id)){field=f;return false;}});}
 return field||null;},markInvalid:function(errors){if(Ext.isArray(errors)){for(var i=0,len=errors.length;i<len;i++){var fieldError=errors[i];var f=this.findField(fieldError.id);if(f){f.markInvalid(fieldError.msg);}}}else{var field,id;for(id in errors){if(typeof errors[id]!='function'&&(field=this.findField(id))){field.markInvalid(errors[id]);}}}
 return this;},setValues:function(values){if(Ext.isArray(values)){for(var i=0,len=values.length;i<len;i++){var v=values[i];var f=this.findField(v.id);if(f){f.setValue(v.value);if(this.trackResetOnLoad){f.originalValue=f.getValue();}}}}else{var field,id;for(id in values){if(typeof values[id]!='function'&&(field=this.findField(id))){field.setValue(values[id]);if(this.trackResetOnLoad){field.originalValue=field.getValue();}}}}
 return this;},getValues:function(asString){var fs=Ext.lib.Ajax.serializeForm(this.el.dom);if(asString===true){return fs;}

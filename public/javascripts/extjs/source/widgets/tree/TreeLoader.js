@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -38,7 +38,7 @@
     myTreeLoader.on("beforeload", function(treeLoader, node) {
         this.baseParams.category = node.attributes.category;
     }, this);
-</code></pre><
+</code></pre>
  * This would pass an HTTP parameter called "category" to the server containing
  * the value of the Node's "category" attribute.
  * @constructor
@@ -191,7 +191,7 @@ Ext.extend(Ext.tree.TreeLoader, Ext.util.Observable, {
     },
 
     isLoading : function(){
-        return this.transId ? true : false;
+        return !!this.transId;
     },
 
     abort : function(){
@@ -201,7 +201,27 @@ Ext.extend(Ext.tree.TreeLoader, Ext.util.Observable, {
     },
 
     /**
-    * Override this function for custom TreeNode node implementation
+    * <p>Override this function for custom TreeNode node implementation, or to
+    * modify the attributes at creation time.</p>
+    * Example:<code><pre>
+new Ext.tree.TreePanel({
+    ...
+    new Ext.tree.TreeLoader({
+        url: 'dataUrl',
+        createNode: function(attr) {
+//          Allow consolidation consignments to have
+//          consignments dropped into them.
+            if (attr.isConsolidation) {
+                attr.iconCls = 'x-consol',
+                attr.allowDrop = true;
+            }
+            return Ext.tree.TreeLoader.prototype.call(this, attr);
+        }
+    }),
+    ...
+}); 
+</pre></code>
+    * @param attr {Object} The attributes from which to create the new node.
     */
     createNode : function(attr){
         // apply baseAttrs, nice idea Corey!
@@ -214,9 +234,13 @@ Ext.extend(Ext.tree.TreeLoader, Ext.util.Observable, {
         if(typeof attr.uiProvider == 'string'){
            attr.uiProvider = this.uiProviders[attr.uiProvider] || eval(attr.uiProvider);
         }
-        return(attr.leaf ?
+        if(attr.nodeType){
+            return new Ext.tree.TreePanel.nodeTypes[attr.nodeType](attr);
+        }else{
+            return attr.leaf ?
                         new Ext.tree.TreeNode(attr) :
-                        new Ext.tree.AsyncTreeNode(attr));
+                        new Ext.tree.AsyncTreeNode(attr);
+        }
     },
 
     processResponse : function(response, node, callback){

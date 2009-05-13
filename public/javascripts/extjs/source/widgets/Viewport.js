@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -20,9 +20,6 @@
  * Example showing a classic application border layout :<pre><code>
 new Ext.Viewport({
     layout: 'border',
-    defaults: {
-        activeItem: 0
-    },
     items: [{
         region: 'north',
         html: '&lt;h1 class="x-panel-header">Page Title&lt;/h1>',

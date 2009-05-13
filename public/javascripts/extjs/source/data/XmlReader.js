@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -10,10 +10,10 @@
  * @class Ext.data.XmlReader
  * @extends Ext.data.DataReader
  * Data reader class to create an Array of {@link Ext.data.Record} objects from an XML document
- * based on mappings in a provided Ext.data.Record constructor.<br><br>
+ * based on mappings in a provided {@link Ext.data.Record} constructor.<br><br>
  * <p>
  * <em>Note that in order for the browser to parse a returned XML document, the Content-Type
- * header in the HTTP response must be set to "text/xml".</em>
+ * header in the HTTP response must be set to "text/xml" or "application/xml".</em>
  * <p>
  * Example code:
  * <pre><code>
@@ -111,7 +111,7 @@ Ext.extend(Ext.data.XmlReader, Ext.data.DataReader, {
 	        var id = sid ? q.selectValue(sid, n) : undefined;
 	        for(var j = 0, jlen = fields.length; j < jlen; j++){
 	            var f = fields.items[j];
-                var v = q.selectValue(f.mapping || f.name, n, f.defaultValue);
+                var v = q.selectValue(Ext.isEmpty(f.mapping, true) ? f.name : f.mapping, n, f.defaultValue);
 	            v = f.convert(v, n);
 	            values[f.name] = v;
 	        }

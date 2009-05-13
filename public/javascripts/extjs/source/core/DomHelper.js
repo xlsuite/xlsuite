@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -31,7 +31,7 @@ dh.append('my-ul', [
 </code></pre></p>
  * <p>Element creation specification parameters may also be strings. If {@link useDom} is false, then the string is used
  * as innerHTML. If {@link useDom} is true, a string specification results in the creation of a text node.</p>
- * For more information and examples, see <a href="http://www.jackslocum.com/blog/2006/10/06/domhelper-create-elements-using-dom-html-fragments-or-templates/">the original blog post</a>.
+ * For more information and examples, see <a href="http://extjs.com/learn/Tutorial:DomHelper_Blog/">the ExtJs tutorial page</a>.
  * @singleton
  */
 Ext.DomHelper = function(){

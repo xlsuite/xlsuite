@@ -56,6 +56,7 @@ var generateSendSaveToolbar = function() {
             params[pair.value.getName()] = pair.value.getValue();
           }
         });
+        params["asset_ids"] = attachedFilesDataStore.collect("real_id").join(",");
         layoutPanel.el.mask('Sending...');
         xl.maskedPanels.push(layoutPanel);
         Ext.Ajax.request({
@@ -715,18 +716,66 @@ var formDefaults = {
   labelAlign: 'right'
 };
 
+var attachedFilesDataStore = new Ext.data.SimpleStore({
+  data:new Array()
+  ,fields:[
+    {name:"id"}
+    ,{name:"z_path"}
+    ,{name:"type"}
+  ]
+});
+
+var attachmentFilePicker = new xl.widget.FilePicker({
+  listeners:{
+    "filechecked":function(record, cpt){
+      var record = record.copy();
+      if(record.get("included")){
+        attachedFilesDataStore.add(record);
+      }else{
+        var index = attachedFilesDataStore.indexOfId(record.get("id"))
+        attachedFilesDataStore.remove(attachedFilesDataStore.getAt(index));
+      }
+    }
+  }
+});
+
+var attachedFilesGrid = new Ext.grid.GridPanel({
+  title:"Attachments"
+  ,height:200
+  ,width:400
+  ,cm:new Ext.grid.ColumnModel([
+      {width:300, dataIndex:"z_path", header:"Path", sortable:false}
+      ,{width:75, dataIndex:"type", header:"Content type", sortable:false}
+    ])
+  ,ds:attachedFilesDataStore
+  ,tbar:new Ext.Toolbar({
+    items:[
+      new Ext.Toolbar.Button({
+        text:"Attach file(s)"
+        ,handler:function(btn){
+          attachmentFilePicker.doLayout();
+          attachmentFilePicker.show();
+        }
+      })
+    ]
+  })
+});
+
 var layoutPanel = new Ext.Panel({
-  tbar: generateSendSaveToolbar(),
+  tbar: generateSendSaveToolbar()
+  ,bodyStyle: 'padding: 15px'
+  ,autoScroll: true
+
+  ,layout: 'form'
+  ,labelWidth: 65
+  ,labelAlign: 'right'
+  ,width: '100%'
+  ,defaults: formDefaults
   
-  bodyStyle: 'padding: 15px',
-  autoScroll: true,
-  width: '100%',
-  defaults: formDefaults,
-  
-  items: [
-    { items: [isMassMailCheckbox] },
-    { items: [fromName] },
-    { items: [fromComboBox] },
+  ,items: [
+    isMassMailCheckbox
+    ,fromName
+    ,fromComboBox,
     
     { // ColumnLayout
       layout: 'column',
@@ -801,29 +850,7 @@ var layoutPanel = new Ext.Panel({
     
     { html: '<br />' },
     
-    { 
-      xtype: 'fieldset',
-      title: 'Attachments',
-      labelWidth: 0,
-      autoHeight: true,
-      
-      items: [
-        {
-          xtype: 'panel',
-          html: '&nbsp;Attach files from:'
-        },
-        assetsFilename,
-        assetsIdHidden,
-        sendInlineCheckbox,
-        {
-          xtype: 'panel',
-          html: '&nbsp;<p id="x_att_authz">Authorizations: <span class="normal">Publicly Readable</span>&nbsp;#{link_to_function "Change", "openAuthorizationsPanel()", :id => "x_open_authz_panel"}</p>'
-        },{
-          xtype: 'panel',
-          html: '&nbsp;<ul id="x_attachments">#{render :partial => @email.attachments}</ul>'
-        }
-      ]
-    },
+    attachedFilesGrid,
     optOutPanel,
     
     {

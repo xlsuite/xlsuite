@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -61,16 +61,16 @@ Date.getShortMonthName = function(month) {
 Date.monthNumbers = {
   Jan : 0,
   Feb : 1,
-  Mar : 2,
+  "M\u00e4r" : 2,
   Apr : 3,
-  May : 4,
+  Mai : 4,
   Jun : 5,
   Jul : 6,
   Aug : 7,
   Sep : 8,
-  Oct : 9,
+  Okt : 9,
   Nov : 10,
-  Dec : 11
+  Dez : 11
 };
 
 Date.getMonthNumber = function(name) {

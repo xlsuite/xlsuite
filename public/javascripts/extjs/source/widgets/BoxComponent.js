@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -9,10 +9,28 @@
 /**
  * @class Ext.BoxComponent
  * @extends Ext.Component
- * Base class for any visual {@link Ext.Component} that uses a box container.  BoxComponent provides automatic box
+ * <p>Base class for any visual {@link Ext.Component} that uses a box container.  BoxComponent provides automatic box
  * model adjustments for sizing and positioning and will work correctly withnin the Component rendering model.  All
  * container classes should subclass BoxComponent so that they will work consistently when nested within other Ext
- * layout containers.
+ * layout containers.</p>
+ * <p>A BoxComponent may be created as a custom Component which encapsulates any HTML element, either a pre-existing
+ * element, or one that is created to your specifications at render time. Usually, to participate in layouts,
+ * a Component will need to be a <b>Box</b>Component in order to have its width and height managed.</p>
+ * <p>To use a pre-existing element as a BoxComponent, configure it so that you preset the <b>el</b> property to the
+ * element to reference:<pre><code>
+var pageHeader = new Ext.BoxComponent({
+    el: 'my-header-div'
+});</code></pre>
+ * This may then be {@link Ext.Container#add added} to a {@link Ext.Container Container} as a child item.</p>
+ * <p>To create a BoxComponent based around a HTML element to be created at render time, use the
+ * {@link Ext.Component#autoEl autoEl} config option which takes the form of a
+ * {@link Ext.DomHelper DomHelper} specification:<pre><code>
+var myImage = new Ext.BoxComponent({
+    autoEl: {
+        tag: 'img',
+        src: '/images/my-image.jpg'
+    }
+});</code></pre></p>
  * @constructor
  * @param {Ext.Element/String/Object} config The configuration options.
  */
@@ -43,13 +61,17 @@ Ext.BoxComponent = Ext.extend(Ext.Component, {
      */
     /**
      * @cfg {Boolean} autoHeight
-     * True to use height:'auto', false to use fixed height. Note: although many components inherit this config option, not all will function as expected with a height of 'auto'. (defaults to false).
+     * True to use height:'auto', false to use fixed height (defaults to false). <b>Note</b>: Although many components 
+     * inherit this config option, not all will function as expected with a height of 'auto'. Setting autoHeight:true 
+     * means that the browser will manage height based on the element's contents, and that Ext will not manage it at all.
      */
     /**
      * @cfg {Boolean} autoWidth
-     * True to use width:'auto', false to use fixed width. Note: although many components inherit this config option, not all will function as expected with a width of 'auto'. (defaults to false).
+     * True to use width:'auto', false to use fixed width (defaults to false). <b>Note</b>: Although many components 
+     * inherit this config option, not all will function as expected with a width of 'auto'. Setting autoWidth:true 
+     * means that the browser will manage width based on the element's contents, and that Ext will not manage it at all.
      */
-	
+
     /* // private internal config
      * {Boolean} deferHeight
      * True to defer height calculations to an external component, false to allow this component to set its own
@@ -87,10 +109,20 @@ Ext.BoxComponent = Ext.extend(Ext.Component, {
     deferHeight: false,
 
     /**
-     * Sets the width and height of the component.  This method fires the resize event.  This method can accept
-     * either width and height as separate numeric arguments, or you can pass a size object like {width:10, height:20}.
-     * @param {Number/Object} width The new width to set, or a size object in the format {width, height}
-     * @param {Number} height The new height to set (not required if a size object is passed as the first arg)
+     * Sets the width and height of this BoxComponent. This method fires the {@link #resize} event. This method can accept
+     * either width and height as separate arguments, or you can pass a size object like <code>{width:10, height:20}</code>.
+     * @param {Mixed} width The new width to set. This may be one of:<div class="mdetail-params"><ul>
+     * <li>A Number specifying the new width in the {@link #getEl Element}'s {@link Ext.Element#defaultUnit}s (by default, pixels).</li>
+     * <li>A String used to set the CSS width style.</li>
+     * <li>A size object in the format <code>{width: widthValue, height: heightValue}</code>.</li>
+     * <li><code>undefined</code> to leave the width unchanged.</li>
+     * </ul></div>
+     * @param {Mixed} height The new height to set (not required if a size object is passed as the first arg).
+     * This may be one of:<div class="mdetail-params"><ul>
+     * <li>A Number specifying the new height in the {@link #getEl Element}'s {@link Ext.Element#defaultUnit}s (by default, pixels).</li>
+     * <li>A String used to set the CSS height style. Animation may <b>not</b> be used.</li>
+     * <li><code>undefined</code> to leave the height unchanged.</li>
+     * </ul></div>
      * @return {Ext.BoxComponent} this
      */
     setSize : function(w, h){
@@ -129,8 +161,11 @@ Ext.BoxComponent = Ext.extend(Ext.Component, {
     },
 
     /**
-     * Sets the width of the component.  This method fires the resize event.
-     * @param {Number} width The new width to set
+     * Sets the width of the component.  This method fires the {@link #resize} event.
+     * @param {Number} width The new width to setThis may be one of:<div class="mdetail-params"><ul>
+     * <li>A Number specifying the new width in the {@link #getEl Element}'s {@link Ext.Element#defaultUnit}s (by default, pixels).</li>
+     * <li>A String used to set the CSS width style.</li>
+     * </ul></div>
      * @return {Ext.BoxComponent} this
      */
     setWidth : function(width){
@@ -138,8 +173,12 @@ Ext.BoxComponent = Ext.extend(Ext.Component, {
     },
 
     /**
-     * Sets the height of the component.  This method fires the resize event.
-     * @param {Number} height The new height to set
+     * Sets the height of the component.  This method fires the {@link #resize} event.
+     * @param {Number} height The new height to set. This may be one of:<div class="mdetail-params"><ul>
+     * <li>A Number specifying the new height in the {@link #getEl Element}'s {@link Ext.Element#defaultUnit}s (by default, pixels).</li>
+     * <li>A String used to set the CSS height style.</li>
+     * <li><i>undefined</i> to leave the height unchanged.</li>
+     * </ul></div>
      * @return {Ext.BoxComponent} this
      */
     setHeight : function(height){
@@ -207,7 +246,7 @@ Ext.BoxComponent = Ext.extend(Ext.Component, {
 
     /**
      * Sets the left and top of the component.  To set the page XY position instead, use {@link #setPagePosition}.
-     * This method fires the move event.
+     * This method fires the {@link #move} event.
      * @param {Number} left The new left
      * @param {Number} top The new top
      * @return {Ext.BoxComponent} this
@@ -242,7 +281,7 @@ Ext.BoxComponent = Ext.extend(Ext.Component, {
 
     /**
      * Sets the page XY position of the component.  To set the left and top instead, use {@link #setPosition}.
-     * This method fires the move event.
+     * This method fires the {@link #move} event.
      * @param {Number} x The new x position
      * @param {Number} y The new y position
      * @return {Ext.BoxComponent} this

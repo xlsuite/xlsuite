@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -58,7 +58,13 @@ Ext.Slider = Ext.extend(Ext.BoxComponent, {
 	 */
     animate: true,
 
-	// private override
+    /**
+     * True while the thumb is in a drag operation
+     * @type boolean
+     */
+    dragging: false,
+
+    // private override
     initComponent : function(){
         if(this.value === undefined){
             this.value = this.minValue;
@@ -81,7 +87,14 @@ Ext.Slider = Ext.extend(Ext.BoxComponent, {
 			 * @param {Ext.Slider} slider The slider
 			 * @param {Number} newValue The new value which the slider has been changed to.
 			 */
-			'change', 
+			'change',
+			/**
+			 * @event changecomplete
+			 * Fires when the slider value is changed by the user and any drag operations have completed.
+			 * @param {Ext.Slider} slider The slider
+			 * @param {Number} newValue The new value which the slider has been changed to.
+			 */
+			'changecomplete',
 			/**
 			 * @event dragstart
              * Fires after a drag operation has started.
@@ -131,6 +144,8 @@ Ext.Slider = Ext.extend(Ext.BoxComponent, {
         this.mon(this.el, 'mousedown', this.onMouseDown, this);
         this.mon(this.el, 'keydown', this.onKeyDown, this);
 
+        this.focusEl.swallowEvent("click", true);
+
         this.tracker = new Ext.dd.DragTracker({
             onBeforeStart: this.onBeforeDragStart.createDelegate(this),
             onStart: this.onDragStart.createDelegate(this),
@@ -156,7 +171,7 @@ Ext.Slider = Ext.extend(Ext.BoxComponent, {
 	// private
     onClickChange : function(local){
         if(local.top > this.clickRange[0] && local.top < this.clickRange[1]){
-            this.setValue(Math.round(local.left/this.getRatio()));
+            this.setValue(Math.round(this.reverseValue(local.left)), undefined, true);
         }
     },
 	
@@ -169,18 +184,18 @@ Ext.Slider = Ext.extend(Ext.BoxComponent, {
             case e.RIGHT:
                 e.stopEvent();
                 if(e.ctrlKey){
-                    this.setValue(this.maxValue);
+                    this.setValue(this.maxValue, undefined, true);
                 }else{
-                    this.setValue(this.value+this.keyIncrement);
+                    this.setValue(this.value+this.keyIncrement, undefined, true);
                 }
             break;
             case e.DOWN:
             case e.LEFT:
                 e.stopEvent();
                 if(e.ctrlKey){
-                    this.setValue(this.minValue);
+                    this.setValue(this.minValue, undefined, true);
                 }else{
-                    this.setValue(this.value-this.keyIncrement);
+                    this.setValue(this.value-this.keyIncrement, undefined, true);
                 }
             break;
             default:
@@ -195,11 +210,12 @@ Ext.Slider = Ext.extend(Ext.BoxComponent, {
         }
         var newValue = value, inc = this.increment;
         var m = value % inc;
-        if(m > 0){
-            if(m > (inc/2)){
-                newValue = value + (inc-m);
-            }else{
-                newValue = value - m;
+        if(m != 0){
+            newValue -= m;
+            if(m * 2 > inc){
+                newValue += inc;
+            }else if(m * 2 < -inc){
+                newValue -= inc;
             }
         }
         return newValue.constrain(this.minValue,  this.maxValue);
@@ -223,7 +239,7 @@ Ext.Slider = Ext.extend(Ext.BoxComponent, {
     getRatio : function(){
         var w = this.innerEl.getWidth();
         var v = this.maxValue - this.minValue;
-        return w/v;
+        return v == 0 ? w : (w/v);
     },
 
 	// private
@@ -243,18 +259,27 @@ Ext.Slider = Ext.extend(Ext.BoxComponent, {
 	 * @param {Number} value The value to set the slider to. (This will be constrained within minValue and maxValue)
 	 * @param {Boolean} animate Turn on or off animation, defaults to true
 	 */
-    setValue : function(v, animate){
+    setValue : function(v, animate, changeComplete){
         v = this.normalizeValue(v);
         if(v !== this.value && this.fireEvent('beforechange', this, v, this.value) !== false){
             this.value = v;
             this.moveThumb(this.translateValue(v), animate !== false);
             this.fireEvent('change', this, v);
+            if(changeComplete){
+                this.fireEvent('changecomplete', this, v);
+            }
         }
     },
 
 	// private
     translateValue : function(v){
-        return (v * this.getRatio())-this.halfThumb;
+        var ratio = this.getRatio();
+        return (v * ratio)-(this.minValue * ratio)-this.halfThumb;
+    },
+
+	reverseValue : function(pos){
+        var ratio = this.getRatio();
+        return (pos+this.halfThumb+(this.minValue * ratio))/ratio;
     },
 
 	// private
@@ -279,25 +304,75 @@ Ext.Slider = Ext.extend(Ext.BoxComponent, {
 	// private
     onDragStart: function(e){
         this.thumb.addClass('x-slider-thumb-drag');
+        this.dragging = true;
+        this.dragStartValue = this.value;
         this.fireEvent('dragstart', this, e);
     },
 
 	// private
     onDrag: function(e){
         var pos = this.innerEl.translatePoints(this.tracker.getXY());
-        this.setValue(Math.round(pos.left/this.getRatio()), false);
+        this.setValue(Math.round(this.reverseValue(pos.left)), false);
         this.fireEvent('drag', this, e);
     },
 	
 	// private
     onDragEnd: function(e){
         this.thumb.removeClass('x-slider-thumb-drag');
+        this.dragging = false;
         this.fireEvent('dragend', this, e);
+        if(this.dragStartValue != this.value){
+            this.fireEvent('changecomplete', this, this.value);
+        }
+    },
+    
+    //private
+    onDisable: function(){
+        Ext.Slider.superclass.onDisable.call(this);
+        this.thumb.addClass(this.disabledClass);
+        if(Ext.isIE){
+            //IE breaks when using overflow visible and opacity other than 1.
+            //Create a place holder for the thumb and display it.
+            var xy = this.thumb.getXY();
+            this.thumb.hide();
+            this.innerEl.addClass(this.disabledClass).dom.disabled = true;
+            if (!this.thumbHolder){
+                this.thumbHolder = this.endEl.createChild({cls: 'x-slider-thumb ' + this.disabledClass});    
+            }
+            this.thumbHolder.show().setXY(xy);
+        }
+    },
+    
+    //private
+    onEnable: function(){
+        Ext.Slider.superclass.onEnable.call(this);
+        this.thumb.removeClass(this.disabledClass);
+        if(Ext.isIE){
+            this.innerEl.removeClass(this.disabledClass).dom.disabled = false;
+            if (this.thumbHolder){
+                this.thumbHolder.hide();
+            }
+            this.thumb.show();
+            this.syncThumb();
+        }
     },
 
-	// private
+    // private
     onResize : function(w, h){
         this.innerEl.setWidth(w - (this.el.getPadding('l') + this.endEl.getPadding('r')));
+        this.syncThumb();
+    },
+    
+    /**
+     * Synchronizes the thumb position to the proper proportion of the total component width based
+     * on the current slider {@link #value}.  This will be called automatically when the Slider
+     * is resized by a layout, but if it is rendered auto width, this method can be called from
+     * another resize handler to sync the Slider if necessary.
+     */
+    syncThumb : function(){
+        if(this.rendered){
+            this.moveThumb(this.translateValue(this.value));
+        }
     },
 	
 	/**
@@ -314,6 +389,7 @@ Ext.reg('slider', Ext.Slider);
 Ext.Slider.Vertical = {
     onResize : function(w, h){
         this.innerEl.setHeight(h - (this.el.getPadding('t') + this.endEl.getPadding('b')));
+        this.syncThumb();
     },
 
     getRatio : function(){
@@ -333,14 +409,14 @@ Ext.Slider.Vertical = {
     onDrag: function(e){
         var pos = this.innerEl.translatePoints(this.tracker.getXY());
         var bottom = this.innerEl.getHeight()-pos.top;
-        this.setValue(Math.round(bottom/this.getRatio()), false);
+        this.setValue(this.minValue + Math.round(bottom/this.getRatio()), false);
         this.fireEvent('drag', this, e);
     },
 
     onClickChange : function(local){
         if(local.left > this.clickRange[0] && local.left < this.clickRange[1]){
             var bottom = this.innerEl.getHeight()-local.top;
-            this.setValue(Math.round(bottom/this.getRatio()));
+            this.setValue(this.minValue + Math.round(bottom/this.getRatio()), undefined, true);
         }
     }
 };

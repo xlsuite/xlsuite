@@ -15,15 +15,37 @@ module ConfigurationsHelper
         })
       `
     else
-      %Q`
-        new Ext.form.TextField({
-          fieldLabel: "Value",
-          width: 500,
-          labelSeparator: ":",
-          name: "configuration[value]",
-          value: #{@configuration.value.to_json}
-        })
-      `
+      if configuration.name =~ /auto_approve_flagging/i
+        %Q`
+          new Ext.form.ComboBox({
+            name: "configuration[value]",
+            hiddenName: "configuration[value]",
+            displayField: 'display',
+            valueField: 'value',
+            fieldLabel: "Value",
+            triggerAction: 'all',
+            mode: 'local',
+            allowBlank: false,
+            forceSelection: true,
+            editable: false,
+            store: new Ext.data.SimpleStore({
+              fields: ['display', 'value'],
+              data: [['Always approved', 'always'], ['Logged In', 'logged_in'], ['Off', 'off']]
+            }),
+            value: #{current_domain.get_config("auto_approve_flagging").to_json}
+          })
+        `
+      else
+        %Q`
+          new Ext.form.TextField({
+            fieldLabel: "Value",
+            width: 500,
+            labelSeparator: ":",
+            name: "configuration[value]",
+            value: #{@configuration.value.to_json}
+          })
+        `
+      end
     end
   end
 

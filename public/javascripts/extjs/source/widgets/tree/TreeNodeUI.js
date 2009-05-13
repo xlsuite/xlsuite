@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -208,7 +208,7 @@ Ext.tree.TreeNodeUI.prototype = {
                 return;
             }
 
-            if(this.node.attributes.singleClickExpand && !this.animating && this.node.hasChildNodes()){
+            if(this.node.attributes.singleClickExpand && !this.animating && this.node.isExpandable()){
                 this.node.toggle();
             }
 
@@ -227,7 +227,7 @@ Ext.tree.TreeNodeUI.prototype = {
         if(this.checkbox){
             this.toggleCheck();
         }
-        if(!this.animating && this.node.hasChildNodes()){
+        if(!this.animating && this.node.isExpandable()){
             this.node.toggle();
         }
         this.fireEvent("dblclick", this.node, e);
@@ -252,7 +252,7 @@ Ext.tree.TreeNodeUI.prototype = {
 
     // private
     ecClick : function(e){
-        if(!this.animating && (this.node.hasChildNodes() || this.node.attributes.expandable)){
+        if(!this.animating && this.node.isExpandable()){
             this.node.toggle();
         }
     },
@@ -280,7 +280,7 @@ Ext.tree.TreeNodeUI.prototype = {
         if(!this.node.preventHScroll){
             try{this.anchor.focus();
             }catch(e){}
-        }else if(!Ext.isIE){
+        }else{
             try{
                 var noscroll = this.node.getOwnerTree().getTreeEl().dom;
                 var l = noscroll.scrollLeft;
@@ -314,7 +314,7 @@ Ext.tree.TreeNodeUI.prototype = {
     animExpand : function(callback){
         var ct = Ext.get(this.ctNode);
         ct.stopFx();
-        if(!this.node.hasChildNodes()){
+        if(!this.node.isExpandable()){
             this.updateExpandIcon();
             this.ctNode.style.display = "";
             Ext.callback(callback);
@@ -510,8 +510,7 @@ Ext.tree.TreeNodeUI.prototype = {
         if(this.rendered){
             var n = this.node, c1, c2;
             var cls = n.isLast() ? "x-tree-elbow-end" : "x-tree-elbow";
-            var hasChild = n.hasChildNodes();
-            if(hasChild || n.attributes.expandable){
+            if(n.isExpandable()){
                 if(n.expanded){
                     cls += "-minus";
                     c1 = "x-tree-node-collapsed";
@@ -593,7 +592,15 @@ Ext.tree.TreeNodeUI.prototype = {
         delete this.checkbox;
         delete this.anchor;
         delete this.textNode;
-        Ext.removeNode(this.ctNode);
+        
+        if (this.holder){
+             delete this.wrap;
+             Ext.removeNode(this.holder);
+             delete this.holder;
+        }else{
+            Ext.removeNode(this.wrap);
+            delete this.wrap;
+        }
     }
 };
 

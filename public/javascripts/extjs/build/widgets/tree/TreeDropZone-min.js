@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -23,7 +23,7 @@ var dropNode=data.node||(dd.getTreeNode?dd.getTreeNode(data,targetNode,point,e):
 targetNode=dropEvent.target;if(point=="append"&&!targetNode.isExpanded()){targetNode.expand(false,null,function(){this.completeDrop(dropEvent);}.createDelegate(this));}else{this.completeDrop(dropEvent);}
 return true;},completeDrop:function(de){var ns=de.dropNode,p=de.point,t=de.target;if(!Ext.isArray(ns)){ns=[ns];}
 var n;for(var i=0,len=ns.length;i<len;i++){n=ns[i];if(p=="above"){t.parentNode.insertBefore(n,t);}else if(p=="below"){t.parentNode.insertBefore(n,t.nextSibling);}else{t.appendChild(n);}}
-n.ui.focus();if(this.tree.hlDrop){n.ui.highlight();}
-t.ui.endDrop();this.tree.fireEvent("nodedrop",de);},afterNodeMoved:function(dd,data,e,targetNode,dropNode){if(this.tree.hlDrop){dropNode.ui.focus();dropNode.ui.highlight();}
+n.ui.focus();if(Ext.enableFx&&this.tree.hlDrop){n.ui.highlight();}
+t.ui.endDrop();this.tree.fireEvent("nodedrop",de);},afterNodeMoved:function(dd,data,e,targetNode,dropNode){if(Ext.enableFx&&this.tree.hlDrop){dropNode.ui.focus();dropNode.ui.highlight();}
 this.tree.fireEvent("nodedrop",this.tree,targetNode,data,dd,e);},getTree:function(){return this.tree;},removeDropIndicators:function(n){if(n&&n.ddel){var el=n.ddel;Ext.fly(el).removeClass(["x-tree-drag-insert-above","x-tree-drag-insert-below","x-tree-drag-append"]);this.lastInsertClass="_noclass";}},beforeDragDrop:function(target,e,id){this.cancelExpand();return true;},afterRepair:function(data){if(data&&Ext.enableFx){data.node.ui.highlight();}
 this.hideProxy();}});}

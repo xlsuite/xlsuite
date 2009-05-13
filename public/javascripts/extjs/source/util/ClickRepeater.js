@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -91,6 +91,12 @@ Ext.extend(Ext.util.ClickRepeater, Ext.util.Observable, {
     timer : 0,
 
     // private
+    destroy : function() {
+        Ext.destroy(this.el);
+        this.purgeListeners();
+    },
+    
+    // private
     handleMouseDown : function(){
         clearTimeout(this.timer);
         this.el.blur();
@@ -138,7 +144,7 @@ Ext.extend(Ext.util.ClickRepeater, Ext.util.Observable, {
 
     // private
     handleMouseReturn : function(){
-        this.el.un("mouseover", this.handleMouseReturn);
+        this.el.un("mouseover", this.handleMouseReturn, this);
         if(this.pressClass){
             this.el.addClass(this.pressClass);
         }
@@ -148,9 +154,9 @@ Ext.extend(Ext.util.ClickRepeater, Ext.util.Observable, {
     // private
     handleMouseUp : function(){
         clearTimeout(this.timer);
-        this.el.un("mouseover", this.handleMouseReturn);
-        this.el.un("mouseout", this.handleMouseOut);
-        Ext.getDoc().un("mouseup", this.handleMouseUp);
+        this.el.un("mouseover", this.handleMouseReturn, this);
+        this.el.un("mouseout", this.handleMouseOut, this);
+        Ext.getDoc().un("mouseup", this.handleMouseUp, this);
         this.el.removeClass(this.pressClass);
         this.fireEvent("mouseup", this);
     }

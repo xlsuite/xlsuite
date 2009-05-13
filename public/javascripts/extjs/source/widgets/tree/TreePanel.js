@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -31,7 +31,7 @@
  * @cfg {String} hlColor The color of the node highlight (defaults to C3DAF9)
  * @cfg {Boolean} animate true to enable animated expand/collapse (defaults to the value of Ext.enableFx)
  * @cfg {Boolean} singleExpand true if only 1 node per branch may be expanded
- * @cfg {Boolean} selModel A tree selection model to use with this TreePanel (defaults to a {@link Ext.tree.DefaultSelectionModel})
+ * @cfg {Object} selModel A tree selection model to use with this TreePanel (defaults to a {@link Ext.tree.DefaultSelectionModel})
  * @cfg {Boolean} trackMouseOver False to disable mouse over highlighting 
  * @cfg {Ext.tree.TreeLoader} loader A {@link Ext.tree.TreeLoader} for use with this TreePanel
  * @cfg {String} pathSeparator The token used to separate sub-paths in path strings (defaults to '/')
@@ -54,6 +54,17 @@ Ext.tree.TreePanel = Ext.extend(Ext.Panel, {
         if(!this.eventModel){
             this.eventModel = new Ext.tree.TreeEventModel(this);
         }
+        
+        // initialize the loader
+        var l = this.loader;
+        if(!l){
+            l = new Ext.tree.TreeLoader({
+                dataUrl: this.dataUrl
+            });
+        }else if(typeof l == 'object' && !l.load){
+            l = new Ext.tree.TreeLoader(l);
+        }
+        this.loader = l;
         
         this.nodeHash = {};
 
@@ -225,7 +236,48 @@ Ext.tree.TreePanel = Ext.extend(Ext.Panel, {
             "dblclick",
             /**
             * @event contextmenu
-            * Fires when a node is right clicked
+            * Fires when a node is right clicked. To display a context menu in response to this
+            * event, first create a Menu object (see {@link Ext.menu.Menu} for details), then add
+            * a handler for this event:<code><pre>
+new Ext.tree.TreePanel({
+    title: 'My TreePanel',
+    root: new Ext.tree.AsyncTreeNode({
+        text: 'The Root',
+        children: [
+            { text: 'Child node 1', leaf: true },
+            { text: 'Child node 2', leaf: true }
+        ]
+    }),
+    contextMenu: new Ext.menu.Menu({
+        items: [{
+            id: 'delete-node',
+            text: 'Delete Node'
+        }],
+        listeners: {
+            itemclick: function(item) {
+                switch (item.id) {
+                    case 'delete-node':
+                        var n = item.parentMenu.contextNode;
+                        if (n.parentNode) {
+                            n.remove();
+                        }
+                        break;
+                }
+            }
+        }
+    }),
+    listeners: {
+        contextmenu: function(node, e) {
+//          Register the context node with the menu so that a Menu Item's handler function can access
+//          it via its {@link Ext.menu.BaseItem#parentMenu parentMenu} property.
+            node.select();
+            var c = node.getOwnerTree().contextMenu;
+            c.contextNode = node;
+            c.showAt(e.getXY());
+        }
+    }
+});
+</pre></code>
             * @param {Node} node The node
             * @param {Ext.EventObject} e The event object
             */
@@ -344,6 +396,9 @@ Ext.tree.TreePanel = Ext.extend(Ext.Panel, {
      * @return {Node}
      */
     setRootNode : function(node){
+        if(!node.render){ // attributes passed
+            node = this.loader.createNode(node);
+        }
         this.root = node;
         node.ownerTree = this;
         node.isRoot = true;
@@ -552,6 +607,7 @@ Ext.tree.TreePanel = Ext.extend(Ext.Panel, {
         if((this.enableDD || this.enableDrop) && !this.dropZone){
            /**
             * The dropZone used by this tree if drop is enabled
+            * @property dropZone
             * @type Ext.tree.TreeDropZone
             */
              this.dropZone = new Ext.tree.TreeDropZone(this, this.dropConfig || {
@@ -561,6 +617,7 @@ Ext.tree.TreePanel = Ext.extend(Ext.Panel, {
         if((this.enableDD || this.enableDrag) && !this.dragZone){
            /**
             * The dragZone used by this tree if drag is enabled
+            * @property dragZone
             * @type Ext.tree.TreeDragZone
             */
             this.dragZone = new Ext.tree.TreeDragZone(this, this.dragConfig || {
@@ -649,10 +706,6 @@ Ext.tree.TreePanel = Ext.extend(Ext.Panel, {
      * @hide 
      */
     /** 
-     * @method add 
-     * @hide 
-     */
-    /** 
      * @method cascade 
      * @hide 
      */
@@ -702,6 +755,10 @@ Ext.tree.TreePanel = Ext.extend(Ext.Panel, {
      */
     /** 
      * @event add 
+     * @hide 
+     */
+    /** 
+     * @method removeAll
      * @hide 
      */
     /** 
@@ -765,4 +822,7 @@ Ext.tree.TreePanel = Ext.extend(Ext.Panel, {
      * @hide
      */
 });
+
+Ext.tree.TreePanel.nodeTypes = {};
+
 Ext.reg('treepanel', Ext.tree.TreePanel);

@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -52,11 +52,16 @@ Ext.CycleButton = Ext.extend(Ext.SplitButton, {
      * fire the {@link #change} event on active item change.  The changeHandler function will be called with the
      * following argument list: (SplitButton this, Ext.menu.CheckItem item)
      */
-	/**
-	 * @cfg {String} forceIcon A css class which sets an image to be used as the static icon for this button.  This
-	 * icon will always be displayed regardless of which item is selected in the dropdown list.  This overrides the 
-	 * default behavior of changing the button's icon to match the selected item's icon on change.
-	 */
+    /**
+     * @cfg {String} forceIcon A css class which sets an image to be used as the static icon for this button.  This
+     * icon will always be displayed regardless of which item is selected in the dropdown list.  This overrides the 
+     * default behavior of changing the button's icon to match the selected item's icon on change.
+     */
+    /**
+     * @property menu
+     * @type Menu
+     * The {@link Ext.menu.Menu Menu} object used to display the {@link Ext.menu.CheckItem CheckItems} representing the available choices.
+     */
 
     // private
     getItemText : function(item){
@@ -167,18 +172,18 @@ Ext.CycleButton = Ext.extend(Ext.SplitButton, {
      */
     toggleSelected : function(){
         this.menu.render();
-		
-		var nextIdx, checkItem;
-		for (var i = 1; i < this.itemCount; i++) {
-			nextIdx = (this.activeItem.itemIndex + i) % this.itemCount;
-			// check the potential item
-			checkItem = this.menu.items.itemAt(nextIdx);
-			// if its not disabled then check it.
-			if (!checkItem.disabled) {
-				checkItem.setChecked(true);
-				break;
-			}
-		}
+        
+        var nextIdx, checkItem;
+        for (var i = 1; i < this.itemCount; i++) {
+            nextIdx = (this.activeItem.itemIndex + i) % this.itemCount;
+            // check the potential item
+            checkItem = this.menu.items.itemAt(nextIdx);
+            // if its not disabled then check it.
+            if (!checkItem.disabled) {
+                checkItem.setChecked(true);
+                break;
+            }
+        }
     }
 });
 Ext.reg('cycle', Ext.CycleButton);

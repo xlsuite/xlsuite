@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -73,7 +73,7 @@ Ext.extend(Ext.grid.CellSelectionModel, Ext.grid.AbstractSelectionModel,  {
     /** @ignore */
     initEvents : function(){
         this.grid.on("cellmousedown", this.handleMouseDown, this);
-        this.grid.getGridEl().on(Ext.isIE || Ext.isSafari3 ? "keydown" : "keypress", this.handleKeyDown, this);
+        this.grid.getGridEl().on(Ext.isIE || Ext.isSafari3 || Ext.isChrome ? "keydown" : "keypress", this.handleKeyDown, this);
         var view = this.grid.view;
         view.on("refresh", this.onViewChange, this);
         view.on("rowupdated", this.onRowUpdated, this);
@@ -102,8 +102,8 @@ Ext.extend(Ext.grid.CellSelectionModel, Ext.grid.AbstractSelectionModel,  {
     },
 
 	/**
-	 * Returns the currently selected cell,.
-	 * @return {Object} The selected cell or null if none selected.
+	 * Returns the currently selected cell's row and column indexes as an array (e.g., [0, 0]).
+	 * @return {Array} An array containing the row and column indexes of the selected cell, or null if none selected.
 	 */
     getSelectedCell : function(){
         return this.selection ? this.selection.cell : null;

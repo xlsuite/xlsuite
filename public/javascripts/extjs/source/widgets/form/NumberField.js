@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -15,6 +15,12 @@
  * @param {Object} config Configuration options
  */
 Ext.form.NumberField = Ext.extend(Ext.form.TextField,  {
+    /**
+     * @cfg {RegExp} stripCharsRe @hide
+     */
+    /**
+     * @cfg {RegExp} maskRe @hide
+     */
     /**
      * @cfg {String} fieldClass The default CSS class for the field (defaults to "x-form-field x-form-num-field")
      */
@@ -63,26 +69,15 @@ Ext.form.NumberField = Ext.extend(Ext.form.TextField,  {
 
     // private
     initEvents : function(){
-        Ext.form.NumberField.superclass.initEvents.call(this);
-        var allowed = this.baseChars+'';
-        if(this.allowDecimals){
+        var allowed = this.baseChars + '';
+        if (this.allowDecimals) {
             allowed += this.decimalSeparator;
         }
-        if(this.allowNegative){
-            allowed += "-";
+        if (this.allowNegative) {
+            allowed += '-';
         }
-        this.stripCharsRe = new RegExp('[^'+allowed+']', 'gi');
-        var keyPress = function(e){
-            var k = e.getKey();
-            if(!Ext.isIE && (e.isSpecialKey() || k == e.BACKSPACE || k == e.DELETE)){
-                return;
-            }
-            var c = e.getCharCode();
-            if(allowed.indexOf(String.fromCharCode(c)) === -1){
-                e.stopEvent();
-            }
-        };
-        this.el.on("keypress", keyPress, this);
+        this.maskRe = new RegExp('[' + Ext.escapeRe(allowed) + ']');
+        Ext.form.NumberField.superclass.initEvents.call(this);
     },
 
     // private
@@ -137,7 +132,7 @@ Ext.form.NumberField = Ext.extend(Ext.form.TextField,  {
 
     beforeBlur : function(){
         var v = this.parseValue(this.getRawValue());
-        if(v){
+        if(!Ext.isEmpty(v)){
             this.setValue(this.fixPrecision(v));
         }
     }

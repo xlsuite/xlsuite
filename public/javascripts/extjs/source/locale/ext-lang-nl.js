@@ -1,35 +1,28 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
  */
 
-/*
-  * List compiled by mystix on the extjs.com forums.
-  * Thank you Mystix!
-  *
-  * Dutch Translations
-  * by Ido Sebastiaan Bas van Oostveen (12 Oct 2007)
-  */
+/**
+ * List compiled by mystix on the extjs.com forums.
+ * Thank you Mystix!
+ *
+ * Dutch Translations
+ * by Ido Sebastiaan Bas van Oostveen (12 Oct 2007)
+ * updated to 2.2 by Condor (8 Aug 2008)
+ */
 
 Ext.UpdateManager.defaults.indicatorText = '<div class="loading-indicator">Bezig met laden...</div>';
 
-if(Ext.View){
-  Ext.View.prototype.emptyText = '';
+if(Ext.DataView){
+  Ext.DataView.prototype.emptyText = '';
 }
 
 if(Ext.grid.GridPanel){
   Ext.grid.GridPanel.prototype.ddText = '{0} geselecteerde rij(en)';
-}
-
-if(Ext.TabPanelItem){
-  Ext.TabPanelItem.prototype.closeText = 'Sluit dit tabblad';
-}
-
-if(Ext.form.Field){
-  Ext.form.Field.prototype.invalidText = 'De waarde van dit veld is ongeldig';
 }
 
 if(Ext.LoadMask){
@@ -53,7 +46,7 @@ Date.monthNames = [
 
 Date.getShortMonthName = function(month) {
   if (month == 2) {
-  return 'mrt';
+    return 'mrt';
   }
   return Date.monthNames[month].substring(0, 3);
 };
@@ -61,7 +54,7 @@ Date.getShortMonthName = function(month) {
 Date.monthNumbers = {
   jan: 0,
   feb: 1,
-  maa: 2,
+  mrt: 2,
   apr: 3,
   mei: 4,
   jun: 5,
@@ -75,7 +68,7 @@ Date.monthNumbers = {
 
 Date.getMonthNumber = function(name) {
   var sname = name.substring(0, 3).toLowerCase();
-  if (sname == 'mrt') {
+  if (sname == 'maa') {
     return 2;
   }
   return Date.monthNumbers[sname];
@@ -94,6 +87,8 @@ Date.dayNames = [
 Date.getShortDayName = function(day) {
   return Date.dayNames[day].substring(0, 3);
 };
+
+Date.parseCodes.S.s = "(?:ste|e)";
 
 if(Ext.MessageBox){
   Ext.MessageBox.buttonText = {
@@ -146,6 +141,10 @@ if(Ext.PagingToolbar){
   });
 }
 
+if(Ext.form.Field){
+  Ext.form.Field.prototype.invalidText = 'De waarde van dit veld is ongeldig';
+}
+
 if(Ext.form.TextField){
   Ext.apply(Ext.form.TextField.prototype, {
     minLengthText: 'De minimale lengte van dit veld is {0}',
@@ -158,6 +157,8 @@ if(Ext.form.TextField){
 
 if(Ext.form.NumberField){
   Ext.apply(Ext.form.NumberField.prototype, {
+    decimalSeparator : ",",
+    decimalPrecision : 2,
     minText: 'De minimale waarde van dit veld is {0}',
     maxText: 'De maximale waarde van dit veld is {0}',
     nanText: '{0} is geen geldig getal'
@@ -194,8 +195,8 @@ if(Ext.form.VTypes){
 
 if(Ext.form.HtmlEditor){
   Ext.apply(Ext.form.HtmlEditor.prototype, {
-  createLinkText: 'Vul hier de URL voor de hyperlink in:',
-  buttonTips: {
+    createLinkText: 'Vul hier de URL voor de hyperlink in:',
+    buttonTips: {
       bold: {
         title: 'Vet (Ctrl+B)',
         text: 'Maak de geselecteerde tekst vet.',
@@ -274,8 +275,6 @@ if(Ext.grid.GridView){
   Ext.apply(Ext.grid.GridView.prototype, {
     sortAscText: 'Sorteer oplopend',
     sortDescText: 'Sorteer aflopend',
-    lockText: 'Kolom vastzetten',
-    unlockText: 'Kolom vrijgeven',
     columnsText: 'Kolommen'
   });
 }
@@ -310,5 +309,17 @@ if(Ext.form.TimeField){
     invalidText: '{0} is geen geldig tijdstip',
     format: 'G:i',
     altFormats: 'g:ia|g:iA|g:i a|g:i A|h:i|g:i|H:i|ga|ha|gA|h a|g a|g A|gi|hi|gia|hia|g|H'
+  });
+}
+
+if(Ext.form.CheckboxGroup){
+  Ext.apply(Ext.form.CheckboxGroup.prototype, {
+    blankText : 'Selecteer minimaal een element in deze groep'
+  });
+}
+
+if(Ext.form.RadioGroup){
+  Ext.apply(Ext.form.RadioGroup.prototype, {
+    blankText : 'Selecteer een element in deze groep'
   });
 }

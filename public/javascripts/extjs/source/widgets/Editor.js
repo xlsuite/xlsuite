@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -33,7 +33,7 @@ Ext.extend(Ext.Editor, Ext.Component, {
      */
     /**
      * @cfg {Boolean} ignoreNoChange
-     * True to skip the the edit completion process (no save, no events fired) if the user completes an edit and
+     * True to skip the edit completion process (no save, no events fired) if the user completes an edit and
      * the value has not changed (defaults to false).  Applies only to string values - edits for other data types
      * will never be ignored.
      */
@@ -116,6 +116,14 @@ Ext.extend(Ext.Editor, Ext.Component, {
              */
             "complete",
             /**
+             * @event canceledit
+             * Fires after editing has been canceled and the editor's value has been reset.
+             * @param {Editor} this
+             * @param {Mixed} value The user-entered field value that was discarded
+             * @param {Mixed} startValue The original field value that was set back into the editor after cancel
+             */
+            "canceledit",
+            /**
              * @event specialkey
              * Fires when any key related to navigation (arrows, tab, enter, esc, etc.) is pressed.  You can check
              * {@link Ext.EventObject#getKey} to determine which key was pressed.
@@ -157,14 +165,19 @@ Ext.extend(Ext.Editor, Ext.Component, {
         }
     },
 
+    // private
     onSpecialKey : function(field, e){
-        if(this.completeOnEnter && e.getKey() == e.ENTER){
+        var key = e.getKey();
+        if(this.completeOnEnter && key == e.ENTER){
             e.stopEvent();
             this.completeEdit();
-        }else if(this.cancelOnEsc && e.getKey() == e.ESC){
+        }else if(this.cancelOnEsc && key == e.ESC){
             this.cancelEdit();
         }else{
             this.fireEvent('specialkey', field, e);
+        }
+        if(this.field.triggerBlur && (key == e.ENTER || key == e.ESC || key == e.TAB)){
+            this.field.triggerBlur();
         }
     },
 
@@ -220,6 +233,10 @@ Ext.extend(Ext.Editor, Ext.Component, {
         delete this.field.lastSize;
         this.field.setSize(w, h);
         if(this.el){
+	        if(Ext.isGecko2 || Ext.isOpera){
+	            // prevent layer scrollbars
+	            this.el.setSize(w, h);
+	        }
             this.el.sync();
         }
     },
@@ -240,23 +257,21 @@ Ext.extend(Ext.Editor, Ext.Component, {
             return;
         }
         var v = this.getValue();
-        if(this.revertInvalid !== false && !this.field.isValid()){
-            v = this.startValue;
-            this.cancelEdit(true);
+        if(!this.field.isValid()){
+            if(this.revertInvalid !== false){
+                this.cancelEdit(remainVisible);
+            }
+            return;
         }
         if(String(v) === String(this.startValue) && this.ignoreNoChange){
-            this.editing = false;
-            this.hide();
+            this.hideEdit(remainVisible);
             return;
         }
         if(this.fireEvent("beforecomplete", this, v, this.startValue) !== false){
-            this.editing = false;
             if(this.updateEl && this.boundEl){
                 this.boundEl.update(v);
             }
-            if(remainVisible !== true){
-                this.hide();
-            }
+            this.hideEdit(remainVisible);
             this.fireEvent("complete", this, v, this.startValue);
         }
     },
@@ -291,10 +306,18 @@ Ext.extend(Ext.Editor, Ext.Component, {
      */
     cancelEdit : function(remainVisible){
         if(this.editing){
+            var v = this.getValue();
             this.setValue(this.startValue);
-            if(remainVisible !== true){
-                this.hide();
-            }
+            this.hideEdit(remainVisible);
+            this.fireEvent("canceledit", this, v, this.startValue);
+        }
+    },
+    
+    // private
+    hideEdit: function(remainVisible){
+        if(remainVisible !== true){
+            this.editing = false;
+            this.hide();
         }
     },
 
@@ -338,7 +361,7 @@ Ext.extend(Ext.Editor, Ext.Component, {
     },
 
     beforeDestroy : function(){
-        this.field.destroy();
+        Ext.destroy(this.field);
         this.field = null;
     }
 });

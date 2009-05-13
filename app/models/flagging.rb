@@ -288,11 +288,9 @@ class Flagging < ActiveRecord::Base
   validates_format_of :referrer_url, :with => %r{\A(?:ftp|https?)://.*\Z}, :message => "must be absolute url", :if => :referrer_url_not_blank
   
   after_save :flaggable_flagging_approved_callback
+  before_create :set_approved
   belongs_to :created_by, :class_name => "Party", :foreign_key => :created_by_id
-  
-  def flaggable_flagging_approved_callback
-    self.flaggable.after_flagging_approved_callback
-  end
+
   
   def approve!
     self.approved_at = Time.now
@@ -312,5 +310,19 @@ class Flagging < ActiveRecord::Base
   
   def referrer_url_not_blank
     !self.referrer_url.blank?
+  end  
+  
+  def flaggable_flagging_approved_callback
+    self.flaggable.after_flagging_approved_callback
+  end
+  
+  def set_approved
+    config = if self.flaggable.respond_to?(:domain)
+      self.flaggable.domain.get_config(:auto_approve_flagging)
+    else
+      self.account.get_config(:auto_approve_flagging)
+    end
+    self.approved_at = Time.now if (config =~ /always/i || (config =~ /logged_in/i && self.created_by_id))
+    true
   end
 end

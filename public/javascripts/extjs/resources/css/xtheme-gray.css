@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -205,7 +205,6 @@
 ul.x-tab-strip-top{
 	background:#dbdbdb url(../images/gray/tabs/tab-strip-bg.gif) repeat-x left top;
 	border-color:#d0d0d0;
-    padding-top: 2px;
 }
 
 ul.x-tab-strip-bottom{
@@ -274,7 +273,8 @@ ul.x-tab-strip-bottom{
     border-color: #d0d0d0;
 }
 
-.x-tab-panel-header-plain .x-tab-strip-spacer {
+.x-tab-panel-header-plain .x-tab-strip-spacer,
+.x-tab-panel-footer-plain .x-tab-strip-spacer {
     border-color:#d0d0d0;
     background: #eaeaea;
 }

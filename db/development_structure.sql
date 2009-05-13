@@ -874,6 +874,21 @@ CREATE TABLE `filters` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `flaggings` (
+  `id` int(11) NOT NULL auto_increment,
+  `account_id` int(11) default NULL,
+  `created_by_id` int(11) default NULL,
+  `request_ip` varchar(255) default NULL,
+  `flaggable_type` varchar(255) default NULL,
+  `flaggable_id` int(11) default NULL,
+  `reason` text,
+  `created_at` datetime default NULL,
+  `approved_at` datetime default NULL,
+  `referrer_url` varchar(255) default NULL,
+  `completed` tinyint(1) default '0',
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `folder_editors` (
   `folder_id` int(11) default NULL,
   `group_id` int(11) default NULL
@@ -1255,7 +1270,8 @@ CREATE TABLE `items` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_uuid` (`account_id`,`uuid`),
   KEY `by_account_fullslug_status` (`account_id`,`fullslug`,`status`),
-  KEY `by_account_type_title` (`account_id`,`type`,`title`)
+  KEY `by_account_type_title` (`account_id`,`type`,`title`),
+  KEY `by_delta` (`delta`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `job_slots_teams` (
@@ -1307,7 +1323,8 @@ CREATE TABLE `layouts` (
   `no_update` tinyint(1) default '0',
   `delta` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
-  KEY `by_account_title` (`account_id`,`title`)
+  KEY `by_account_title` (`account_id`,`title`),
+  KEY `by_delta` (`delta`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `link_categories` (
@@ -1384,7 +1401,8 @@ CREATE TABLE `listings` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_ext_id` (`account_id`,`external_id`),
   KEY `by_account_public_status` (`account_id`,`public`,`status`),
-  KEY `by_account_public_open_house` (`account_id`,`public`,`open_house`)
+  KEY `by_account_public_open_house` (`account_id`,`public`,`open_house`),
+  KEY `by_delta` (`delta`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `mappers` (
@@ -1556,7 +1574,9 @@ CREATE TABLE `parties` (
   UNIQUE KEY `by_account_token` (`account_id`,`token`),
   UNIQUE KEY `by_profile` (`profile_id`),
   KEY `by_account_display` (`account_id`,`display_name`),
-  KEY `by_account_profile` (`account_id`,`profile_id`)
+  KEY `by_account_profile` (`account_id`,`profile_id`),
+  KEY `by_referred_by` (`referred_by_id`),
+  KEY `by_delta` (`delta`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `parties_product_categories` (
@@ -2622,6 +2642,26 @@ INSERT INTO schema_migrations (version) VALUES ('20090505002429');
 
 INSERT INTO schema_migrations (version) VALUES ('20090505004227');
 
+INSERT INTO schema_migrations (version) VALUES ('20090505014816');
+
 INSERT INTO schema_migrations (version) VALUES ('20090505215447');
 
 INSERT INTO schema_migrations (version) VALUES ('20090505220949');
+
+INSERT INTO schema_migrations (version) VALUES ('20090505221405');
+
+INSERT INTO schema_migrations (version) VALUES ('20090506001125');
+
+INSERT INTO schema_migrations (version) VALUES ('20090506013427');
+
+INSERT INTO schema_migrations (version) VALUES ('20090508002614');
+
+INSERT INTO schema_migrations (version) VALUES ('20090508214707');
+
+INSERT INTO schema_migrations (version) VALUES ('20090511190108');
+
+INSERT INTO schema_migrations (version) VALUES ('20090511193959');
+
+INSERT INTO schema_migrations (version) VALUES ('20090511194610');
+
+INSERT INTO schema_migrations (version) VALUES ('20090511195003');

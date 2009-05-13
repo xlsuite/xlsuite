@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -37,6 +37,54 @@ Ext.Panel = Ext.extend(Ext.Container, {
      * @property body
      */
     /**
+     * @cfg {Object} bodyCfg
+     * <p>A {@link Ext.DomHelper DomHelper} configuration object specifying the element structure
+     * of this Panel's {@link #body} Element.</p>
+     * <p>This may be used to force the body Element to use a different form of markup than
+     * is created automatically. An example of this might be to create a child Panel containing
+     * custom content, such as a header, or forcing centering of all Panel
+     * content by having the body be a &lt;center&gt; element:</p><code><pre>
+new Ext.Panel({
+    title: 'New Message',
+    collapsible: true,
+    renderTo: Ext.getBody(),
+    width: 400,
+    bodyCfg: {
+        tag: 'center',
+        cls: 'x-panel-body'
+    },
+    items: [{
+        border: false,
+        header: false,
+        bodyCfg: {tag: 'h2', html: 'Message'}
+    }, {
+        xtype: 'textarea',
+        style: {
+            width: '95%',
+            marginBottom: '10px'
+        }
+    },
+        new Ext.Button({
+            text: 'Send',
+            minWidth: '100',
+            style: {
+                marginBottom: '10px'
+            }
+        })
+    ]
+});</pre></code>
+     */
+    /**
+     * @cfg {Object} headerCfg
+     * <p>A {@link Ext.DomHelper DomHelper} configuration object specifying the element structure
+     * of this Panel's {@link #header} Element.</p>
+     */
+    /**
+     * @cfg {Object} footerCfg
+     * <p>A {@link Ext.DomHelper DomHelper} configuration object specifying the element structure
+     * of this Panel's {@link #footer} Element.</p>
+     */
+    /**
      * The Panel's footer {@link Ext.Element Element}. Read-only.
      * <p>This Element is used to house the Panel's {@link #buttons}.</p>
      * @type Ext.Element
@@ -61,19 +109,27 @@ Ext.Panel = Ext.extend(Ext.Container, {
      */
     /**
      * @cfg {Object/Array} tbar
-     * The top toolbar of the panel.  This can be either an {@link Ext.Toolbar} object or an array of
+     * <p>The top toolbar of the panel. This can be either an {@link Ext.Toolbar} object or an array of
      * buttons/button configs to be added to the toolbar.  Note that this is not available as a property after render.
-     * To access the top toolbar after render, use {@link #getTopToolbar}.
+     * To access the top toolbar after render, use {@link #getTopToolbar}.</p>
+     * <p><b>Note:</b> Although a Toolbar may contain Field components, these will <b>not<b> be updated by a load
+     * of an ancestor FormPanel. A Panel's toolbars are not part of the standard Container->Component hierarchy, and
+     * so are not scanned to collect form items. Hoverver, the values <b>will</b> be submitted because form
+     * submission parameters are collected from the DOM tree.</p>
      */
     /**
      * @cfg {Object/Array} bbar
-     * The bottom toolbar of the panel.  This can be a {@link Ext.Toolbar} object, a toolbar config, or an array of
+     * <p>The bottom toolbar of the panel. This can be either an {@link Ext.Toolbar} object or an array of
      * buttons/button configs to be added to the toolbar.  Note that this is not available as a property after render.
-     * To access the bottom toolbar after render, use {@link #getBottomToolbar}.
+     * To access the bottom toolbar after render, use {@link #getBottomToolbar}.</p>
+     * <p><b>Note:</b> Although a Toolbar may contain Field components, these will <b>not<b> be updated by a load
+     * of an ancestor FormPanel. A Panel's toolbars are not part of the standard Container->Component hierarchy, and
+     * so are not scanned to collect form items. Hoverver, the values <b>will</b> be submitted because form
+     * submission parameters are collected from the DOM tree.</p>
      */
     /**
      * @cfg {Boolean} header
-     * True to create the header element explicitly, false to skip creating it.  By default, when header is not
+     * True to create the Panel's header element explicitly, false to skip creating it.  By default, when header is not
      * specified, if a {@link #title} is set the header will be created automatically, otherwise it will not.  If
      * a title is set but header is explicitly set to false, the header will not be rendered.
      */
@@ -92,7 +148,7 @@ Ext.Panel = Ext.extend(Ext.Container, {
      */
     /**
      * @cfg {Array} buttons
-     * An array of {@link Ext.Button} <b>configs</b> used to add buttons to the footer of this panel.
+     * An array of {@link Ext.Button}s or {@link Ext.Button} configs used to add buttons to the footer of this panel.
      */
     /**
      * @cfg {Object/String/Function} autoLoad
@@ -139,7 +195,9 @@ Ext.Panel = Ext.extend(Ext.Container, {
      * <p>Each tool config may contain the following properties:
      * <div class="mdetail-params"><ul>
      * <li><b>id</b> : String<div class="sub-desc"><b>Required.</b> The type
-     * of tool to create. Values may be<ul>
+     * of tool to create. By default, this assigns a CSS class of the form <tt>x-tool-<i>&lt;tool-type&gt;</i></tt> to the
+     * resulting tool Element. Ext provides CSS rules, and an icon sprite containing images for the tool types listed below.
+     * The developer may implement custom tools by supplying alternate CSS rules and background images:<ul>
      * <li><tt>toggle</tt> (Created by default when {@link #collapsible} is <tt>true</tt>)</li>
      * <li><tt>close</tt></li>
      * <li><tt>minimize</tt></li>
@@ -190,6 +248,33 @@ tools:[{
      * necessary behavior.
      */
     /**
+     * @cfg {Ext.Template/Ext.XTemplate} toolTemplate
+     * @type {Ext.Template/Ext.XTemplate}
+     * <p>A Template used to create tools in the {@link #header} Element. Defaults to:</p><pre><code>
+new Ext.Template('&lt;div class="x-tool x-tool-{id}">&amp;#160;&lt;/div>')</code></pre>
+     * <p>This may may be overridden to provide a custom DOM structure for tools based upon a more
+     * complex XTemplate. The template's data is a single tool configuration object (Not the entire Array)
+     * as specified in {@link #tools} Example:</p><pre><code>
+var win = new Ext.Window({
+    tools: [{
+        id: 'download',
+        href: '/MyPdfDoc.pdf'
+    }],
+    toolTemplate: new Ext.XTemplate(
+        '&lt;tpl if="id==\'download\'">',
+            '&lt;a class="x-tool x-tool-pdf" href="{href}">&lt;/a>',
+        '&lt;/tpl>',
+        '&lt;tpl if="id!=\'download\'">',
+            '&lt;div class="x-tool x-tool-{id}">&amp;#160;&lt;/div>',
+        '&lt;/tpl>'
+    ),
+    width:500,
+    height:300,
+    closeAction:'hide'
+});</code></pre>
+     * <p>Note that the CSS class "x-tool-pdf" should have an associated style rule which provides an appropriate background image.</p>
+     */
+    /**
      * @cfg {Boolean} hideCollapseTool
      * True to hide the expand/collapse toggle button when {@link #collapsible} = true, false to display it (defaults to false).
      */
@@ -205,12 +290,15 @@ tools:[{
      */
     /**
      * @cfg {Boolean} floating
-     * True to float the panel (absolute position it with automatic shimming and shadow), false to display it
-     * inline where it is rendered (defaults to false).  Note that by default, setting floating to true will cause the
-     * panel to display at negative offsets so that it is hidden -- because the panel is absolute positioned, the
-     * position must be set explicitly after render (e.g., myPanel.setPosition(100,100);).  Also, when floating a
-     * panel you should always assign a fixed width, otherwise it will be auto width and will expand to fill to the
-     * right edge of the viewport.
+     * <p>True to float this Panel (absolute position it with automatic shimming and shadow), false to display it inline
+     * where it is rendered (defaults to false).</p>
+     * <p>Setting floating to true will create an {@link Ext.Layer} encapsulating this Panel's Element and
+     * display the Panel at negative offsets so that it is hidden. The position must be set explicitly after render
+     * (e.g., myPanel.setPosition(100,100);).</p>
+     * <p>When floating a panel you should always assign a fixed width, otherwise it will be auto width and will expand
+     * to fill to the right edge of the viewport.</p>
+     * <p>This property may also be specified as an object to be used as the configuration object for
+     * the {@link Ext.Layer} that will be created.
      */
     /**
      * @cfg {Boolean/String} shadow
@@ -230,11 +318,17 @@ tools:[{
     /**
      * @cfg {String/Object} html
      * An HTML fragment, or a {@link Ext.DomHelper DomHelper} specification to use
-     * as the panel's body content (defaults to '').
+     * as the panel's body content (defaults to ''). The HTML content is added by the Panel's
+     * afterRender method, and so the document will not contain this HTML at the time the render
+     * event is fired. This content is inserted into the body <i>before</i> any configured
+     * {@link #contentEl} is appended.
      */
     /**
      * @cfg {String} contentEl
-     * The id of an existing HTML node to use as the panel's body content (defaults to '').
+     * The id of an existing HTML node to use as the panel's body content (defaults to ''). The
+     * specified Element is appended to the Panel's body Element by the Panel's afterRender method
+     * <i>after any configured {@link #html HTML} has been inserted</i>, and so the document will
+     * not contain this HTML at the time the render event is fired.
      */
     /**
      * @cfg {Object/Array} keys
@@ -293,7 +387,35 @@ new Ext.Panel({
        * Adds a tooltip when mousing over the tab of a Ext.Panel which is an item of a Ext.TabPanel. Ext.QuickTips.init()
        * must be called in order for the tips to render.
      */
-
+    /**
+     * @cfg {Boolean} disabled
+     * Render this panel disabled (default is false). An important note when using the disabled config on panels is
+     * that IE will often fail to initialize the disabled mask element correectly if the panel's layout has not yet 
+     * completed by the time the Panel is disabled during the render process. If you experience this issue, you may 
+     * need to instead use the {@link afterlayout} event to initialize the disabled state:
+     * <pre><code>
+new Ext.Panel({
+    ...
+    listeners: {
+        'afterlayout': {
+            fn: function(p){
+                p.disable();
+            },
+            single: true // important, as many layouts can occur
+        }
+    }
+});
+</code></pre>
+     */
+    /**
+     * @cfg {Boolean} autoHeight
+     * True to use height:'auto', false to use fixed height (defaults to false). <b>Note</b>: Setting autoHeight:true 
+     * means that the browser will manage the panel's height based on its contents, and that Ext will not manage it at 
+     * all. If the panel is within a layout that manages dimensions (fit, border, etc.) then setting autoHeight:true
+     * can cause issues with scrolling and will not generally work as expected since the panel will take on the height
+     * of its contents rather than the height required by the Ext layout.
+     */
+    
 
     /**
     * @cfg {String} baseCls
@@ -367,6 +489,7 @@ new Ext.Panel({
     toolTarget : 'header',
     collapseEl : 'bwrap',
     slideAnchor : 't',
+    disabledClass: '',
 
     // private, notify box this class will handle heights
     deferHeight: true,
@@ -399,6 +522,14 @@ new Ext.Panel({
              * @param {String} The new title.
              */
             'titlechange',
+            /**
+             * @event iconchange
+             * Fires after the Panel icon class has been set or changed.
+             * @param {Ext.Panel} p the Panel which has had its icon class changed.
+             * @param {String} The new icon class.
+             * @param {String} The old icon class.
+             */
+            'iconchange',
             /**
              * @event collapse
              * Fires after the Panel has been collapsed.
@@ -499,6 +630,7 @@ new Ext.Panel({
             this.buttons = [];
             for(var i = 0, len = btns.length; i < len; i++) {
                 if(btns[i].render){ // button instance
+                    btns[i].ownerCt = this;
                     this.buttons.push(btns[i]);
                 }else{
                     this.addButton(btns[i]);
@@ -524,6 +656,12 @@ new Ext.Panel({
                 var el = document.createElement('div');
                 el.className = this[name+'Cls'];
                 this[name] = Ext.get(pnode.appendChild(el));
+            }
+            if(this[name+'CssClass']){
+                this[name].addClass(this[name+'CssClass']);
+            }
+            if(this[name+'Style']){
+                this[name].applyStyles(this[name+'Style']);
             }
         }
     },
@@ -624,10 +762,6 @@ new Ext.Panel({
            this.body.addClass(this.bodyCls + '-noborder');
         }
 
-        if(this.bodyStyle){
-           this.body.applyStyles(this.bodyStyle);
-        }
-
         this.bwrap.enableDisplayMode('block');
 
         if(this.header){
@@ -725,6 +859,7 @@ new Ext.Panel({
                  }
             }
         }
+        this.fireEvent('iconchange', this, cls, old);
     },
 
     // private
@@ -801,27 +936,30 @@ new Ext.Panel({
             Ext.Panel.prototype.toolTemplate = tt;
         }
         for(var i = 0, a = arguments, len = a.length; i < len; i++) {
-            var tc = a[i], overCls = 'x-tool-'+tc.id+'-over';
-            var t = this.toolTemplate.insertFirst((tc.align !== 'left') ? this[this.toolTarget] : this[this.toolTarget].child('span'), tc, true);
-            this.tools[tc.id] = t;
-            t.enableDisplayMode('block');
-            t.on('click', this.createToolHandler(t, tc, overCls, this));
-            if(tc.on){
-                t.on(tc.on);
-            }
-            if(tc.hidden){
-                t.hide();
-            }
-            if(tc.qtip){
-                if(typeof tc.qtip == 'object'){
-                    Ext.QuickTips.register(Ext.apply({
-                          target: t.id
-                    }, tc.qtip));
-                } else {
-                    t.dom.qtip = tc.qtip;
+            var tc = a[i];
+            if(!this.tools[tc.id]){
+                var overCls = 'x-tool-'+tc.id+'-over';
+                var t = this.toolTemplate.insertFirst((tc.align !== 'left') ? this[this.toolTarget] : this[this.toolTarget].child('span'), tc, true);
+                this.tools[tc.id] = t;
+                t.enableDisplayMode('block');
+                t.on('click', this.createToolHandler(t, tc, overCls, this));
+                if(tc.on){
+                    t.on(tc.on);
                 }
+                if(tc.hidden){
+                    t.hide();
+                }
+                if(tc.qtip){
+                    if(typeof tc.qtip == 'object'){
+                        Ext.QuickTips.register(Ext.apply({
+                              target: t.id
+                        }, tc.qtip));
+                    } else {
+                        t.dom.qtip = tc.qtip;
+                    }
+                }
+                t.addClassOnOver(overCls);
             }
-            t.addClassOnOver(overCls);
         }
     },
 
@@ -882,11 +1020,14 @@ new Ext.Panel({
         Ext.Panel.superclass.afterRender.call(this); // do sizing calcs last
         this.initEvents();
     },
-    
+
     // private
     setAutoScroll : function(){
         if(this.rendered && this.autoScroll){
-            this.body.setOverflow('auto');
+            var el = this.body || this.el;
+            if(el){
+                el.setOverflow('auto');
+            }
         }
     },
 
@@ -1073,6 +1214,10 @@ new Ext.Panel({
                 }else if(h == 'auto'){
                     this.body.setHeight(h);
                 }
+                
+                if(this.disabled && this.el._mask){
+                    this.el._mask.setSize(this.el.dom.clientWidth, this.el.getHeight());
+                }
             }else{
                 this.queuedBodySize = {width: w, height: h};
                 if(!this.queuedExpand && this.allowQueuedExpand !== false){
@@ -1102,25 +1247,6 @@ new Ext.Panel({
     // private
     onPosition : function(){
         this.syncShadow();
-    },
-
-    // private
-    onDestroy : function(){
-        if(this.tools){
-            for(var k in this.tools){
-                Ext.destroy(this.tools[k]);
-            }
-        }
-        if(this.buttons){
-            for(var b in this.buttons){
-                Ext.destroy(this.buttons[b]);
-            }
-        }
-        Ext.destroy(
-            this.topToolbar,
-            this.bottomToolbar
-        );
-        Ext.Panel.superclass.onDestroy.call(this);
     },
 
     /**
@@ -1194,9 +1320,12 @@ new Ext.Panel({
     },
 
     /**
-     * Sets the title text for the panel and optionally the icon class.
+     * <p>Sets the title text for the panel and optionally the icon class.</p>
+     * <p>In order to be able to set the title, a header element must have been created
+     * for the Panel. This is triggered either by configuring the Panel with a non-blank title,
+     * or configuring it with <tt><b>{@link #header}: true</b></tt>.</p>
      * @param {String} title The title text to set
-     * @param {String} (optional) iconCls A custon, user-defined CSS class that provides the icon image for this panel
+     * @param {String} iconCls (optional) iconCls A user-defined CSS class that provides the icon image for this panel
      */
     setTitle : function(title, iconCls){
         this.title = title;
@@ -1247,13 +1376,35 @@ panel.load({
 
     // private
     beforeDestroy : function(){
+        if(this.header){
+            this.header.removeAllListeners();
+            if(this.headerAsText){
+                Ext.Element.uncache(this.header.child('span'));
+            }
+        }
         Ext.Element.uncache(
             this.header,
             this.tbar,
             this.bbar,
             this.footer,
-            this.body
+            this.body,
+            this.bwrap
         );
+        if(this.tools){
+            for(var k in this.tools){
+                Ext.destroy(this.tools[k]);
+            }
+        }
+        if(this.buttons){
+            for(var b in this.buttons){
+                Ext.destroy(this.buttons[b]);
+            }
+        }
+        Ext.destroy(
+            this.topToolbar,
+            this.bottomToolbar
+        );
+        Ext.Panel.superclass.beforeDestroy.call(this);
     },
 
     // private
@@ -1292,9 +1443,20 @@ panel.load({
 
     // private
     doAutoLoad : function(){
-        this.body.load(
-            typeof this.autoLoad == 'object' ?
-                this.autoLoad : {url: this.autoLoad});
+        var u = this.body.getUpdater();
+        if(this.renderer){
+            u.setRenderer(this.renderer);
+        }
+        u.update(typeof this.autoLoad == 'object' ? this.autoLoad : {url: this.autoLoad});
+    },
+    
+    /**
+     * Retrieve a tool by id.
+     * @param {String} id
+     * @return {Object} tool
+     */
+    getTool: function(id) {
+        return this.tools[id];
     }
 
 /**

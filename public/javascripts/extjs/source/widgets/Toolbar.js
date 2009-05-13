@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -10,10 +10,10 @@
  * @class Ext.Toolbar
  * @extends Ext.BoxComponent
  * Basic Toolbar class. Toolbar elements can be created explicitly via their constructors, or implicitly
- * via their xtypes.  Some items also have shortcut strings for creation.  
+ * via their xtypes.  Some items also have shortcut strings for creation (see <tt>{@link #add}</tt>).
  * @constructor
  * Creates a new Toolbar
- * @param {Object/Array} config A config object or an array of buttons to add
+ * @param {Object/Array} config A config object or an array of buttons to <tt>{@link #add}</tt>
  */ 
  Ext.Toolbar = function(config){
     if(Ext.isArray(config)){
@@ -253,14 +253,14 @@ Ext.extend(T, Ext.BoxComponent, {
      * Adds a dynamically rendered Ext.form field (TextField, ComboBox, etc). Note: the field should not have
      * been rendered yet. For a field that has already been rendered, use {@link #addElement}.
      * @param {Ext.form.Field} field
-     * @return {Ext.ToolbarItem}
+     * @return {Ext.Toolbar.Item}
      */
     addField : function(field){
         var td = this.nextBlock();
         field.render(td);
         var ti = new T.Item(td.firstChild);
         ti.render(td);
-        this.items.add(ti);
+        this.items.add(field);
         return ti;
     },
 
@@ -358,9 +358,11 @@ T.Item.prototype = {
      * Removes and destroys this item.
      */
     destroy : function(){
-        if(this.td && this.td.parentNode){
-            this.td.parentNode.removeChild(this.td);
+        if(this.el){
+            var el = Ext.get(this.el);
+            Ext.destroy(el);
         }
+        Ext.removeNode(this.td);
     },
     
     /**
@@ -573,7 +575,7 @@ new Ext.Panel({
 		        items: [
 		        	// These items will display in a dropdown menu when the split arrow is clicked
 			        {text: 'Item 1', handler: item1Handler},
-			        {text: 'Item 2', handler: item2Handler},
+			        {text: 'Item 2', handler: item2Handler}
 		        ]
 		   	})
 		}

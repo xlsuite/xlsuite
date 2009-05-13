@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -12,7 +12,7 @@ if(Ext.grid.GridPanel){Ext.grid.GridPanel.prototype.ddText="{0} righe selezionat
 if(Ext.TabPanelItem){Ext.TabPanelItem.prototype.closeText="Chiudi pannello";}
 if(Ext.form.Field){Ext.form.Field.prototype.invalidText="Valore non valido";}
 if(Ext.LoadMask){Ext.LoadMask.prototype.msg="Caricamento in corso...";}
-Date.monthNames=["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];Date.getShortMonthName=function(month){return Date.monthNames[month].substring(0,3);};Date.monthNumbers={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};Date.getMonthNumber=function(name){return Date.monthNumbers[name.substring(0,1).toUpperCase()+name.substring(1,3).toLowerCase()];};Date.dayNames=["Domenica","Luned\u00EC","Marted\u00EC","Mercoled\u00EC","Gioved\u00EC","Venerd\u00EC","Sabato"];Date.getShortDayName=function(day){return Date.dayNames[day].substring(0,3);};if(Ext.MessageBox){Ext.MessageBox.buttonText={ok:"OK",cancel:"Annulla",yes:"S\u00EC",no:"No"};}
+Date.monthNames=["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];Date.getShortMonthName=function(month){return Date.monthNames[month].substring(0,3);};Date.monthNumbers={Gen:0,Feb:1,Mar:2,Apr:3,Mag:4,Giu:5,Lug:6,Ago:7,Set:8,Ott:9,Nov:10,Dic:11};Date.getMonthNumber=function(name){return Date.monthNumbers[name.substring(0,1).toUpperCase()+name.substring(1,3).toLowerCase()];};Date.dayNames=["Domenica","Luned\u00EC","Marted\u00EC","Mercoled\u00EC","Gioved\u00EC","Venerd\u00EC","Sabato"];Date.getShortDayName=function(day){return Date.dayNames[day].substring(0,3);};if(Ext.MessageBox){Ext.MessageBox.buttonText={ok:"OK",cancel:"Annulla",yes:"S\u00EC",no:"No"};}
 if(Ext.util.Format){Ext.util.Format.date=function(v,format){if(!v)return"";if(!(v instanceof Date))v=new Date(Date.parse(v));return v.dateFormat(format||"d/m/Y");};}
 if(Ext.DatePicker){Ext.apply(Ext.DatePicker.prototype,{todayText:"Oggi",minText:"Data precedente alla data minima",maxText:"Data successiva alla data massima",disabledDaysText:"",disabledDatesText:"",monthNames:Date.monthNames,dayNames:Date.dayNames,nextText:'Mese successivo (Ctrl+Destra)',prevText:'Mese precedente (Ctrl+Sinistra)',monthYearText:'Scegli un mese (Ctrl+Su/Giu per cambiare anno)',todayTip:"{0} (Barra spaziatrice)",format:"d/m/y",cancelText:"Annulla",okText:"&#160;OK&#160;",startDay:1});}
 if(Ext.PagingToolbar){Ext.apply(Ext.PagingToolbar.prototype,{beforePageText:"Pagina",afterPageText:"di {0}",firstText:"Prima pagina",prevText:"Pagina precedente",nextText:"Pagina successiva",lastText:"Ultima pagina",refreshText:"Aggiorna",displayMsg:"Record {0} - {1} di {2}",emptyMsg:'Nessun dato da mostrare'});}

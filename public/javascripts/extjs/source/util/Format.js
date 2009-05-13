@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -61,7 +61,7 @@ Ext.util.Format = function(){
          * @return {String} The decoded text
          */
         htmlDecode : function(value){
-            return !value ? value : String(value).replace(/&amp;/g, "&").replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&quot;/g, '"');
+            return !value ? value : String(value).replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
         },
 
         /**
@@ -147,7 +147,7 @@ Ext.util.Format = function(){
 
         /**
          * Parse a value into a formatted date using the specified format pattern.
-         * @param {Mixed} value The value to format
+         * @param {String/Date} value The value to format (Strings must conform to the format expected by the javascript Date object's <a href="http://www.w3schools.com/jsref/jsref_parse.asp">parse()</a> method)
          * @param {String} format (optional) Any valid date format string (defaults to 'm/d/Y')
          * @return {String} The formatted date string
          */
@@ -184,6 +184,7 @@ Ext.util.Format = function(){
             return !v ? v : String(v).replace(this.stripTagsRE, "");
         },
 
+        // private
         stripScriptsRe : /(?:<script.*?>)((\n|\r|.)*?)(?:<\/script>)/ig,
 
         /**
@@ -218,6 +219,15 @@ Ext.util.Format = function(){
                 }
                 return fns[a](v);
             }
-        }()
+        }(),
+
+		/**
+		 * Converts newline characters to the HTML tag &lt;br/>
+		 * @param {String} The string value to format.
+         * @return {String} The string with embedded &lt;br/> tags in place of newlines.
+		 */
+        nl2br : function(v){
+            return v === undefined || v === null ? '' : v.replace(/\n/g, '<br/>');
+        }
     };
 }();

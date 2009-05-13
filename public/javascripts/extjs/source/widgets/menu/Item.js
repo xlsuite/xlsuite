@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -104,6 +104,14 @@ Ext.extend(Ext.menu.Item, Ext.menu.BaseItem, {
             this.el.child('img.x-menu-item-icon').replaceClass(oldCls, this.iconCls);
         }
     },
+    
+    //private
+    beforeDestroy: function(){
+        if (this.menu){
+            this.menu.destroy();
+        }
+        Ext.menu.Item.superclass.beforeDestroy.call(this);
+    },
 
     // private
     handleClick : function(e){
@@ -175,6 +183,10 @@ Ext.extend(Ext.menu.Item, Ext.menu.BaseItem, {
     // private
     deferHide : function(){
         delete this.hideTimer;
-        this.menu.hide();
+        if(this.menu.over){
+            this.parentMenu.setActiveItem(this, false);
+        }else{
+            this.menu.hide();
+        }
     }
 });

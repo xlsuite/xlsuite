@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -29,6 +29,13 @@ trigger.applyToMarkup('my-field');
  * to the base TextField)
  */
 Ext.form.TriggerField = Ext.extend(Ext.form.TextField,  {
+    /**
+     * @cfg {Mixed} triggerConfig<p>A {@link Ext.DomHelper DomHelper} config object specifying the structure of the
+     * trigger element for this Field. (Optional).</p>
+     * <p>Specify this when you need a customized element to act as the trigger button for a TriggerField.</p>
+     * <p>Note that when using this option, it is the developer's responsibility to ensure correct sizing, positioning
+     * and appearance of the trigger.</p>
+     */
     /**
      * @cfg {String} triggerClass A CSS class to apply to the trigger
      */
@@ -78,7 +85,9 @@ Ext.form.TriggerField = Ext.extend(Ext.form.TextField,  {
 
     // private
     alignErrorIcon : function(){
-        this.errorIcon.alignTo(this.wrap, 'tl-tr', [2, 0]);
+        if(this.wrap){
+            this.errorIcon.alignTo(this.wrap, 'tl-tr', [2, 0]);
+        }
     },
 
     // private
@@ -93,6 +102,15 @@ Ext.form.TriggerField = Ext.extend(Ext.form.TextField,  {
         this.initTrigger();
         if(!this.width){
             this.wrap.setWidth(this.el.getWidth()+this.trigger.getWidth());
+        }
+    },
+
+    afterRender : function(){
+        Ext.form.TriggerField.superclass.afterRender.call(this);
+        var y;
+        if(Ext.isIE && !this.hideTrigger && this.el.getY() != (y = this.trigger.getY())){
+            this.el.position();
+            this.el.setY(y);
         }
     },
 
@@ -111,6 +129,9 @@ Ext.form.TriggerField = Ext.extend(Ext.form.TextField,  {
         }
         if(this.wrap){
             this.wrap.remove();
+        }
+        if (this.mimicing){
+            Ext.get(Ext.isIE ? document.body : document).un("mousedown", this.mimicBlur, this);
         }
         Ext.form.TriggerField.superclass.onDestroy.call(this);
     },
@@ -150,12 +171,14 @@ Ext.form.TriggerField = Ext.extend(Ext.form.TextField,  {
     // private
     triggerBlur : function(){
         this.mimicing = false;
-        Ext.get(Ext.isIE ? document.body : document).un("mousedown", this.mimicBlur);
-        if(this.monitorTab){
+        Ext.get(Ext.isIE ? document.body : document).un("mousedown", this.mimicBlur, this);
+        if(this.monitorTab && this.el){
             this.el.un("keydown", this.checkTab, this);
         }
         this.beforeBlur();
-        this.wrap.removeClass('x-trigger-wrap-focus');
+        if(this.wrap){
+            this.wrap.removeClass('x-trigger-wrap-focus');
+        }
         Ext.form.TriggerField.superclass.onBlur.call(this);
     },
 
@@ -171,7 +194,8 @@ Ext.form.TriggerField = Ext.extend(Ext.form.TextField,  {
     onDisable : function(){
         Ext.form.TriggerField.superclass.onDisable.call(this);
         if(this.wrap){
-            this.wrap.addClass('x-item-disabled');
+            this.wrap.addClass(this.disabledClass);
+            this.el.removeClass(this.disabledClass);
         }
     },
 
@@ -179,10 +203,9 @@ Ext.form.TriggerField = Ext.extend(Ext.form.TextField,  {
     onEnable : function(){
         Ext.form.TriggerField.superclass.onEnable.call(this);
         if(this.wrap){
-            this.wrap.removeClass('x-item-disabled');
+            this.wrap.removeClass(this.disabledClass);
         }
     },
-
 
     // private
     onShow : function(){
@@ -220,6 +243,14 @@ Ext.form.TriggerField = Ext.extend(Ext.form.TextField,  {
 // to be extended by an implementing class.  For an example of implementing this class, see the custom
 // SearchField implementation here: http://extjs.com/deploy/ext/examples/form/custom.html
 Ext.form.TwinTriggerField = Ext.extend(Ext.form.TriggerField, {
+    /**
+     * @cfg {Mixed} triggerConfig<p>A {@link Ext.DomHelper DomHelper} config object specifying the structure of the
+     * trigger elements for this Field. (Optional).</p>
+     * <p>Specify this when you need a customized element to contain the two trigger elements for this Field. Each
+     * trigger element must be marked by the CSS class <tt>x-form-trigger</tt>.</p>
+     * <p>Note that when using this option, it is the developer's responsibility to ensure correct sizing, positioning
+     * and appearance of the triggers.</p>
+     */
     initComponent : function(){
         Ext.form.TwinTriggerField.superclass.initComponent.call(this);
 

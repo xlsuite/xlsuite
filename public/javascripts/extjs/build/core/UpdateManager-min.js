@@ -1,18 +1,18 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
  */
 
 
-Ext.Updater=function(el,forceNew){el=Ext.get(el);if(!forceNew&&el.updateManager){return el.updateManager;}
-this.el=el;this.defaultUrl=null;this.addEvents("beforeupdate","update","failure");var d=Ext.Updater.defaults;this.sslBlankUrl=d.sslBlankUrl;this.disableCaching=d.disableCaching;this.indicatorText=d.indicatorText;this.showLoadIndicator=d.showLoadIndicator;this.timeout=d.timeout;this.loadScripts=d.loadScripts;this.transaction=null;this.refreshDelegate=this.refresh.createDelegate(this);this.updateDelegate=this.update.createDelegate(this);this.formUpdateDelegate=this.formUpdate.createDelegate(this);if(!this.renderer){this.renderer=new Ext.Updater.BasicRenderer();}
-Ext.Updater.superclass.constructor.call(this);};Ext.extend(Ext.Updater,Ext.util.Observable,{getEl:function(){return this.el;},update:function(url,params,callback,discardUrl){if(this.fireEvent("beforeupdate",this.el,url,params)!==false){var cfg,callerScope;if(typeof url=="object"){cfg=url;url=cfg.url;params=params||cfg.params;callback=callback||cfg.callback;discardUrl=discardUrl||cfg.discardUrl;callerScope=cfg.scope;if(typeof cfg.nocache!="undefined"){this.disableCaching=cfg.nocache;};if(typeof cfg.text!="undefined"){this.indicatorText='<div class="loading-indicator">'+cfg.text+"</div>";};if(typeof cfg.scripts!="undefined"){this.loadScripts=cfg.scripts;};if(typeof cfg.timeout!="undefined"){this.timeout=cfg.timeout;};}
+Ext.Updater=Ext.extend(Ext.util.Observable,{constructor:function(el,forceNew){el=Ext.get(el);if(!forceNew&&el.updateManager){return el.updateManager;}
+this.el=el;this.defaultUrl=null;this.addEvents("beforeupdate","update","failure");var d=Ext.Updater.defaults;this.sslBlankUrl=d.sslBlankUrl;this.disableCaching=d.disableCaching;this.indicatorText=d.indicatorText;this.showLoadIndicator=d.showLoadIndicator;this.timeout=d.timeout;this.loadScripts=d.loadScripts;this.transaction=null;this.refreshDelegate=this.refresh.createDelegate(this);this.updateDelegate=this.update.createDelegate(this);this.formUpdateDelegate=this.formUpdate.createDelegate(this);if(!this.renderer){this.renderer=this.getDefaultRenderer();}
+Ext.Updater.superclass.constructor.call(this);},getDefaultRenderer:function(){return new Ext.Updater.BasicRenderer();},getEl:function(){return this.el;},update:function(url,params,callback,discardUrl){if(this.fireEvent("beforeupdate",this.el,url,params)!==false){var cfg,callerScope;if(typeof url=="object"){cfg=url;url=cfg.url;params=params||cfg.params;callback=callback||cfg.callback;discardUrl=discardUrl||cfg.discardUrl;callerScope=cfg.scope;if(typeof cfg.nocache!="undefined"){this.disableCaching=cfg.nocache;};if(typeof cfg.text!="undefined"){this.indicatorText='<div class="loading-indicator">'+cfg.text+"</div>";};if(typeof cfg.scripts!="undefined"){this.loadScripts=cfg.scripts;};if(typeof cfg.timeout!="undefined"){this.timeout=cfg.timeout;};}
 this.showLoading();if(!discardUrl){this.defaultUrl=url;}
 if(typeof url=="function"){url=url.call(this);}
-var o=Ext.apply(cfg||{},{url:url,params:(typeof params=="function"&&callerScope)?params.createDelegate(callerScope):params,success:this.processSuccess,failure:this.processFailure,scope:this,callback:undefined,timeout:(this.timeout*1000),disableCaching:this.disableCaching,argument:{"options":cfg,"url":url,"form":null,"callback":callback,"scope":callerScope||window,"params":params}});this.transaction=Ext.Ajax.request(o);}},formUpdate:function(form,url,reset,callback){if(this.fireEvent("beforeupdate",this.el,form,url)!==false){if(typeof url=="function"){url=url.call(this);}
+var o=Ext.apply({},{url:url,params:(typeof params=="function"&&callerScope)?params.createDelegate(callerScope):params,success:this.processSuccess,failure:this.processFailure,scope:this,callback:undefined,timeout:(this.timeout*1000),disableCaching:this.disableCaching,argument:{"options":cfg,"url":url,"form":null,"callback":callback,"scope":callerScope||window,"params":params}},cfg);this.transaction=Ext.Ajax.request(o);}},formUpdate:function(form,url,reset,callback){if(this.fireEvent("beforeupdate",this.el,form,url)!==false){if(typeof url=="function"){url=url.call(this);}
 form=Ext.getDom(form)
 this.transaction=Ext.Ajax.request({form:form,url:url,success:this.processSuccess,failure:this.processFailure,scope:this,timeout:(this.timeout*1000),argument:{"url":url,"form":form,"callback":callback,"reset":reset}});this.showLoading.defer(1,this);}},refresh:function(callback){if(this.defaultUrl==null){return;}
 this.update(this.defaultUrl,null,callback,true);},startAutoRefresh:function(interval,url,params,callback,refreshNow){if(refreshNow){this.update(url||this.defaultUrl,params,callback,true);}

@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -9,12 +9,17 @@
 /**
  * @class Ext.Component
  * @extends Ext.util.Observable
- * <p>Base class for all Ext components.  All subclasses of Component can automatically participate in the standard
- * Ext component lifecycle of creation, rendering and destruction.  They also have automatic support for basic hide/show
- * and enable/disable behavior.  Component allows any subclass to be lazy-rendered into any {@link Ext.Container} and
- * to be automatically registered with the {@link Ext.ComponentMgr} so that it can be referenced at any time via
- * {@link Ext#getCmp}.  All visual widgets that require rendering into a layout should subclass Component (or
- * {@link Ext.BoxComponent} if managed box model handling is required).</p>
+ * <p>Base class for all Ext components.  All subclasses of Component may participate in the automated
+ * Ext component lifecycle of creation, rendering and destruction which is provided by the {@link Ext.Container Container} class.
+ * Components may be added to a Container through the {@link Ext.Container#items items} config option at the time the Container is created,
+ * or they may be added dynamically via the {@link Ext.Container#add add} method.</p>
+ * <p>The Component base class has built-in support for basic hide/show and enable/disable behavior.</p>
+ * <p>All Components are registered with the {@link Ext.ComponentMgr} on construction so that they can be referenced at any time via
+ * {@link Ext#getCmp}, passing the {@link #id}.</p>
+ * <p>All user-developed visual widgets that are required to participate in automated lifecycle and size management should subclass Component (or
+ * {@link Ext.BoxComponent} if managed box model handling is required, ie height and width management).</p>
+ * <p>See the <a href="http://extjs.com/learn/Tutorial:Creating_new_UI_controls">Creating new UI controls</a> tutorial for details on how
+ * and to either extend or augment ExtJs base classes to create custom Components.</p>
  * <p>Every component has a specific xtype, which is its Ext-specific type name, along with methods for checking the
  * xtype like {@link #getXType} and {@link #isXType}. This is the list of all valid xtypes:</p>
  * <pre>
@@ -199,10 +204,10 @@ Ext.Component = function(config){
     if(this.plugins){
         if(Ext.isArray(this.plugins)){
             for(var i = 0, len = this.plugins.length; i < len; i++){
-                this.plugins[i].init(this);
+                this.plugins[i] = this.initPlugin(this.plugins[i]);
             }
         }else{
-            this.plugins.init(this);
+            this.plugins = this.initPlugin(this.plugins);
         }
     }
 
@@ -223,18 +228,147 @@ Ext.Component = function(config){
 Ext.Component.AUTO_ID = 1000;
 
 Ext.extend(Ext.Component, Ext.util.Observable, {
+    // Configs below are used for all Components when rendered by FormLayout.
     /**
-     * @cfg {String} id
-     * The unique id of this component (defaults to an auto-assigned id).
+     * @cfg {String} fieldLabel The label text to display next to this Component (defaults to '')
+     * <p><b>This config is only used when this Component is rendered by a Container which has been
+     * configured to use the {@link Ext.form.FormLayout FormLayout} layout manager.</b></p>
+     * Example use:<pre><code>
+new Ext.FormPanel({
+    height: 100,
+    renderTo: Ext.getBody(),
+    items: [{
+        xtype: 'textfield',
+        fieldLabel: 'Name'
+    }]
+});
+</code></pre>
      */
     /**
-     * @cfg {String/Object} autoEl
-     * A tag name or DomHelper spec to create an element with. This is intended to create shorthand
-     * utility components inline via JSON. It should not be used for higher level components which already create
-     * their own elements. Example usage:
-     * <pre><code>
-{xtype:'box', autoEl: 'div', cls:'my-class'}
-{xtype:'box', autoEl: {tag:'blockquote', html:'autoEl is cool!'}} // with DomHelper
+     * @cfg {String} labelStyle A CSS style specification to apply directly to this field's label (defaults to the
+     * container's labelStyle value if set, or '').<code></code>.
+     * <p><b>This config is only used when this Component is rendered by a Container which has been
+     * configured to use the {@link Ext.form.FormLayout FormLayout} layout manager.</b></p>
+     * Example use:<pre><code>
+new Ext.FormPanel({
+    height: 100,
+    renderTo: Ext.getBody(),
+    items: [{
+        xtype: 'textfield',
+        fieldLabel: 'Name',
+        labelStyle: 'font-weight:bold;'
+    }]
+});
+</code></pre>
+     */
+    /**
+     * @cfg {String} labelSeparator The standard separator to display after the text of each form label (defaults
+     * to the value of {@link Ext.layout.FormLayout#labelSeparator}, which is a colon ':' by default).  To display
+     * no separator for this field's label specify empty string ''.
+     * <p><b>This config is only used when this Component is rendered by a Container which has been
+     * configured to use the {@link Ext.form.FormLayout FormLayout} layout manager.</b></p>
+     * Example use:<pre><code>
+new Ext.FormPanel({
+    height: 100,
+    renderTo: Ext.getBody(),
+    items: [{
+        xtype: 'textfield',
+        fieldLabel: 'Name',
+        labelSeparator: '...'
+    }]
+});
+</code></pre>
+     */
+    /**
+     * @cfg {Boolean} hideLabel True to completely hide the label element (defaults to false).  By default, even if
+     * you do not specify a {@link fieldLabel} the space will still be reserved so that the field will line up with
+     * other fields that do have labels. Setting this to true will cause the field to not reserve that space.
+     * <p><b>This config is only used when this Component is rendered by a Container which has been
+     * configured to use the {@link Ext.form.FormLayout FormLayout} layout manager.</b></p>
+     * Example use:<pre><code>
+new Ext.FormPanel({
+    height: 100,
+    renderTo: Ext.getBody(),
+    items: [{
+        xtype: 'textfield'
+        hideLabel: true
+    }]
+});
+</code></pre>
+     */
+    /**
+     * @cfg {String} clearCls The CSS class used to provide field clearing (defaults to 'x-form-clear-left').
+     * <p><b>This config is only used when this Component is rendered by a Container which has been
+     * configured to use the {@link Ext.form.FormLayout FormLayout} layout manager.</b></p>
+     */
+    /**
+     * @cfg {String} itemCls An additional CSS class to apply to the wrapper's form item element of this field (defaults
+     * to the container's itemCls value if set, or '').  Since it is applied to the item wrapper, it allows you to write
+     * standard CSS rules that can apply to the field, the label (if specified) or any other element within the markup for
+     * the field.
+     * <p><b>This config is only used when this Component is rendered by a Container which has been
+     * configured to use the {@link Ext.form.FormLayout FormLayout} layout manager.</b></p>
+     * Example use:<pre><code>
+// Apply a style to the field's label:
+&lt;style>
+    .required .x-form-item-label {font-weight:bold;color:red;}
+&lt;/style>
+
+new Ext.FormPanel({
+    height: 100,
+    renderTo: Ext.getBody(),
+    items: [{
+        xtype: 'textfield',
+        fieldLabel: 'Name',
+        itemCls: 'required' //this label will be styled
+    },{
+        xtype: 'textfield',
+        fieldLabel: 'Favorite Color'
+    }]
+});
+</code></pre>
+     */
+
+    /**
+     * @cfg {String} id
+     * The unique id of this component (defaults to an auto-assigned id). You should assign an id if you need to
+     * be able to access the component later and you do not have an object reference available (e.g., using
+     * {@link Ext.ComponentMgr#getCmp}). Note that this id will also be used as the element id for the containing
+     * HTML element that is rendered to the page for this component. This allows you to write id-based CSS rules to
+     * style the specific instance of this component uniquely, and also to select sub-elements using this
+     * component's id as the parent.
+     */
+    /**
+     * @cfg {Mixed} autoEl
+     * <p>A tag name or {@link Ext.DomHelper DomHelper} spec used to create the {@link #getEl Element} which will
+     * encapsulate this Component.</p>
+     * <p>You only need to specify this when creating or subclassing the base classes {@link Ext.Component}, {@link Ext.BoxComponent},
+     * and {@link Ext.Container}. The more complex Ext classes use a more complex DOM structure created by their own
+     * onRender methods.</p>
+     * <p>This is intended to allow the developer to create application-specific utility Components encapsulated by
+     * different DOM elements. Example usage:</p><pre><code>
+{
+    xtype: 'box',
+    autoEl: {
+        tag: 'img',
+        src: 'http://www.example.com/example.jpg'
+    }
+}, {
+    xtype: 'box',
+    autoEl: {
+        tag: 'blockquote',
+        html: 'autoEl is cool!'
+    }
+}, {
+    xtype: 'container',
+    autoEl: 'ul',
+    cls: 'ux-unordered-list',
+    items: {
+        xtype: 'box',
+        autoEl: 'li',
+        html: 'First list item'
+    }
+}
 </code></pre>
      */
     /**
@@ -273,6 +407,14 @@ Ext.extend(Ext.Component, Ext.util.Observable, {
      * useful for adding customized styles to the container or any of its children using standard CSS rules.
      */
     /**
+     * @cfg {Boolean} disabled
+     * Render this component disabled (default is false).
+     */
+    /**
+     * @cfg {Boolean} hidden
+     * Render this component hidden (default is false).
+     */
+    /**
      * @cfg {Object/Array} plugins
      * An object or array of objects that will provide custom functionality for this component.  The only
      * requirement for a valid plugin is that it contain an init method that accepts a reference of type Ext.Component.
@@ -282,7 +424,7 @@ Ext.extend(Ext.Component, Ext.util.Observable, {
      */
     /**
      * @cfg {Mixed} applyTo
-     * The id of the node, a DOM node or an existing Element corresponding to a DIV that is already present in
+     * The id of the element, a DOM element or an existing Element corresponding to a DIV that is already present in
      * the document that specifies some structural markup for this component.  When applyTo is used, constituent parts of
      * the component can also be specified by id or CSS class name within the main element, and the component being created
      * may attempt to create its subcomponents from that markup if applicable. Using this config, a call to render() is
@@ -291,30 +433,36 @@ Ext.extend(Ext.Component, Ext.util.Observable, {
      */
     /**
      * @cfg {Mixed} renderTo
-     * The id of the node, a DOM node or an existing Element that will be the container to render this component into.
-     * Using this config, a call to render() is not required.
+     * <p>The id of the element, a DOM element or an existing Element that this component will be rendered into.
+     * When using this config, a call to render() is not required.<p>
+     * <p>If this Component needs to be managed by a {@link Ext.Container Container}'s
+     * {@link Ext.Component#layout layout manager}, do not use this option. It is the responsiblity
+     * of the Container's layout manager to perform rendering. See {@link #render}.</p>
      */
 
     /**
      * @cfg {Boolean} stateful
-     * A flag which causes the Component to attempt to restore the state of internal properties
-     * from a saved state on startup.<p>
+     * <p>A flag which causes the Component to attempt to restore the state of internal properties
+     * from a saved state on startup. The component must have either a {@link #stateId} or {@link #id}
+     * assigned for state to be managed.  Auto-generated ids are not guaranteed to be stable across page
+     * loads and cannot be relied upon to save and restore the same state for a component.<p>
      * For state saving to work, the state manager's provider must have been set to an implementation
      * of {@link Ext.state.Provider} which overrides the {@link Ext.state.Provider#set set}
      * and {@link Ext.state.Provider#get get} methods to save and recall name/value pairs.
      * A built-in implementation, {@link Ext.state.CookieProvider} is available.</p>
-     * <p>To set the state provider for the current page:</p>	
+     * <p>To set the state provider for the current page:</p>
      * <pre><code>
 Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
 </code></pre>
      * <p>Components attempt to save state when one of the events listed in the {@link #stateEvents}
      * configuration fires.</p>
      * <p>You can perform extra processing on state save and restore by attaching handlers to the
-     * {@link #beforestaterestore}, {@link staterestore}, {@link beforestatesave} and {@link statesave} events</p>
+     * {@link #beforestaterestore}, {@link #staterestore}, {@link #beforestatesave} and {@link #statesave} events</p>
      */
     /**
      * @cfg {String} stateId
-     * The unique id for this component to use for state management purposes (defaults to the component id).
+     * The unique id for this component to use for state management purposes (defaults to the component id if one was
+     * set, otherwise null if the component is using a generated id).
      * <p>See {@link #stateful} for an explanation of saving and restoring Component state.</p>
      */
     /* //internal - to be set by subclasses
@@ -343,8 +491,12 @@ Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
     autoShow : false,
     /**
      * @cfg {String} hideMode
-     * How this component should hidden. Supported values are "visibility" (css visibility), "offsets" (negative
-     * offset position) and "display" (css display) - defaults to "display".
+     * <p>How this component should be hidden. Supported values are "visibility" (css visibility), "offsets" (negative
+     * offset position) and "display" (css display) - defaults to "display".</p>
+     * <p>For Containers which may be hidden and shown as part of a {@link Ext.layout.CardLayout card layout} Container such as a
+     * {@link Ext.TabPanel TabPanel}, it is recommended that hideMode is configured as "offsets". This ensures
+     * that hidden Components still have height and width so that layout managers can perform measurements when
+     * calculating layouts.</p>
      */
     hideMode: 'display',
     /**
@@ -391,6 +543,11 @@ Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
         return this[this.actionMode];
     },
 
+    initPlugin : function(p){
+        p.init(this);
+        return p;
+    },
+
     /* // protected
      * Function to be implemented by Component subclasses to be part of standard component initialization flow (it is empty by default).
      * <pre><code>
@@ -423,9 +580,28 @@ Ext.Foo = Ext.extend(Ext.Bar, {
     initComponent : Ext.emptyFn,
 
     /**
-     * If this is a lazy rendering component, render it to its container element.
-     * @param {Mixed} container (optional) The element this component should be rendered into. If it is being
-     * applied to existing markup, this should be left off.
+     * <p>Render this Component into the passed HTML element.</p>
+     * <p><b>If you are using a {@link Ext.Container Container} object to house this Component, then
+     * do not use the render method.</b></p>
+     * <p>A Container's child Components are rendered by that Container's
+     * {@link Ext.Container#layout layout} manager when the Container is first rendered.</p>
+     * <p>Certain layout managers allow dynamic addition of child components. Those that do
+     * include {@link Ext.layout.CardLayout}, {@link Ext.layout.AnchorLayout},
+     * {@link Ext.layout.FormLayout}, {@link Ext.layout.TableLayout}.</p>
+     * <p>If the Container is already rendered when a new child Component is added, you may need to call
+     * the Container's {@link Ext.Container#doLayout doLayout} to refresh the view which causes any
+     * unrendered child Components to be rendered. This is required so that you can add multiple
+     * child components if needed while only refreshing the layout once.</p>
+     * <p>When creating complex UIs, it is important to remember that sizing and positioning
+     * of child items is the responsibility of the Container's {@link Ext.Container#layout layout} manager.
+     * If you expect child items to be sized in response to user interactions, you must
+     * configure the Container with a layout manager which creates and manages the type of layout you
+     * have in mind.</p>
+     * <p><b>Omitting the Container's {@link Ext.Container#layout layout} config means that a basic
+     * layout manager is used which does nothing but render child components sequentially into the
+     * Container. No sizing or positioning will be performed in this situation.</b></p>
+     * @param {Element/HTMLElement/String} container (optional) The element this Component should be
+     * rendered into. If it is being created from existing markup, this should be omitted.
      * @param {String/Number} position (optional) The element ID or DOM node index within the container <b>before</b>
      * which this component will be inserted (defaults to appending to the end of the container)
      */
@@ -460,6 +636,9 @@ Ext.Foo = Ext.extend(Ext.Bar, {
                 this.el.applyStyles(this.style);
                 delete this.style;
             }
+            if(this.overCls){
+                this.el.addClassOnOver(this.overCls);
+            }
             this.fireEvent("render", this);
             this.afterRender(this.container);
             if(this.hidden){
@@ -469,7 +648,9 @@ Ext.Foo = Ext.extend(Ext.Bar, {
                 this.disable();
             }
 
-            this.initStateEvents();
+            if(this.stateful !== false){
+                this.initStateEvents();
+            }
         }
         return this;
     },
@@ -477,14 +658,22 @@ Ext.Foo = Ext.extend(Ext.Bar, {
     // private
     initState : function(config){
         if(Ext.state.Manager){
-            var state = Ext.state.Manager.get(this.stateId || this.id);
-            if(state){
-                if(this.fireEvent('beforestaterestore', this, state) !== false){
-                    this.applyState(state);
-                    this.fireEvent('staterestore', this, state);
+            var id = this.getStateId();
+            if(id){
+                var state = Ext.state.Manager.get(id);
+                if(state){
+                    if(this.fireEvent('beforestaterestore', this, state) !== false){
+                        this.applyState(state);
+                        this.fireEvent('staterestore', this, state);
+                    }
                 }
             }
         }
+    },
+
+    // private
+    getStateId : function(){
+        return this.stateId || ((this.id.indexOf('ext-comp-') == 0 || this.id.indexOf('ext-gen') == 0) ? null : this.id);
     },
 
     // private
@@ -510,18 +699,21 @@ Ext.Foo = Ext.extend(Ext.Bar, {
 
     // private
     saveState : function(){
-        if(Ext.state.Manager){
-            var state = this.getState();
-            if(this.fireEvent('beforestatesave', this, state) !== false){
-                Ext.state.Manager.set(this.stateId || this.id, state);
-                this.fireEvent('statesave', this, state);
+        if(Ext.state.Manager && this.stateful !== false){
+            var id = this.getStateId();
+            if(id){
+                var state = this.getState();
+                if(this.fireEvent('beforestatesave', this, state) !== false){
+                    Ext.state.Manager.set(id, state);
+                    this.fireEvent('statesave', this, state);
+                }
             }
         }
     },
 
     /**
      * Apply this component to existing markup that is valid. With this function, no call to render() is required.
-     * @param {String/HTMLElement} el 
+     * @param {String/HTMLElement} el
      */
     applyToMarkup : function(el){
         this.allowDomMove = false;
@@ -573,9 +765,6 @@ Ext.Foo = Ext.extend(Ext.Bar, {
             if(this.allowDomMove !== false){
                 ct.dom.insertBefore(this.el.dom, position);
             }
-            if(this.overCls) {
-                this.el.addClassOnOver(this.overCls);
-            }   
         }
     },
 
@@ -787,6 +976,7 @@ Ext.Foo = Ext.extend(Ext.Bar, {
 
     /**
      * Returns true if this component is visible.
+     * @return {Boolean} True if this component is visible, false otherwise.
      */
     isVisible : function(){
         return this.rendered && this.getActionEl().isVisible();
@@ -820,28 +1010,40 @@ alert(t.getXType());  // alerts 'textfield'
     },
 
     /**
-     * Tests whether or not this component is of a specific xtype. This can test whether this component is descended
-     * from the xtype (default) or whether it is directly of the xtype specified (shallow = true). For a list of all
-     * available xtypes, see the {@link Ext.Component} header. Example usage:
+     * <p>Tests whether or not this Component is of a specific xtype. This can test whether this Component is descended
+     * from the xtype (default) or whether it is directly of the xtype specified (shallow = true).</p>
+     * <p><b>If using your own subclasses, be aware that a Component must register its own xtype
+     * to participate in determination of inherited xtypes.</b></p>
+     * <p>For a list of all available xtypes, see the {@link Ext.Component} header.</p>
+     * <p>Example usage:</p>
      * <pre><code>
 var t = new Ext.form.TextField();
 var isText = t.isXType('textfield');        // true
 var isBoxSubclass = t.isXType('box');       // true, descended from BoxComponent
 var isBoxInstance = t.isXType('box', true); // false, not a direct BoxComponent instance
 </code></pre>
-     * @param {String} xtype The xtype to check for this component
-     * @param {Boolean} shallow (optional) False to check whether this component is descended from the xtype (this is
-     * the default), or true to check whether this component is directly of the specified xtype.
+     * @param {String} xtype The xtype to check for this Component
+     * @param {Boolean} shallow (optional) False to check whether this Component is descended from the xtype (this is
+     * the default), or true to check whether this Component is directly of the specified xtype.
+     * @return {Boolean} True if this component descends from the specified xtype, false otherwise.
      */
     isXType : function(xtype, shallow){
-        return !shallow ?
-               ('/' + this.getXTypes() + '/').indexOf('/' + xtype + '/') != -1 :
-                this.constructor.xtype == xtype;
+        //assume a string by default
+        if (typeof xtype == 'function'){
+            xtype = xtype.xtype; //handle being passed the class, eg. Ext.Component
+        }else if (typeof xtype == 'object'){
+            xtype = xtype.constructor.xtype; //handle being passed an instance
+        }
+            
+        return !shallow ? ('/' + this.getXTypes() + '/').indexOf('/' + xtype + '/') != -1 : this.constructor.xtype == xtype;
     },
 
     /**
-     * Returns this component's xtype hierarchy as a slash-delimited string. For a list of all
-     * available xtypes, see the {@link Ext.Component} header. Example usage:
+     * <p>Returns this Component's xtype hierarchy as a slash-delimited string. For a list of all
+     * available xtypes, see the {@link Ext.Component} header.</p>
+     * <p><b>If using your own subclasses, be aware that a Component must register its own xtype
+     * to participate in determination of inherited xtypes.</b></p>
+     * <p>Example usage:</p>
      * <pre><code>
 var t = new Ext.form.TextField();
 alert(t.getXTypes());  // alerts 'component/box/field/textfield'
@@ -867,7 +1069,7 @@ alert(t.getXTypes());  // alerts 'component/box/field/textfield'
      * true, the container will be returned. The passed function is called with the arguments (container, this component).
      * @param {Function} fcn
      * @param {Object} scope (optional)
-     * @return {Array} Array of Ext.Components
+     * @return {Ext.Container} The first Container for which the custom function returns true
      */
     findParentBy: function(fn) {
         for (var p = this.ownerCt; (p != null) && !fn(p, this); p = p.ownerCt);
@@ -877,7 +1079,7 @@ alert(t.getXTypes());  // alerts 'component/box/field/textfield'
     /**
      * Find a container above this component at any level by xtype or class
      * @param {String/Class} xtype The xtype string for a component, or the class of the component directly
-     * @return {Container} The found container
+     * @return {Ext.Container} The first Container which matches the given xtype or class
      */
     findParentByType: function(xtype) {
         return typeof xtype == 'function' ?

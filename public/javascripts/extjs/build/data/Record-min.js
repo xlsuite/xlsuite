@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -13,4 +13,4 @@ this.dirty=true;if(!this.modified){this.modified={};}
 if(typeof this.modified[name]=='undefined'){this.modified[name]=this.data[name];}
 this.data[name]=value;if(!this.editing&&this.store){this.store.afterEdit(this);}},get:function(name){return this.data[name];},beginEdit:function(){this.editing=true;this.modified={};},cancelEdit:function(){this.editing=false;delete this.modified;},endEdit:function(){this.editing=false;if(this.dirty&&this.store){this.store.afterEdit(this);}},reject:function(silent){var m=this.modified;for(var n in m){if(typeof m[n]!="function"){this.data[n]=m[n];}}
 this.dirty=false;delete this.modified;this.editing=false;if(this.store&&silent!==true){this.store.afterReject(this);}},commit:function(silent){this.dirty=false;delete this.modified;this.editing=false;if(this.store&&silent!==true){this.store.afterCommit(this);}},getChanges:function(){var m=this.modified,cs={};for(var n in m){if(m.hasOwnProperty(n)){cs[n]=this.data[n];}}
-return cs;},hasError:function(){return this.error!=null;},clearError:function(){this.error=null;},copy:function(newId){return new this.constructor(Ext.apply({},this.data),newId||this.id);},isModified:function(fieldName){return this.modified&&this.modified.hasOwnProperty(fieldName);}};
+return cs;},hasError:function(){return this.error!=null;},clearError:function(){this.error=null;},copy:function(newId){return new this.constructor(Ext.apply({},this.data),newId||this.id);},isModified:function(fieldName){return!!(this.modified&&this.modified.hasOwnProperty(fieldName));}};

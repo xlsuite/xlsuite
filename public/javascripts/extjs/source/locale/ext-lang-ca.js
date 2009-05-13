@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.1
- * Copyright(c) 2006-2008, Ext JS, LLC.
+ * Ext JS Library 2.2.1
+ * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -9,24 +9,19 @@
 /**
  * Catalonian Translation by halkon_polako 6-12-2007
  * December correction halkon_polako 11-12-2007
+ *
+ * Synchronized with 2.2 version of ext-lang-en.js (provided by Condor 8 aug 2008) 
+ *     by halkon_polako 14-aug-2008
  */
 
 Ext.UpdateManager.defaults.indicatorText = '<div class="loading-indicator">Carregant...</div>';
 
-if(Ext.View){
-  Ext.View.prototype.emptyText = "";
+if(Ext.DataView){
+  Ext.DataView.prototype.emptyText = "";
 }
 
 if(Ext.grid.GridPanel){
   Ext.grid.GridPanel.prototype.ddText = "{0} fila(es) seleccionada(es)";
-}
-
-if(Ext.TabPanelItem){
-  Ext.TabPanelItem.prototype.closeText = "Tancar aquesta pestanya";
-}
-
-if(Ext.form.Field){
-  Ext.form.Field.prototype.invalidText = "El valor d&#39;aquest camp &#233;s inv&#224;lid";
 }
 
 if(Ext.LoadMask){
@@ -85,6 +80,8 @@ Date.getShortDayName = function(day) {
   return Date.dayNames[day].substring(0, 3);
 };
 
+Date.parseCodes.S.s = "(?:st|nd|rd|th)";
+
 if(Ext.MessageBox){
   Ext.MessageBox.buttonText = {
     ok     : "Acceptar",
@@ -136,6 +133,10 @@ if(Ext.PagingToolbar){
   });
 }
 
+if(Ext.form.Field){
+  Ext.form.Field.prototype.invalidText = "El valor d&#39;aquest camp &#233;s inv&#224;lid";
+}
+
 if(Ext.form.TextField){
   Ext.apply(Ext.form.TextField.prototype, {
     minLengthText : "El tamany m&#237;nim per aquest camp &#233;s {0}",
@@ -148,6 +149,8 @@ if(Ext.form.TextField){
 
 if(Ext.form.NumberField){
   Ext.apply(Ext.form.NumberField.prototype, {
+    decimalSeparator : ",",
+    decimalPrecision : 2,
     minText : "El valor m&#237;nim per aquest camp &#233;s {0}",
     maxText : "El valor m&#224;xim per aquest camp &#233;s {0}",
     nanText : "{0} no &#233;s un nombre v&#224;lid"
@@ -264,8 +267,6 @@ if(Ext.grid.GridView){
   Ext.apply(Ext.grid.GridView.prototype, {
     sortAscText  : "Ordenaci&#243; Ascendent",
     sortDescText : "Ordenaci&#243; Descendent",
-    lockText     : "Bloquejar Columna",
-    unlockText   : "Desbloquejar Columna",
     columnsText  : "Columnes"
   });
 }
@@ -290,5 +291,27 @@ if(Ext.layout.BorderLayout && Ext.layout.BorderLayout.SplitRegion){
   Ext.apply(Ext.layout.BorderLayout.SplitRegion.prototype, {
     splitTip            : "Cliqueu i arrossegueu per canviar el tamany del panell.",
     collapsibleSplitTip : "Cliqueu i arrossegueu per canviar el tamany del panell. Doble clic per ocultar-ho."
+  });
+}
+
+if(Ext.form.TimeField){
+  Ext.apply(Ext.form.TimeField.prototype, {
+    minText : "L\'hora en aquest camp ha de ser igual o posterior a {0}",
+    maxText : "L\'hora en aquest camp ha de ser igual o anterior {0}",
+    invalidText : "{0} no &#233;s un hora v&#224;lida",
+    format : "g:i A",
+    altFormats : "g:ia|g:iA|g:i a|g:i A|h:i|g:i|H:i|ga|ha|gA|h a|g a|g A|gi|hi|gia|hia|g|H"
+  });
+}
+
+if(Ext.form.CheckboxGroup){
+  Ext.apply(Ext.form.CheckboxGroup.prototype, {
+    blankText : "Ha de seleccionar almenys un &#233;tem d\'aquest group"
+  });
+}
+
+if(Ext.form.RadioGroup){
+  Ext.apply(Ext.form.RadioGroup.prototype, {
+    blankText : "Ha de seleccionar un &#233;tem d\'aquest grup"
   });
 }
