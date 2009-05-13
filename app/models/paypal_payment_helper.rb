@@ -337,11 +337,11 @@ class PaypalPaymentHelper < PaymentHelper
           product_line = line.product
           product_index = index + 1
           product_params.merge!({
-            "item_name_#{product_index}" => product_line.name,
+            "item_name_#{product_index}" => product_line ? product_line.name : line.description,
             "amount_#{product_index}" => sprintf("%.2f", line.retail_price.cents / 100.0),
             "quantity_#{product_index}" => line.quantity.to_i
           })
-          if product_line.pay_period
+          if product_line && product_line.pay_period
             subscription_product = product_line
           end
         end
