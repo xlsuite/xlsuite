@@ -287,11 +287,11 @@ class ContactRoute < ActiveRecord::Base
   belongs_to :account
   validates_presence_of :account_id
 
-  before_validation {|r| r.name = "Main" if r.name.blank? || r.name.empty?}
+  before_validation :set_name
   validates_presence_of :name, :routable_type, :routable_id
   validates_length_of :name, :within => (1 .. 200)
 
-  before_validation {|r| r.account = r.routable.account if r.routable }
+  before_validation :set_account
   
   before_create :generate_random_uuid
 
@@ -333,5 +333,14 @@ class ContactRoute < ActiveRecord::Base
         :email_address => self.email_address,
         :number => self.number,
         :url => self.url)
+  end
+  
+  protected
+  def set_account
+    self.account = self.routable.account if self.routable
+  end
+  
+  def set_name
+    self.name = "Main" if self.name.blank? || self.name.empty?
   end
 end
