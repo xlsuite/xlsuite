@@ -153,14 +153,9 @@ page << create_tab_using_ajax_response("Post | #{truncate(@blog_post.title, 15)}
     id: "blog_post_#{@blog_post.id}_editor",
     name: 'blog_post[body]',
     width: '99%',
+    height: 400,
     value: #{@blog_post.body.to_json},
     listeners: {
-      'resize': function(component){
-        var size = component.ownerCt.body.getSize();
-        component.suspendEvents();
-        component.setSize(size.width-20, size.height-60);
-        component.resumeEvents();
-      },
       'render': function(component){
         component.getToolbar().insertButton(16, #{html_editor_image_video_embed_button(@blog_post)});
       }
