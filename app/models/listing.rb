@@ -632,7 +632,8 @@ class Listing < ActiveRecord::Base
   def gmap_query
     raw_query = [raw["House #"], raw["Street Dir"], raw["Street Name"], raw['Street Type']].delete_if {|l| l.blank?}.join(" ")
     
-    raw_query.blank? ? [self.address.line1, self.address.line2, self.address.city, self.address.state, self.address.zip].delete_if {|l| l.blank?}.join(', ') : [raw_query, self.city, self.province, self.zip].delete_if {|l| l.blank?}.join(', ') 
+    raw_query = raw_query.blank? ? [self.address.line1, self.address.line2, self.address.city, self.address.state, self.address.zip].delete_if {|l| l.blank?}.join(', ') : [raw_query, self.city, self.province, self.zip].delete_if {|l| l.blank?}.join(', ')
+    raw_query.gsub(/#/, "")
   end
 
   def to_liquid
