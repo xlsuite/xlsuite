@@ -338,7 +338,7 @@ class Profile < ActiveRecord::Base
   after_save :update_party_product_category_name
     
   def gmap_query
-    [self.main_address.line1, self.main_address.line2, self.main_address.city, self.main_address.state, self.main_address.zip].delete_if {|l| l.blank?}.join(', ')
+    [self.main_address.line1, self.main_address.line2, self.main_address.city, self.main_address.state, self.main_address.zip].delete_if {|l| l.blank?}.join(', ').gsub(/#/, "")
   end
   
   def quick_description
