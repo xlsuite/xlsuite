@@ -441,15 +441,15 @@ class ProfilesController < ApplicationController
           
           return redirect_to((params[:next] || "/profiles/view?id=__ID__").sub("__ID__", @profile.id.to_s))
         rescue
+          logger.info {"==> profiles\#update:  #{$!}"}
+          logger.info {$!.backtrace.join("\n")}
+          
           %w(addresses phones links email_addresses).each do |method|
             @profile.send(method).each do |model|
               next if model.valid?
               logger.debug {"#{model.class.name} (#{model.id}/#{model.name}): #{model.errors.full_messages}"}
             end
           end
-
-          logger.info {"==> profiles\#update:  #{$!}"}
-          logger.debug {$!.backtrace.join("\n")}
 
           flash_failure "Error saving data: #{$!}"
 
