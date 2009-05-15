@@ -26,4 +26,9 @@ class MoneyDrop < Liquid::Drop
   def dollar
     self.money.cents / 100
   end
+  
+  def dollar_round_up
+    f=self.money.cents / 100.0
+    f.ceil
+  end
 end

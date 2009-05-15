@@ -35,34 +35,47 @@ class CommentsController < ApplicationController
   end
 
   def create
-    params[:comment] ||= {}
-    params[:comment].merge!(:rating => params[:rating]) unless params[:rating].blank?
-    @comment = current_account.comments.build(params[:comment])
-    @comment.commentable = @commentable
-    @comment.domain = current_domain
-    
-    @comment.user_agent = request.env["HTTP_USER_AGENT"]
-    @comment.referrer_url = request.env["HTTP_REFERER"]
-    @comment.request_ip = request.remote_ip
-    @comment.created_by = @comment.updated_by = current_user if current_user?
-    @created = @comment.save
-    MethodCallbackFuture.create!(:models => [@comment], :account =>  @comment.account, :method => :do_spam_check!) if @created
-    @close = true if params[:commit_type] && params[:commit_type] =~ /close/i
-    respond_to do |format|
-      format.html do
-        unless @created
-          flash_failure @comment.errors.full_messages
-        else
-          if @comment.reload.approved_at
-            flash_success "Comment created"
-          else
-            flash_success params[:success_message] ? params[:success_message] : "Comment created"
-          end
+    if current_domain.get_config(:require_login_for_comments) && !current_user?
+      error_message = "You must be logged in to post a comment."
+      respond_to do |format|
+        format.html do
+          flash_failure error_message
+          redirect_to_return_to_or_back
         end
-        redirect_to_return_to_or_back
+        format.js do
+          render :json => {:flash => error_message, :errors => error_message, :success => false }.to_json
+        end
       end
-      format.js do
-        render_json_response
+    else
+      params[:comment] ||= {}
+      params[:comment].merge!(:rating => params[:rating]) unless params[:rating].blank?
+      @comment = current_account.comments.build(params[:comment])
+      @comment.commentable = @commentable
+      @comment.domain = current_domain
+      
+      @comment.user_agent = request.env["HTTP_USER_AGENT"]
+      @comment.referrer_url = request.env["HTTP_REFERER"]
+      @comment.request_ip = request.remote_ip
+      @comment.created_by = @comment.updated_by = current_user if current_user?
+      @created = @comment.save
+      MethodCallbackFuture.create!(:models => [@comment], :account =>  @comment.account, :method => :do_spam_check!) if @created
+      @close = true if params[:commit_type] && params[:commit_type] =~ /close/i
+      respond_to do |format|
+        format.html do
+          unless @created
+            flash_failure @comment.errors.full_messages
+          else
+            if @comment.reload.approved_at
+              flash_success "Comment created"
+            else
+              flash_success params[:success_message] ? params[:success_message] : "Comment created"
+            end
+          end
+          redirect_to_return_to_or_back
+        end
+        format.js do
+          render_json_response
+        end
       end
     end
   end
@@ -301,8 +314,10 @@ class CommentsController < ApplicationController
   
   def authorized?
     return true if current_user.can?(:edit_comments)
-    if %w(new create).include?(self.action_name)
+    if %w(new).include?(self.action_name)
       return self.current_user?
+    elsif %w(create).include?(self.action_name)
+      return true
     end
     false
   end   
