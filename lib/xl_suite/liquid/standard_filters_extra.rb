@@ -282,7 +282,7 @@ module XlSuite
   module Liquid
     module StandardFiltersExtra
       def url_escape(input)
-        CGI.escape(input) rescue input
+        CGI.escape(input).gsub(/%2F/, "%252F") rescue input
       end
 
       def month(input)
