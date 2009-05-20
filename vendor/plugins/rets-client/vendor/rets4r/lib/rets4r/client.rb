@@ -87,8 +87,7 @@ module RETS4R
 			@headers  = {
 				'User-Agent'   => DEFAULT_USER_AGENT, 
 				'Accept'       => '*/*', 
-				'RETS-Version' => "RETS/#{DEFAULT_RETS_VERSION}", 
-				'RETS-Session-ID' => '0'
+				'RETS-Version' => "RETS/#{DEFAULT_RETS_VERSION}"
 				}
 			@request_method = DEFAULT_METHOD
 			@parser_class   = DEFAULT_PARSER
