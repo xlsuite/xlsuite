@@ -679,12 +679,17 @@ class ListingsController < ApplicationController
   end
   
   def find_listings
-    conditions = {:account_id => self.current_account.id, :type => nil}
-    search_options = {:conditions => conditions, :start => params[:start], :limit => params[:limit]}
+    search_options = {:offset => params[:start], :limit => params[:limit]}
     search_options.merge!(:order => "#{params[:sort]} #{params[:dir]}") if params[:sort]
     
-    @listings = Listing.xl_sphinx_search(params[:q], search_options)
-    @listings_count = Listing.xl_sphinx_search_count(params[:q], :conditions => conditions)
+    query_params = params[:q]
+    unless query_params.blank? 
+      query_params = query_params.split(/\s+/)
+      query_params = query_params.map {|q| q+"*"}.join(" ")
+    end
+
+    @listings = current_account.listings.search(query_params, search_options)
+    @listings_count = Listing.count_results(query_params, {:conditions => "listings.account_id = #{current_account.id} AND listings.type IS NULL"})
   end
   
   def load_listing 

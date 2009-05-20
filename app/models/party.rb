@@ -299,23 +299,7 @@ class Party < ActiveRecord::Base
     :columns => %w(honorific first_name last_name middle_name company_name display_name referal forum_alias timezone created_at updated_at confirmed),
     :map => {:addresses => :address_contact_route, :phones => :phone_contact_route, :links => :link_contact_route, :emails => :email_contact_route}
 
-  define_index do
-    indexes [:last_name, :middle_name, :first_name], :as => :name, :sortable => true
-    indexes :company_name, :sortable => true
-    indexes :forum_alias
-    indexes :biography
-    indexes tags.name, :as => :tag
-    indexes memberships.group_id, :as => :group_id
-    indexes notes.body, :as => :notes
-    indexes links.url, :as => :links
-    indexes email_addresses.email_address, :as => :email_addresses
-    indexes [addresses.line1, addresses.line2, addresses.line3, addresses.city, addresses.state, addresses.country, addresses.zip], :as => :addresses
-    indexes phones.number, :as => :phones
-
-    has :account_id, :created_by_id, :archived_at
-    set_property :delta => true
-  end
-  include XlSuite::SphinxSearch
+  acts_as_fulltext %w(display_name links_as_text phones_as_text addresses_as_text email_addresses_as_text tags_as_text position), :weight => 50 
 
   IMMEDIATELY = 'immediately'
   DAILY = 'daily'
@@ -546,7 +530,7 @@ class Party < ActiveRecord::Base
 
   has_many :interests, :dependent => :destroy
   has_many :listings, :through => :interests
-
+  
   has_many :posts, :class_name => 'ForumPost', :foreign_key => 'user_id'
 
   # Security / Permission management

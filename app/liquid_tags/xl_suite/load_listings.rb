@@ -363,29 +363,17 @@ module XlSuite
         options.merge!(:order => orders.join(",")) 
 
         conditions = []
-        conditions_in_hash = {}
         conditions << "listings.account_id=#{current_account.id}"
         if !context.current_user?        
           conditions << "listings.public=1"
-          conditions_in_hash.merge!(:public => 1)
         end
         
-        minimum_price = nil
         if @options[:price_min]
-          minimum_price = context_options[:price_min].to_s.to_money.cents 
-          conditions << "listings.price_cents >= #{minimum_price}"
-          conditions_in_hash.merge!(:price_cents => 0..minimum_price)
+          conditions << "listings.price_cents >= #{context_options[:price_min].to_s.to_money.cents}"
         end
         
-        maximum_price = nil
         if @options[:price_max]
-          maximum_price = context_options[:price_max].to_s.to_money.cents
-          conditions << "listings.price_cents <= #{maximum_price}"
-          if minimum_price
-            conditions_in_hash.merge!(:price_cents => minimum_price..maximum_price)
-          else
-            conditions_in_hash.merge!(:price_cents => 0..maximum_price)
-          end
+          conditions << "listings.price_cents <= #{context_options[:price_max].to_s.to_money.cents}"
         end
 
         if @options[:ids]
@@ -394,10 +382,8 @@ module XlSuite
           conditions << "listings.id IN (#{ids.join(',')})" unless ids.empty?
         end          
         
-        if @options[:bedrooms] && !context_options[:bedrooms].blank?
-          bedrooms_count = context_options[:bedrooms].to_s.strip.to_i
-          conditions << "listings.raw_property_data LIKE '%total bedrooms: \"#{bedrooms_count}\"%'"
-          #conditions_in_hash.merge!(:bedrooms => bedrooms_count)
+        if @options[:bedrooms]
+          conditions << "listings.raw_property_data LIKE '%total bedrooms: \"#{context_options[:bedrooms].to_s.strip}\"%'" unless context_options[:bedrooms].blank?
         end
 
         conditions = [conditions.join(" AND ")]
@@ -407,12 +393,8 @@ module XlSuite
           conditions << "listings.status=?"
           options.merge!(:conditions => [conditions.join(" AND "), context_options[:status].downcase])
           conditions = [options[:conditions]]
-          conditions_in_hash.merge!(:status => options[:conditions])
         else
           conditions << "(listings.status='Sold' OR listings.status='Active')"
-          conditions = [conditions.join(" AND ")]
-          options.merge!(:conditions => conditions.to_s)
-          conditions_in_hash.merge!(:status => "(Active | Sold)")
         end
         
         if @options[:owner_email]
@@ -430,7 +412,6 @@ module XlSuite
           conditions << "listings.contact_email #{operator} ?"                  
           options.merge!(:conditions => [conditions.join(" AND "), value])
           conditions = [options[:conditions]]
-          conditions_in_hash.merge!(:contact_email => context_options[:owner_email])
         end
 
         listings_count = 0
@@ -450,15 +431,7 @@ module XlSuite
                      listings_root.find(:all, options.merge(:conditions => [conditions.join(" AND "), context_options[:mls_no].upcase]))
                    when @options[:search]
                      q = context_options[:search]
-                     sphinx_conditions = conditions_in_hash.dup
-                     options_with = {:account_id => current_account.id}
-                     price_cents = sphinx_conditions.delete(:price_cents)
-                     if price_cents
-                       options_with.merge!(:price_cents => price_cents)
-                     end
-                     options[:with] = options_with
-                     options[:conditions] = sphinx_conditions
-                     listings_root.xl_sphinx_search(q, options)
+                     listings_root.search(q, options)
                    when @options[:tagged_all]
                      listings_root.find_tagged_with(options.merge(:all => Tag.parse(context_options[:tagged_all])))
                    when @options[:tagged_any]
@@ -487,13 +460,7 @@ module XlSuite
                        listings_root.count(:conditions => [conditions.join(" AND "), context_options[:mls_no].upcase])
                      when @options[:search]
                        q = context_options[:search]
-                       sphinx_conditions = conditions_in_hash.dup
-                       options_with = {:account_id => current_account.id}
-                       price_cents = sphinx_conditions.delete(:price_cents)
-                       if price_cents
-                         options_with.merge!(:price_cents => price_cents)
-                       end
-                       listings_root.xl_sphinx_search_count(q, {:with => options_with, :conditions => sphinx_conditions})
+                       listings_root.count_results(q, {:conditions => options.delete(:conditions)})
                      when @options[:tagged_all]
                        listings_root.count_tagged_with(options.merge(:all => Tag.parse(context_options[:tagged_all])))
                      when @options[:tagged_any]

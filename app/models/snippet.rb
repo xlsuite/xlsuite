@@ -279,15 +279,7 @@
 # 
 # 		     END OF TERMS AND CONDITIONS
 class Snippet < Item
-  define_index do
-    indexes :title, :sortable => true
-    indexes :body
-    indexes :domain_patterns
-
-    has :account_id
-    set_property :delta => true
-  end
-  include XlSuite::SphinxSearch
+  acts_as_fulltext %w(title body domain_patterns behavior)
   
   attr_accessor :ignore_warnings
   attr_protected :ignore_warnings

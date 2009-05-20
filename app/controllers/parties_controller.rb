@@ -1246,64 +1246,56 @@ protected
   end
 
   def process_index
-    sort_order = case params[:dir]
+    case params[:dir]
     when "ASC", "DESC"
-      params[:dir]
+      sort_dir = params[:dir]
     else
-      "ASC"
+      sort_dir = "ASC"
     end
-    
-    params[:sort] = params[:sort].blank? ? "displayName" : params[:sort]
-    sort_fields = ["some_non_existant_column"]
-    # If query is blank the search will be done by normal ActiveRecord#find and so different ordering column 
-    # mapping needs to be used
-    if params[:q].blank?
-      sort_fields = case params[:sort]
-      when "lastName"
-        %w(last_name first_name company_name)
-      when "firstName"
-        %w(first_name last_name company_name)
-      when "company"
-        %w(company_name last_name first_name)
-      when "displayName"
-        %w(display_name company_name last_name first_name)
-      end    
-    else
-      sort_fields = case params[:sort]
-      when "company"
-        ["company_name"]
-      when "displayName"
-        ["name"]
-      end
-    end
-    order_option = sort_fields.map {|field| "#{field} #{sort_order}"}.join(", ")
 
-    conditions = {}
-    view_own_contacts_only = self.current_user.can?(:view_own_contacts_only, :edit_own_contacts_only, :any => true) && !self.current_user.can?(:view_party, :edit_party, :any => true)
-    conditions[:account_id] = self.current_account.id
-    conditions[:created_by_id] = self.current_user.id if view_own_contacts_only
-    
+    fields = case params[:sort]
+    when "lastName"
+      %w(last_name first_name company_name)
+    when "firstName"
+      %w(first_name last_name company_name)
+    when "company"
+      %w(company_name last_name first_name)
+    when "displayName"
+      %w(display_name company_name last_name first_name)
+    end
+
+    search_options = {:offset => params[:start], :limit => params[:limit]}
+    search_options.merge!(:order => fields.map {|field| "#{field} #{sort_dir}"}.join(", ")) if fields
+    if search_options[:order].blank? && params[:q].blank?
+      search_options.merge!(:order => "display_name")
+    end
+
+    conditions = []
     params.delete(:group_id) if params[:group_id] =~ /all/i
     if params[:group_id]
-      contains_member = (Membership.count(:conditions => {:group_id => params[:group_id].to_i}) > 0)
-      if contains_member
-        # If query params is blank, sphinx search will not be used
-        # Need to adjust conditions
-        if params[:q].blank?
-          party_ids = current_account.groups.find(params[:group_id]).parties.all(:select => "parties.id").map(&:id)
-          conditions[:id] = party_ids
-        else
-          conditions[:group_id] = params[:group_id].to_i 
-        end
-      else
+      party_ids = current_account.groups.find(params[:group_id]).parties.map(&:id)
+      if party_ids.join.blank?
         @parties = []
         @parties_count = 0
         return
+      else
+        conditions << "(parties.id IN (#{party_ids.join(",")}))" 
       end
     end
-    
-    @parties = Party.xl_sphinx_search(params[:q], {:with => {:archived_at => 0}, :conditions => conditions, :limit => params[:limit], :start => params[:start], :order => order_option})
-    @parties_count = Party.xl_sphinx_search_count(params[:q], :with => {:archived_at => 0}, :conditions => conditions)
+
+    query_params = params[:q]
+    unless query_params.blank?
+      query_params = query_params.split(/\s+/)
+      query_params = query_params.map {|q| q+"*"}.join(" ")
+    end
+    view_own_contacts_only = current_user.can?(:view_own_contacts_only, :edit_own_contacts_only, :any => true) && !current_user.can?(:view_party, :edit_party, :any => true)
+    conditions << "(created_by_id = #{current_user.id} OR parties.id = #{current_user.id})" if view_own_contacts_only
+    search_options.merge!(:conditions => conditions.join(" AND ")) unless conditions.blank?
+
+    @parties = current_account.parties.search(query_params, search_options)
+    search_options = conditions.blank? ? {} : {:conditions => conditions.join(" AND ")} 
+
+    @parties_count = current_account.parties.count_results(query_params, search_options)
   end
 
   def load_groups

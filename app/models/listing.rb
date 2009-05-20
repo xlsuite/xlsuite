@@ -295,32 +295,7 @@ class Listing < ActiveRecord::Base
   validates_presence_of :account_id
 
   acts_as_taggable
-
-  define_index do
-    indexes :features
-    indexes :description
-    indexes :extras
-    indexes :open_house_text
-    indexes :open_house, :sortable => true
-    indexes [address.line1, address.line2, address.line3, address.city, address.state, address.country, address.zip], :as => :address
-    indexes [realtor.last_name, realtor.first_name, realtor.middle_name], :as => :realtor_name
-    indexes :contact_email, :as => :contact_email, :sortable => true
-    indexes :mls_no, :as => :mls_no_index
-    indexes :status, :as => :status, :sortable => true
-    indexes :region, :sortable => true
-    indexes :area, :sortable => true
-    indexes tags.name, :as => :tag
-
-    has :account_id, :type => :integer
-    has :type, :type => :string
-    has 'RADIANS(listings.latitude)', :as => :latitude, :type => :float
-    has 'RADIANS(listings.longitude)', :as => :longitude, :type => :float
-    has :price_cents, :as => :price_cents, :type => :integer
-    has :public, :type => :boolean
-    
-    set_property :delta => true
-  end
-  include XlSuite::SphinxSearch
+  acts_as_fulltext %w(quick_description), %w(address_as_text mls_no realtor_name tags_as_text description status region contact_email)
   
   has_one :address, :class_name => "AddressContactRoute", :as => :routable, :dependent => :destroy
   belongs_to :realtor, :class_name => 'Party', :foreign_key => 'realtor_id'
