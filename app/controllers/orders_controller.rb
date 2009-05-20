@@ -341,6 +341,8 @@ class OrdersController < ApplicationController
   def edit
     @send_order_path = sandbox_new_emails_path(:order_uuid => @order.uuid, :mass => true)
     @formatted_order_payments_path = formatted_payments_path({:subject_id => @order.id, :subject_type => "Order", :format => :json})
+    @payments_path = payments_path({:subject_id => @order.id, :subject_type => "Order"})
+    @payment_path = payment_path({:id => "__ID__"})
     @common_order_tags = current_account.orders.tags(:order => "count DESC, name ASC")
     respond_to do |format|
       format.js
