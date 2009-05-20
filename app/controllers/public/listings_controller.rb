@@ -302,8 +302,9 @@ class Public::ListingsController < ApplicationController
         params[:next]=params[:next].gsub(/__id__/i, @listing.id.to_s).gsub(/__quick_description__/i, @listing.quick_description)\
             .gsub(/__gmap_query__/i, @listing.gmap_query).gsub(/__mls_no__/i, @listing.mls_no || "") if params[:next]
         respond_to do |format|
-          format.js
-          format.html {redirect_to_next_or_back_or_home}
+          format.html do
+            redirect_to_next_or_back_or_home
+          end
         end
       end
     rescue
