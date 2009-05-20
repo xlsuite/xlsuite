@@ -307,6 +307,7 @@ class Payment < ActiveRecord::Base
 
   has_many :transitions, :class_name => "PaymentTransition", :order => "created_at", :dependent => :destroy
   
+  before_create :set_ever_failed
   after_create :create_payment_transition
   
   acts_as_state_machine :initial => :pending
@@ -398,6 +399,11 @@ class Payment < ActiveRecord::Base
     rescue Net::SMTPSyntaxError
       # NOP
     end
+  end
+  
+  def set_ever_failed
+    self.ever_failed = false
+    true
   end
   
   def create_payment_transition
