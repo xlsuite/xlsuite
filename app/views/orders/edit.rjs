@@ -441,47 +441,175 @@ page << create_tab_using_ajax_response("Edit Order | #{@order.number}") do
   
   //++++++++++++++++++++++++++++++-- Payments tab --+++++++++++++++++++++++++++++++//
   var orderPaymentsRecordAndStore = xl.widget.SimpleJSONStore({
-    url: #{@formatted_order_payments_path.to_json},
-    doLoad: true,
-    doSmartMappings: true,
-    fields: [
-      'id', 'created_at', 'updated_at', 'payment_method', 'amount', 'state'
+    url: #{@formatted_order_payments_path.to_json}
+    ,doLoad: true
+    ,doSmartMappings: true
+    ,fields: [
+      'id', 'object_id', 'created_at', 'updated_at', 'payment_method', 'amount', 'state'
     ]
   });
+
+/*
+  var OrderPaymentRecord = Ext.data.Record.create([
+    {name:"id", type:"int"}
+    ,{name:"object_id"}
+    ,{name:"created_at", type:"date"}
+    ,{name:"updated_at", type:"date"}
+    ,{name:"payment_method"}
+    ,{name:"amount"}
+    ,{name:"state"}
+  ]);
+
+  var orderPaymentReader = new Ext.data.JsonReader({
+    totalProperty:"total"
+    ,root:"collection"
+    ,id:"id"
+  }, OrderPaymentRecord);
+
+  var orderPaymentsStore = new Ext.data.JsonStore({
+    url:#{@formatted_order_payments_path.to_json}
+    ,reader:orderPaymentReader
+    ,autoLoad:true
+  });
+*/
+
+  var OrderPaymentRecord = orderPaymentsRecordAndStore.record;
+  var orderPaymentsStore = orderPaymentsRecordAndStore.store;
+
+  var addOrderPaymentHandler = function(){
+    var newPayment = new OrderPaymentRecord({
+      id:""
+      ,created_at:""
+      ,updated_at:""
+      ,payment_method:"check"
+      ,amount:"0.00"
+      ,state:"pending"
+    });
+    orderPaymentsGridPanel.stopEditing();
+    orderPaymentsStore.insert(orderPaymentsStore.getCount(), newPayment);
+    orderPaymentsGridPanel.startEditing(orderPaymentsStore.getCount()-1, 0);
+  };
+
+  var orderPaymentStateComboBox = new Ext.form.ComboBox({
+    store:[["paid", "Paid"], ["pending", "Pending"], ["authorized", "Authorized"], ["declined", "Declined"], ["cancelled", "Cancelled"]]
+    ,mode:"local"
+    ,triggerAction:"all"
+    ,forceSelection:true
+  });
+
+  var orderPaymentStateRenderer = function(value, metadata, record){
+    var stateStore = orderPaymentStateComboBox.getStore();
+    var index = stateStore.find("value", value);
+    return stateStore.getAt(index).get("text");
+  };
+
+  var orderPaymentMethodComboBox = new Ext.form.ComboBox({
+    store:[["check", "Check"], ["cash", "Cash"], ["other", "Other"], ["paypal", "Paypal"], ["credit_card", "Credit Card"]]
+    ,mode:"local"
+    ,triggerAction:"all"
+    ,forceSelection:"true"
+  });
+
+  var orderPaymentMethodRenderer = function(value, metadata, record){
+    var methodStore = orderPaymentMethodComboBox.getStore();
+    var index = methodStore.find("value", value);
+    return methodStore.getAt(index).get("text");
+  };
   
   var orderPaymentsGridPanel = new Ext.grid.EditorGridPanel({
-    store: orderPaymentsRecordAndStore.store,
-    cm: new Ext.grid.ColumnModel([ 
-      { id: "state",
-        header: "Status", 
-        dataIndex: "state"
-      },{ 
-        id: "created_at",
-        header: "Created at",
-        dataIndex: "created_at"
-      },{ 
-        id: "updated_at",
-        header: "Updated at",
-        dataIndex: "updated_at"
-      },{ 
-        id: "payment_method",
-        header: "Payment Method",
-        dataIndex: "payment_method"
-      },{ 
-        id: "amount",
-        header: "Amount",
-        dataIndex: "amount"
-      }]),
-    tbar: [
-      'Order lines'
-    ],
+    store:orderPaymentsStore
+    ,cm:new Ext.grid.ColumnModel([ 
+      { 
+        id:"amount"
+        ,header: "Amount"
+        ,dataIndex: "amount"
+        ,editor:new Ext.form.TextField()
+      }
+      ,{ 
+        id:"payment_method"
+        ,header: "Payment Method"
+        ,dataIndex: "payment_method"
+        ,editor:orderPaymentMethodComboBox
+        ,renderer:orderPaymentMethodRenderer
+      }
+      ,{
+        id:"state"
+        ,header:"Status" 
+        ,dataIndex:"state"
+        ,editor:orderPaymentStateComboBox
+        ,renderer:orderPaymentStateRenderer
+      }
+      ,{ 
+        id:"created_at"
+        ,header:"Created at"
+        ,dataIndex:"created_at"
+      }
+      ,{ 
+        id:"updated_at"
+        ,header: "Updated at"
+        ,dataIndex: "updated_at"
+      }
+      ])
+    ,tbar:[
+      'Order Payments'
+      ,new Ext.Toolbar.Button({
+        text:"Add Payment"
+        ,handler:addOrderPaymentHandler
+      })
+    ]
     
-    autoScroll: true,
-    autoWidth: true,
-    clicksToEdit: 1,
-    selModel: new Ext.grid.RowSelectionModel, 
-    autoHeight: false,
-    autoHeight: true
+    ,autoScroll:true
+    ,autoWidth:true
+    ,clicksToEdit:1
+    ,selModel:new Ext.grid.RowSelectionModel
+    ,autoHeight:true
+    ,listeners:{
+      "validateedit":function(event){
+        var editedRecord = event.record;
+        var editedFieldName = event.field;
+        var newValue = event.value;
+        editedRecord.set(editedFieldName, newValue);
+        var url = #{@payments_path.to_json};
+        var method = "POST";
+        var params = {
+          "payment[id]":editedRecord.get("id")
+          ,"payment[amount]":editedRecord.get("amount")
+          ,"payment[payment_method]":editedRecord.get("payment_method")
+          ,"payment[ever_failed]":editedRecord.get("ever_failed")
+          ,"payment[state]":editedRecord.get("state")
+        };
+
+        var editedRecordId = editedRecord.get("id");
+
+        if(editedRecordId && editedRecordId != ""){
+          params.id = editedRecordId;
+          method = "PUT";
+          url = #{@payment_path.to_json}.sub("__ID__", editedRecordId);
+        }
+
+        Ext.Ajax.request({
+          url:url
+          ,method:method
+          ,params:params
+          ,success:function(response, options){
+            var response = Ext.decode(response.responseText);
+            if(response.success){
+              editedRecord.set("id", response.id);
+              editedRecord.set("object_id", response.object_id);
+              editedRecord.set("amount", response.amount);
+              editedRecord.set("payment_method", response.payment_method);
+              editedRecord.set("ever_failed", response.ever_failed);
+              editedRecord.set("state", response.state);
+              editedRecord.set("created_at", response.created_at);
+              editedRecord.set("updated_at", response.updated_at);
+            }
+            else{
+              Ext.Msg.alert("Create Payment - FAILED", response.errors);
+            }
+          }
+        });
+      }
+    }
   });
   
   xl.runningGrids.set("#{typed_dom_id(@order, :order_lines_grid)}", orderLinesGridPanel);
