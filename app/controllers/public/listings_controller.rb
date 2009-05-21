@@ -382,16 +382,13 @@ class Public::ListingsController < ApplicationController
     success = true
     errors = []
     @profile = nil
-    if params[:profile_id]
+    if params[:profile_id] && !params[:profile_id].blank?
       @profile = self.current_account.profiles.find(params[:profile_id])
     else
-      @profile = self.current_account.owner.profile
+      @profile = nil
     end
     if @profile
       @profile = @profile.to_liquid
-    else
-      errors << "Account owner does not have his/her profile setup"
-      success = false
     end
     snippet = self.current_account.snippets.find_by_title(self.current_domain.get_config("listing_embed_code_snippet"))
     if success && snippet
