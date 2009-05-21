@@ -293,8 +293,7 @@ class RetsListingUpdator < RetsSearchFuture
         date_field = RetsMetadata.find_all_fields(group.rets_resource, group.rets_class).detect {|f| f.description =~ /Last Trans Date/i}
         self.args[:limit] = mls_nos.size
         self.args[:search] = {:resource => group.rets_resource, :class => group.rets_class, :limit => mls_nos.size}
-        self.args[:lines] = [ {:operator => "eq", :field => mls_field.value, :from => mls_nos.join(","), :to => ""},
-          {:operator => "greater", :field => date_field.value, :from => earliest_listing.updated_at.to_date.to_s(:iso), :to => ""}]
+        self.args[:lines] = [ {:operator => "eq", :field => mls_field.value, :from => mls_nos.join(","), :to => ""} ]
         self.account = group_account # We must be part of an account to be correctly searched upon
         self.save(false) # If we crash, we'll at least have a record of what we did prior to the crash
 
@@ -302,7 +301,9 @@ class RetsListingUpdator < RetsSearchFuture
           ActiveRecord::Base.transaction do
             rets_search_result = self.run_rets_without_grouping(rets, self.priority)
             inactive_mls_nos = mls_nos - rets_search_result.map{|e| e[:mls_no]}.uniq
-            
+            RAILS_DEFAULT_LOGGER.warn("^^^mls_nos is #{mls_nos.inspect}")
+            RAILS_DEFAULT_LOGGER.warn("^^^rets_search_result is #{rets_search_result.map{|e| e[:mls_no]}.uniq.inspect}")
+            RAILS_DEFAULT_LOGGER.warn("^^^inactive_mls_nos is #{inactive_mls_nos.inspect}")
             inactive_mls_nos.each do |mls_no|
               group_account.listings.find_all_by_mls_no(mls_no).each do |listing|
                 if listing.tag_list =~ /sold/i
@@ -317,7 +318,7 @@ class RetsListingUpdator < RetsSearchFuture
             end
           end
         rescue
-          logger.warn("FAIL ON UPDATING LISTINGS AUTOMATICALLY")
+          logger.warn("^^^FAIL ON UPDATING LISTINGS AUTOMATICALLY")
           logger.warn($!.inspect)
         end
       end
