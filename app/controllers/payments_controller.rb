@@ -6,6 +6,7 @@ class PaymentsController < ApplicationController
 
   before_filter :find_common_payments_tags, :only => [:new, :edit]
   before_filter :find_payment, :only => [:edit, :update, :destroy]
+  before_filter :load_subject, :only => [:create]
 
   def index
     respond_to do |format|
@@ -25,15 +26,50 @@ class PaymentsController < ApplicationController
   end
 
   def create
-    @payment = current_account.payments.build(params[:payment])
-    @created = @payment.save
+    errors = ""
+    begin
+      ActiveRecord::Base.transaction do
+        @payment = self.current_account.payments.build(params[:payment])
+        @payment.payer = self.current_user
+        @payment.save!
+        payable = self.current_account.payables.build
+        payable.payment = @payment
+        payable.subject = @subject
+        payable.amount_cents = @payment.amount_cents
+        payable.amount_currency = @payment.amount_currency
+        payable.created_by_id = self.current_user.id
+        payable.updated_by_id = self.current_user.id
+        payable.save!
+        @created = true
+      end
+    rescue
+      errors = $!.to_s
+      @created = false
+    end
     if @created
       flash_success :now, "Payment successfully created"
     else
       flash_failure :now, @payment.errors.full_messages
     end
     respond_to do |format|
-      format.js
+      format.js do
+        response = {:success => @created}
+        if @created       
+          response.merge!({
+            :id => @payment.id,
+            :object_id => @payment.dom_id,
+            :amount => @payment.amount.to_s,
+            :state => @payment.state,
+            :payment_method => @payment.payment_method,
+            :ever_failed => @payment.ever_failed,
+            :created_at => @payment.created_at.strftime(DATE_STRFTIME_FORMAT),
+            :updated_at => @payment.updated_at.strftime(DATE_STRFTIME_FORMAT)
+          });
+        else
+          response.merge!(:errors => errors)
+        end
+        render(:json => response)
+      end
     end
   end
 
@@ -45,12 +81,29 @@ class PaymentsController < ApplicationController
 
   def update
     @payment.attributes = params[:payment]
-    @updated = @payment.save  
+    @updated = @payment.save
     if !@updated
       flash_failure :now, @payment.errors.full_messages
     end
     respond_to do |format|
-      format.js
+      format.js do
+        response = {:success => @updated}
+        if @updated       
+          response.merge!({
+            :id => @payment.id,
+            :object_id => @payment.dom_id,
+            :amount => @payment.amount.to_s,
+            :state => @payment.state,
+            :payment_method => @payment.payment_method,
+            :ever_failed => @payment.ever_failed,
+            :created_at => @payment.created_at.strftime(DATE_STRFTIME_FORMAT),
+            :updated_at => @payment.updated_at.strftime(DATE_STRFTIME_FORMAT)
+          });
+        else
+          response.merge!(:errors => errors)
+        end
+        render(:json => response)
+      end
     end
   end
 
@@ -72,7 +125,6 @@ class PaymentsController < ApplicationController
   protected
   
   def assemble_records(payments)
-    logger.debug("^^^Payments: #{payments.inspect}")
     out = []
     payments.each do |payment|
       out << {
@@ -82,11 +134,19 @@ class PaymentsController < ApplicationController
         :state => payment.state,
         :payment_method => payment.payment_method,
         :ever_failed => payment.ever_failed,
-        :created_at => payment.created_at.strftime("%Y/%m/%d"),
-        :updated_at => payment.updated_at.strftime("%Y/%m/%d")
+        :created_at => payment.created_at.strftime(DATE_STRFTIME_FORMAT),
+        :updated_at => payment.updated_at.strftime(DATE_STRFTIME_FORMAT)
       }
     end
     out
+  end
+  
+  def load_subject
+    @subject = params[:subject_type].constantize.find(:first, :conditions => {:id => params[:subject_id], :account_id => self.current_account.id})
+  end
+  
+  def load_payment
+    @payment = self.current_account.payments.find(params[:id])
   end
 
   def find_common_payments_tags

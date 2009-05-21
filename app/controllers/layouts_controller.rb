@@ -15,31 +15,30 @@ class LayoutsController < ApplicationController
     respond_to do |format|
       format.js
       format.json do            
-        search_options = {:offset => params[:start], :limit => params[:limit], :conditions => {:account_id => self.current_account.id}}
+        search_options = {:offset => params[:start], :limit => params[:limit]}
         search_options.merge!(:order => params[:sort].blank? ? "title ASC" : "#{params[:sort]} #{params[:dir]}") 
         
+        query_params = params[:q]
+        unless query_params.blank? 
+          query_params = query_params.split(/\s+/)
+          query_params = query_params.map {|q| q+"*"}.join(" ")
+        end
         if params[:domain] && params[:domain].downcase != "all"
-          @domain = self.current_account.domains.find_by_name(params[:domain])
-          layouts = []
-          if params[:q].blank?
-            layouts = self.current_account.layouts.all.group_by(&:title).values.map do |group|
-              group.best_match_for_domain(@domain)
-            end.compact.flatten
-          else
-            #do nothing for now... not supported yet
-          end
-
+          @domain = current_account.domains.find_by_name(params[:domain])
+          layouts = current_account.layouts.search(query_params).group_by(&:title).values.map do |group|
+            group.best_match_for_domain(@domain)
+          end.compact.flatten
           sort = params[:sort].blank? ? :title : params[:sort].to_sym
           dir = params[:dir] if !params[:dir].blank? && params[:dir] =~ /desc/i
           layouts = layouts.sort_by(&sort)
           layouts.reverse! if dir
+          logger.debug("^^^starte: #{params[:start]}, limit: #{params[:limit]}")
           @layouts = layouts[params[:start].to_i, params[:limit].to_i]
+          logger.debug("^^^layouts #{layouts.size}, @layouts #{@layouts.size}, actual count: #{@layouts_count}")
           @layouts_count = layouts.size
         else
-          @layouts = Layout.xl_sphinx_search(params[:q], search_options.merge(:with => {:account_id => self.current_account.id}))
-          search_options.delete(:offset)
-          search_options.delete(:start)
-          @layouts_count = Layout.xl_sphinx_search_count(params[:q], search_options.merge(:with => {:account_id => self.current_account.id}))
+          @layouts = current_account.layouts.search(query_params, search_options)
+          @layouts_count = current_account.layouts.count_results(query_params, {})
         end
         render(:json => {:total => @layouts_count, :collection => assemble_records(@layouts)}.to_json)
       end

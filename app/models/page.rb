@@ -7,20 +7,7 @@ class Page < Item
   include CacheControl
 
   acts_as_taggable
-
-  define_index do
-    indexes :title, :sortable => true
-    indexes :fullslug
-    indexes :body
-    indexes :domain_patterns, :sortable => true
-    indexes :meta_description
-    indexes :meta_keywords
-    indexes layout.title, :as => :layout, :sortable => true
-
-    has :account_id
-    set_property :delta => true
-  end
-  include XlSuite::SphinxSearch
+  acts_as_fulltext %w(title fullslug body status layout domain_patterns behavior)
 
   VALID_STATUSES = %w(draft reviewed protected published).freeze
   STATUSES_FOR_SELECT = VALID_STATUSES.map {|status| [status.titleize, status]}.freeze
