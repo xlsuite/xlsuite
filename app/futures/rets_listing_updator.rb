@@ -309,7 +309,7 @@ class RetsListingUpdator < RetsSearchFuture
                 if listing.tag_list =~ /sold/i
                   listing.tag_list += " removed"
                 else
-                  listing.tag_list = "removed"
+                  listing.tag_list += " removed"
                   listing.status = "[XL]Inactive"
                   listing.change_to_private
                 end
