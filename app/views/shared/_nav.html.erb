@@ -11,10 +11,12 @@
           <% if current_user.can?(:view_contact_request, :edit_contact_requests, :edit_contact_request, :any => true) -%>
           <li><%= link_to_function 'Contact Requests', "xl.openNewTabPanel('contact_requests_index_nil', #{contact_requests_path.to_json})" %></li>
           <% end -%>
-          <% if current_user.can?(:edit_profiles, :any => true) -%>
+          <% if current_user.can?(:edit_profiles) -%>
           <li><%= link_to_function 'Profile List', "xl.openNewTabPanel('profiles_index_nil', #{profiles_path.to_json})" %></li>
           <% end -%>
+          <% if current_user.can?(:edit_profile_requests) -%>
           <li><%= link_to_function 'Profile Requests', "xl.openNewTabPanel('profile_requests_index_nil', #{profile_requests_path.to_json})" %></li>
+          <% end -%>
           <li>
             <%= link_to_function 'Manage<span class="right">&raquo;</span>', "" %>
             <ul>
