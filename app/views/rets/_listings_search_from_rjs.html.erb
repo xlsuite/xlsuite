@@ -233,21 +233,6 @@
 
     <tr>
       <td class="bold">
-        Dwelling Class
-        <%= hidden_field_tag "line[11][field]", @dwelling_class_field.value %>
-        <%= hidden_field_tag "line[11][operator]", "eq" %>
-      </td>
-      <td colspan="2">
-        <%= select_tag("line[11][from]",
-            content_tag(:option, "*** Any Value", :value => ".ANY.") +
-            options_for_select(@dwelling_classes) +
-            content_tag(:option, "*** No value", :value => ".EMPTY.")) %>
-        <%= hidden_field_tag "line[11][to]", "" %>
-      </td>
-    </tr>
-
-    <tr>
-      <td class="bold">
         Title of Land
         <%= hidden_field_tag "line[12][field]", @title_of_land_field.value %>
         <%= hidden_field_tag "line[12][operator]", "eq" %>
