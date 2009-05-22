@@ -292,10 +292,14 @@ class RetsPhotoRetriever < RetsFuture
     rets.get_photos(:property, "#{self.args[:key]}") do |data, options|
       logger.info {"==> \#get_photos(__binary data__, #{options.inspect})"}
       status!(:reading, original_progress + 3*self.results.size)
+      next if options['Content-ID'].blank?
       filename = "#{options['Content-ID']}-#{options['Object-ID']}.jpg"
 
       asset = self.account.assets.find_or_initialize_by_filename(filename)
-      logger.info {"==> Asset with name #{filename.inspect} already exists"} unless asset.new_record?
+      unless asset.new_record?
+        logger.info {"==> Asset with name #{filename.inspect} already exists"}
+        next
+      end
       asset.content_type = options["Content-Type"]
       asset.temp_data = data
       asset.account = self.account
