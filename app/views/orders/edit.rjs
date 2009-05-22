@@ -139,12 +139,12 @@ page << create_tab_using_ajax_response("Edit Order | #{@order.number}") do
               {
                 Ext.Msg.show({
                   title: "Send order template not found",
-                  msg: "The default send order email template cannot be found. Please create it first, and send the order again.",
+                  msg: "<p>The default send order email template cannot be found. The Create Template page will open with some default content, modify to suit your needs, choose 'Save and Close', and then try Send Order again. </p><p>Note: the fields __UUID__, __SUBTOTAL__, __TOTAL__ will autofill with the correct values from each order.</p>",
                   buttons: Ext.Msg.OK,
                   fn: function(btn){
                     if ( btn.match(new RegExp("ok","i")) ) {
                       xl.openNewTabPanel('send_order_new_nil', #{new_template_path(:_template => {:label => current_domain.get_config("send_order_template"), 
-                            :subject => "Order Confirmation", :body => "Thank you for your order. Please validate and pay online following this link: http://#{current_domain.name}/orders?uuid=__UUID__ 
+                            :subject => "Order Confirmation", :body => "Thank you for your order. Please validate and pay online following this link: http://#{current_domain.name}/products/order/confirmation?uuid=__UUID__ 
                                                                         \n<p>Subtotal: __SUBTOTAL__</p>\n<p>Total: __TOTAL__</p>"}).to_json.gsub("amp;", "")})
                     }
                   }

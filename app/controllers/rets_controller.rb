@@ -69,7 +69,7 @@ class RetsController < ApplicationController
     if !params[:area_points].blank? && params[:search_using] == "Google Map" then
       polygon = Polygon.new(:points => params[:area_points])
       params[:line]["7"][:operator] = "eq"
-      params[:line]["7"][:from]     = polygon.to_geocodes.map(&:zip).map {|zip| "%s %s" % [zip.first(3), zip.last(3)]}.join("|")
+      params[:line]["7"][:from]     = polygon.to_geocodes.map(&:zip).map {|zip| "%s %s" % [zip.first(3), zip.last(3)]}.join(",")
       # Even though RETS returns postal codes without spaces, we have
       # to query *with* the space, or else the query will return bogus results
     end
@@ -330,9 +330,6 @@ class RetsController < ApplicationController
     @dwelling_type_field  = lookup_field(@fields, "Type of Dwelling")
     @dwelling_types       = lookup_values(@search[:resource], @dwelling_type_field)
 
-    @dwelling_class_field = lookup_field(@fields, "Dwelling Classification")
-    @dwelling_classes     = lookup_values(@search[:resource], @dwelling_class_field)
-
     @title_of_land_field  = lookup_field(@fields, "Title to Land")
     @title_of_lands       = lookup_values(@search[:resource], @title_of_land_field)
 
@@ -351,7 +348,7 @@ class RetsController < ApplicationController
     if !params[:area_points].blank? && params[:search_using] == "Google Map" then
       polygon = Polygon.new(:points => params[:area_points])
       params[:line]["7"][:operator] = "eq"
-      params[:line]["7"][:from]     = polygon.to_geocodes.map(&:zip).map {|zip| "%s %s" % [zip.first(3), zip.last(3)]}.join("|")
+      params[:line]["7"][:from]     = polygon.to_geocodes.map(&:zip).map {|zip| "%s %s" % [zip.first(3), zip.last(3)]}.join(",")
       # Even though RETS returns postal codes without spaces, we have
       # to query *with* the space, or else the query will return bogus results
     end
