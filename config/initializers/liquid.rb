@@ -47,6 +47,8 @@ Liquid::Template.register_tag('load_testimonials', XlSuite::LoadTestimonials)
 Liquid::Template.register_tag('load_tags', XlSuite::LoadTags)
 Liquid::Template.register_tag('paginate', XlSuite::Paginate)
 
+Liquid::Template.register_tag('load_xlsuite_public_images', XlSuite::LoadXlsuitePublicImages)
+
 Liquid::Strainer.send :include, Textilize
 Liquid::Strainer.send :include, Whitelist
 
