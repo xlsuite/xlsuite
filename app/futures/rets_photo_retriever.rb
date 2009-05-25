@@ -12,6 +12,11 @@ class RetsPhotoRetriever < RetsFuture
     original_progress = self.progress
 
     listing = self.account.listings.find(args[:listing_id])
+    folder = self.account.folders.find(:first, :conditions => {:parent_id => nil, :name => "rets_import_pictures"})
+    unless folder
+      folder = self.account.folders.build(:name => "rets_import_pictures", :description => "Directory containing pictures from all RETS import")
+      folder.save!
+    end
     rets.get_photos(:property, "#{self.args[:key]}") do |data, options|
       logger.info {"==> \#get_photos(__binary data__, #{options.inspect})"}
       status!(:reading, original_progress + 3*self.results.size)
@@ -27,6 +32,7 @@ class RetsPhotoRetriever < RetsFuture
       asset.temp_data = data
       asset.account = self.account
       asset.tag_list = self.args[:tags] unless self.args[:tags].blank?
+      asset.folder_id = folder.id
       asset.save!
 
       listing.views.create(:asset => asset)

@@ -174,7 +174,8 @@ class Public::ProfilesController < ApplicationController
     snippet = self.current_account.snippets.find_by_title(self.current_domain.get_config("profile_embed_code_snippet"))
     if snippet
       liquid_assigns = {"profile" => @profile, "domain" => self.current_domain.to_liquid}
-      liquid_context = Liquid::Context.new(liquid_assigns, {}, false)
+      registers = registers = {"account" => self.current_account, "domain" => self.current_domain}
+      liquid_context = Liquid::Context.new(liquid_assigns, registers, false)
       @text = Liquid::Template.parse(snippet.body).render!(liquid_context)
     else
       success = false
