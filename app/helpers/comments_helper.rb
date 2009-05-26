@@ -325,6 +325,11 @@ module CommentsHelper
             name: "comment[url]",
             value: #{@comment.url.to_json}
           }),
+          new Ext.form.Checkbox({
+            fieldLabel: "Approved",
+            name: "approved",
+            checked: #{!@comment.approved_at.nil?}
+          }),
           {html: "Body/Content"},
           new Ext.form.TextArea({
             hideLabel: true,
