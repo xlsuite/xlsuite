@@ -1,0 +1,447 @@
+<script type="text/javascript">
+Ext.onReady(function() {
+  xl.navBar = new Ext.ux.Menubar({
+    orientation:"horizontal"
+    ,items:[
+      {
+        text:<%= link_to_function(image_tag(render_favicon_url), change_centre_iframe_src("/"), :class=>"favicon", :alt=>"Your company favicon").to_json %>
+        ,ctCls:"menu-item-favicon"
+      }
+      ,{
+        text:<%= (current_user? ? truncate(current_user.name.to_s, 26) : "Anonymous").to_json %>
+      }
+      ,{
+        text:"CONTACTS"
+        ,menu:new Ext.menu.Menu({
+          showDelay:0
+          ,items:[
+<% if current_user.can?(:view_party, :edit_party, :edit_own_contacts_only, :view_own_contacts_only, :any => true) -%>
+            {
+              text:"Contact List"
+              ,handler:function(btn){xl.openNewTabPanel('parties_index_nil', <%= parties_path.to_json %>)}
+            },
+<% end -%>
+<% if current_user.can?(:view_contact_request, :edit_contact_requests, :edit_contact_request, :any => true) -%>
+            {
+              text:"Contact Requests"
+              ,handler:function(btn){xl.openNewTabPanel('contact_requests_index_nil', <%= contact_requests_path.to_json %>)}
+            },
+<% end -%>
+<% if current_user.can?(:edit_profiles) -%>
+            {
+              text:"Profile List"
+              ,handler:function(btn){xl.openNewTabPanel('profiles_index_nil', <%= profiles_path.to_json %>)}
+            },
+<% end -%>
+<% if current_user.can?(:edit_profile_requests) -%>
+            {
+              text:"Profile Requests"
+              ,handler:function(btn){xl.openNewTabPanel('profile_requests_index_nil', <%= profile_requests_path.to_json %>)}
+            },
+<% end -%>
+            {
+              text:"Manage"
+              ,menu:{
+                items:[
+<% if current_user.can?(:edit_roles) %>
+                  {
+                    text:"Roles"
+                    ,handler:function(btn){xl.openNewTabPanel('roles_index_nil', <%= roles_path.to_json %>)}
+                  },
+<% end %>
+                  {
+                    text:"User Groups"
+                    ,handler:function(btn){xl.openNewTabPanel('groups_index_nil', <%= groups_path.to_json %>)}
+                  }
+                ]
+              }
+            }
+<% when_user_can?(:edit_imports, :allow_importing, {:any => true}) do %>
+            ,{
+              text:"Import"
+              ,handler:function(btn){<%= change_centre_iframe_src(imports_path) %>}
+            }
+<% end %>
+<% when_user_can?(:edit_party, :edit_own_contacts_only, {:any => true}) do %>
+            ,{
+              text:"New"
+              ,handler:function(btn){<%= change_centre_iframe_src(new_party_path) %>}
+            }
+<% end %>
+          ]
+        })
+      }
+      ,{
+        text:"COMMUNICATE"
+        ,menu:{
+          items:[
+            {
+              text:"Publishing"
+              ,menu:{
+                items:[
+                  {
+                    text:"Blogs"
+                    ,menu:{items:[{ text:"New", handler:function(){xl.openNewTabPanel('blogs_new_nil', <%= new_blog_path.to_json %>)} }]}
+                    ,handler:function(){xl.openNewTabPanel('blogs_index_nil', <%= blogs_path.to_json %>)}
+                  }
+                  ,{
+                    text:"Posts"
+                    ,menu:{items:[{ text:"New", handler:function(){xl.openNewTabPanel('blog_posts_new_nil', <%= new_blog_post_path.to_json %>)} }]}
+                    ,handler:function(){xl.openNewTabPanel('blog_posts_index_nil', <%= blog_posts_path.to_json %>)}
+                  }
+<% if current_user.can?(:edit_comments) %>
+                  ,{
+                    text:"Comments"
+                    ,handler:function(){xl.openNewTabPanel('comments_index_nil', <%= comments_path.to_json %>)}
+                  }
+<% end -%>
+<% if current_user.can?(:edit_flaggings) %>
+                  ,{
+                    text:"Flaggings"
+                    ,handler:function(){xl.openNewTabPanel('flaggings_index_nil', <%= flaggings_path.to_json %>)}
+                  }
+<% end -%>
+<% if current_user.can?(:view_link, :edit_link, :any => true) -%>
+                  ,{
+                    text:"Links"
+                    ,handler:function(){xl.openNewTabPanel('links_index_nil', <%= links_path.to_json %>)}
+                  }
+<% end -%>
+<% if current_user.can?(:edit_feeds) %>
+                  ,{
+                    text:"Feeds"
+                    ,handler:function(){<%= change_centre_iframe_src(feeds_path) %>}
+                  }
+<% end -%>
+                  ,{
+                    text:"Testimonials"
+                    ,handler:function(){xl.openNewTabPanel('testimonials_index_nil', <%= testimonials_path.to_json %>)}
+                  }
+                ]
+              }
+              ,handler:function(){xl.openNewTabPanel('blogs_index_nil', <%= blogs_path.to_json %>)}
+            }
+            ,{
+              text:"Forums"
+              ,handler:function(){<%= change_centre_iframe_src(forum_categories_path) %>}
+            }
+            ,{
+              text:"Email"
+              ,menu:{
+                items:[
+                  {
+                    text:"Inbox"
+                    ,handler:function(){xl.openNewTabPanel('emails_inbox_nil', '<%= sandbox_emails_path %>?mailbox=inbox')}
+                  }
+                  ,{
+                    text:"Outbox"
+                    ,handler:function(){xl.openNewTabPanel('emails_outbox_nil', '<%= sandbox_emails_path %>?mailbox=outbox')}
+                  }
+                  ,{
+                    text:"Sent"
+                    ,handler:function(){xl.openNewTabPanel('emails_sent_nil', '<%= sandbox_emails_path %>?mailbox=sent')}
+                  }
+                  ,{
+                    text:"Drafts"
+                    ,handler:function(){xl.openNewTabPanel('emails_draft_nil', '<%= sandbox_emails_path %>?mailbox=draft')}
+                  }
+                  ,{
+                    text:"Filters"
+                    ,handler:function(){<%= change_centre_iframe_src(filters_path) %>}
+                  }
+                  ,{
+                    text:"Labels"
+                    ,handler:function(){xl.openNewTabPanel('email_labels_index_nil', <%= email_labels_path.to_json %>)}
+                  }
+                  ,{
+                    text:"New Email"
+                    ,handler:function(){xl.openNewTabPanel('emails_new_nil', <%= sandbox_new_emails_path.to_json %>)}
+                  }
+                ]
+              }
+            }
+<% if current_user.can?(:edit_templates) %>
+            ,{
+              text:"Templates"
+              ,menu:{
+                items:[
+                  {
+                    text:"New"
+                    ,handler:function(){xl.openNewTabPanel('templates_new_nil', <%= new_template_path.to_json %>)}
+                  }
+                ]
+              }
+              ,handler:function(){xl.openNewTabPanel('templates_index_nil', <%= templates_path.to_json %>)}
+            }
+<% end -%>
+            ,{
+              text:"IMAP Emails(BETA)"
+              ,handler:function(){xl.openNewTabPanel('emails_index_nil', <%= emails_path.to_json %>)}
+            }
+          ]
+        }
+      }
+      
+      ,{
+        text:"COMMERCE"
+        ,menu:{
+          items:[
+<% when_user_can?(:edit_listings) do -%>          
+            {
+              text:"Listings"
+              ,menu:{
+                items:[
+  <% if current_account.rets_import_option %>
+                  {
+                    text:"MLS Search"
+                  }
+                  ,{
+                    text:"Target # Import"
+                  }
+                  ,{
+                    text:"Saved Searches"
+                  },
+  <% end -%>              
+                  {
+                    text:"New"
+                  }
+                ]
+              }
+              ,handler:function(){xl.openNewTabPanel('listings_index_nil', <%= listings_path.to_json %>)}
+            },
+<% end %>
+<% when_user_can?(:edit_catalog) do -%>
+            {
+              text:"Products"
+              ,menu:{
+                items:[
+                  {
+                    text:"New"
+                    ,handler:function(){xl.openNewTabPanel('products_new_nil', <%= new_product_path.to_json %>)}
+                  }
+                ]
+              }
+              ,handler:function(){xl.openNewTabPanel('products_index_nil', <%= products_path.to_json %>)}
+            }
+            ,{
+              text:"Categories"
+              ,handler:function(){xl.openNewTabPanel('product_categories_index_nil', <%= product_categories_path.to_json %>)}
+            }
+<% end -%>
+<% if current_user.can?(:view_orders, :edit_orders, :any => true) -%>
+            ,{
+              text:"Orders"
+              ,menu:{
+                items:[
+                  {
+                    text:"New"
+                    ,handler:function(){xl.openNewTabPanel('orders_new_nil', <%= new_order_path.to_json %>)}
+                  }
+                ]
+              }
+              ,handler:function(){xl.openNewTabPanel('orders_index_nil', <%= orders_path.to_json %>)}
+            }
+<% end -%>
+<% if current_user.can?(:view_payment, :edit_payment, :any => true) -%>
+            ,{
+              text:"Payments"
+              ,handler:function(){xl.openNewTabPanel('payments_index_nil', <%= payments_path.to_json %>)}
+            }
+<% end -%>
+          ]
+        }
+      }
+
+      ,{
+        text:"RESOURCES"
+        ,menu:{
+          items:[
+<% when_user_can?(:edit_layouts, :edit_pages, :any => true) do %>
+            {
+              text:"CMS"
+              ,menu:{
+                items:[
+                  {
+                    text:"Pages"
+                    ,handler:function(){xl.openNewTabPanel('pages_index_nil', <%= pages_path.to_json %>)}
+                  }
+                  ,{
+                    text:"Snippets"
+                    ,handler:function(){xl.openNewTabPanel('snippets_index_nil', <%= snippets_path.to_json %>)}
+                  }
+  <% if current_user.can?(:edit_layouts) -%>
+                  ,{
+                    text:"Layouts"
+                    ,handler:function(){xl.openNewTabPanel('layouts_index_nil', <%= layouts_path.to_json %>)}
+                  }
+  <% end -%>
+                  ,{
+                    text:"Redirects"
+                    ,handler:function(){xl.openNewTabPanel('redirects_index_nil', <%= redirects_path.to_json %>)}
+                  }
+  <% if current_account.options.site_import? -%>
+                  ,{
+                    text:"Site Import"
+                    ,handler:function(){xl.openNewTabPanel('site_import_new_nil', <%= new_site_import_path.to_json %>)}
+                  }
+  <% end -%>
+                ]
+              }
+            },
+<% end %>
+<% when_user_can?(:edit_files) do%>
+            {
+              text:"Files"
+              ,handler:function(){xl.openNewTabPanel('folders_index_nil', <%= folders_path.to_json %>)}
+            },
+<% end %>
+<% when_user_can?(:edit_workflows) do %>
+            {
+              text:"Action Handler"
+              ,menu:{
+                items:[
+                  {
+                    text:"New"
+                    ,handler:function(){xl.openNewTabPanel('workflows_new_nil', <%= new_workflow_path.to_json %>)}
+                  }
+                ]
+              }
+              ,handler:function(){xl.openNewTabPanel('workflows_index_nil', <%= workflows_path.to_json %>)}
+            },
+<% end -%>
+            {
+              text:"Tutorial"
+              ,handler:function(){window.open("http://xlsuite.com/blogs/training");}
+            }
+            ,{
+              text:"Contact XL"
+              ,handler:function(){window.open("http://xlsuite.com/contact");}
+            }
+          ]
+        }
+      }
+
+      ,{
+        text:"ADMIN"
+        ,menu:new Ext.menu.Menu({
+          showDelay:0
+          ,items:[
+<% if current_superuser? then -%>
+            {
+              text:"Site Admin"
+              ,handler:function(){xl.openNewTabPanel('accounts_index_nil', <%= accounts_path.to_json %>)}
+            },
+<% end -%>
+            {
+              text:"My Info"
+              ,menu:{
+                items:[
+<% if current_user.can?(:edit_own_account) -%>
+                  {
+                    text:"My Contact"
+                    ,handler:function(){xl.openNewTabPanel('parties_edit_<%= current_user.id %>', <%= edit_party_path(current_user).to_json %>)}
+                  },
+<% end -%>
+                  {
+                    text:"My Profile"
+                    ,handler:function(){xl.openNewTabPanel('profiles_edit_<%= current_user.id %>', <%= edit_profile_path(current_user).to_json %>)}
+                  }
+                ]
+              }
+            }
+            ,{
+              text:"XL Services"
+              ,menu:{
+                items:[
+<% if self.current_user_is_master_account_owner? -%>
+                  {
+                    text:"Pricing"
+                    ,handler:function(){xl.openNewTabPanel('account_modules_index_nil', <%= account_modules_path.to_json %>)}
+                  },
+<% end -%>
+                  {
+                    text:"My Suite"
+                    ,menu:{
+                      items:[
+<% if current_user.id == self.current_account.owner.id %>
+                        {
+                          text:"Subscriptions"
+                          ,handler:function(){xl.openNewTabPanel('account_module_subscriptions', <%= account_module_subscriptions_path.to_json %>)}
+                        },
+<% end %>
+<% if current_superuser? || current_user.can?(:edit_domains) -%>
+                        {
+                          text:"My Domains"
+                          ,handler:function(){<%= change_centre_iframe_src(domains_path) %>}
+                        }
+<% end -%>
+                      ]
+                    }
+                  }
+                  ,{
+                    text:"Reseller"
+                    ,menu:{
+                      items:[
+                        {
+                          text:"Suites"
+                          ,handler:function(){xl.openNewTabPanel('suites_index_nil', <%= suites_path.to_json %>)}
+                        }
+<% if current_user.id == self.current_account.owner.id -%>
+                        ,{
+                          text:"Publish"
+                          ,handler:function(){xl.openNewTabPanel('account_templates_new_nil', <%= new_account_template_path.to_json %>)}
+                        }
+<% end -%>
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+<% if current_user.can?(:edit_configuration) -%>
+            ,{
+              text:"Configurations"
+              ,menu:{
+                items:[
+                  {
+                    text:"Payment"
+                    ,handler:function(){xl.openNewTabPanel('payment_configurations_index_nil', <%= payment_configurations_path.to_json %>)}
+                  }
+                ]
+              }
+              ,handler:function(){xl.openNewTabPanel('configurations_index_nil', <%= configurations_path.to_json %>)}
+            }
+<% end -%>
+            ,{
+              text:"Api Keys"
+              ,handler:function(){xl.openNewTabPanel('api_keys_index_nil', <%= api_keys_path.to_json %>)}
+            }
+<% if current_user.can?(:edit_destinations) %>          
+            ,{
+              text:"Shipping Fees"
+              ,menu:{
+                items:[
+                  {
+                    text:"New"
+                    ,handler:function(){xl.openNewTabPanel('destinations_new_nil', <%= new_destination_path.to_json %>)}
+                  }
+                ]
+              }
+              ,handler:function(){xl.openNewTabPanel('destinations_index_nil', <%= destinations_path.to_json %>)}
+            }
+<% end -%>
+<% if current_user_is_account_owner? -%>
+            ,{
+              text:"Categories"
+              ,handler:function(){xl.openNewTabPanel('categories_index_nil', <%= categories_path.to_json %>)}
+            }
+<% end -%>
+          ]
+        })
+      }
+    ]
+  });
+  
+  xl.navBar.show(Ext.get("navigation-bar"), "bl-bl");
+})
+</script>
