@@ -69,7 +69,7 @@ Ext.onReady(function() {
 
   xl.westPanel = new Ext.Panel({
     region: 'west',
-    title: "<div class='left-console-title'><br/>My Dashboard</div>",
+    title: "<div class='left-console-title'>My Dashboard</div>",
     titlebar: true,
     collapsible: true,
     collapseMode: 'mini',
@@ -83,11 +83,11 @@ Ext.onReady(function() {
     defaults: { plugins: xl.AccordionStatePlugin('westPanel') },
     items: [
       {
-      id: 'westPanel-quickEntryPanel',
+        id:'westPanel-quickEntryPanel',
         title: 'Quick Entry',
         contentEl: 'quickEntryPanel'
       },{
-      id: 'westPanel-mailPanel',
+        id:'westPanel-mailPanel',
         title: "<span id='mail-panel-title'>My Recent Unread Messages</span>",
         contentEl: 'mailPanel',
         tools: [{
@@ -99,7 +99,7 @@ Ext.onReady(function() {
           }
         }]
       },{
-      id: 'westPanel-historyPanel',
+        id: 'westPanel-historyPanel',
         title: '<span id="my-history-panel-title">My Recent History</span>',
         contentEl: 'myHistoryPanel',
         tools: [{
@@ -127,7 +127,7 @@ Ext.onReady(function() {
         }]
       },
       {
-      id: 'westPanel-feedsPanel',
+        id: 'westPanel-feedsPanel',
         title: '<span id="feeds-panel-title">My Feeds</span>',
         contentEl: 'myFeedsPanel',
         tools: [{
@@ -247,7 +247,6 @@ Ext.onReady(function() {
     defaults: { autoScroll: false, closable: true },
     border: false,
     frame: false,
-    deferredRender: false,
     enableTabScroll: true
   });
   
@@ -261,22 +260,21 @@ Ext.onReady(function() {
     region: 'center',
     bbar: xl.setup.generateFooterToolbar(),
     tbar: ['<span id="status-bar-notifications"></span>'],
-    items: [ {items: [xl.backgroundPanel], autoScroll: true}, xl.tabPanel ]
+    items: [ xl.backgroundPanel, xl.tabPanel ]
   });
-
+  
   xl.viewport = new Ext.Viewport({
-    renderTo: Ext.getBody(),
-
-    layout: 'border',
-    cls: "mainPanel",
-    items: [
+    renderTo:Ext.getBody()
+    ,layout:'border'
+    ,cls:"mainPanel"
+    ,items: [
       {
-        region: 'north',
-        height: 24
-      },
-      xl.westPanel,
-      xl.centerPanel,
-      xl.eastPanel
+        region:'north'
+        ,height:30
+      }
+      ,xl.westPanel
+      ,xl.centerPanel
+      ,xl.eastPanel
     ]
   });
 
