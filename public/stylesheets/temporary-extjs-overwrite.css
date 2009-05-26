@@ -1,0 +1,63 @@
+.x-panel-body { border-top:none; border-style: none none none;}
+.x-menu {background-image:none!important;}
+.x-menu-item-icon{display:none!important;}
+.x-menu a.x-menu-item{padding-left:5px;}
+
+/*** LISTINGS ***/
+.summaryLabel { width: 100px; font-weight: bold; text-align: right; vertical-align: top;}
+.summaryValue { vertical-align: top;}
+
+/** ICONS **/
+.pointerOnHover:hover { cursor: pointer; }
+.icon_add { background: url(/images/icons/add.png) left no-repeat; width: 16px; height: 16px; }
+.icon_userAdd { background: url(/images/icons/user_add.png) left no-repeat; width: 16px; height: 16px; }
+.icon_pencilGo { background: url(/images/icons/pencil_go.png) left no-repeat; width: 16px; height: 16px; }
+.icon_dateEdit { background: url(/images/icons/date_edit.png) left no-repeat; width: 16px; height: 16px; }
+.icon_delete { background: url(/images/icons/delete.png) left no-repeat; width: 16px; height: 16px; }
+.icon_imageAdd { background: url(/images/icons/image_add.png) left no-repeat; width: 16px; height: 16px; }
+.icon_tick { background: url(/images/icons/tick.png) left no-repeat; width: 16px; height: 16px; }
+.icon_tick_opacity20 { background: url(/images/icons/tick.png) left no-repeat; width: 16px; height: 16px; opacity: .2; }
+.icon_add_32x32 { background: url(/images/icons/32px-Crystal_Clear_action_edit_add.png) left no-repeat; width: 32px; height: 32px; }
+.icon_remove_32x32 { background: url(/images/icons/32px-Crystal_Clear_action_edit_remove.png) left no-repeat; width: 32px; height: 32px; }
+
+/** IMAGE VIEWER **/
+.image_viewer_delete { background: url(/images/icons/32px-Crystal_Clear_action_button_cancel.png) left no-repeat; width: 32px; height: 32px; }
+
+/** SUMMARY GROUPING **/
+.x-grid3-summary-row {
+    border-left:1px solid #fff;
+    border-right:1px solid #fff;
+    color:#333;
+    background: #f1f2f4;
+}
+.x-grid3-summary-row .x-grid3-cell-inner {
+    font-weight:bold;
+}
+.x-grid-hide-summary .x-grid3-summary-row {
+    display:none;
+}
+.x-grid3-summary-msg {
+    padding:4px 16px;
+    font-weight:bold;
+}
+
+/** CONFIGURATIONS GRID **/
+.x-grid3-col-configuration-description, .x-grid3-col-configuration-value {white-space:normal;}
+
+/** ACCOUNTS GRID **/
+.x-grid3-col-account-domains {white-space:normal;}
+
+/** NOTES GRID **/
+.x-grid3-col-note-body {white-space:normal;}
+
+/** STEPS COPYING GRID **/
+.x-grid3-col-step-copy-action-description {white-space:normal;}
+
+/** ACCOUNT MODULE SUBSCRIPTION GRID **/
+.x-grid3-col-installed_account_modules {white-space:normal;}
+
+/** FLAGGINGS GRID **/
+.x-grid3-col-flagging-body {white-space:normal;}
+
+.tags_panel_selection {font-size: 13px;}
+.toolbar_auto_width table {width:auto;}
