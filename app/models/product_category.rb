@@ -136,6 +136,20 @@ class ProductCategory < ActiveRecord::Base
     end
   end
   
+  def self_and_children_products_count
+    pcs = [self] 
+    pcs = pcs + self.children unless self.children.blank?
+    product_ids = ActiveRecord::Base.connection.select_values("SELECT product_id FROM product_categories_products WHERE product_category_id IN (#{pcs.map(&:id).join(',')})")
+    Product.count(:all, :conditions => {:id => product_ids})    
+  end
+  
+  def self_and_children_products
+    pcs = [self] 
+    pcs = pcs + self.children unless self.children.blank?
+    product_ids = ActiveRecord::Base.connection.select_values("SELECT product_id FROM product_categories_products WHERE product_category_id IN (#{pcs.map(&:id).join(',')})")
+    Product.find(:all, :conditions => {:id => product_ids}, :order => "LOWER(name) ASC")  
+  end
+  
   class << self
     def self._load(id)
       self.find(id)

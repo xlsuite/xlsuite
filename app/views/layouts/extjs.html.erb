@@ -4,12 +4,10 @@
   <link rel="shortcut icon" href="<%= render_favicon_url %>" type="image/x-icon" />
   <%= render :partial => "shared/extjs_head" %>
   <%#= open_last_incoming_request_tab %>
-  
+  <%= render :partial => "shared/generate_nav" %>
 </head>
 <body>
-  <div id="north" align="center">
-    <%= render :partial => "shared/header_row" %>
-  </div>
+  <div id="navigation-bar"></div>
 
   <!--DIVS FOR WEST PANEL!-->
   <div id="mailPanel" class="panel-container"></div>

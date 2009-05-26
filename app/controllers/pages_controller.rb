@@ -91,7 +91,7 @@ class PagesController < ApplicationController
     request_params.delete("controller")
     request_params.delete("action")
     request_params.delete("path")
-    options.merge!(:params => @page_params.merge(request_params), :logged_in => current_user?)
+    options.merge!(:params => @page_params.merge(request_params), :logged_in => current_user? ? true : false)
     options.merge!(:current_user => current_user) if current_user?
 
     options.merge!(:port => request.env["SERVER_PORT"]) if request.env["SERVER_PORT"] != "80" && RAILS_ENV == "development"
@@ -253,7 +253,7 @@ class PagesController < ApplicationController
     request_params.delete("controller")
     request_params.delete("action")
     request_params.delete("path")
-    options.merge!(:params => request_params, :logged_in => current_user?)
+    options.merge!(:params => request_params, :logged_in => current_user? ? true : false)
     options.merge!(:current_user => current_user) if current_user?
 
     options.merge!(:port => request.env["SERVER_PORT"]) if request.env["SERVER_PORT"] != "80" && RAILS_ENV == "development"

@@ -95,6 +95,7 @@ class CommentsController < ApplicationController
     params[:comment] ||= {}
     params[:comment].merge!(params[:rating]) unless params[:rating].blank?
     @comment.attributes = params[:comment]
+    @comment.approved_at = params[:approved] ? Time.now : nil
     @comment.updated_by = current_user if current_user?
     @updated = @comment.save
     @close = true if params[:commit_type] && params[:commit_type] =~ /close/i

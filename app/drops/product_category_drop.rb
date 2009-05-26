@@ -3,8 +3,8 @@
 
 class ProductCategoryDrop < Liquid::Drop
   attr_reader :product_category
-  delegate :id, :name, :children, :ancestors, :siblings, :parent, :label, :avatar, 
-           :to => :product_category
+  delegate :id, :name, :children, :ancestors, :siblings, :parent, :label, :avatar, :self_and_children_products,
+           :self_and_children_products_count, :to => :product_category
 
   def initialize(product_category)
     @product_category = product_category

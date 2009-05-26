@@ -1,0 +1,43 @@
+.x-menubar {
+    background:#deecfd;
+    position:relative
+}
+.x-horizontal-menubar {
+    border-left:0px none;
+    border-right:0px none;
+    /* width:100%!important; */
+    overflow:hidden;
+}
+.x-menubar .x-menu-list {
+    border:0px none;
+}
+.x-horizontal-menubar .x-menu-list {
+    margin-left:5px;
+    height:100%;
+}
+.x-horizontal-menubar .x-menu-list .x-menu-list-item {
+    text-decoration:none;
+    padding:0px 10px;
+    display:block;
+    float:left;
+    background-image: none;
+}
+.x-menubar .x-menu-list .x-menu-list-item {
+    border:1px solid #deecfd; /* transparent  gives black border in IE? */;
+}
+.x-menubar .x-menu-list .x-menu-item-active {
+    border: 1px solid #8BB8F3;
+}
+.x-menubar .x-menu-activated .x-menu-item-active {
+    background-color: #F0F0F0;
+}
+.x-horizontal-menubar .x-menu-list .x-menu-single-item .x-menu-item {
+    background: transparent;
+    padding-right:15px;
+}               
+.x-horizontal-menubar .x-menu-list .x-menu-item-arrow .x-menu-item {
+    background: transparent url(../images/Ext.ux.Menubar/menubar-parent.gif) no-repeat scroll right 0.6em;
+}
+.x-menubar .x-menu-list .x-menu-list-item .x-menu-item .x-menu-item-icon {
+    display:none;
+}
