@@ -3,7 +3,8 @@
 .x-menu-item-icon{display:none!important;}
 .x-menu a.x-menu-item{padding-left:5px;}
 
-.menu-item-favicon{height:20px;width:20px}
+.menu-item-favicon{height:22px;width:20px}
+.something-here{text-align:center;}
 
 /*** LISTINGS ***/
 .summaryLabel { width: 100px; font-weight: bold; text-align: right; vertical-align: top;}
