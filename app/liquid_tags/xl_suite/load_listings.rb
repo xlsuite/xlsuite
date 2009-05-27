@@ -289,6 +289,7 @@ module XlSuite
     TaggedAnySyntax  = /tagged_any:\s*(#{Liquid::QuotedFragment})/
     OrderSyntax      = /order:\s*(#{Liquid::QuotedFragment})/
     NoOrderByOpenHouseSyntax = /no_order_by_open_house:\s*(#{Liquid::QuotedFragment})/
+    OpenHouseSyntax  = /open_house:\s*(#{Liquid::QuotedFragment})/
     RandomizeSyntax  = /randomize:\s*(#{Liquid::QuotedFragment})/
     OwnerEmailSyntax = /owner_email:\s*(#{Liquid::QuotedFragment})/    
     IdsSyntax        = /ids:\s*(#{Liquid::QuotedFragment})/    
@@ -314,6 +315,7 @@ module XlSuite
       @options[:tagged_any]   = $1 if markup =~ TaggedAnySyntax
       @options[:order]        = $1 if markup =~ OrderSyntax
       @options[:no_order_by_open_house] = true if markup =~ NoOrderByOpenHouseSyntax
+      @options[:open_house] = true if markup =~ OpenHouseSyntax
       @options[:price_min]    = $1 if markup =~ PriceMinSyntax
       @options[:price_max]    = $1 if markup =~ PriceMaxSyntax
       @options[:ids]          = $1 if markup =~ IdsSyntax
@@ -384,6 +386,10 @@ module XlSuite
         
         if @options[:bedrooms]
           conditions << "listings.raw_property_data LIKE '%total bedrooms: \"#{context_options[:bedrooms].to_s.strip}\"%'" unless context_options[:bedrooms].blank?
+        end          
+        
+        if @options[:open_house]
+          conditions << "listings.open_house = 1"
         end
 
         conditions = [conditions.join(" AND ")]
