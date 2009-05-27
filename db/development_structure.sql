@@ -974,6 +974,15 @@ CREATE TABLE `forums` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `fulltext_row_updates` (
+  `id` int(11) NOT NULL auto_increment,
+  `subject_type` varchar(255) default NULL,
+  `subject_id` int(11) default NULL,
+  `account_id` int(11) default NULL,
+  `deletion` tinyint(1) default '0',
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `fulltext_rows` (
   `id` int(11) NOT NULL auto_increment,
   `account_id` int(11) default NULL,
@@ -2665,3 +2674,9 @@ INSERT INTO schema_migrations (version) VALUES ('20090511193959');
 INSERT INTO schema_migrations (version) VALUES ('20090511194610');
 
 INSERT INTO schema_migrations (version) VALUES ('20090511195003');
+
+INSERT INTO schema_migrations (version) VALUES ('20090512011252');
+
+INSERT INTO schema_migrations (version) VALUES ('20090525233219');
+
+INSERT INTO schema_migrations (version) VALUES ('20090527190100');
