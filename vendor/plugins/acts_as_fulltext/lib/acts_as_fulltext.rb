@@ -87,11 +87,19 @@ module ActsAsFulltext
     # after save to queue FulltextRow update or create
     def create_fulltext_row_update
       FulltextRowUpdate.create(:account_id => self.account_id, :subject_type => self.class.name, :subject_id => self.id, :deletion => false)
+      true
     end
     
     # after destroy callback to queue FulltextRow deletion
     def create_fulltext_row_update_deletion
-      FulltextRowUpdate.create(:account_id => self.account_id, :subject_type => self.class.name, :subject_id => self.id, :deletion => true)
+      f = FulltextRowUpdate.find(:first, :conditions => {:subject_type => self.class.name, :subject_id => self.id})
+      if f
+        f.deletion = true
+        f.save
+      else
+        FulltextRowUpdate.create(:account_id => self.account_id, :subject_type => self.class.name, :subject_id => self.id, :deletion => true)
+      end
+      true
     end
 
     # after save callback that updates the fulltext row associated with this model.
