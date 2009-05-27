@@ -980,7 +980,8 @@ CREATE TABLE `fulltext_row_updates` (
   `subject_id` int(11) default NULL,
   `account_id` int(11) default NULL,
   `deletion` tinyint(1) default '0',
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `by_subject` (`subject_type`,`subject_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `fulltext_rows` (
@@ -2680,3 +2681,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090512011252');
 INSERT INTO schema_migrations (version) VALUES ('20090525233219');
 
 INSERT INTO schema_migrations (version) VALUES ('20090527190100');
+
+INSERT INTO schema_migrations (version) VALUES ('20090527210142');
