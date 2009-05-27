@@ -145,7 +145,8 @@ module XlSuite
         end    
 
         if @options[:affiliated_contact] || @options[:recipient_contact]
-          if contact_request_ids.flatten.compact.empty?
+          contact_request_ids = contact_request_ids.flatten.compact
+          if contact_request_ids.empty?
             conditions << "contact_requests.id IN (0)"
           else
             conditions << "contact_requests.id in (#{contact_request_ids.join(',')})"

@@ -104,7 +104,7 @@ class Future < ActiveRecord::Base
   end
 
   def done?
-    completed? || errored? || (self.interval && self.ended_at && (f.scheduled_at > f.ended_at))
+    completed? || errored? || (self.interval && self.ended_at && (self.scheduled_at > self.ended_at))
   end
 
   def errored?

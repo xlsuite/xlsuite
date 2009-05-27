@@ -1,16 +1,35 @@
 <script type="text/javascript">
 Ext.onReady(function() {
+  xl.topBar = new Ext.Panel({
+    layout:"column"
+    ,height:30
+    ,items:[
+      {width:xl.kDefaultColumnWidth, html:<%= "<div id='current-user-info'></div>".to_json %>}
+      ,{columnWidth:1, html:<%= "<div id='navigation-bar'></div>".to_json %>}
+      ,{width:xl.kDefaultColumnWidth, html:""}
+    ]
+    ,renderTo:"top-bar"
+  });
+  
+  xl.currentUserInfo = new Ext.ux.Menubar({
+    items:[
+      {
+        text:<%= image_tag(render_favicon_url).to_json %>
+        ,ctCls:"menu-item-favicon"
+        ,handler:function(){<%= change_centre_iframe_src("/") %>}
+      }
+      ,{
+        text:<%= (current_user? ? truncate(current_user.name.to_s, 26) : "Anonymous").to_json %>
+      }    
+    ]
+  });
+
+  xl.currentUserInfo.show(Ext.get("current-user-info"), "bl-bl");
+
   xl.navBar = new Ext.ux.Menubar({
     orientation:"horizontal"
     ,items:[
       {
-        text:<%= link_to_function(image_tag(render_favicon_url), change_centre_iframe_src("/"), :class=>"favicon", :alt=>"Your company favicon").to_json %>
-        ,ctCls:"menu-item-favicon"
-      }
-      ,{
-        text:<%= (current_user? ? truncate(current_user.name.to_s, 26) : "Anonymous").to_json %>
-      }
-      ,{
         text:"CONTACTS"
         ,menu:new Ext.menu.Menu({
           showDelay:0
