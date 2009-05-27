@@ -37,8 +37,10 @@ module ActsAsFulltext
 
       write_inheritable_hash :fulltext_options, options
       logger.debug {"#{self.name} fulltext options: #{options.inspect}"}
-      has_one :fulltext_row, :as => :subject, :dependent => :delete
-      after_save :update_fulltext_index
+      has_one :fulltext_row, :as => :subject#, :dependent => :delete
+      after_destroy :create_fulltext_row_update_deletion
+      after_save :create_fulltext_row_update
+      #after_save :update_fulltext_index
     end
 
     # Rebuilds the fulltext index of this class from scratch.
@@ -80,6 +82,16 @@ module ActsAsFulltext
   module InstanceMethods
     def fulltext_options #:nodoc:
       self.class.read_inheritable_attribute(:fulltext_options)
+    end
+    
+    # after save to queue FulltextRow update or create
+    def create_fulltext_row_update
+      FulltextRowUpdate.create(:account_id => self.account_id, :subject_type => self.class.name, :subject_id => self.id, :deletion => false)
+    end
+    
+    # after destroy callback to queue FulltextRow deletion
+    def create_fulltext_row_update_deletion
+      FulltextRowUpdate.create(:account_id => self.account_id, :subject_type => self.class.name, :subject_id => self.id, :deletion => true)
     end
 
     # after save callback that updates the fulltext row associated with this model.
