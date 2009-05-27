@@ -66,3 +66,8 @@ RenewSubscriptionFuture:
   interval: <%= 10.minutes %>
   scheduled_at: <%= 1.minutes.from_now %>
   system: true
+  
+FulltextRowUpdateRunner:
+  interval: <%= 3.minutes %>
+  scheduled_at: <%= 1.minutes.from_now %>
+  system: true
