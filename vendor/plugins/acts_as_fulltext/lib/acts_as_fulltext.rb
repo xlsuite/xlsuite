@@ -86,7 +86,9 @@ module ActsAsFulltext
     
     # after save to queue FulltextRow update or create
     def create_fulltext_row_update
-      FulltextRowUpdate.create(:account_id => self.account_id, :subject_type => self.class.name, :subject_id => self.id, :deletion => false)
+      t_attributes = {:subject_type => self.class.name, :subject_id => self.id, :deletion => false}
+      t_attributes.merge!(:account_id => self.account_id) if self.respond_to?(:account_id)
+      FulltextRowUpdate.create(t_attributes)
       true
     end
     
@@ -97,7 +99,9 @@ module ActsAsFulltext
         f.deletion = true
         f.save
       else
-        FulltextRowUpdate.create(:account_id => self.account_id, :subject_type => self.class.name, :subject_id => self.id, :deletion => true)
+        t_attributes = {:subject_type => self.class.name, :subject_id => self.id, :deletion => true}
+        t_attributes.merge!(:account_id => self.account_id) if self.respond_to?(:account_id)
+        FulltextRowUpdate.create(t_attributes)
       end
       true
     end
