@@ -213,16 +213,20 @@ Ext.onReady(function() {
   <% if current_account.rets_import_option %>
                   {
                     text:"MLS Search"
+                    ,handler:function(){xl.openNewTabPanel('listings_search_nil', <%= listings_search_rets_path.to_json %>)}
                   }
                   ,{
                     text:"Target # Import"
+                    ,handler:function(){xl.openNewTabPanel('listings_import_nil', <%= listings_import_rets_path.to_json %>)}
                   }
                   ,{
                     text:"Saved Searches"
+                    ,handler:function(){xl.openNewTabPanel('rets_index_nil', <%= rets_path.to_json %>)}
                   },
   <% end -%>              
                   {
                     text:"New"
+                    ,handler:function(){xl.openNewTabPanel('listings_new_nil', <%= new_listing_path.to_json %>)}
                   }
                 ]
               }
