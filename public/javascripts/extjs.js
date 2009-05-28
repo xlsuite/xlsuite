@@ -271,6 +271,7 @@ Ext.onReady(function() {
       {
         region:'north'
         ,height:30
+        ,cls:"northPanel"
       }
       ,xl.westPanel
       ,xl.centerPanel
