@@ -8,7 +8,9 @@ class AllCmsComponentsToLatestRevision < ActiveRecord::Migration
     
     account_ids.each do |account_id|
       Page.all(:conditions => {:account_id => account_id}).each do |page|
-        latest_version = page.versions.latest.version
+        latest_version = page.versions.latest
+        next unless latest_version
+        latest_version = latest_version.version
         current_version = page.version
         if latest_version > current_version
           page.revert_to!(latest_version)
@@ -19,7 +21,9 @@ class AllCmsComponentsToLatestRevision < ActiveRecord::Migration
       end
       
       Snippet.all(:conditions => {:account_id => account_id}).each do |snippet|
-        latest_version = snippet.versions.latest.version
+        latest_version = snippet.versions.latest
+        next unless latest_version
+        latest_version = latest_version.version
         current_version = snippet.version
         if latest_version > current_version
           snippet.revert_to!(latest_version)
@@ -30,7 +34,9 @@ class AllCmsComponentsToLatestRevision < ActiveRecord::Migration
       end
       
       Layout.all(:conditions => {:account_id => account_id}).each do |layout|
-        latest_version = layout.versions.latest.version
+        latest_version = layout.versions.latest
+        next unless latest_version
+        latest_version = latest_version.version
         current_version = layout.version
         if latest_version > current_version
           layout.revert_to!(latest_version)
