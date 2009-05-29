@@ -1,0 +1,9 @@
+Modified on:{ts '2008-02-14 20:30:22'}
+* corners-blue.gif changed to: box_corners-blue.gif
+* corners.gif changed to: box_corners.gif
+* l-blue.gif changed to: box_l-blue.gif
+* l.gif changed to: box_l.gif
+* r-blue.gif changed to: box_r-blue.gif
+* r.gif changed to: box_r.gif
+* tb-blue.gif changed to: box_tb-blue.gif
+* tb.gif changed to: box_tb.gif

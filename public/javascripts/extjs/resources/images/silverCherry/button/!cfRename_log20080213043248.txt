@@ -1,0 +1,3 @@
+Modified on:{ts '2008-02-13 04:32:48'}
+* btn-arrow.gif changed to: button_btn-arrow.gif
+* btn-sprite.gif changed to: button_btn-sprite.gif

@@ -1,0 +1,4 @@
+Modified on:{ts '2008-02-13 04:33:19'}
+* bg.gif changed to: qtip_bg.gif
+* close.gif changed to: qtip_close.gif
+* tip-sprite.gif changed to: qtip_tip-sprite.gif
