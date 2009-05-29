@@ -51,6 +51,7 @@
 <%= cached_javascript_include_tag "filetree/Ext.ux.IconCombo.js" %>
 <%= cached_javascript_include_tag "filetree/Ext.ux.LangSelectCombo.js" %>
 
+<%= cached_javascript_include_tag "Ext.ux.ThemeCombo.js" %>
 <%= cached_javascript_include_tag "xl_suite/extjs/Ext.ux.Menubar.js" %>
 
 <%= cached_javascript_include_tag "xl_suite/widgets/xl.widget.FilePicker.js" %>
@@ -118,4 +119,6 @@
 <%= cached_stylesheet_link_tag "filetree/empty.css" %>
 
 <%= cached_stylesheet_link_tag "Ext.ux.Menubar.css" %>
+<%= cached_stylesheet_link_tag "/javascripts/extjs/resources/css/xtheme-default.css", :id => "theme" %>
+
 <%= yield(:css) %>
