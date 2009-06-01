@@ -1,0 +1,4 @@
+Modified on:{ts '2008-02-14 20:30:41'}
+* drop-add.gif changed to: dd_drop-add.gif
+* drop-no.gif changed to: dd_drop-no.gif
+* drop-yes.gif changed to: dd_drop-yes.gif

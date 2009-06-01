@@ -24,11 +24,11 @@ xl.setup.generateFooterToolbar = function () {
   // some no bug button
   
   var noMoreBugs = new Ext.Toolbar.Button({
-	  tooltip: 'No More Bugs',
-	  icon: xl.kIconPath + 'no_more_bugs.png',
-	  cls: 'x-btn-icon',
-	  id: 'no-more-bugs',
-    handler: function(){
+	  tooltip:'Click to report bug'
+	  ,icon:xl.kIconPath + 'no_more_bugs.png'
+	  ,cls:'x-btn-icon'
+	  ,id:'no-more-bugs'
+    ,handler:function(){
       xl.createTab("/admin/contact_requests/bug_buster");
     }
   });
@@ -59,6 +59,19 @@ xl.setup.generateFooterToolbar = function () {
 	  }
   });
   
-  return [ printButton, resizeColumnsButton, xl.copyrightHTML, ' ', noMoreBugs, logoutButton ];
+  var ixldFooterButton = new Ext.Toolbar.Button({
+    text:"iXLd"
+    ,handler:function(){
+      window.open("http://ixld.com");
+    }
+  });
+  
+  var xlsuiteFooterButton = new Ext.Toolbar.Button({
+    text:"XLsuite"
+    ,handler:function(){
+      window.open("http://xlsuite.com");
+    }
+  });
+  
+  return [ printButton, resizeColumnsButton, "| Site design  :", ixldFooterButton, "| Powered by  :", xlsuiteFooterButton, noMoreBugs, logoutButton ];
 }  // generateFooterToolbar
-

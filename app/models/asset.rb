@@ -415,6 +415,17 @@ class Asset < ActiveRecord::Base
     end
   end  
 
+  def self.count_with_overwritten(*args)
+    unless args.blank?
+      self.count_without_overwritten(*args)
+    else
+      Asset.count_by_sql "SELECT COUNT(a.id) FROM assets a"
+    end
+  end
+  class <<self
+    alias_method_chain :count, :overwritten
+  end
+
   protected
   def set_account_to_parent_account
     self.account = self.parent.account unless self.account || !self.parent

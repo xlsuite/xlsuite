@@ -51,6 +51,7 @@
 <%= cached_javascript_include_tag "filetree/Ext.ux.IconCombo.js" %>
 <%= cached_javascript_include_tag "filetree/Ext.ux.LangSelectCombo.js" %>
 
+<%= cached_javascript_include_tag "Ext.ux.ThemeCombo.js" %>
 <%= cached_javascript_include_tag "xl_suite/extjs/Ext.ux.Menubar.js" %>
 
 <%= cached_javascript_include_tag "xl_suite/widgets/xl.widget.FilePicker.js" %>
@@ -101,7 +102,7 @@
 <%= cached_stylesheet_link_tag "/stylesheets/temporary-extjs-overwrite.css" %>
 <%= cached_stylesheet_link_tag "Ext.ux.UploadDialog.css" %>
 
-<%= cached_stylesheet_link_tag :defaults, 'leftConsole.css', 'rightConsole.css', 'layout.css', 'forms.css', 'tabbedNavigation.css', 'type.css', 'reset.css', 'navigation.css', 'blocks.css', 'lightbox.css' %>
+<%= cached_stylesheet_link_tag :defaults %>
 <%= cached_stylesheet_link_tag "/stylesheets/products/new.css" %>
 
 <%= cached_stylesheet_link_tag "rets/results.css" %>
@@ -118,4 +119,6 @@
 <%= cached_stylesheet_link_tag "filetree/empty.css" %>
 
 <%= cached_stylesheet_link_tag "Ext.ux.Menubar.css" %>
+<%= cached_stylesheet_link_tag "/javascripts/extjs/resources/css/xtheme-default.css", :id => "theme" %>
+
 <%= yield(:css) %>

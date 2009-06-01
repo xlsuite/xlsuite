@@ -1,0 +1,7 @@
+Modified on:{ts '2008-02-14 20:31:28'}
+* checked.gif changed to: menu_checked.gif
+* group-checked.gif changed to: menu_group-checked.gif
+* item-over.gif changed to: menu_item-over.gif
+* menu-parent.gif changed to: menu_menu-parent.gif
+* menu.gif changed to: menu_menu.gif
+* unchecked.gif changed to: menu_unchecked.gif

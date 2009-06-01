@@ -1,0 +1,13 @@
+Modified on:{ts '2008-02-14 19:20:18'}
+* clear-trigger.gif changed to: form_clear-trigger.gif
+* clear-trigger.psd changed to: form_clear-trigger.psd
+* date-trigger.gif changed to: form_date-trigger.gif
+* date-trigger.psd changed to: form_date-trigger.psd
+* error-tip-corners.gif changed to: form_error-tip-corners.gif
+* exclamation.gif changed to: form_exclamation.gif
+* search-trigger.gif changed to: form_search-trigger.gif
+* search-trigger.psd changed to: form_search-trigger.psd
+* text-bg.gif changed to: form_text-bg.gif
+* trigger-tpl.gif changed to: form_trigger-tpl.gif
+* trigger.gif changed to: form_trigger.gif
+* trigger.psd changed to: form_trigger.psd

@@ -1,5 +1,5 @@
 class FulltextRowUpdate < ActiveRecord::Base
-  validates_presence_of :account_id, :subject_type, :subject_id
+  validates_presence_of :subject_type, :subject_id
   validates_uniqueness_of :subject_id, :scope => :subject_type
   belongs_to :subject, :polymorphic => true
   

@@ -6,7 +6,7 @@ Ext.onReady(function() {
     ,items:[
       {width:xl.kDefaultColumnWidth, html:<%= "<div id='current-user-info'></div>".to_json %>}
       ,{columnWidth:1, html:<%= "<div id='navigation-bar'></div>".to_json %>}
-      ,{width:xl.kDefaultColumnWidth, html:""}
+      ,{width:xl.kDefaultColumnWidth, html:<%= "<div id='theme-selection'></div>".to_json %>}
     ]
     ,renderTo:"top-bar"
   });
@@ -25,6 +25,12 @@ Ext.onReady(function() {
   });
 
   xl.currentUserInfo.show(Ext.get("current-user-info"), "bl-bl");
+  
+  new Ext.ux.ThemeCombo({
+    renderTo:"theme-selection"
+    ,ctCls:"x-menu x-menu-plain x-horizontal-menubar theme-selection"
+    ,width:xl.kDefaultColumnWidth-10
+  });
 
   xl.navBar = new Ext.ux.Menubar({
     orientation:"horizontal"

@@ -25,6 +25,7 @@ class PartyDrop < Liquid::Drop
     else
       profile = self.party.account.profiles.create
       profile.tag_list = party.tag_list
+      profile.save
       self.party.profile = profile
       self.party.save!
       return profile

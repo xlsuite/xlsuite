@@ -1,0 +1,17 @@
+Modified on:{ts '2008-02-14 20:31:14'}
+* collapse.gif changed to: layout_collapse.gif
+* expand.gif changed to: layout_expand.gif
+* gradient-bg.gif changed to: layout_gradient-bg.gif
+* mini-bottom.gif changed to: layout_mini-bottom.gif
+* mini-left.gif changed to: layout_mini-left.gif
+* mini-right.gif changed to: layout_mini-right.gif
+* mini-top.gif changed to: layout_mini-top.gif
+* ns-collapse.gif changed to: layout_ns-collapse.gif
+* ns-expand.gif changed to: layout_ns-expand.gif
+* panel-close.gif changed to: layout_panel-close.gif
+* panel-title-bg.gif changed to: layout_panel-title-bg.gif
+* panel-title-light-bg.gif changed to: layout_panel-title-light-bg.gif
+* stick.gif changed to: layout_stick.gif
+* stuck.gif changed to: layout_stuck.gif
+* tab-close-on.gif changed to: layout_tab-close-on.gif
+* tab-close.gif changed to: layout_tab-close.gif
