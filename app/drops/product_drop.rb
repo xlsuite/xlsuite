@@ -291,6 +291,10 @@ class ProductDrop < Liquid::Drop
     @product = product
   end
   
+  def wholesale_price
+    MoneyDrop.new(self.product.wholesale_price)
+  end
+  
   def retail_price
     MoneyDrop.new(self.product.retail_price)
   end
