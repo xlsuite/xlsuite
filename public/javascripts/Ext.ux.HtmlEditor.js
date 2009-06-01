@@ -86,7 +86,7 @@ Ext.extend(Ext.ux.HtmlEditor, Ext.form.HtmlEditor, {
     			      }
     			      out.push(token);
     		      }
-              if(out.first.length == 0)
+              if(out.first && out.first.length == 0)
                 out.shift();
 		          this.el.dom.value = out.join('');
             }
