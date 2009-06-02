@@ -417,7 +417,7 @@ class TestimonialsController < ApplicationController
     if !params[:ids].blank? && params[:mode] =~ /select/i
       ids = params[:ids].split(",").map(&:strip)
       ids = Testimonial.find(:all, :select => "id", :conditions => ["id IN (#{ids.join(',')}) AND approved_at IS NOT NULL"]).map(&:id)
-      conditions = %Q`{% load_testimonials ids:"#{ids.join(',')}" randomize:#{count} %}`
+      conditions = %Q`{% load_testimonials ids:"#{ids.join(',')}" randomize:#{count} in:testimonials %}`
       if ids.empty?
         errors = "Please select at least one approved testimonial"
       else
@@ -425,7 +425,7 @@ class TestimonialsController < ApplicationController
       end
     elsif params[:tags] && params[:mode] =~ /tag/i
       tag_list = Tag.parse(params[:tags]).join(",")
-      conditions = %Q`{% load_testimonials tagged_any:"#{tag_list}" randomize:#{count} %}`
+      conditions = %Q`{% load_testimonials tagged_any:"#{tag_list}" randomize:#{count} in:testimonials %}`
       success = true
     end
     code_result = conditions + code
