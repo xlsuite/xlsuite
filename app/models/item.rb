@@ -400,7 +400,17 @@ class Item < ActiveRecord::Base
   end
 
   def current_behavior
-    @behavior ||= self.behavior_class.new(self, self.cached_parsed_body.blank? ? nil : Marshal.load(self.cached_parsed_body))
+    parsed_body = if self.cached_parsed_body.blank? then
+                    nil
+                  else
+                    begin
+                      Marshal.load(self.cached_parsed_body)
+                    rescue
+                      logger.warn "Could not deserialize #{self.inspect}: #{$!}"
+                      Liquid::Template.parse(self.body)
+                    end
+                  end
+    @behavior ||= self.behavior_class.new(self, parsed_body)
   end
 
   def serialize_behavior_values

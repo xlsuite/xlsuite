@@ -390,7 +390,12 @@ class Page < Item
     @parsed_title_template ||= if self.cached_parsed_title.blank? then
                                  self.parse_title_template
                                else
-                                 Marshal.load(self.cached_parsed_title)
+                                 begin
+                                   Marshal.load(self.cached_parsed_title)
+                                 rescue
+                                   logger.warn "Could not deserialize #{self.inspect}: #{$!}"
+                                   parse_title_template
+                                 end
                                end
   end
 
