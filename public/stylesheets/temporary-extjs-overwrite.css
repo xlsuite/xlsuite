@@ -7,6 +7,8 @@
 .something-here{text-align:center;}
 .theme-selection{height:24px;}
 
+.normal-white-space .x-combo-list-item{white-space:normal !important;}
+
 /*** LISTINGS ***/
 .summaryLabel { width: 100px; font-weight: bold; text-align: right; vertical-align: top;}
 .summaryValue { vertical-align: top;}
