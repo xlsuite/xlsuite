@@ -311,6 +311,8 @@ class Layout < ActiveRecord::Base
   before_create :generate_random_uuid
   before_save :set_modified
 
+  validates_length_of :body, :maximum => 60.kilobytes
+
   # Parse or reuse an already parsed template.
   def parsed_template
     @parsed_template ||= if self.cached_parsed_template.nil? then

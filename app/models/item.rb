@@ -300,6 +300,8 @@ class Item < ActiveRecord::Base
   before_save :serialize_behavior_values
   validates_inclusion_of :behavior, :in => VALID_BEHAVIORS
   validates_presence_of :title, :if => :title_required?
+  
+  validates_length_of :body, :maximum => 512.kilobytes
 
   def title_required?
     true
