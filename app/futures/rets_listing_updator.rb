@@ -282,6 +282,7 @@ class RetsListingUpdator < RetsSearchFuture
   def run_rets_with_grouping(rets)
     begin
       Listing.all(:select => "account_id, rets_resource, rets_class", :group => "account_id, rets_resource, rets_class").each do |group|
+        next if group.rets_resource.blank? || group.rets_class.blank?
         conds = ["external_id IS NOT NULL AND rets_resource = ? AND rets_class = ? AND status = ?", group.rets_resource, group.rets_class, "active"]
         group_account = Account.find_by_id(group.account_id)
         next unless group_account
