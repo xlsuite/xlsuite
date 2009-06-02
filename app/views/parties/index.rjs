@@ -130,6 +130,16 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
     }
   });
 
+  var newContactButton = new Ext.Toolbar.Button({
+    text:"New"
+    ,handler:function(){xl.createTab('#{new_party_path}');}
+  });
+  
+  var importButton = new Ext.Toolbar.Button({
+    text:"Import"
+    ,handler:function(){xl.createTab('#{imports_path}');}
+  });
+
   // create GridPanel object
   var grid = new Ext.grid.GridPanel({
     store: ds,
@@ -155,13 +165,15 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
     autoExpandColumn: 'displayName',
     height: #{get_default_grid_height},
     tbar: [
-      { text: "Filter By: " },
-      filterBySelection,
-      { text: ""},
-      filterField,
-      clearButton
+      newContactButton
+      ,importButton
+      ,{text:"Filter By: "}
+      ,filterBySelection
+      ,{text:""}
+      ,filterField
+      ,clearButton
     ],
-    bbar: [paging],
+    bbar: paging,
     footer: true,
     loadMask: true,
     iconCls: 'icon-grid'
@@ -655,12 +667,6 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
   grid.on("selectionChange", function(){
 
   });
-
-  // add extra links to the header
-  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
-
-  extra_links_span.insertHtml('afterBegin', #{link_to_function("&nbsp;&nbsp;&nbsp;Import", "xl.createTab('#{imports_path}')").to_json}, false);
-  extra_links_span.insertHtml('afterBegin', #{link_to_function("&nbsp;&nbsp;&nbsp;New", "xl.createTab('#{new_party_path}')").to_json}, false);
 
   // Set up "Expand all" and "Collapse all" rows
   var expandAllAction = new Ext.Action({

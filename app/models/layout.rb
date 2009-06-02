@@ -175,6 +175,9 @@ class Layout < ActiveRecord::Base
 
   def reload_cached_parsed_template
     Marshal.load(self.cached_parsed_template)
+  rescue
+    logger.warn "Could not deserialize #{self.inspect}: #{$!}"
+    parse_template
   end
 
   def guess_cache_control_directives

@@ -8,8 +8,6 @@ class Order < ActiveRecord::Base
   acts_as_fulltext %w(care_of_name number date notes fst_name pst_name shipping_method status 
       created_by_name updated_by_name sent_at sent_by_name confirmed_by_name completed_by_name voided_by_name ship_to_type)
   
-  validates_presence_of :date
-
   has_many :invoices, :dependent => :nullify
   
   before_create :copy_ship_to_from_customer, :generate_random_uuid
@@ -18,6 +16,8 @@ class Order < ActiveRecord::Base
   belongs_to :payment_term
   validates_presence_of :payment_term_id
   before_validation :assign_default_payment_term
+  before_validation :set_date_if_blank
+  before_validation :set_status_if_blank
   
   belongs_to :referencable, :polymorphic => true
   
@@ -115,6 +115,18 @@ class Order < ActiveRecord::Base
       end
     end
     out.compact
+  end
+  
+  def set_date_if_blank
+    return true unless self.date.blank?
+    self.date = Date.today
+    true
+  end
+  
+  def set_status_if_blank
+    return true unless self.status.blank?
+    self.status = "New"
+    true
   end
   
   class << self

@@ -1,90 +1,53 @@
-page << create_tab_using_ajax_response("New Order") do
+page << create_function_using_ajax_response do
 %Q`
-  var prefix = "new";
-  
-  #{create_DateField}
-  #{create_InvoiceToButton}
-
-  var orderLineType = "";
-
-  var statusStore = new Ext.data.SimpleStore({
-    fields: ['value'],
-    data: [#{edit_order_status_selections}]
-  });
-
-
-  var wrapperPanel = new Ext.Panel({
-    autoScroll: true,
-    id: prefix + '.layout.formPanel',
-    width: '100%',
-    layout: 'table',
-    layoutConfig: {
-      columns: 3
-    },
-    items: [
-    {
-      html: '<h2 class="page_header">New Order</h2>',
-      colspan: 3
-    },
-    {
-      html: #{render_inside_panel_notifications_container.to_json},
-      colspan: 3
-    },
-    {
-      layout: 'form',
-      layoutConfig: { columns: 1 },
-      labelAlign: "top",
-      items: [
-      DateField, 
-      {
-        style: 'padding-top: 15px;',
-        html: 'Invoice to: #{content_tag :div, @order.invoice_to ? @order.invoice_to.display_name : "", :id => "new_order_invoice_to"}'
-      },
-      InvoiceToButton, 
-      HiddenInvoiceToIdField,
-      HiddenInvoiceToTypeField,
-      { style: 'padding-top: 15px;' },
-      xl.widget.FormField({ 
-        displayField: 'value', 
-        valueField: 'value',
-        fieldLabel: 'Status',
-        name: 'order[status]', 
-        type: 'combobox', 
-        store: statusStore, 
-        editable : false,
-        triggerAction: 'all',
-        mode: 'local',
-        value: "New"
-      })]
-    },
-    {
-      html: #{render(:partial => 'new').to_json}
-    }
-
-    ]
-  });
-  
-  
-  var formPanel = new Ext.FormPanel({
-    items: [
-      wrapperPanel
-    ],
-    buttons: [{
-        text: 'Submit',
-        handler: function(me, event){
-            formPanel.getForm().doAction('submit',
-              {url: #{orders_path.to_json}})
-          }
-      },{
-        text: "Cancel",
-        handler: function(me, event){
-            xl.closeTabPanel('orders_new_nil')
-          }
-      }]
-  });
-  
-  newPanel.add(formPanel);
-  
- 
+  if(xl.orderNewWindow){
+    xl.orderNewWindow.show();
+  }
+  else{
+    var createButton = new Ext.Toolbar.Button({
+      text:"Create"
+      ,handler:function(){
+        var selectedContactId = contactSelection.getValue();
+        if(selectedContactId==""){
+          Ext.Msg.alert("Creating new order failed", "Please select a contact");
+        }
+        else{
+          Ext.Ajax.request({
+            url:#{orders_path.to_json}
+            ,method:"POST"
+            ,params:{"order[invoice_to_id]":selectedContactId, "order[invoice_to_type]":"Party"}
+            ,success:function(response, options){
+              xl.orderNewWindow.hide();
+            }
+          });
+        }
+      }
+    });
+    
+    var cancelButton = new Ext.Toolbar.Button({
+      text:"Cancel" 
+      ,handler:function(){
+        xl.orderNewWindow.hide();
+      }
+    });
+    
+    var contactSelection = new xl.widget.ContactSelection({
+      fieldLabel:"Type contact name"
+      ,listClass:"normal-white-space"
+    });
+    
+    xl.orderNewWindow = new Ext.Window({
+      title:"Create new order | Select a contact"
+      ,layout:"form"
+      ,resizable:false
+      ,width:500
+      ,height:100
+      ,closeAction:"hide"
+      ,items:[contactSelection]
+      ,bbar:new Ext.Toolbar({items:[createButton, cancelButton]})
+    });
+    
+    xl.orderNewWindow.show();
+  }
 `
 end
