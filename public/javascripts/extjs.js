@@ -244,10 +244,11 @@ Ext.onReady(function() {
 
   // We need to keep this center panel around for adding tabs later
   xl.tabPanel = new Ext.TabPanel({
-    defaults: { autoScroll: false, closable: true },
-    border: false,
-    frame: false,
-    enableTabScroll: true
+    defaults: { autoScroll: false, closable: true }
+    ,border: false
+    ,frame: false
+    ,enableTabScroll: true
+    ,plugins:new Ext.ux.TabCloseMenu()
   });
   
   xl.tabPanel.on("beforeadd", function(){ xl.backgroundPanel.hide()});
