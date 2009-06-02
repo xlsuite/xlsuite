@@ -52,9 +52,14 @@ page << create_tab_using_ajax_response("Testimonials | Index", after_render) do
   
   #{create_grid_tbar_clear_button}
 
+  var newLinkButton = new Ext.Toolbar.Button({
+    text:"New"
+    ,handler:function(){xl.openNewTabPanel('testimonials_new_nil', #{new_testimonial_path.to_json})}
+  });
+  
   var gridTopToolbar = new Ext.Toolbar({
     cls: "top-toolbar",
-    items: [{text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+    items: [newLinkButton, {xtype:"tbtext", text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
   });
   
   var grid = new Ext.grid.GridPanel({
@@ -80,9 +85,6 @@ page << create_tab_using_ajax_response("Testimonials | Index", after_render) do
   newPanel.on("destroy", function(){
     xl.runningGrids.unset("testimonials");
   });
-  
-  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
-  extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('testimonials_new_nil', #{new_testimonial_path.to_json})").to_json});
 
   var editTestimonialUrl = #{edit_testimonial_path(:id => "__ID__").to_json};
 
