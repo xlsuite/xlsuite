@@ -286,7 +286,7 @@ class RetsListingUpdator < RetsSearchFuture
         conds = ["external_id IS NOT NULL AND rets_resource = ? AND rets_class = ? AND status = ?", group.rets_resource, group.rets_class, "active"]
         group_account = Account.find_by_id(group.account_id)
         next unless group_account
-        mls_nos = group_account.listings.find(:all, :select => "DISTINCT mls_no", :conditions => conds, :order => "updated_at", :limit => 1000).map(&:mls_no)
+        mls_nos = group_account.listings.find(:all, :select => "DISTINCT mls_no", :conditions => conds, :order => "updated_at").map(&:mls_no)
         next if mls_nos.empty?
 
         earliest_listing = group_account.listings.find_by_mls_no(mls_nos.first)
