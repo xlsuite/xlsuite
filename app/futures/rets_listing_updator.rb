@@ -323,7 +323,7 @@ class RetsListingUpdator < RetsSearchFuture
             error_message = e.message
             puts("^^^EXCEPTION ON RETS AUTO IMPORT #{error_message}")
             if error_message.match(/User\sAgent\snot\sregistered\sor\sdenied/i)
-              sleep(5)
+              sleep(60)
               redo_times += 1
               puts("^^^REDOING FOR THE #{redo_times} TIME")
               redo
@@ -332,12 +332,12 @@ class RetsListingUpdator < RetsSearchFuture
             end
           rescue RETS4R::Client::LoginError => e
             puts("^^^RETS4R Client LoginError #{e.message}")
-            sleep(5)
+            sleep(60)
             redo_times += 1
             puts("^^^REDOING FOR THE #{redo_times} TIME")
             redo
           end  
-
+          sleep(60)
         end
       end
     ensure
