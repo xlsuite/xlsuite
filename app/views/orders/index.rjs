@@ -57,16 +57,17 @@ page << create_tab_using_ajax_response("Orders | Index", after_render) do
   });
   
   var idSelection = xl.widget.FormField({
-      displayField: 'value', 
-      valueField: 'value',
-      fieldLabel: 'Status',
-      value: 'All', 
-      name: 'status', 
-      type: 'combobox', 
-      store: statusStore, 
-      editable : false,
-      triggerAction: 'all',
-      mode: 'local'
+      displayField:'value' 
+      ,valueField:'value'
+      ,fieldLabel:'Status'
+      ,value:'All'
+      ,name:'status' 
+      ,type:'combobox' 
+      ,store:statusStore 
+      ,editable:false
+      ,triggerAction:'all'
+      ,mode:'local'
+      ,width:100
   });
   
   idSelection.on('select', function(el, newValue, oldValue){
@@ -78,8 +79,15 @@ page << create_tab_using_ajax_response("Orders | Index", after_render) do
   #{create_grid_tbar_clear_button}
 
   var gridTopToolbar = new Ext.Toolbar({
-    cls: "top-toolbar",
-    items: [idSelection, {text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+    cls: "top-toolbar"
+    ,items:[
+      {text:"New",handler:function(){xl.openNewTabPanel('orders_new_nil', #{new_order_path.to_json});}}
+      ,{xtype:"tbtext",text:"Show:"}
+      ,idSelection
+      ,{xtype:"tbtext",text:"&nbsp;&nbsp;&nbsp;Filter: "}
+      ,filterField
+      ,clearButton
+    ]
   });
   
   // create GridPanel object
@@ -119,9 +127,6 @@ page << create_tab_using_ajax_response("Orders | Index", after_render) do
     xl.runningGrids.unset("orders");
   });
   
-  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
-  extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('orders_new_nil', #{new_order_path.to_json})").to_json});
-
   var editOrderUrl = #{edit_order_path(:id => "__ID__").to_json};
   // set double click action on grid cells
   grid.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
