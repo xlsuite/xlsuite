@@ -299,7 +299,6 @@ class RetsListingUpdator < RetsSearchFuture
           self.account = group_account # We must be part of an account to be correctly searched upon
           self.save(false) # If we crash, we'll at least have a record of what we did prior to the crash
 
-          begin
             ActiveRecord::Base.transaction do
               rets_search_result = self.run_rets_without_grouping(rets, self.priority)
               inactive_mls_nos = mls_nos - rets_search_result.map{|e| e[:mls_no]}.uniq
@@ -319,10 +318,7 @@ class RetsListingUpdator < RetsSearchFuture
                 end
               end
             end
-          rescue
-            logger.warn("^^^FAIL ON UPDATING LISTINGS AUTOMATICALLY")
-            logger.warn($!.inspect)
-          end
+
         end
       end
     ensure
