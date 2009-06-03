@@ -81,7 +81,8 @@ page << create_tab_using_ajax_response("Products", after_render) do
   var gridTopToolbar = new Ext.Toolbar({
     cls: "top-toolbar",
     items: [
-      { text: "Filter By: " },
+      {text:"New", handler:function(){xl.openNewTabPanel('products_new_nil', #{new_product_path.to_json})}},
+      {xtype:"tbtext", text: "Filter By: " },
       filterBySelection,
       { text: ""}, 
       idSelection, 
@@ -123,10 +124,6 @@ page << create_tab_using_ajax_response("Products", after_render) do
   newPanel.on("destroy", function(){
     xl.runningGrids.unset("products");
   });
-
-  // add extra links to the header
-  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
-  extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('products_new_nil', #{new_product_path.to_json})").to_json});
 
   var editProductUrl = #{edit_product_path(:id => "__ID__").to_json};
   // set double click action on grid cells
