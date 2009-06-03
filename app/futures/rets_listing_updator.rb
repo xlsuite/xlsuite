@@ -289,16 +289,16 @@ class RetsListingUpdator < RetsSearchFuture
         mls_nos_all = group_account.listings.find(:all, :select => "DISTINCT mls_no", :conditions => conds, :order => "updated_at").map(&:mls_no)
         mls_nos_all = mls_nos_all.reject(&:blank?)
         next if mls_nos_all.empty?
+        mls_field = RetsMetadata.find_all_fields(group.rets_resource, group.rets_class).detect {|f| f.description =~ /MLS Number/i}
         
         mls_nos_all.each_slice(100) do |mls_nos|
-          mls_field = RetsMetadata.find_all_fields(group.rets_resource, group.rets_class).detect {|f| f.description =~ /MLS Number/i}
-          date_field = RetsMetadata.find_all_fields(group.rets_resource, group.rets_class).detect {|f| f.description =~ /Last Trans Date/i}
           self.args[:limit] = mls_nos.size
           self.args[:search] = {:resource => group.rets_resource, :class => group.rets_class, :limit => mls_nos.size}
           self.args[:lines] = [ {:operator => "eq", :field => mls_field.value, :from => mls_nos.join(","), :to => ""} ]
           self.account = group_account # We must be part of an account to be correctly searched upon
           self.save(false) # If we crash, we'll at least have a record of what we did prior to the crash
 
+          begin
             ActiveRecord::Base.transaction do
               rets_search_result = self.run_rets_without_grouping(rets, self.priority)
               inactive_mls_nos = mls_nos - rets_search_result.map{|e| e[:mls_no]}.uniq
@@ -318,6 +318,17 @@ class RetsListingUpdator < RetsSearchFuture
                 end
               end
             end
+          rescue XlSuite::Rets::RetsClient::LookupFailure => e
+            error_message = e.message
+            RAILS_DEFAULT_LOGGER.warn("^^^EXCEPTION ON RETS AUTO IMPORT #{error_message}")
+            if error_message.match(/User\sAgent\snot\sregistered\sor\sdenied/i)
+              redo
+            else
+              raise e
+            end
+          rescue RETS4R::Client::LoginError
+            redo
+          end  
 
         end
       end
