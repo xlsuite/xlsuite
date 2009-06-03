@@ -279,7 +279,19 @@
 # 
 # 		     END OF TERMS AND CONDITIONS
 class RetsListingUpdator < RetsSearchFuture
-  def run_rets_with_grouping(rets)
+  def run
+    unless self.system?
+      raise MissingAccountAuthorization.new("rets_import") unless self.account.options.rets_import?
+    end
+
+    status!(:logging_in, 10)
+    status!(:querying, 20)
+    run_rets(self.client)
+
+    self.complete!
+  end
+  
+  def run_rets_with_grouping(tclient)
     begin
       Listing.all(:select => "account_id, rets_resource, rets_class", :group => "account_id, rets_resource, rets_class").each do |group|
         next if group.rets_resource.blank? || group.rets_class.blank?
@@ -300,7 +312,7 @@ class RetsListingUpdator < RetsSearchFuture
           self.save(false) # If we crash, we'll at least have a record of what we did prior to the crash
 
           begin
-            self.client.transaction do |rets|
+            tclient.transaction do |rets|
               ActiveRecord::Base.transaction do
                 rets_search_result = self.run_rets_without_grouping(rets, self.priority)
                 inactive_mls_nos = mls_nos - rets_search_result.map{|e| e[:mls_no]}.uniq
