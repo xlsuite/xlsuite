@@ -59,13 +59,6 @@ page << create_tab_using_ajax_response("Payments", after_render) do
     xl.runningGrids.unset("payments");
   });
 
-  // add extra links to the header
-  newPanel.getTopToolbar().add({
-    text: 'New',
-  });
-  //var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
-  //extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('products_new_nil', #{new_product_path.to_json})").to_json});
-
   //var editProductUrl = #{edit_product_path(:id => "__ID__").to_json};
   // set double click action on grid cells
   gridPanel.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
