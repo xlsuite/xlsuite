@@ -291,6 +291,7 @@ class RetsListingUpdator < RetsSearchFuture
         next if mls_nos_all.empty?
         mls_field = RetsMetadata.find_all_fields(group.rets_resource, group.rets_class).detect {|f| f.description =~ /MLS Number/i}
         
+        redo_times = 0
         mls_nos_all.each_slice(100) do |mls_nos|
           self.args[:limit] = mls_nos.size
           self.args[:search] = {:resource => group.rets_resource, :class => group.rets_class, :limit => mls_nos.size}
@@ -302,9 +303,9 @@ class RetsListingUpdator < RetsSearchFuture
             ActiveRecord::Base.transaction do
               rets_search_result = self.run_rets_without_grouping(rets, self.priority)
               inactive_mls_nos = mls_nos - rets_search_result.map{|e| e[:mls_no]}.uniq
-              RAILS_DEFAULT_LOGGER.warn("^^^mls_nos is #{mls_nos.inspect}")
-              RAILS_DEFAULT_LOGGER.warn("^^^rets_search_result is #{rets_search_result.map{|e| e[:mls_no]}.uniq.inspect}")
-              RAILS_DEFAULT_LOGGER.warn("^^^inactive_mls_nos is #{inactive_mls_nos.inspect}")
+              puts("^^^mls_nos is #{mls_nos.inspect}")
+              puts("^^^rets_search_result is #{rets_search_result.map{|e| e[:mls_no]}.uniq.inspect}")
+              puts("^^^inactive_mls_nos is #{inactive_mls_nos.inspect}")
               inactive_mls_nos.each do |mls_no|
                 group_account.listings.find_all_by_mls_no(mls_no).each do |listing|
                   if listing.tag_list =~ /sold/i
@@ -320,13 +321,20 @@ class RetsListingUpdator < RetsSearchFuture
             end
           rescue XlSuite::Rets::RetsClient::LookupFailure => e
             error_message = e.message
-            RAILS_DEFAULT_LOGGER.warn("^^^EXCEPTION ON RETS AUTO IMPORT #{error_message}")
+            puts("^^^EXCEPTION ON RETS AUTO IMPORT #{error_message}")
             if error_message.match(/User\sAgent\snot\sregistered\sor\sdenied/i)
+              sleep(5)
+              redo_times += 1
+              puts("^^^REDOING FOR THE #{redo_times} TIME")
               redo
             else
               raise e
             end
-          rescue RETS4R::Client::LoginError
+          rescue RETS4R::Client::LoginError => e
+            puts("^^^RETS4R Client LoginError #{e.message}")
+            sleep(5)
+            redo_times += 1
+            puts("^^^REDOING FOR THE #{redo_times} TIME")
             redo
           end  
 
