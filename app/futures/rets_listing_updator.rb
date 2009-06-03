@@ -300,23 +300,24 @@ class RetsListingUpdator < RetsSearchFuture
           self.save(false) # If we crash, we'll at least have a record of what we did prior to the crash
 
           begin
-            ActiveRecord::Base.transaction do
-              rets = XlSuite::Rets::RetsClient.new(XlSuite::Rets::RetsClient.new_client)
-              rets_search_result = self.run_rets_without_grouping(rets, self.priority)
-              inactive_mls_nos = mls_nos - rets_search_result.map{|e| e[:mls_no]}.uniq
-              puts("^^^mls_nos is #{mls_nos.inspect}")
-              puts("^^^rets_search_result is #{rets_search_result.map{|e| e[:mls_no]}.uniq.inspect}")
-              puts("^^^inactive_mls_nos is #{inactive_mls_nos.inspect}")
-              inactive_mls_nos.each do |mls_no|
-                group_account.listings.find_all_by_mls_no(mls_no).each do |listing|
-                  if listing.tag_list =~ /sold/i
-                    listing.tag_list += " removed"
-                  else
-                    listing.tag_list += " removed"
-                    listing.status = "[XL]Inactive"
-                    listing.change_to_private
+            self.client.transaction do |rets|
+              ActiveRecord::Base.transaction do
+                rets_search_result = self.run_rets_without_grouping(rets, self.priority)
+                inactive_mls_nos = mls_nos - rets_search_result.map{|e| e[:mls_no]}.uniq
+                puts("^^^mls_nos is #{mls_nos.inspect}")
+                puts("^^^rets_search_result is #{rets_search_result.map{|e| e[:mls_no]}.uniq.inspect}")
+                puts("^^^inactive_mls_nos is #{inactive_mls_nos.inspect}")
+                inactive_mls_nos.each do |mls_no|
+                  group_account.listings.find_all_by_mls_no(mls_no).each do |listing|
+                    if listing.tag_list =~ /sold/i
+                      listing.tag_list += " removed"
+                    else
+                      listing.tag_list += " removed"
+                      listing.status = "[XL]Inactive"
+                      listing.change_to_private
+                    end
+                    listing.save!
                   end
-                  listing.save!
                 end
               end
             end
