@@ -8,7 +8,7 @@ class FulltextRowUpdate < ActiveRecord::Base
       if self.deletion?
         FulltextRow.delete_all(:subject_type => self.subject_type, :subject_id => self.subject_id)
       else
-        self.subject.send(:update_fulltext_index)
+        self.subject.send(:update_fulltext_index) if self.subject
       end
       self.destroy
     end
