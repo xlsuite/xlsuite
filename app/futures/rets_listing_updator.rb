@@ -301,6 +301,7 @@ class RetsListingUpdator < RetsSearchFuture
 
           begin
             ActiveRecord::Base.transaction do
+              rets = XlSuite::Rets::RetsClient.new(XlSuite::Rets::RetsClient.new_client)
               rets_search_result = self.run_rets_without_grouping(rets, self.priority)
               inactive_mls_nos = mls_nos - rets_search_result.map{|e| e[:mls_no]}.uniq
               puts("^^^mls_nos is #{mls_nos.inspect}")
@@ -323,7 +324,7 @@ class RetsListingUpdator < RetsSearchFuture
             error_message = e.message
             puts("^^^EXCEPTION ON RETS AUTO IMPORT #{error_message}")
             if error_message.match(/User\sAgent\snot\sregistered\sor\sdenied/i)
-              sleep(60)
+              sleep(5)
               redo_times += 1
               puts("^^^REDOING FOR THE #{redo_times} TIME")
               redo
@@ -332,12 +333,12 @@ class RetsListingUpdator < RetsSearchFuture
             end
           rescue RETS4R::Client::LoginError => e
             puts("^^^RETS4R Client LoginError #{e.message}")
-            sleep(60)
+            sleep(5)
             redo_times += 1
             puts("^^^REDOING FOR THE #{redo_times} TIME")
             redo
           end  
-          sleep(60)
+          sleep(5)
         end
       end
     ensure
