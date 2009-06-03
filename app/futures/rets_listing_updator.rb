@@ -286,41 +286,43 @@ class RetsListingUpdator < RetsSearchFuture
         conds = ["external_id IS NOT NULL AND rets_resource = ? AND rets_class = ? AND status = ?", group.rets_resource, group.rets_class, "active"]
         group_account = Account.find_by_id(group.account_id)
         next unless group_account
-        mls_nos = group_account.listings.find(:all, :select => "DISTINCT mls_no", :conditions => conds, :order => "updated_at").map(&:mls_no)
-        next if mls_nos.empty?
+        mls_nos_all = group_account.listings.find(:all, :select => "DISTINCT mls_no", :conditions => conds, :order => "updated_at").map(&:mls_no)
+        mls_nos_all = mls_nos_all.reject(&:blank?)
+        next if mls_nos_all.empty?
+        
+        mls_nos_all.each_slice(100) do |mls_nos|
+          mls_field = RetsMetadata.find_all_fields(group.rets_resource, group.rets_class).detect {|f| f.description =~ /MLS Number/i}
+          date_field = RetsMetadata.find_all_fields(group.rets_resource, group.rets_class).detect {|f| f.description =~ /Last Trans Date/i}
+          self.args[:limit] = mls_nos.size
+          self.args[:search] = {:resource => group.rets_resource, :class => group.rets_class, :limit => mls_nos.size}
+          self.args[:lines] = [ {:operator => "eq", :field => mls_field.value, :from => mls_nos.join(","), :to => ""} ]
+          self.account = group_account # We must be part of an account to be correctly searched upon
+          self.save(false) # If we crash, we'll at least have a record of what we did prior to the crash
 
-        earliest_listing = group_account.listings.find_by_mls_no(mls_nos.first)
-        mls_field = RetsMetadata.find_all_fields(group.rets_resource, group.rets_class).detect {|f| f.description =~ /MLS Number/i}
-        date_field = RetsMetadata.find_all_fields(group.rets_resource, group.rets_class).detect {|f| f.description =~ /Last Trans Date/i}
-        self.args[:limit] = mls_nos.size
-        self.args[:search] = {:resource => group.rets_resource, :class => group.rets_class, :limit => mls_nos.size}
-        self.args[:lines] = [ {:operator => "eq", :field => mls_field.value, :from => mls_nos.join(","), :to => ""} ]
-        self.account = group_account # We must be part of an account to be correctly searched upon
-        self.save(false) # If we crash, we'll at least have a record of what we did prior to the crash
-
-        begin
-          ActiveRecord::Base.transaction do
-            rets_search_result = self.run_rets_without_grouping(rets, self.priority)
-            inactive_mls_nos = mls_nos - rets_search_result.map{|e| e[:mls_no]}.uniq
-            RAILS_DEFAULT_LOGGER.warn("^^^mls_nos is #{mls_nos.inspect}")
-            RAILS_DEFAULT_LOGGER.warn("^^^rets_search_result is #{rets_search_result.map{|e| e[:mls_no]}.uniq.inspect}")
-            RAILS_DEFAULT_LOGGER.warn("^^^inactive_mls_nos is #{inactive_mls_nos.inspect}")
-            inactive_mls_nos.each do |mls_no|
-              group_account.listings.find_all_by_mls_no(mls_no).each do |listing|
-                if listing.tag_list =~ /sold/i
-                  listing.tag_list += " removed"
-                else
-                  listing.tag_list += " removed"
-                  listing.status = "[XL]Inactive"
-                  listing.change_to_private
+          begin
+            ActiveRecord::Base.transaction do
+              rets_search_result = self.run_rets_without_grouping(rets, self.priority)
+              inactive_mls_nos = mls_nos - rets_search_result.map{|e| e[:mls_no]}.uniq
+              RAILS_DEFAULT_LOGGER.warn("^^^mls_nos is #{mls_nos.inspect}")
+              RAILS_DEFAULT_LOGGER.warn("^^^rets_search_result is #{rets_search_result.map{|e| e[:mls_no]}.uniq.inspect}")
+              RAILS_DEFAULT_LOGGER.warn("^^^inactive_mls_nos is #{inactive_mls_nos.inspect}")
+              inactive_mls_nos.each do |mls_no|
+                group_account.listings.find_all_by_mls_no(mls_no).each do |listing|
+                  if listing.tag_list =~ /sold/i
+                    listing.tag_list += " removed"
+                  else
+                    listing.tag_list += " removed"
+                    listing.status = "[XL]Inactive"
+                    listing.change_to_private
+                  end
+                  listing.save!
                 end
-                listing.save!
               end
             end
+          rescue
+            logger.warn("^^^FAIL ON UPDATING LISTINGS AUTOMATICALLY")
+            logger.warn($!.inspect)
           end
-        rescue
-          logger.warn("^^^FAIL ON UPDATING LISTINGS AUTOMATICALLY")
-          logger.warn($!.inspect)
         end
       end
     ensure
