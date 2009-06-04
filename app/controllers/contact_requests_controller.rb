@@ -440,6 +440,10 @@ class ContactRequestsController < ApplicationController
       return redirect_to(params[:return_to]) unless params[:return_to].blank?
       return render(:text => "<html><head><title></title></head><body><h1>Thanks</h1><p>Thank you for your submission</p></body></html>")
     end
+    
+    flash[:liquid] ||= {}
+    flash[:liquid][:params] = params
+    
     return redirect_to(:back) if request.env["HTTP_REFERER"]
     render(:missing)
   end
