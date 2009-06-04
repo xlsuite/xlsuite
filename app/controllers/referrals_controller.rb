@@ -355,22 +355,36 @@ class ReferralsController < ApplicationController
       @referral.email.release!
     end
 
-    flash_success "Sent the referral to #{@referral.friends.size} friend(s)"
-    redirect_to @referral.return_to || @referral.referral_url
-
-    rescue ActiveRecord::RecordInvalid
-      flash_failure $!.message.to_s
-      if @referral
-        @email = @referral.email 
-        @first_friend = @referral.friends.last || Friend.new
-        @other_friends = @referral.friends[0 .. -2] || []
-        load_email_addresses
+    respond_to do |format|
+      format.html do
+        flash_success "Sent the referral to #{@referral.friends.size} friend(s)"
+        redirect_to @referral.return_to || @referral.referral_url
       end
-      if params[:referral][:contact]
-        @contact_email = @referral.friends.first.email if @referral
-        render_using_public_layout :action => :contact
-      else
-        redirect_to_return_to_or_back
+      format.js do
+        return render(:json => {:success => true}.to_json)
+      end
+    end
+    
+    rescue ActiveRecord::RecordInvalid
+      respond_to do |format|
+        format.html do
+          flash_failure $!.message.to_s
+          if @referral
+            @email = @referral.email 
+            @first_friend = @referral.friends.last || Friend.new
+            @other_friends = @referral.friends[0 .. -2] || []
+            load_email_addresses
+          end
+          if params[:referral][:contact]
+            @contact_email = @referral.friends.first.email if @referral
+            render_using_public_layout :action => :contact
+          else
+            redirect_to_return_to_or_back
+          end
+        end
+        format.js do
+          return render(:json => {:success => false, :errors => $!.message}.to_json)
+        end
       end
   end
 
