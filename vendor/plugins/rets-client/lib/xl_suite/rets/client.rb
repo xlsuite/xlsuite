@@ -21,7 +21,9 @@ module XlSuite
       end
 
       def new_client
+        puts("^^^At the beginning of new_client")
         returning(RETS4R::Client.new(@login_url)) do |client|
+          puts("^^^Inside the do end block of new_client")
           client.user_agent = @options[:user_agent] unless @options[:user_agent].blank?
           client.logger = @options[:logger] unless @options[:logger].blank?
           client.rets_version = "1.7"
@@ -38,6 +40,7 @@ module XlSuite
             headers["RETS-UA-Authorization"] = "Digest " + Digest::MD5.hexdigest(parts.join(":"))
             puts("^^^In new_client RETS-UA-Authorization #{client.get_header("RETS-UA-Authorization")}")        
           end
+          puts("^^^At the end of new_client")
         end
       end
     end

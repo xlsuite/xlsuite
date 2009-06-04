@@ -315,7 +315,7 @@ class RetsListingUpdator < RetsSearchFuture
           begin
             tclient.transaction do |rets|
               ActiveRecord::Base.transaction do
-                puts("^^^Updating listing with MLS nos: #{mls_nos.inspect}")
+                puts("^^^Trying to connect to RETS to update listing with MLS nos: #{mls_nos.inspect}")
                 rets_search_result = self.run_rets_without_grouping(rets, self.priority)
                 inactive_mls_nos = mls_nos - rets_search_result.map{|e| e[:mls_no]}.uniq
                 puts("^^^Returned MLS nos: #{rets_search_result.map{|e| e[:mls_no]}.uniq.inspect}")

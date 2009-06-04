@@ -519,12 +519,13 @@ module RETS4R
 						headers.merge(header) unless header.empty?
 					
 						@pre_request_block.call(self, http, headers) if @pre_request_block
-					
 						logger.debug(headers.inspect) if logger
 					
 						@semaphore.unlock
 										
+					  puts("^^^BEFORE HTTP GET here #{headers.inspect}")
 						response = http.get(uri, headers)
+					  puts("^^^AFTER HTTP GET #{headers.inspect}")
 										
 						@semaphore.lock
 					
