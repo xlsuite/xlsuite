@@ -293,12 +293,13 @@ class Comment < ActiveRecord::Base
   
   validates_presence_of :account_id, :commentable_id, :commentable_type, :name
   validates_format_of :email, :with => EmailContactRoute::ValidAddressRegexp, :allow_nil => true
-  validates_format_of :url, :with => %r{\A(?:ftp|https?)://.*\Z}, :message => "must be absolute url", :if => :url_not_blank
+
   validates_format_of :referrer_url, :with => %r{\A(?:ftp|https?)://.*\Z}, :message => "must be absolute url", :if => :referrer_url_not_blank
   
   belongs_to :created_by, :class_name => "Party", :foreign_key => :created_by_id
   belongs_to :updated_by, :class_name => "Party", :foreign_key => :updated_by_id
   
+  before_validation :ensure_absolute_url, :if => :url_not_blank
   before_validation :set_rating
   before_create :set_approved
   
@@ -462,6 +463,18 @@ class Comment < ActiveRecord::Base
     return if flagging_limit == 0
     if flagging_limit <= self.reload.approved_flaggings_count
       self.update_attribute("approved_at", nil)
+    end
+  end
+  
+  def ensure_absolute_url
+    unless self.url =~ /\A(?:ftp|https?):\/\/.*\Z/
+      self.url = if self.url =~ /.*s:\/\//
+        self.url.gsub(/.*s:\/\//, "https://")
+      elsif self.url =~ /.*:\/\//
+        self.url.gsub(/.*:\/\//, "http://")
+      else
+        "http://" + self.url
+      end
     end
   end
 end
