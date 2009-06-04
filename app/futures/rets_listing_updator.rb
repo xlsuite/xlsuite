@@ -284,6 +284,7 @@ class RetsListingUpdator < RetsSearchFuture
       raise MissingAccountAuthorization.new("rets_import") unless self.account.options.rets_import?
     end
 
+    puts("^^^RetsListingUpdator#run")
     status!(:logging_in, 10)
     status!(:querying, 20)
     run_rets(self.client)
@@ -314,11 +315,11 @@ class RetsListingUpdator < RetsSearchFuture
           begin
             tclient.transaction do |rets|
               ActiveRecord::Base.transaction do
+                puts("^^^Updating listing with MLS nos: #{mls_nos.inspect}")
                 rets_search_result = self.run_rets_without_grouping(rets, self.priority)
                 inactive_mls_nos = mls_nos - rets_search_result.map{|e| e[:mls_no]}.uniq
-                puts("^^^mls_nos is #{mls_nos.inspect}")
-                puts("^^^rets_search_result is #{rets_search_result.map{|e| e[:mls_no]}.uniq.inspect}")
-                puts("^^^inactive_mls_nos is #{inactive_mls_nos.inspect}")
+                puts("^^^Returned MLS nos: #{rets_search_result.map{|e| e[:mls_no]}.uniq.inspect}")
+                puts("^^^So inactive MLS nos: #{inactive_mls_nos.inspect}")
                 inactive_mls_nos.each do |mls_no|
                   group_account.listings.find_all_by_mls_no(mls_no).each do |listing|
                     if listing.tag_list =~ /sold/i

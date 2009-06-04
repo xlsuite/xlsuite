@@ -11,8 +11,12 @@ module XlSuite
 
       def transaction
         client = self.new_client
+        puts("^^^In transaction RETS-UA-Authorization #{client.get_header("RETS-UA-Authorization")}")      
+        puts("^^^Before logging in")  
         client.login(@options[:username], @options[:password]) do
+          puts("^^^Before yield")
           yield(XlSuite::Rets::RetsClient.new(client)) if block_given?
+          puts("^^^After yield")
         end
       end
 
@@ -32,6 +36,7 @@ module XlSuite
 
             parts = [a1, "", cookie, headers["RETS-Version"]]
             headers["RETS-UA-Authorization"] = "Digest " + Digest::MD5.hexdigest(parts.join(":"))
+            puts("^^^In new_client RETS-UA-Authorization #{client.get_header("RETS-UA-Authorization")}")        
           end
         end
       end
