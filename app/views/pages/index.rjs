@@ -71,10 +71,17 @@ page << create_tab_using_ajax_response("Pages | Index", after_render) do
   #{create_grid_tbar_filter_field}
   
   #{create_grid_tbar_clear_button}
-  
+
   var gridTopToolbar = new Ext.Toolbar({
     cls: "top-toolbar",
-    items: [{text: "Show Domain:"}, domainSelection, {text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+    items: [
+      {text:"New", handler:function(){xl.openNewTabPanel('pages_new_nil', #{new_page_path.to_json})}}
+      ,{xtype:"tbtext", text: "Show Domain:"}
+      ,domainSelection
+      ,{xtype:"tbtext", text:"&nbsp;&nbsp;&nbsp;Filter: "}
+      ,filterField
+      ,clearButton
+    ]
   });
 
   var statusStore = new Ext.data.SimpleStore({
@@ -274,9 +281,6 @@ page << create_tab_using_ajax_response("Pages | Index", after_render) do
   newPanel.on("destroy", function(){
     xl.runningGrids.unset("page");
   });
-  
-  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
-  extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('pages_new_nil', #{new_page_path.to_json})").to_json});
   
   var editPageUrl = #{edit_page_path(:id => "__ID__").to_json};
   grid.on("cellclick", function(gr, rowIndex, columnIndex, e) {
