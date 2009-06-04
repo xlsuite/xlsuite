@@ -290,7 +290,7 @@ class RetsSearchFuture < RetsFuture
   validate :query_is_valid
   before_save :set_low_priority
 
-  def run_rets(rets, priority=nil)
+  def run_rets(rets, priority=nil, import_photo=true)
     self.results[:listings] = []
     begin
       q = self.query
@@ -307,12 +307,16 @@ class RetsSearchFuture < RetsFuture
         listing.tag_list += " #{args[:search][:tag_list]}" unless args[:search][:tag_list].blank?
         listing.save!
         
-        retriever = RetsPhotoRetriever.create!(:account => self.account, :owner => self.owner, :system => self.owner.blank?,
-                                               :priority => (priority || 100),
-                                               :args => {:key => listing.external_id, :listing_id => listing.id,
-                                                 :tags => "listing"})
+        retriever_id = nil
+        if import_photo
+          retriever = RetsPhotoRetriever.create!(:account => self.account, :owner => self.owner, :system => self.owner.blank?,
+                                                 :priority => (priority || 100),
+                                                 :args => {:key => listing.external_id, :listing_id => listing.id,
+                                                   :tags => "listing"})
+          retriever_id = retriever.id
+        end                              
 
-        self.results[:listings] << {:id => listing.id, :mls_no => listing.mls_no, :retriever_id => retriever.id}
+        self.results[:listings] << {:id => listing.id, :mls_no => listing.mls_no, :retriever_id => retriever_id}
         self.update_attribute(:results, self.results)
       end
     rescue XlSuite::Rets::RetsClient::LookupFailure
