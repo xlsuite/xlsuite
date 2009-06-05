@@ -289,4 +289,19 @@ class TestimonialDrop < Liquid::Drop
   def avatar
     self.testimonial.show_avatar? ? self.testimonial.avatar : nil
   end
+  
+  def website_url
+    url = self.testimonial.website_url
+    return nil if url.blank?
+    unless url =~ /\A(?:ftp|https?):\/\/.*\Z/
+      url = if url =~ /.*s:\/\//
+        url.gsub(/.*s:\/\//, "https://")
+      elsif url =~ /.*:\/\//
+        url.gsub(/.*:\/\//, "http://")
+      else
+        "http://" + url
+      end
+    end
+    url
+  end
 end
