@@ -886,7 +886,6 @@ module ExtjsHelper
         else {
           var other_links_container = "<span id='" + mappedId + "-other-links'></span>";
           var links_container       = "<span id='" + mappedId +"-link'></span>";
-          var close_other_tabs_link = "<span><a href=\\"#\\" onClick=\\"xl.closeOtherTabs('"+ mappedId +"'); return false;\\">Close other tabs</a></span>";
   
           var newPanel = new Ext.Panel({
             id: mappedId,
@@ -897,7 +896,7 @@ module ExtjsHelper
             tbar: new Ext.Toolbar({
               style: 'background-color: ' + xl.kToolbarBrownCSSColor + ';',
               items: [
-                other_links_container + links_container + close_other_tabs_link
+                other_links_container + links_container
               ]
             }),
             layout: 'fit',
