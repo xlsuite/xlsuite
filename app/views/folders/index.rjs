@@ -231,7 +231,7 @@ page << create_tab_using_ajax_response("Files", after_render) do
       cell.select();
       return value;
     };
-    
+
     // create GridPanel object
     var grid = new Ext.grid.EditorGridPanel({
       store: ds,
@@ -259,11 +259,12 @@ page << create_tab_using_ajax_response("Files", after_render) do
       autoWidth: true,
       autoExpandColumn: 'file-manager-path',
       height: #{get_default_grid_height(nil)},
-      tbar: [
-        fileSelection, 
-        "Filter: ", 
-        filterField, 
-        clearButton
+      tbar:[
+        {text:"New", handler:function(){xl.openNewTabPanel('assets_new_nil', #{new_asset_path.to_json})}}
+        ,fileSelection
+        ,"Filter: " 
+        ,filterField 
+        ,clearButton
       ],
       bbar: [paging],
       footer: true,
@@ -409,9 +410,6 @@ page << create_tab_using_ajax_response("Files", after_render) do
     selectionMenu.add(deleteAction);
     
     grid.getTopToolbar().add({ text: "Actions", menu: selectionMenu });    
-
-    var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
-    extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('assets_new_nil', #{new_asset_path.to_json})", :id => "new_asset_header_link").to_json});
 
     var expandAllAction = new Ext.Action({
       text: "Expand all",
