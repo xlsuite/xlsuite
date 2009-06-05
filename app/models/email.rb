@@ -905,6 +905,7 @@ EOF
             attrs['country'] = address.country
           end
           
+          puts("^^^recipient is #{recipient.inspect}")
           if self.body =~ /\{\{\s*randomize_password_if_none\s*\}\}/ && recipient.party.password_hash.blank? then
             party = recipient.party
             pw = party.randomize_password!
