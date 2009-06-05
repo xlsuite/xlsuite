@@ -6,7 +6,7 @@ class BlogDrop < Liquid::Drop
 
   delegate :id, :dom_id, :title, :subtitle, :label, :author_name, :created_at, :updated_at, 
   :tags, :tag_list, :last_updated_at, :created_by_id, :created_by, :comment_approval_method, 
-  :author, :author_profile, :private, :to => :blog
+  :author, :author_profile, :private, :products, :to => :blog
 
   def initialize(blog)
     @blog = blog

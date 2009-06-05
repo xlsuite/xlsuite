@@ -32,9 +32,10 @@ Ext.extend(Ext.ux.HtmlEditor, Ext.form.HtmlEditor, {
             }
             html = this.cleanHtml(html);
             html = html.replace(/<br>/g, "<br />");
+            html = html.trim()
             if(this.fireEvent('beforesync', this, html) !== false){
               var regHex = /(7B)|(7D)/i;
-    		      var out = []; 
+    		      var out = new Array(); 
     		      var inTag = false;
     		      var inLiquid = false;
     		      var gtLtAmpToken = "";
@@ -86,8 +87,6 @@ Ext.extend(Ext.ux.HtmlEditor, Ext.form.HtmlEditor, {
     			      }
     			      out.push(token);
     		      }
-              if(out.first && out.first.length == 0)
-                out.shift();
 		          this.el.dom.value = out.join('');
             }
         }

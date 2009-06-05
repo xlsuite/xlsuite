@@ -4,10 +4,16 @@
 require "xl_suite/rets/client"
 
 class RetsFuture < Future
-  def client
-    @client ||= XlSuite::Rets::Client.new(rets_config[:login_url],
+  def client(reload=false)
+    if reload
+      @client = XlSuite::Rets::Client.new(rets_config[:login_url],
         :user_agent => rets_config[:user_agent], :username => rets_config[:username],
         :password => rets_config[:password], :logger => logger)
+    else
+      @client ||= XlSuite::Rets::Client.new(rets_config[:login_url],
+          :user_agent => rets_config[:user_agent], :username => rets_config[:username],
+          :password => rets_config[:password], :logger => logger)
+    end
   end
 
   def run

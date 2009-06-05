@@ -1,8 +1,5 @@
 limit = params[:limit] || 50
 listings_url_json = formatted_listings_path(:format => :json).to_json
-underbarLinks = link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('listings_new_nil', #{new_listing_path.to_json})")
-underbarLinks << link_to_function("Listings Search&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('listings_search_nil', #{listings_search_rets_path.to_json})")
-underbarLinks << link_to_function("Targeted MLS# Import&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('listings_import_nil', #{listings_import_rets_path.to_json})")
 
 partyNameComboBox = %Q!
   new Ext.form.ComboBox({
@@ -531,7 +528,24 @@ var embedCodeAction = new Ext.Action({
 var gridTopToolbar = new Ext.Toolbar({
   cls: "top-toolbar",
   items: [
-    { text:"Filter: " },
+    {
+      text:"New"
+      ,xtype:"splitbutton"
+      ,menu:new Ext.menu.Menu({
+        items:[
+          {
+            text:"MLS Search"
+            ,handler:function(){xl.openNewTabPanel('listings_search_nil', #{listings_search_rets_path.to_json});}
+          }
+          ,{
+            text:"Target # Import"
+            ,handler:function(){xl.openNewTabPanel('listings_import_nil', #{listings_import_rets_path.to_json});}
+          }
+        ]
+      })
+      ,handler:function(){xl.openNewTabPanel('listings_search_nil', #{listings_search_rets_path.to_json});}
+    },
+    {xtype:"tbtext", text:"Filter: " },
     filterField,
     clearButton,
     new Ext.Action({
@@ -746,9 +760,5 @@ gridPanel.on("celldblclick", function(gr, rowIndex, columnIndex, e) {
 newPanel.add(gridPanel);
 xl.runningGrids.set("listings", gridPanel);
 newPanel.on("destroy", function(){ xl.runningGrids.unset("listings"); });
-
-// add extra links to the header
-var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
-extra_links_span.insertHtml('afterBegin', #{underbarLinks.to_json});
 `
 end

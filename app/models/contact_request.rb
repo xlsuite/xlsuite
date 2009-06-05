@@ -203,7 +203,7 @@ class ContactRequest < ActiveRecord::Base
     end
     
     out << "Body: <br />#{content}<br />"
-    
+    out.gsub(/\r\n/, "<br />")
     self.body = out
   end
   

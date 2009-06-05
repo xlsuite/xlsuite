@@ -35,6 +35,10 @@ class CommentsController < ApplicationController
   end
 
   def create
+    
+    flash[:liquid] ||= {}
+    flash[:liquid][:params] = params
+    
     if current_domain.get_config(:require_login_for_comments) && !current_user?
       error_message = "You must be logged in to post a comment."
       respond_to do |format|

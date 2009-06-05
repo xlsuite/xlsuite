@@ -33,7 +33,7 @@ module RETS4R
 		
 		DEFAULT_OUTPUT		   = OUTPUT_RUBY
 		DEFAULT_METHOD 		   = METHOD_GET
-		DEFAULT_RETRY        = 2
+		DEFAULT_RETRY        = 5
 		DEFAULT_USER_AGENT 	 = 'RETS4R/0.8.2'
 		DEFAULT_RETS_VERSION = '1.7'
 		SUPPORTED_RETS_VERSIONS = ['1.5', '1.7']
@@ -519,12 +519,13 @@ module RETS4R
 						headers.merge(header) unless header.empty?
 					
 						@pre_request_block.call(self, http, headers) if @pre_request_block
-					
 						logger.debug(headers.inspect) if logger
 					
 						@semaphore.unlock
 										
+					  puts("^^^BEFORE HTTP GET here #{headers.inspect}")
 						response = http.get(uri, headers)
+					  puts("^^^AFTER HTTP GET #{headers.inspect}")
 										
 						@semaphore.lock
 					

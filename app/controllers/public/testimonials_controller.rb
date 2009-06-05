@@ -35,6 +35,10 @@ class Public::TestimonialsController < ApplicationController
         respond_to do |format|
           format.html do
             flash_failure errors
+    
+            flash[:liquid] ||= {}
+            flash[:liquid][:params] = params
+            
             return redirect_to_return_to_or_back_or_home
           end
           format.js do

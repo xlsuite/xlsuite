@@ -281,5 +281,6 @@
 class FulltextRowUpdateRunner < Future
   def run
     FulltextRowUpdate.all(:limit => 10000).map(&:execute!)
+    self.complete!
   end
 end

@@ -70,6 +70,9 @@ class CartsController < ApplicationController
       end
     end
     rescue
+    
+      flash[:liquid] ||= {}
+      flash[:liquid][:params] = params
       errors = $!.message.to_s
       logger.warn(errors.inspect)
       logger.warn($!.backtrace.join("\n"))
