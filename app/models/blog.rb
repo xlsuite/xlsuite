@@ -296,7 +296,8 @@ class Blog < ActiveRecord::Base
   validates_presence_of :account_id, :domain_id, :title, :author_name, :label, :owner_id, :created_by_id
   validates_uniqueness_of :label, :scope => :account_id
   validates_format_of :label, :with => /\A[-\w]+\Z/i, :message => "can contain only a-z, A-Z, 0-9, _ and -, cannot contain space(s)"
-
+  has_many :accessible_items, :class_name => "ProductItem", :as => :item
+  has_many :products, :through => :accessible_items, :as => :item
   before_save :set_author_name
 
   include XlSuite::AccessRestrictions
