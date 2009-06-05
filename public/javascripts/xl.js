@@ -401,19 +401,12 @@ xl.createTab = function(source, defaultId) {
     iframe = Ext.get(mappedIframeId);
     iframe.setHeight(Ext.getBody().getHeight()-107);
 
-    // set up underbar links
-    var other_links_container = "<span id='" + mappedIframeId + "-other-links'></span>";
-    var links_container = "&nbsp;&nbsp;&nbsp;<span id='" + mappedIframeId +"-link'></span>";
-    var refresh_link = "&nbsp;&nbsp;&nbsp;<span id='" + mappedIframeId + "-refresh-iframe-button'><a href='#' id='" + mappedIframeId + "-refresh-iframe-link'>Refresh</a></span>";
-    var close_other_tabs_link = "&nbsp;&nbsp;&nbsp;<span><a href=\"#\" onClick=\"xl.closeOtherTabs('"+ mappedIframeId +"'); return false;\">Close other tabs</a></span>";
-
     // Then create and setup the Panel
     var newPanel = new Ext.Panel({
       id: mappedIframeId + "-panel",
       title: "Loading...",
       contentEl: iframe,
       titlebar: true,
-      tbar: [ other_links_container + links_container + refresh_link + close_other_tabs_link],
       ctCls: 'brown3pxBorder'
     });
 
@@ -465,9 +458,6 @@ xl.createTab = function(source, defaultId) {
     // This is to tell the viewport it's been altered
     // so the bottommost bbar doesn't get lost
     xl.viewport.render();
-
-    // Make its toolbar brown -- purely cosmetic!
-    newPanel.getTopToolbar().getEl().addClass('bg-brown');
   } else {
     // Since the IFRAME's already in the DOM,
     // we don't want to reload it...
