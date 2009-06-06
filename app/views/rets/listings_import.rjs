@@ -1,11 +1,5 @@
-underbarLinks = link_to_function("New Listing&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('listings_new_nil', #{new_listing_path.to_json})")
-underbarLinks << link_to_function("Listings Search&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('listings_search_nil', #{listings_search_rets_path.to_json})")
-
 page << create_tab_using_ajax_response("Targeted MLS# Import") do
 %Q`
   newPanel.add({ autoScroll: true, html: #{render(:partial => 'listings_import_from_rjs').to_json} });
-  
-  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
-  extra_links_span.insertHtml('afterBegin', #{underbarLinks.to_json});
 `
 end

@@ -77,10 +77,16 @@ page << create_tab_using_ajax_response("Estimates | Index", after_render) do
   #{create_grid_tbar_filter_field}
   
   #{create_grid_tbar_clear_button}
-
+  
   var gridTopToolbar = new Ext.Toolbar({
-    cls: "top-toolbar",
-    items: [idSelection, {text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+    cls:"top-toolbar"
+    ,items:[
+      {text:"New", handler:function(){xl.openNewTabPanel('estimates_new_nil', #{new_estimate_path.to_json})}}
+      ,idSelection
+      ,{text:"&nbsp;&nbsp;&nbsp;Filter: ", xtype:"tbtext"}
+      ,filterField
+      ,clearButton
+    ]
   });
   
   // create GridPanel object
@@ -120,9 +126,6 @@ page << create_tab_using_ajax_response("Estimates | Index", after_render) do
   newPanel.on("destroy", function(){
     xl.runningGrids.unset("estimates");
   });
-  
-  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
-  extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('estimates_new_nil', #{new_estimate_path.to_json})").to_json});
 
   var editEstimateUrl = #{edit_estimate_path(:id => "__ID__").to_json};
   // set double click action on grid cells

@@ -39,6 +39,9 @@ page << create_tab_using_ajax_response("Installed Account Templates") do
     selModel: new Ext.grid.RowSelectionModel,
     viewConfig: { autoFill: true, forceFit: true},
     loadMask: true,
+    tbar:[
+      {text:"New", handler:function(){xl.openNewTabPanel('installed_account_templates_new_nil', #{new_installed_account_template_path.to_json})}}
+    ]
     listeners:  {
       render: function(gr){
         ds.load({params: {start: 0, limit: #{limit} }});
@@ -52,9 +55,6 @@ page << create_tab_using_ajax_response("Installed Account Templates") do
     xl.runningGrids.unset("installed_account_templates");
   });
   
-  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
-  extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('installed_account_templates_new_nil', #{new_installed_account_template_path.to_json})").to_json});
-
   var editInstalledAccountTemplateUrl = #{edit_installed_account_template_path(:id => "__ID__").to_json};
   // set double click action on grid cells
   grid.on("rowdblclick", function(gr, rowIndex, e) {

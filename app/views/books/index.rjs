@@ -294,10 +294,5 @@ gridPanel.on('afteredit', function(editObject) {
 newPanel.add(gridPanel);
 xl.runningGrids.set("publishings_list_view", gridPanel);
 newPanel.on("destroy", function(){ xl.runningGrids.unset("publishings_list_view"); });
-
-// add extra links to the header
-//var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
-//extra_links_span.insertHtml('afterBegin', #{underbarLinks.to_json});
-
 `
 end

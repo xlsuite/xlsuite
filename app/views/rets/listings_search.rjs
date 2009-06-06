@@ -1,6 +1,3 @@
-underbarLinks = link_to_function("New Listing&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('listings_new_nil', #{new_listing_path.to_json})")
-underbarLinks << link_to_function("Targeted MLS# Import&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('listings_import_nil', #{listings_import_rets_path.to_json})")
-
 after_render = %Q(
 $$("#listingSearchLines tr.address").each(Element.hide);
 $$("#listingSearchLines tr.gmap").each(Element.show);
@@ -48,8 +45,5 @@ page << create_tab_using_ajax_response("Listing Search", after_render) do
 %Q`
   var panel = { autoScroll: true, html: #{render(:partial => 'listings_search_from_rjs').to_json} };
   newPanel.add(panel);
-
-  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
-  extra_links_span.insertHtml('afterBegin', #{underbarLinks.to_json});
 `
 end

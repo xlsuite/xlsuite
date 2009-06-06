@@ -558,9 +558,6 @@ page << create_tab_using_ajax_response("Profile List", after_render) do
 
   });
 
-  // add extra links to the header
-  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
-
   // Set up "Expand all" and "Collapse all" rows
   var expandAllAction = new Ext.Action({
     text: "Expand all",

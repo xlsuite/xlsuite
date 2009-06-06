@@ -50,10 +50,15 @@ page << create_tab_using_ajax_response("Saved Rets Searches | Index", after_rend
   #{create_grid_tbar_filter_field}
   
   #{create_grid_tbar_clear_button}
-
+  
   var gridTopToolbar = new Ext.Toolbar({
-    cls: "top-toolbar",
-    items: [{text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+    cls:"top-toolbar"
+    ,items:[
+      {text:"New", handler:function(){xl.openNewTabPanel('rets_new_nil', #{listings_search_rets_path.to_json})}}
+      ,{text:"&nbsp;&nbsp;&nbsp;Filter: ", xtype:"tbtext"}
+      ,filterField
+      ,clearButton
+    ]
   });
   
   var editRenderer = function(value, cell, record) {
@@ -89,9 +94,6 @@ page << create_tab_using_ajax_response("Saved Rets Searches | Index", after_rend
   newPanel.on("destroy", function(){
     xl.runningGrids.unset("rets");
   });
-  
-  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
-  extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('rets_new_nil', #{listings_search_rets_path.to_json})").to_json});
 
   var editRetsUrl = #{edit_listings_search_ret_path(:id => "__ID__").to_json};
   // set double click action on grid cells
