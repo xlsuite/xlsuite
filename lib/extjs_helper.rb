@@ -884,21 +884,12 @@ module ExtjsHelper
           xl.runningTabs.get(mappedId).show();
         }
         else {
-          var other_links_container = "<span id='" + mappedId + "-other-links'></span>";
-          var links_container       = "<span id='" + mappedId +"-link'></span>";
-  
           var newPanel = new Ext.Panel({
             id: mappedId,
             cls: 'tab-panel-wrapper',
             region: "center",
             title: #{title.to_json},
             titlebar: true,
-            tbar: new Ext.Toolbar({
-              style: 'background-color: ' + xl.kToolbarBrownCSSColor + ';',
-              items: [
-                other_links_container + links_container
-              ]
-            }),
             layout: 'fit',
             autoWidth: true
           });

@@ -83,12 +83,6 @@ page << create_tab_using_ajax_response("Email") do
     xl.log ('Created Sent tab panel! Creating layout panel...');
     
     #{generateEmailLabelPanels}
-
-    var extra_links_span = parent.Ext.get('#{create_id_from_params}' + '-other-links');
-    
-    var new_link_el = "<span><a href=\\"#\\" onClick=\\"xl.openNewTabPanel('emails_new_nil', '#{sandbox_new_emails_path}');\\">New Email</a></span>&nbsp;&nbsp;";
-
-    extra_links_span.insertHtml('afterBegin', new_link_el, false);
    
     var layoutPanel = new Ext.Panel({
       layout: 'ux.rowfit',
