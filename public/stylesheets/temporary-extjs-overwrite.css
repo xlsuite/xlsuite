@@ -69,3 +69,7 @@
 .toolbar_auto_width table {width:auto;}
 
 .northPanel {height: 30px;}
+
+
+/** FIREFOX SELECTABLE GRID TEXT **/
+.x-grid3-row td,.x-grid3-summary-row td{line-height:13px;vertical-align:top;padding-left:1px;padding-right:1px;-moz-user-select:text;}

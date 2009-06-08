@@ -237,6 +237,42 @@ var addToMyListingsAction = new Ext.Action({
   }
 });
 
+var grabMlsNoAction = new Ext.Action({
+  text:"Grab MLS#"
+  ,iconCls:"display_none"
+  ,handler:function(e){
+    var records = gridPanel.getSelectionModel().getSelections();
+    if(records.length == 0){
+      alertNoListingSelected();
+      return false;
+    }
+    var mlsNos = new Array();
+    for(var i=0;i<records.length;i++){
+      mlsNos.push(records[i].get("mls_no"));
+    }
+    
+    var mlsNosTextArea = new Ext.form.TextArea({
+      value:mlsNos.join(", ")
+      ,readOnly:true
+      ,selectOnFocus:true
+      ,listeners:{
+        "render":function(cpt){xl.fitToOwnerCt(cpt)}
+      }
+    });
+    var win = new Ext.Window({
+      title:"MLS #"
+      ,resizable:true
+      ,width:300
+      ,height:200
+      ,items:[mlsNosTextArea]
+      ,listeners:{
+        "resize":function(cpt){xl.fitToOwnerCt(mlsNosTextArea)}      
+      }
+    });
+    win.show();
+  }
+});
+
 // set up connection and data store of autocomplete field
 var partyNameAutoCompleteRecord = new Ext.data.Record.create([
   {name: 'display', mapping: 'display'},
@@ -593,6 +629,7 @@ var gridTopToolbar = new Ext.Toolbar({
           removeFromPartiesAction,
           createWebsite,
           embedCodeAction,
+          grabMlsNoAction,
           '-',
           mailListingsAction,
           '-',

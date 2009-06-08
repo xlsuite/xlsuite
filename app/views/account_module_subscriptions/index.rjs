@@ -62,8 +62,11 @@ page << create_tab_using_ajax_response("[XL] Subscriptions") do
   });  
   
   var gridTopToolbar = new Ext.Toolbar({
-    cls: "top-toolbar",
-    items: [{ text: "Actions", menu: selectionMenu }]
+    cls:"top-toolbar",
+    items:[
+      {text:"New", handler:function(){xl.openNewTabPanel('account_module_subscriptions_new_nil', #{new_account_module_subscription_path.to_json})}}
+      ,{text:"Actions", menu:selectionMenu }
+    ]
   });
 
   var grid = new Ext.grid.GridPanel({
@@ -84,7 +87,7 @@ page << create_tab_using_ajax_response("[XL] Subscriptions") do
     selModel: new Ext.grid.RowSelectionModel,
     autoExpandColumn: "installed_account_modules",
     loadMask: true,
-    tbar: [gridTopToolbar],
+    tbar: gridTopToolbar,
     listeners:  {
       render: function(gr){
         ds.load({params: {start: 0, limit: #{limit} }});
@@ -98,9 +101,6 @@ page << create_tab_using_ajax_response("[XL] Subscriptions") do
   newPanel.on("destroy", function(){
     xl.runningGrids.unset("account_module_subscriptions");
   });
-  
-  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
-  extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('account_module_subscriptions_new_nil', #{new_account_module_subscription_path.to_json})").to_json});
   
   // set double click action on grid cells
   grid.on("rowdblclick", function(gr, rowIndex, e) {

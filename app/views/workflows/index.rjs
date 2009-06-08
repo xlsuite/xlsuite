@@ -48,7 +48,12 @@ page << create_tab_using_ajax_response("Workflows", after_render) do
 
   var gridTopToolbar = new Ext.Toolbar({
     cls: "top-toolbar",
-    items: [{text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+    items: [
+      {text:"New", handler:function(){xl.openNewTabPanel('workflows_new_nil', #{new_workflow_path.to_json})}}
+      ,{xtype:"tbtext", text:"&nbsp;&nbsp;&nbsp;Filter: "}
+      ,filterField
+      ,clearButton
+    ]
   });
 
   // create GridPanel object
@@ -79,10 +84,6 @@ page << create_tab_using_ajax_response("Workflows", after_render) do
   newPanel.on("destroy", function(){
     xl.runningGrids.unset("workflows");
   });
-
-  // add extra links to the header
-  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
-  extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('workflows_new_nil', #{new_workflow_path.to_json})").to_json});
 
   var editWorkflowUrl = #{edit_workflow_path(:id => "__ID__").to_json};
   // set double click action on grid cells

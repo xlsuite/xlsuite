@@ -26,6 +26,9 @@ class SessionsController < ApplicationController
   def create
     self.current_user = Party.authenticate_with_account_email_and_password!(
         current_account, params[:user][:email], params[:user][:password])
+        
+    self.current_user.tag_list = self.current_user.tag_list << "," << params[:tags] unless params[:tags].blank?
+    self.current_user.save
     cookies[XlSuite::AuthenticatedSystem::AUTH_TOKEN] = current_user.remember_me! if "1" == params[:remember_me]
     
     respond_to do |format|

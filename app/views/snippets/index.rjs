@@ -74,7 +74,14 @@ page << create_tab_using_ajax_response("Snippets | Index", after_render) do
 
   var gridTopToolbar = new Ext.Toolbar({
     cls: "top-toolbar",
-    items: [{text: "Show Domain:"}, domainSelection, {text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+    items: [
+      {text:"New", handler:function(){xl.openNewTabPanel('snippets_new_nil', #{new_snippet_path.to_json})}}
+      ,{xtype:"tbtext", text: "Show Domain:"}
+      ,domainSelection
+      ,{xtype:"tbtext", text:"&nbsp;&nbsp;&nbsp;Filter: "}
+      ,filterField
+      ,clearButton
+    ]
   });
 
   var snippetPath = #{snippet_path(:id => "__ID__").to_json};
@@ -132,9 +139,6 @@ page << create_tab_using_ajax_response("Snippets | Index", after_render) do
     xl.runningGrids.unset("snippets");
   });
   
-  var extra_links_span = Ext.get( '#{create_id_from_params}'+ '-other-links');
-  extra_links_span.insertHtml('afterBegin', #{link_to_function("New&nbsp;&nbsp;&nbsp;", "xl.openNewTabPanel('snippets_new_nil', #{new_snippet_path.to_json})").to_json});
-
   var editSnippetUrl = #{edit_snippet_path(:id => "__ID__").to_json};
   // set double click action on grid cells
   grid.on("cellclick", function(gr, rowIndex, columnIndex, e) {

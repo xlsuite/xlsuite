@@ -607,22 +607,12 @@ module ExtjsHelper
           xl.runningTabs.get(mappedId).show();
         }
         else {
-          var other_links_container = "<span id='" + mappedId + "-other-links'></span>";
-          var links_container       = "<span id='" + mappedId +"-link'></span>";
-          var close_other_tabs_link = "<span><a href=\\"#\\" onClick=\\"xl.closeOtherTabs('"+ mappedId +"'); return false;\\">Close other tabs</a></span>";
-  
           var newPanel = new Ext.Panel({
             id: mappedId,
             cls: 'tab-panel-wrapper',
             region: "center",
             title: #{title.to_json},
             titlebar: true,
-            tbar: new Ext.Toolbar({
-              style: 'background-color: ' + xl.kToolbarBrownCSSColor + ';',
-              items: [
-                other_links_container + links_container + close_other_tabs_link
-              ]
-            }),
             layout: 'fit',
             autoWidth: true
           });
@@ -818,9 +808,6 @@ module ExtjsHelper
       text
     end
 
-    #link_to_this_page = link_to_function("Link to this page", "'#{@_current_page_url}'.execCommand('Copy')")
-    #link_to_this_page = link_to_function("Link to this page", "window.clipboardData.setData('Text', '#{@_current_page_url}')")
-
     # This removes the http://mydomain.ext; the resulting string
     # matches the id of an iframe on the page and thusly the corresponding
     # titlebar spans for that. I don't think we can just do this.id
@@ -828,7 +815,6 @@ module ExtjsHelper
     uri = @_current_page_uri
     url = @_current_page_url
 
-    link_to_this_page = link_to("Link to this page", @_current_page_uri)
     out = []
     javascript_tag %Q~
       // This is the IFRAME's documentReady
@@ -862,17 +848,6 @@ module ExtjsHelper
             }
             if (panel_via_iframeId){
               panel_via_iframeId.setTitle(title);
-            }
-
-            // Set the fields
-            if ( parent.$(iframeId + "-link") ){
-              parent.$(iframeId + "-link").update("#{e(link_to_this_page)}");
-            }
-            if ( parent.$(iframeId + "-other-links") ){
-              parent.$(iframeId + "-other-links").update("");
-            }
-            if ( parent.$(iframeId + '-refresh-iframe-link') ){
-              parent.$(iframeId + '-refresh-iframe-link').observe('click', function(e) { window.location.reload(true); }, false);
             }
           }
         )

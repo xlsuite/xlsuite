@@ -628,8 +628,7 @@ EOF
             attrs['country'] = address.country
           end
           
-          if self.body =~ /\{\{\s*randomize_password_if_none\s*\}\}/ && recipient.party.password_hash.blank? then
-            party = recipient.party
+          if self.body =~ /\{\{\s*randomize_password_if_none\s*\}\}/ && party.password_hash.blank? then
             pw = party.randomize_password!
             unless pw.blank?
               party.confirmation_token = nil
