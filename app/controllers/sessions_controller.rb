@@ -312,11 +312,6 @@ class SessionsController < ApplicationController
       format.html do
         return redirect_to(blank_landing_url) if (current_user == current_domain.account.owner)
 
-        if session[:return_to]
-          redirect_url = session[:return_to]
-          session[:return_to] = nil
-          return redirect_to(blank_landing_url)
-        end
         redirect_url = params[:next] || current_domain.get_config("login_redirection") || forum_categories_url
         return redirect_to(redirect_url)
       end
