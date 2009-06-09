@@ -400,7 +400,7 @@ module XlSuite
           options.merge!(:conditions => [conditions.join(" AND "), context_options[:status].downcase])
           conditions = [options[:conditions]]
         else
-          conditions << "(listings.status='Sold' OR listings.status='Active')"
+          conditions << "(listings.status='Active')"
         end
         
         if @options[:owner_email]
