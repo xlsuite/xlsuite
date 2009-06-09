@@ -293,6 +293,8 @@ class Domain < ActiveRecord::Base
   validates_format_of :name, :with => /\A(?:[a-z0-9][-\w.]+\.[a-z]{2,6}|127.0.0.1| )\Z/, :if => :regular_domain?
   validates_length_of :name, :in => 4..63, :if => :regular_domain?
   validate :name_prefix_match
+  
+  before_validation :set_domain_level
 
   serialize :routes
 
@@ -413,6 +415,10 @@ class Domain < ActiveRecord::Base
   end
 
   protected
+  def set_domain_level
+    self.level = self.name.split(".").size - 1
+  end
+    
   def name_prefix_match
     return if name.blank?
 
