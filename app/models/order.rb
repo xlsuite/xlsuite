@@ -282,7 +282,7 @@ class Order < ActiveRecord::Base
   include XlSuite::Invoicable
 
   acts_as_reportable
-  acts_as_fulltext %w(care_of_name number date notes fst_name pst_name shipping_method status 
+  acts_as_fulltext %w(care_of_name number date notes fst_name pst_name shipping_method status invoiced_to_name
       created_by_name updated_by_name sent_at sent_by_name confirmed_by_name completed_by_name voided_by_name ship_to_type)
   
   has_many :invoices, :dependent => :nullify
@@ -365,6 +365,10 @@ class Order < ActiveRecord::Base
       next_renewal_at += subscription_product.free_period_length.send(subscription_product.free_period_unit).to_i
     end
     next_renewal_at
+  end
+  
+  def invoiced_to_name
+    self.invoice_to ? (self.invoice_to.full_name.blank? ? self.invoice_to.display_name : self.invoice_to.full_name) : ""
   end
 
   protected
