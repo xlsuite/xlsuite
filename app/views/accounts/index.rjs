@@ -47,9 +47,30 @@ page << create_tab_using_ajax_response("Accounts | Index", after_render) do
   
   #{create_grid_tbar_clear_button}
 
+  var showingComboBox = new Ext.form.ComboBox({
+    store:[["all", "All"], ["1", "First level"], ["2", "Second level"], ["3", "Third level"]]
+    ,forceSelection:true
+    ,triggerAction:"all"
+    ,editable:false
+    ,listeners:{
+      "select":function(cpt, record, index){
+        ds.baseParams["level"] = record.get("value");
+        ds.reload();
+      }
+    }
+    ,value:"all"
+    ,width:100
+  });
+
   var gridTopToolbar = new Ext.Toolbar({
-    cls: "top-toolbar",
-    items: [{text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton]
+    cls:"top-toolbar"
+    ,items:[
+      "Showing:"
+      ,showingComboBox
+      ,{xtype:"tbtext", text:"&nbsp;&nbsp;&nbsp;Filter: "}
+      ,filterField
+      ,clearButton
+    ]
   });
 
   // create GridPanel object

@@ -653,7 +653,13 @@ class AccountsController < ApplicationController
   def find_accounts
     search_options = {:offset => params[:start], :limit => params[:limit]}
     search_options.merge!(:order => "#{params[:sort]} #{params[:dir]}") if params[:sort]
-    search_options.merge!(:conditions => "party_id IS NOT NULL")
+    conditions_param = "party_id IS NOT NULL"
+    if params[:level] && params[:level] !~ /all/i
+      conditions_param += " AND id IN (?)"
+      account_ids = Domain.find(:all, :select => "DISTINCT account_id", :conditions => {:level => params[:level].to_i}).map(&:account_id)
+      conditions_param = [conditions_param, account_ids]
+    end
+    search_options.merge!(:conditions => conditions_param)
     
     query_params = params[:q]
     unless query_params.blank? 
