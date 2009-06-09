@@ -289,7 +289,7 @@ module XlSuite
     TaggedAnySyntax  = /tagged_any:\s*(#{Liquid::QuotedFragment})/
     OrderSyntax      = /order:\s*(#{Liquid::QuotedFragment})/
     NoOrderByOpenHouseSyntax = /no_order_by_open_house:\s*(#{Liquid::QuotedFragment})/
-    OpenHouseSyntax  = /open_house:\s*(#{Liquid::QuotedFragment})/
+    OpenHouseSyntax  = /\sopen_house:\s*(#{Liquid::QuotedFragment})/
     RandomizeSyntax  = /randomize:\s*(#{Liquid::QuotedFragment})/
     OwnerEmailSyntax = /owner_email:\s*(#{Liquid::QuotedFragment})/    
     IdsSyntax        = /ids:\s*(#{Liquid::QuotedFragment})/    
