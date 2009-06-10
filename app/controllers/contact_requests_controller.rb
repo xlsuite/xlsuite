@@ -437,6 +437,7 @@ class ContactRequestsController < ApplicationController
     end
     return render(:action => "new") if params[:contact_request].blank?
     if @error_messages.blank?
+      flash_success params[:success_message] || "Contact request submitted"
       return redirect_to(params[:return_to]) unless params[:return_to].blank?
       return render(:text => "<html><head><title></title></head><body><h1>Thanks</h1><p>Thank you for your submission</p></body></html>")
     end
