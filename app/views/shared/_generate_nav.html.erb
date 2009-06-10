@@ -34,11 +34,19 @@ Ext.onReady(function() {
 
   xl.navBar = new Ext.ux.Menubar({
     orientation:"horizontal"
+    ,cls: "no-icon-menu"
+    ,defaults: {
+      iconCls: "no-icon-menu-icon"
+    }
     ,items:[
       {
         text:"CONTACTS"
         ,menu:new Ext.menu.Menu({
           showDelay:0
+          ,cls: "no-icon-menu"
+          ,defaults: {
+            iconCls: "no-icon-menu-icon"
+          }
           ,items:[
 <% if current_user.can?(:view_party, :edit_party, :edit_own_contacts_only, :view_own_contacts_only, :any => true) -%>
             {
@@ -67,7 +75,11 @@ Ext.onReady(function() {
             {
               text:"Manage"
               ,menu:{
-                items:[
+                cls: "no-icon-menu"
+                ,defaults: {
+                  iconCls: "no-icon-menu"
+                }
+                ,items:[
 <% if current_user.can?(:edit_roles) %>
                   {
                     text:"Roles"
@@ -99,19 +111,43 @@ Ext.onReady(function() {
       ,{
         text:"COMMUNICATE"
         ,menu:{
-          items:[
+          cls: "no-icon-menu"
+          ,defaults: {
+            iconCls: "no-icon-menu"
+          }
+          ,items:[
             {
               text:"Publishing"
               ,menu:{
-                items:[
+                cls: "no-icon-menu"
+                ,defaults: {
+                  iconCls: "no-icon-menu"
+                }
+                ,items:[
                   {
                     text:"Blogs"
-                    ,menu:{items:[{ text:"New", handler:function(){xl.openNewTabPanel('blogs_new_nil', <%= new_blog_path.to_json %>)} }]}
+                    ,menu:{
+                      cls: "no-icon-menu"
+                      ,defaults: {
+                        iconCls: "no-icon-menu"
+                      }
+                      ,items:[
+                        { text:"New", handler:function(){xl.openNewTabPanel('blogs_new_nil', <%= new_blog_path.to_json %>)} }
+                      ]
+                    }
                     ,handler:function(){xl.openNewTabPanel('blogs_index_nil', <%= blogs_path.to_json %>)}
                   }
                   ,{
                     text:"Posts"
-                    ,menu:{items:[{ text:"New", handler:function(){xl.openNewTabPanel('blog_posts_new_nil', <%= new_blog_post_path.to_json %>)} }]}
+                    ,menu:{
+                      cls: "no-icon-menu"
+                      ,defaults: {
+                        iconCls: "no-icon-menu"
+                      }
+                      ,items:[
+                        { text:"New", handler:function(){xl.openNewTabPanel('blog_posts_new_nil', <%= new_blog_post_path.to_json %>)} }
+                      ]
+                    }
                     ,handler:function(){xl.openNewTabPanel('blog_posts_index_nil', <%= blog_posts_path.to_json %>)}
                   }
 <% if current_user.can?(:edit_comments) %>
@@ -153,7 +189,11 @@ Ext.onReady(function() {
             ,{
               text:"Email"
               ,menu:{
-                items:[
+                cls: "no-icon-menu"
+                ,defaults: {
+                  iconCls: "no-icon-menu"
+                }
+                ,items:[
                   {
                     text:"Inbox"
                     ,handler:function(){xl.openNewTabPanel('emails_inbox_nil', '<%= sandbox_emails_path %>?mailbox=inbox')}
@@ -189,7 +229,11 @@ Ext.onReady(function() {
             ,{
               text:"Templates"
               ,menu:{
-                items:[
+                cls: "no-icon-menu"
+                ,defaults: {
+                  iconCls: "no-icon-menu"
+                }
+                ,items:[
                   {
                     text:"New"
                     ,handler:function(){xl.openNewTabPanel('templates_new_nil', <%= new_template_path.to_json %>)}
@@ -210,12 +254,20 @@ Ext.onReady(function() {
       ,{
         text:"COMMERCE"
         ,menu:{
-          items:[
+          cls: "no-icon-menu"
+          ,defaults: {
+            iconCls: "no-icon-menu"
+          }
+          ,items:[
 <% when_user_can?(:edit_listings) do -%>          
             {
               text:"Listings"
               ,menu:{
-                items:[
+                cls: "no-icon-menu"
+                ,defaults: {
+                  iconCls: "no-icon-menu"
+                }
+                ,items:[
   <% if current_account.rets_import_option %>
                   {
                     text:"MLS Search"
@@ -243,7 +295,11 @@ Ext.onReady(function() {
             {
               text:"Products"
               ,menu:{
-                items:[
+                cls: "no-icon-menu"
+                ,defaults: {
+                  iconCls: "no-icon-menu"
+                }
+                ,items:[
                   {
                     text:"New"
                     ,handler:function(){xl.openNewTabPanel('products_new_nil', <%= new_product_path.to_json %>)}
@@ -261,7 +317,11 @@ Ext.onReady(function() {
             ,{
               text:"Orders"
               ,menu:{
-                items:[
+                  cls: "no-icon-menu"
+                  ,defaults: {
+                    iconCls: "no-icon-menu"
+                  }
+                  ,items:[
                   {
                     text:"New"
                     ,handler:function(){xl.openNewTabPanel('orders_new_nil', <%= new_order_path.to_json %>)}
@@ -284,12 +344,20 @@ Ext.onReady(function() {
       ,{
         text:"RESOURCES"
         ,menu:{
-          items:[
+          cls: "no-icon-menu"
+          ,defaults: {
+            iconCls: "no-icon-menu"
+          }
+          ,items:[
 <% when_user_can?(:edit_layouts, :edit_pages, :any => true) do %>
             {
               text:"CMS"
               ,menu:{
-                items:[
+                cls: "no-icon-menu"
+                ,defaults: {
+                  iconCls: "no-icon-menu"
+                }
+                ,items:[
                   {
                     text:"Pages"
                     ,handler:function(){xl.openNewTabPanel('pages_index_nil', <%= pages_path.to_json %>)}
@@ -328,7 +396,11 @@ Ext.onReady(function() {
             {
               text:"Action Handler"
               ,menu:{
-                items:[
+                cls: "no-icon-menu"
+                ,defaults: {
+                  iconCls: "no-icon-menu"
+                }
+                ,items:[
                   {
                     text:"New"
                     ,handler:function(){xl.openNewTabPanel('workflows_new_nil', <%= new_workflow_path.to_json %>)}
@@ -356,6 +428,10 @@ Ext.onReady(function() {
         text:"ADMIN"
         ,menu:new Ext.menu.Menu({
           showDelay:0
+          ,cls: "no-icon-menu"
+          ,defaults: {
+            iconCls: "no-icon-menu"
+          }
           ,items:[
 <% if current_superuser? then -%>
             {
@@ -366,7 +442,11 @@ Ext.onReady(function() {
             {
               text:"My Info"
               ,menu:{
-                items:[
+                cls: "no-icon-menu"
+                ,defaults: {
+                  iconCls: "no-icon-menu"
+                }
+                ,items:[
 <% if current_user.can?(:edit_own_account) -%>
                   {
                     text:"My Contact"
@@ -383,7 +463,11 @@ Ext.onReady(function() {
             ,{
               text:"XL Services"
               ,menu:{
-                items:[
+                cls: "no-icon-menu"
+                ,defaults: {
+                  iconCls: "no-icon-menu"
+                }
+                ,items:[
 <% if self.current_user_is_master_account_owner? -%>
                   {
                     text:"Pricing"
@@ -393,7 +477,11 @@ Ext.onReady(function() {
                   {
                     text:"My Suite"
                     ,menu:{
-                      items:[
+                      cls: "no-icon-menu"
+                      ,defaults: {
+                        iconCls: "no-icon-menu"
+                      }
+                      ,items:[
 <% if current_user.id == self.current_account.owner.id %>
                         {
                           text:"Subscriptions"
@@ -412,7 +500,11 @@ Ext.onReady(function() {
                   ,{
                     text:"Reseller"
                     ,menu:{
-                      items:[
+                      cls: "no-icon-menu"
+                      ,defaults: {
+                        iconCls: "no-icon-menu"
+                      }
+                      ,items:[
                         {
                           text:"Suites"
                           ,handler:function(){xl.openNewTabPanel('suites_index_nil', <%= suites_path.to_json %>)}
@@ -433,7 +525,11 @@ Ext.onReady(function() {
             ,{
               text:"Configurations"
               ,menu:{
-                items:[
+                cls: "no-icon-menu"
+                ,defaults: {
+                  iconCls: "no-icon-menu"
+                }
+                ,items:[
                   {
                     text:"Payment"
                     ,handler:function(){xl.openNewTabPanel('payment_configurations_index_nil', <%= payment_configurations_path.to_json %>)}
@@ -451,7 +547,11 @@ Ext.onReady(function() {
             ,{
               text:"Shipping Fees"
               ,menu:{
-                items:[
+                  cls: "no-icon-menu"
+                  ,defaults: {
+                    iconCls: "no-icon-menu"
+                  }
+                  ,items:[
                   {
                     text:"New"
                     ,handler:function(){xl.openNewTabPanel('destinations_new_nil', <%= new_destination_path.to_json %>)}

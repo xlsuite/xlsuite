@@ -1,7 +1,7 @@
 .x-panel-body { border-top:none; border-style: none none none;}
-.x-menu {background-image:none!important;}
-.x-menu-item-icon{display:none!important;}
-.x-menu a.x-menu-item{padding-left:5px;}
+.no-icon-menu {background-image:none!important;}
+.no-icon-menu-icon{display:none!important;}
+.no-icon-menu .x-menu-item{padding-left:5px!important;}
 
 .menu-item-favicon{height:22px;width:20px}
 .something-here{text-align:center;}
