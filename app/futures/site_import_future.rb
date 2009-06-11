@@ -294,6 +294,7 @@ class SiteImportFuture < SpiderFuture
     self.results[:imported_pages_count] = 0
     self.results[:candidates] = Set.new
     self.results[:assets] = Hash.new
+    self.results[:truncated_items] = Set.new
   end
 
   def pages
@@ -422,11 +423,15 @@ class SiteImportFuture < SpiderFuture
             else
               uri.to_s
             end
-
+    page_body = page.respond_to?(:parser) ? page.parser.to_s : page.body
+    if page_body.size > Item::MAXIMUM_BODY_LENGTH
+      page_body = page_body[0, Item::MAXIMUM_BODY_LENGTH]
+      self.results[:truncated_items] << uri.to_s
+    end
     self.account.pages.create!(
       :status => "published",
       :fullslug => fullslug.path,
-      :body => page.respond_to?(:parser) ? page.parser.to_s : page.body,
+      :body => page_body,
       :title => title || uri.path,
       :layout => layout.title,
       :domain_patterns => domain_patterns,
