@@ -425,7 +425,8 @@ class SiteImportFuture < SpiderFuture
             end
     page_body = page.respond_to?(:parser) ? page.parser.to_s : page.body
     if page_body.size > Item::MAXIMUM_BODY_LENGTH
-      page_body = page_body[0, Item::MAXIMUM_BODY_LENGTH]
+      #page_body = page_body[0, Item::MAXIMUM_BODY_LENGTH]
+      page_body = "Original page #{uri.to_s} is more than 512 kb"
       self.results[:truncated_items] << uri.to_s
     end
     self.account.pages.create!(
