@@ -98,16 +98,18 @@ module XlSuite
           return
         end
         
+        expiring_blogs_ids = context.current_user? ? ExpiringPartyItem.all(:conditions => {:party_id => context.current_user.id, :item_type => "Blog"}, :select => 'item_id').map(&:item_id) : []
+        granted_blogs_ids = context.current_user? ? context.current_user.granted_blogs.map(&:id) : []
+        accessible_blogs_ids = expiring_blogs_ids + granted_blogs_ids
+        
         if @options[:private]
           ids = []
           if context.current_user? 
             party = context.current_user
-            
-            expiring_assets_ids = party ? ExpiringPartyItem.all(:conditions => {:party_id => party.id, :item_type => "Blog"}, :select => 'item_id').map(&:item_id) : []
-            if expiring_assets_ids.empty?
+            if accessible_blogs_ids.empty?
               conditions << "blogs.id IN (0)"
             else
-              conditions << "blogs.id in (#{expiring_assets_ids.join(',')})"
+              conditions << "blogs.id in (#{accessible_blogs_ids.join(',')})"
             end
           else
             conditions << "blogs.id IN (0)"
@@ -117,8 +119,7 @@ module XlSuite
         private_blog_ids = current_account.blogs.all(:select => "id", :conditions => {:private => true}).map(&:id)
         if context.current_user?
           owned_blog_ids = context.current_user.blogs.map(&:id)
-          expiring_blog_ids = context.current_user.expiring_blogs.map(&:id)
-          private_blog_ids = private_blog_ids - (owned_blog_ids + expiring_blog_ids)
+          private_blog_ids = private_blog_ids - (owned_blog_ids + accessible_blogs_ids)
         end
         conditions << "blogs.id NOT IN (#{private_blog_ids.join(',')})" unless private_blog_ids.blank?
         

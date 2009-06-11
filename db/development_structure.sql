@@ -90,6 +90,33 @@ CREATE TABLE `accounts` (
   KEY `by_master` (`master`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `affiliate_accounts` (
+  `id` int(11) NOT NULL auto_increment,
+  `email_address` varchar(255) default NULL,
+  `username` varchar(255) default NULL,
+  `first_name` varchar(255) default NULL,
+  `middle_name` varchar(255) default NULL,
+  `last_name` varchar(255) default NULL,
+  `honorific` varchar(5) default NULL,
+  `company_name` varchar(255) default NULL,
+  `position` varchar(255) default NULL,
+  `uuid` varchar(40) default NULL,
+  `password_hash` varchar(40) default NULL,
+  `password_salt` varchar(40) default NULL,
+  `last_logged_in_at` datetime default NULL,
+  `token` varchar(255) default NULL,
+  `token_expires_at` datetime default NULL,
+  `confirmation_token` varchar(255) default NULL,
+  `confirmation_token_expires_at` datetime default NULL,
+  `own_point` int(11) default NULL,
+  `referrals_point` int(11) default NULL,
+  `last_referred_by_id` int(11) default NULL,
+  `first_referred_by_id` int(11) default NULL,
+  `created_at` datetime default NULL,
+  `updated_at` datetime default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `affiliates` (
   `id` int(11) NOT NULL auto_increment,
   `target_url` varchar(1024) default NULL,
@@ -597,6 +624,7 @@ CREATE TABLE `domains` (
   `routes` text,
   `activated_at` datetime default NULL,
   `domain_subscription_id` int(11) default NULL,
+  `level` tinyint(4) default NULL,
   PRIMARY KEY  (`id`),
   KEY `name` (`name`),
   KEY `by_account` (`account_id`)
@@ -1220,7 +1248,7 @@ CREATE TABLE `item_versions` (
   `version` int(11) default NULL,
   `creator_id` int(11) default NULL,
   `title` varchar(255) default NULL,
-  `body` text,
+  `body` mediumtext,
   `behavior` varchar(40) default 'plain_text',
   `uuid` varchar(36) default NULL,
   `published_at` datetime default NULL,
@@ -1230,7 +1258,7 @@ CREATE TABLE `item_versions` (
   `fullslug` varchar(255) default NULL,
   `domain_patterns` text,
   `layout` varchar(255) default NULL,
-  `cached_parsed_body` blob,
+  `cached_parsed_body` mediumblob,
   `cached_parsed_title` blob,
   `require_ssl` tinyint(1) default '0',
   `requirements` text,
@@ -1251,7 +1279,7 @@ CREATE TABLE `items` (
   `id` int(11) NOT NULL auto_increment,
   `creator_id` int(11) default NULL,
   `title` varchar(255) default NULL,
-  `body` text,
+  `body` mediumtext,
   `behavior` varchar(40) default 'plain_text',
   `uuid` varchar(36) default NULL,
   `published_at` datetime default NULL,
@@ -1263,7 +1291,7 @@ CREATE TABLE `items` (
   `fullslug` varchar(255) default NULL,
   `domain_patterns` text,
   `layout` varchar(255) default NULL,
-  `cached_parsed_body` blob,
+  `cached_parsed_body` mediumblob,
   `cached_parsed_title` blob,
   `require_ssl` tinyint(1) default '0',
   `requirements` text,
@@ -1756,6 +1784,14 @@ CREATE TABLE `product_categories_products` (
   `product_category_id` int(11) NOT NULL default '0',
   UNIQUE KEY `product_categories_products_product_id_index` (`product_id`,`product_category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `product_grants` (
+  `id` int(11) NOT NULL auto_increment,
+  `product_id` int(11) default NULL,
+  `object_id` int(11) default NULL,
+  `object_type` varchar(255) default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `product_items` (
   `id` int(11) NOT NULL auto_increment,
@@ -2687,3 +2723,15 @@ INSERT INTO schema_migrations (version) VALUES ('20090527210142');
 INSERT INTO schema_migrations (version) VALUES ('20090528202117');
 
 INSERT INTO schema_migrations (version) VALUES ('20090529191349');
+
+INSERT INTO schema_migrations (version) VALUES ('20090602185156');
+
+INSERT INTO schema_migrations (version) VALUES ('20090603002714');
+
+INSERT INTO schema_migrations (version) VALUES ('20090608235010');
+
+INSERT INTO schema_migrations (version) VALUES ('20090609192208');
+
+INSERT INTO schema_migrations (version) VALUES ('20090609203701');
+
+INSERT INTO schema_migrations (version) VALUES ('20090609234902');

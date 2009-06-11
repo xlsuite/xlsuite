@@ -17,6 +17,7 @@ class SiteImportFuture < SpiderFuture
     self.results[:imported_pages_count] = 0
     self.results[:candidates] = Set.new
     self.results[:assets] = Hash.new
+    self.results[:truncated_items] = Set.new
   end
 
   def pages
@@ -145,11 +146,16 @@ class SiteImportFuture < SpiderFuture
             else
               uri.to_s
             end
-
+    page_body = page.respond_to?(:parser) ? page.parser.to_s : page.body
+    if page_body.size > Item::MAXIMUM_BODY_LENGTH
+      #page_body = page_body[0, Item::MAXIMUM_BODY_LENGTH]
+      page_body = "Original page #{uri.to_s} is more than 512 kb"
+      self.results[:truncated_items] << uri.to_s
+    end
     self.account.pages.create!(
       :status => "published",
       :fullslug => fullslug.path,
-      :body => page.respond_to?(:parser) ? page.parser.to_s : page.body,
+      :body => page_body,
       :title => title || uri.path,
       :layout => layout.title,
       :domain_patterns => domain_patterns,
@@ -190,23 +196,23 @@ class SiteImportFuture < SpiderFuture
   end
 
   def html_layout
-    @html_layout ||= self.account.layouts.create!(:title => args[:title] + " HTML", :content_type => "text/html", :encoding => "UTF-8", :domain_patterns => args[:domain_patterns], :body => "{{ page.body }}", :author => owner)
+    @html_layout ||= self.account.layouts.create!(:title => args[:title] + " HTML", :content_type => "text/html", :encoding => "UTF-8", :domain_patterns => args[:domain_patterns], :body => "{{ page.body }}", :creator => owner)
   end
 
   def text_layout
-    @text_layout ||= self.account.layouts.create!(:title => args[:title] + " Text", :content_type => "text/plain", :encoding => "UTF-8", :domain_patterns => args[:domain_patterns], :body => "{{ page.body }}", :author => owner)
+    @text_layout ||= self.account.layouts.create!(:title => args[:title] + " Text", :content_type => "text/plain", :encoding => "UTF-8", :domain_patterns => args[:domain_patterns], :body => "{{ page.body }}", :creator => owner)
   end
 
   def xhtml_layout
-    @xhtml_layout ||= self.account.layouts.create!(:title => args[:title] + " XHTML", :content_type => "application/xhtml+xml", :encoding => "UTF-8", :domain_patterns => args[:domain_patterns], :body => "{{ page.body }}", :author => owner)
+    @xhtml_layout ||= self.account.layouts.create!(:title => args[:title] + " XHTML", :content_type => "application/xhtml+xml", :encoding => "UTF-8", :domain_patterns => args[:domain_patterns], :body => "{{ page.body }}", :creator => owner)
   end
 
   def css_layout
-    @css_layout ||= self.account.layouts.create!(:title => args[:title] + " Stylesheet", :content_type => "text/css", :encoding => "UTF-8", :domain_patterns => args[:domain_patterns], :body => "{{ page.body }}", :author => owner)
+    @css_layout ||= self.account.layouts.create!(:title => args[:title] + " Stylesheet", :content_type => "text/css", :encoding => "UTF-8", :domain_patterns => args[:domain_patterns], :body => "{{ page.body }}", :creator => owner)
   end
 
   def javascript_layout
-    @js_layout ||= self.account.layouts.create!(:title => args[:title] + " JavaScript", :content_type => "text/javascript", :encoding => "UTF-8", :domain_patterns => args[:domain_patterns], :body => "{{ page.body }}", :author => owner)
+    @js_layout ||= self.account.layouts.create!(:title => args[:title] + " JavaScript", :content_type => "text/javascript", :encoding => "UTF-8", :domain_patterns => args[:domain_patterns], :body => "{{ page.body }}", :creator => owner)
   end
 
   def domain_patterns

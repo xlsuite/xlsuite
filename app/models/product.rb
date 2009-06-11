@@ -53,6 +53,7 @@ class Product < ActiveRecord::Base
   acts_as_hashable :polygons, :as => :owner
   
   has_many :accessible_items, :class_name => "ProductItem"
+  has_many :grant_objects, :class_name => "ProductGrant"
   has_many :accessible_assets, :through => :accessible_items, :source => :item, :source_type => "Asset"
   
   def picture_ids

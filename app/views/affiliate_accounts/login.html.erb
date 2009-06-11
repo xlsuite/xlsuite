@@ -1,0 +1,6 @@
+<%= show_flash_messages %>
+<%= form_tag(login_affiliate_account_path, :method => "post") %>
+  <p><label>Email:</label><%= text_field_tag("email_address","") %></p>
+  <p><label>Password:</label><%= password_field_tag("password", "") %></p>
+  <%= submit_tag "Login" %>
+</form>

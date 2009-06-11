@@ -53,6 +53,7 @@ class Blog < ActiveRecord::Base
       end
     else
       return false unless party
+      return true if party.granted_blogs.map(&:id).include?(self.id)
       expiring_item = party.expiring_items.find(:first, :conditions => ["item_type=? AND item_id=? AND (expired_at IS NULL OR expired_at > ?)", self.class.name, self.id, Time.now.utc])
       return !expiring_item.nil?
     end

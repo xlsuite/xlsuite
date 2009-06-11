@@ -14,6 +14,7 @@ class Item < ActiveRecord::Base
 
   VALID_BEHAVIORS = %w(plain_text wysiwyg).sort.freeze # feeds, links, posts, missing, error
   BEHAVIORS_FOR_SELECT = VALID_BEHAVIORS.map {|behavior| [behavior.humanize.titleize, behavior]}.freeze
+  MAXIMUM_BODY_LENGTH = 512.kilobytes
 
   attr_accessor :behavior_values, :skip_set_modified
   delegate :render_edit, :to => :current_behavior
@@ -24,7 +25,7 @@ class Item < ActiveRecord::Base
   validates_inclusion_of :behavior, :in => VALID_BEHAVIORS
   validates_presence_of :title, :if => :title_required?
   
-  validates_length_of :body, :maximum => 512.kilobytes
+  validates_length_of :body, :maximum => MAXIMUM_BODY_LENGTH
 
   def title_required?
     true

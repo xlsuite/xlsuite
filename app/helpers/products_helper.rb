@@ -285,7 +285,7 @@ module ProductsHelper
             cpt.setHeight(cpt.ownerCt.getSize().height-5);
           }
         }
-      })
+      });
     `
   end
 

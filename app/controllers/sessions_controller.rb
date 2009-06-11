@@ -66,10 +66,10 @@ class SessionsController < ApplicationController
     redirect_url = request.env['HTTP_REFERER']
     redirect_url = nil if redirect_url =~ /\/admin/i
     redirect_url ||= new_session_url
-    @logged_in = current_user?
-    current_user.forget_me! if current_user?
-    reset_session
-    current_user = nil
+    @logged_in = self.current_user?
+    self.current_user.forget_me! if self.current_user?
+    self.current_user = nil
+    cookies.delete XlSuite::AuthenticatedSystem::CURRENT_USER_ID
     cookies.delete XlSuite::AuthenticatedSystem::AUTH_TOKEN
     if @logged_in
       flash_success "You are logged out"
