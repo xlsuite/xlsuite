@@ -75,6 +75,8 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :domain_subscriptions, :path_prefix => "/admin",
       :collection => {:ipn => :post},
       :member => {:pay => :post}
+
+  map.resource :affiliate_account, :path_prefix => "/admin", :member => {:login => :any, :logout => :any}
   
   map.resource :product_catalog, :path_prefix => "/admin",
       :member => {:add_product => :post, :remove_product => :post, :create_category => :post, :delete_category => :post}
@@ -478,7 +480,7 @@ ActionController::Routing::Routes.draw do |map|
     m.connect 'admin/search/:action'
     m.async_get_name_id_hashes '/admin/search/async_get_name_id_hashes', :action => 'async_get_name_id_hashes'
   end
-
+  
   # "Alias" routes
   map.redirect "/login", :new_session
   map.redirect "/forums", :forum_categories
