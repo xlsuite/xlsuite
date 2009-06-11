@@ -851,6 +851,49 @@ page << create_tab_using_ajax_response("Product | #{truncate(@product.name, 20)}
 
   #{self.initialize_delivery_panel}
 
+  var freeAccessRootTreeNode =  new Ext.tree.AsyncTreeNode({
+    text: "Group - Root",
+    expanded: true,
+    id: 0
+  });
+
+  var freeAccessGroupsTreePanel = new Ext.tree.TreePanel({
+    title: "Free Access for Selected Groups",
+    root: freeAccessRootTreeNode,
+    rootVisible: false,
+    autoScroll: true,
+    loader: new Ext.tree.TreeLoader({
+      requestMethod: "GET",
+      url: #{formatted_product_grants_path(:format => :json, :type => "Group", :product_id => @product.id).gsub("&amp;", "&").to_json},
+      baseAttrs: {uiProvider: Ext.tree.TreeCheckNodeUI}
+    }),
+    listeners: {
+        check: function(node, checked){
+          var params = {product_id: #{@product.id}, object_type: "Group"};
+          var method = null;
+          var url = null;
+          if(checked){
+            url = #{product_grants_path.to_json};
+            method = "POST"
+            params.object_id = node.id;
+          }
+          else{
+            url = #{destroy_collection_product_grants_path.to_json}
+            method = "DELETE";
+            params.object_ids = node.id;
+          }
+          Ext.Ajax.request({
+            url: url,
+            method: method,
+            params: params
+          });
+        },
+        render: function(cpt){
+          cpt.setHeight(cpt.ownerCt.ownerCt.getSize().height);
+        }
+      }
+  });
+
   var tabPanel = new Ext.TabPanel({
     style: 'padding: 10px;',
     activeTab: 0,
@@ -868,7 +911,7 @@ page << create_tab_using_ajax_response("Product | #{truncate(@product.name, 20)}
         autoScroll: true,
         autoLoad: {url:#{display_info_product_path(@product).to_json}, scripts:true},
         listeners: {show: function(panel){xl.viewport.render();}}
-      },
+      },/*
       {
         title: 'Discounts',
         autoScroll: true,
@@ -882,12 +925,17 @@ page << create_tab_using_ajax_response("Product | #{truncate(@product.name, 20)}
           supply_poGridPanel
         ],
         listeners: {show: function(panel){xl.viewport.render();}}
-      },
+      },*/
       imagesPanel,
       commentsPanel,
       {
         title: "Delivery",
         items: deliveryPanel,
+        listeners: {show: function(panel){xl.viewport.render();}}
+      },
+      {
+        title: "Free Access",
+        items: freeAccessGroupsTreePanel,
         listeners: {show: function(panel){xl.viewport.render();}}
       }
     ]
