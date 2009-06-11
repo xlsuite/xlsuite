@@ -1738,6 +1738,29 @@ class Party < ActiveRecord::Base
     products.compact.uniq
   end
   
+  def convert_to_affiliate_account!
+    return false if self.confirmation_token || !self.has_email_contact_route? || self.password_hash.blank? || self.password_salt.blank?
+    email_address = self.main_email.email_address
+    affiliate_account = AffiliateAccount.find_by_email_address(email_address)
+    return false if affiliate_account
+    ActiveRecord::Base.transaction do
+      affiliate_account = AffiliateAccount.new
+      %w(first_name middle_name last_name honorific company_name position).each do |attr_name|
+        affiliate_account.send(attr_name + "=", self.send(attr_name))
+      end
+      affiliate_account.email_address = email_address
+      affiliate_account.save!
+      affiliate_account.password_hash = self.password_hash
+      affiliate_account.password_salt = self.password_salt
+      affiliate_account.save!
+    end
+  end
+  
+  def has_email_contact_route?
+    return false if self.new_record?
+    (EmailContactRoute.count(:id, :conditions => {:routable_type => "Party", :routable_id => self.id}) > 0)
+  end
+  
   protected
   before_create :generate_random_uuid
 
