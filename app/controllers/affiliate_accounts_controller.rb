@@ -63,8 +63,8 @@ class AffiliateAccountsController < ApplicationController
     redirect_url ||= login_affiliate_account_path
     @logged_in = self.current_user?
     self.current_user.forget_me! if self.current_user?
-    self.reset_session
     self.current_user = nil
+    cookies.delete self.session_current_user_id
     cookies.delete self.session_auth_token
     if @logged_in
       flash_success "You are logged out"
