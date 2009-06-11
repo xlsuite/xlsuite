@@ -387,28 +387,29 @@ page << create_tab_using_ajax_response("Product Categories") do
     items: [
       treePanel, 
       centerPanel
-    ]
+    ],
+    tbar: new Ext.Toolbar({
+      items: [
+      {
+        id: 'product_categories_new_button',
+        text: 'New',
+        handler: openNewWindow
+      },{
+        text: 'Remove',
+        handler: openRemoveWindow
+      },
+      '-',
+      {
+        text: "Product Manager",
+        handler: function() { xl.openNewTabPanel('products_index_nil', #{products_path.to_json}) }
+      },{
+        text: "New Product",
+        handler: function() { xl.openNewTabPanel('products_new_nil', #{new_product_path.to_json}) }
+      }]
+    })
   });
   
   newPanel.add(layoutPanel);
-  newPanel.getTopToolbar().add(
-    {
-      id: 'product_categories_new_button',
-      text: 'New',
-      handler: openNewWindow
-    },{
-      text: 'Remove',
-      handler: openRemoveWindow
-    },
-    '-',
-    {
-      text: "Product Manager",
-      handler: function() { xl.openNewTabPanel('products_index_nil', #{products_path.to_json}) }
-    },{
-      text: "New Product",
-      handler: function() { xl.openNewTabPanel('products_new_nil', #{new_product_path.to_json}) }
-    }
-  );
   
   var _afterRenderCallback = function() {
     treePanel.getRootNode().expand();
