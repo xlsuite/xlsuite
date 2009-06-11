@@ -399,16 +399,24 @@ module XlSuite
     end
 
     module InstanceMethods
+      def session_auth_token
+        XlSuite::AuthenticatedSystem::AUTH_TOKEN
+      end
+      
+      def session_current_user_id        
+        XlSuite::AuthenticatedSystem::CURRENT_USER_ID
+      end
+    
       # Attempt to login using a previously received authentication cookie.  If
       # the cookie is invalid or expired, the request is aborted through
       # #access_denied.
       def login_from_cookie
         return if current_user?
-        return if cookies[XlSuite::AuthenticatedSystem::AUTH_TOKEN].blank?
+        return if cookies[self.session_auth_token].blank?
         # XlSuite::AuthenticatedUser enforces strict uniqueness on the #token
         # column.  That allows us to do a plain search here, instead of
         # checking the account
-        user = Party.authenticate_with_token!(cookies[XlSuite::AuthenticatedSystem::AUTH_TOKEN], current_account)
+        user = Party.authenticate_with_token!(cookies[self.session_auth_token], current_account)
 
         # But as a sanity check, we'll do it anyway
         raise AuthenticationException, "Wrong cookie value for domain" unless user.account == current_account
@@ -417,7 +425,7 @@ module XlSuite
         self.current_user = user
 
         rescue XlSuite::AuthenticatedUser::AuthenticationException
-          cookies[XlSuite::AuthenticatedSystem::AUTH_TOKEN] = nil
+          cookies[self.session_auth_token] = nil
           return access_denied
       end
 
@@ -506,7 +514,7 @@ module XlSuite
       # This method also accepts a block and yields if current_user? would
       # return +true+, and return's the block's value in this case.
       def current_user?
-        has_user = session[XlSuite::AuthenticatedSystem::CURRENT_USER_ID]
+        has_user = session[self.session_current_user_id]
         if block_given? then
           yield if has_user
         else
@@ -519,7 +527,7 @@ module XlSuite
       # view.
       def current_user
         return self.stub_user unless current_user?
-        returning @_current_user ||= Party.find(session[XlSuite::AuthenticatedSystem::CURRENT_USER_ID]) do
+        returning @_current_user ||= Party.find(session[self.session_current_user_id]) do
           raise AuthenticatedUser::UnknownUser if @_current_user.archived?
         end
       end
@@ -528,10 +536,10 @@ module XlSuite
       # alternatively, to masquerade.
       def current_user=(user)
         if user then
-          session[XlSuite::AuthenticatedSystem::CURRENT_USER_ID] = user.id
+          session[self.session_current_user_id] = user.id
           @_current_user = user
         else
-          session[XlSuite::AuthenticatedSystem::CURRENT_USER_ID] = @_current_user = nil
+          session[self.session_current_user_id] = @_current_user = nil
         end
       end
 
