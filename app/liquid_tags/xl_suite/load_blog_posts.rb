@@ -430,7 +430,8 @@ module XlSuite
         if context.current_user?
           owned_blog_ids = context.current_user.blogs.map(&:id)
           expiring_blog_ids = context.current_user.expiring_blogs.map(&:id)
-          private_blog_ids = private_blog_ids - (owned_blog_ids + expiring_blog_ids)
+          granted_blog_ids = context.current_user.granted_blogs.map(&:id)
+          private_blog_ids = private_blog_ids - (owned_blog_ids + expiring_blog_ids + granted_blog_ids)
         end
         conditions << "blog_posts.blog_id NOT IN (#{private_blog_ids.join(',')})" unless private_blog_ids.blank?
         
