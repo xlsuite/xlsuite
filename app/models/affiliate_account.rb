@@ -280,11 +280,9 @@
 # 		     END OF TERMS AND CONDITIONS
 class AffiliateAccount < ActiveRecord::Base
   include XlSuite::AuthenticatedUser
-  validates_presence_of :email_address
-  validates_uniqueness_of :email_address
-  validates_uniqueness_of :username, :allow_blank => true, :allow_nil => true
+  validates_presence_of :email_address, :username
+  validates_uniqueness_of :email_address, :username
   
-  after_create :generate_username
   before_create :generate_random_uuid
   
   # The following methods are needed for authentication purpose
@@ -306,7 +304,6 @@ class AffiliateAccount < ActiveRecord::Base
     [self.first_name, self.middle_name, self.last_name].reject(&:blank?).join(" ")
   end
   
-  protected
   def generate_username
     return true unless self.username.blank?
     c_username = self.email_address.split("@").first
