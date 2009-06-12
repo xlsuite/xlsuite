@@ -292,10 +292,18 @@ class AffiliateAccount < ActiveRecord::Base
     false
   end
   
+  def confirmed?
+    true
+  end
+  
   def self.authenticate_with_email_and_password!(email_address, password)
     account = self.find_by_email_address(email_address)
     raise UnknownUser unless account
     account.attempt_password_authentication!(password)
+  end
+  
+  def full_name
+    [self.first_name, self.middle_name, self.last_name].reject(&:blank?).join(" ")
   end
   
   protected
