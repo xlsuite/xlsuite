@@ -2,9 +2,9 @@
 #reportBug { border:2px solid #D4E1F2; -moz-border-radius:7px; width:500px; padding:10px; margin:20px auto; overflow:hidden; font-family:sans-serif; font-size:14px;}
 #reportBug h2 { font-size:19px; }
 #reportBug h2 a { color: #36428B; text-decoration:none;}
-#reportBug form { float:left; width:435px; }
+#reportBug form { float:left; width:440px; }
 #reportBug form p { margin-bottom:5px; overflow:hidden}
-#reportBug form p input, #reportBug form p textarea { float:left; display:inline; width:272px; border:1px solid #CDDBF0; padding:1px; margin:0px;}
+#reportBug form p input, #reportBug form p textarea { float:left; display:inline; width:272px; border:1px solid #CDDBF0; padding:3px; margin:0px;}
 #reportBug form p textarea { height:200px; }
 #reportBug form p input:hover, #reportBug form p textarea:hover, #reportBug form p input:focus, #reportBug form p textarea:focus { border:1px solid #36428B; background-color:#f9f9f9; }
 #reportBug form p label { float:left; display:inline; width:150px; text-align:right; font-weight:bold; margin-right:10px; margin-top:3px;}
@@ -28,11 +28,11 @@
       <%= text_field_tag "bug[subject]", "", :class => "text" %>
     </p>
     <p>   
-     <label for="bug_body">Details</label><br />
+     <label for="bug_body">Details</label>
      <%= text_area_tag "bug[body]" %>
   	</p>
     <p>
-      <label for="bug_file">Attachment</label><br/>
+      <label for="bug_file">Attachment</label>
       <%= file_field_tag "attachment[uploaded_data]" %>
       <span>*screenshot/other, <b>limited to 2mb</b></span>
     </p>
