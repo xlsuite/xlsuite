@@ -1,14 +1,21 @@
 class AffiliateAccountsController < ApplicationController
   skip_before_filter :login_required, :only => [:login]
-  required_permissions %w(show edit update logout) => "current_user?"
+  required_permissions %w(show update logout) => "current_user?"
   
   def show
-  end
-  
-  def edit
+    respond_to do |format|
+      format.html
+    end
   end
   
   def update
+    self.current_user.attributes = params[:affiliate_account]
+    @updated = self.current_user.save
+    respond_to do |format|
+      format.js do 
+        render(:json => {:success => @updated}.to_json)
+      end
+    end
   end
   
   def login
@@ -88,6 +95,13 @@ class AffiliateAccountsController < ApplicationController
   end
   
   protected
+  def current_user
+    return self.stub_user unless self.current_user?
+    returning @_current_user ||= AffiliateAccount.find(session[self.session_current_user_id]) do
+      raise AuthenticatedUser::UnknownUser if @_current_user.archived?
+    end
+  end
+
   def session_auth_token
     "affiliate_account_auth_token"
   end
@@ -128,5 +142,14 @@ class AffiliateAccountsController < ApplicationController
       end
     end  
     false
+  end
+  
+  def choose_layout
+    case self.action_name
+    when "show"
+      "affiliate-extjs"
+    else
+      "plain-html"
+    end
   end
 end
