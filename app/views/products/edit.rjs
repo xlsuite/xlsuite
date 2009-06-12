@@ -825,7 +825,11 @@ page << create_tab_using_ajax_response("Product | #{truncate(@product.name, 20)}
       type: "htmleditor",
       value: #{@product.web_copy.to_json},
       listeners: {
-        render: function(cpt){xl.fitToOwnerCtWidth(cpt); cpt.getEl().setHeight(200);},
+        render: function(cpt){
+          xl.fitToOwnerCtWidth(cpt); 
+          cpt.getEl().setHeight(200);
+          cpt.getToolbar().insertButton(16, #{html_editor_image_video_embed_button(@blog_post)});
+      },
         resize: function(cpt){xl.fitToOwnerCtWidth(cpt)}
       }
     }
