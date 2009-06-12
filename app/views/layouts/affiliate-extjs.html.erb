@@ -20,11 +20,13 @@
           fieldLabel:"Affiliate ID"
           ,name:"affiliate_account[username]"
           ,value:<%= self.current_user.username.to_json %>
+          ,allowBlank:false
         })
         ,new Ext.form.TextField({
           fieldLabel:"E-mail"
           ,name:"affiliate_account[email_address]"
           ,value:<%= self.current_user.email_address.to_json %>
+          ,allowBlank:false
         })
         ,new Ext.form.ComboBox({
           fieldLabel:"Honorific"
@@ -69,23 +71,50 @@
         url:<%= affiliate_account_path.to_json %>
         ,method:"PUT"
         ,success:function(form, action){
-          console.log("form is %o", form);
-          console.log("action is %o", action);
-          var response = action.result;
-          if(response.success){
-            Ext.Msg.alert("Account info updated", "Your account information has been successfully updated");
-          }
+          Ext.Msg.alert("Account info updated", "Your account information has been successfully updated");
         }
-        ,failure:function(){
-          Ext.Msg.alert("Connection failed", "Please try again. Please contact XLsuite technical support if problem persists");
+        ,failure:function(form, action){
+          Ext.Msg.alert("Updating account FAILED", action.result.errors.join("<br/>"));
         }
       })
     });
     
-    xl.affiliate.settingsTab = new Ext.Panel({
+    xl.affiliate.settingsTab = new Ext.form.FormPanel({
       title:"Settings"
-      ,html:"UNDER CONSTRUCTION"
+      ,height:125
+      ,items:[
+        new Ext.form.TextField({
+          name:"affiliate_account[old_password]"
+          ,fieldLabel:"Old password"
+          ,inputType:"password"
+        })
+        ,new Ext.form.TextField({
+          name:"affiliate_account[password]"
+          ,fieldLabel:"New password"
+          ,inputType:"password"
+          ,allowBlank:false
+        })
+        ,new Ext.form.TextField({
+          name:"affiliate_account[password_confirmation]"
+          ,fieldLabel:"Confirm new password"
+          ,inputType:"password"
+          ,allowBlank:false
+        })
+      ]
     });
+    
+    xl.affiliate.settingsTab.addButton("Change password", function(){
+      xl.affiliate.settingsTab.getForm().submit({
+        url:<%= change_password_affiliate_account_path.to_json %>
+        ,method:"PUT"
+        ,success:function(form, action){
+          Ext.Msg.alert("Change password", "Password has been changed.");
+        }
+        ,failure:function(form, action){
+          Ext.Msg.alert("Change password FAILED", action.result.errors);
+        }
+      })
+    });    
 
     xl.affiliate.mainTabPanel = new Ext.TabPanel({
       activeTab:0
