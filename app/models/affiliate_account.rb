@@ -280,16 +280,19 @@
 # 		     END OF TERMS AND CONDITIONS
 class AffiliateAccount < ActiveRecord::Base
   include XlSuite::AuthenticatedUser
-  validates_presence_of :email_address
-  validates_uniqueness_of :email_address
-  validates_uniqueness_of :username, :allow_blank => true, :allow_nil => true
+  validates_presence_of :email_address, :username
+  validates_uniqueness_of :email_address, :username
   
-  after_create :generate_username
   before_create :generate_random_uuid
-  
+  attr_accessor :confirmed
+    
   # The following methods are needed for authentication purpose
   def archived?
     false
+  end
+  
+  def confirmed?
+    true
   end
   
   def self.authenticate_with_email_and_password!(email_address, password)
@@ -297,8 +300,28 @@ class AffiliateAccount < ActiveRecord::Base
     raise UnknownUser unless account
     account.attempt_password_authentication!(password)
   end
+
+  def reset_password
+    Party.transaction do
+      if self.email_address.blank?
+        return false
+      else
+        new_password = self.randomize_password!
+        AffiliateAccountNotification.deliver_password_reset(
+            :affiliate_account => self,
+            :username => self.email_address,
+            :password => new_password)
+        self.confirmed = true
+        #call save instead of update_attribute so callbacks are executed
+        self.save
+      end
+    end
+  end
   
-  protected
+  def full_name
+    [self.first_name, self.middle_name, self.last_name].reject(&:blank?).join(" ")
+  end
+  
   def generate_username
     return true unless self.username.blank?
     c_username = self.email_address.split("@").first

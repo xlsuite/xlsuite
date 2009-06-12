@@ -138,7 +138,7 @@ class Party < ActiveRecord::Base
   def granted_groups
     products = self.granted_products
     return [] if products.empty?
-    self.account.blogs.find(:all, :joins => "INNER JOIN product_items ON groups.id = product_items.item_id AND product_items.item_type = 'Group'", :conditions => "product_items.product_id IN (#{self.granted_products.map(&:id)})")
+    self.account.groups.find(:all, :joins => "INNER JOIN product_items ON groups.id = product_items.item_id AND product_items.item_type = 'Group'", :conditions => "product_items.product_id IN (#{self.granted_products.map(&:id)})")
   end
 
   def deliver_signup_confirmation_email(options)
@@ -1472,7 +1472,8 @@ class Party < ActiveRecord::Base
         affiliate_account.send(attr_name + "=", self.send(attr_name))
       end
       affiliate_account.email_address = email_address
-      affiliate_account.save!
+      affiliate_account.save(false)
+      affiliate_account.generate_username
       affiliate_account.password_hash = self.password_hash
       affiliate_account.password_salt = self.password_salt
       affiliate_account.save!
