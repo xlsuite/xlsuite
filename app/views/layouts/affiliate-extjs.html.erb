@@ -1,0 +1,127 @@
+<%= render :partial => "shared/doctype" %>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="shortcut icon" href="<%= render_favicon_url %>" type="image/x-icon" />
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+  <title>XLsuite Affiliate Account</title>
+  <%= yield(:head) %>
+  <%= cached_javascript_include_tag "extjs/adapter/ext/ext-base.js" %>
+  <%= cached_javascript_include_tag "extjs/ext-all-debug.js" unless RAILS_ENV == "production" %>
+  <%= cached_javascript_include_tag "extjs/ext-all.js" if RAILS_ENV == "production" %>
+  <%= cached_javascript_include_tag "affiliate_account_ui.js" %>
+  
+  <script type="text/javascript">
+    xl.affiliate.editAccountTab = new Ext.form.FormPanel({
+      title:"Account info"
+      ,height:250
+      ,autoWidth:true
+      ,items:[
+        new Ext.form.TextField({
+          fieldLabel:"Affiliate ID"
+          ,name:"affiliate_account[username]"
+          ,value:<%= self.current_user.username.to_json %>
+        })
+        ,new Ext.form.TextField({
+          fieldLabel:"E-mail"
+          ,name:"affiliate_account[email_address]"
+          ,value:<%= self.current_user.email_address.to_json %>
+        })
+        ,new Ext.form.ComboBox({
+          fieldLabel:"Honorific"
+          ,name:"affiliate_account[honorific]"
+          ,store:[["", ""], ["Mr.", "Mr."], ["Mrs.", "Mrs."], ["Ms", "Ms"]]
+          ,width:60
+          ,forceSelection:true
+          ,editable:false
+          ,triggerAction:"all"
+          ,value:<%= self.current_user.honorific.to_json %>
+        })
+        ,new Ext.form.TextField({
+          fieldLabel:"First Name"
+          ,name:"affiliate_account[first_name]"
+          ,value:<%= self.current_user.first_name.to_json %>
+        })
+        ,new Ext.form.TextField({
+          fieldLabel:"Middle Name"
+          ,name:"affiliate_account[middle_name]"
+          ,value:<%= self.current_user.middle_name.to_json %>
+        })
+        ,new Ext.form.TextField({
+          fieldLabel:"Last Name"
+          ,name:"affiliate_account[last_name]"
+          ,value:<%= self.current_user.last_name.to_json %>
+        })
+        ,new Ext.form.TextField({
+          fieldLabel:"Company Name"
+          ,name:"affiliate_account[company_name]"
+          ,value:<%= self.current_user.company_name.to_json %>
+        })
+        ,new Ext.form.TextField({
+          fieldLabel:"Position"
+          ,name:"affiliate_account[position]"
+          ,value:<%= self.current_user.position.to_json %>
+        })
+      ]
+    });
+
+    xl.affiliate.editAccountTab.addButton("Save", function(){
+      xl.affiliate.editAccountTab.getForm().submit({
+        url:<%= affiliate_account_path.to_json %>
+        ,method:"PUT"
+        ,success:function(form, action){
+          console.log("form is %o", form);
+          console.log("action is %o", action);
+          var response = action.result;
+          if(response.success){
+            Ext.Msg.alert("Account info updated", "Your account information has been successfully updated");
+          }
+        }
+        ,failure:function(){
+          Ext.Msg.alert("Connection failed", "Please try again. Please contact XLsuite technical support if problem persists");
+        }
+      })
+    });
+    
+    xl.affiliate.settingsTab = new Ext.Panel({
+      title:"Settings"
+      ,html:"UNDER CONSTRUCTION"
+    });
+
+    xl.affiliate.mainTabPanel = new Ext.TabPanel({
+      activeTab:0
+      ,items:[xl.affiliate.editAccountTab, xl.affiliate.settingsTab]
+    });
+
+    xl.affiliate.wrapperPanel = new Ext.Panel({
+      width:800
+      ,items:[xl.affiliate.mainTabPanel]
+      ,tbar:[
+        {
+          xtype:"tbtext"
+          ,text:<%= ("Welcome, " + self.current_user.full_name).to_json %>
+        }
+        ,"->"
+        ,{
+          text:"Logout"
+          ,handler:function(){window.location=<%= logout_affiliate_account_url.to_json %>}
+        }
+      ]
+    });
+
+    Ext.onReady(function(){
+      xl.affiliate.wrapperPanel.render("affiliate-account-ui-body");
+    });
+  </script>
+  
+  <%= yield(:js) %>
+  <%= cached_stylesheet_link_tag "/javascripts/extjs/resources/css/ext-all.css" %>
+  <%= cached_stylesheet_link_tag "/javascripts/extjs/resources/css/xtheme-default.css", :id => "theme" %>
+  <style type="text/css">
+    #affiliate-account-ui-body{height:100%; width:100%;}
+  </style>
+  <%= yield(:css) %>
+</head>
+<body>
+  <div id="affiliate-account-ui-body"></div>
+</body>
+</html>
