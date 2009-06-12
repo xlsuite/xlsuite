@@ -1,5 +1,5 @@
 class AffiliateAccountsController < ApplicationController
-  skip_before_filter :login_required, :only => [:login]
+  skip_before_filter :login_required, :only => [:login, :forgot_password, :confirm_forgot_password]
   required_permissions %w(show update logout change_password) => "current_user?"
   
   def show
@@ -31,6 +31,27 @@ class AffiliateAccountsController < ApplicationController
         format.js do
           render(:json => {:success => false, :errors => e.message})
         end
+      end
+    end
+  end
+  
+  def forgot_password
+    @affiliate_account = AffiliateAccount.find_by_email_address(params[:email_address])
+    if request.post?
+      respond_to do |format|
+        format.html do
+          if @affiliate_account
+            flash_success "We have sent you a new password. Please check your email."
+            redirect_to login_affiliate_account_path
+          else
+            flash_failure "We cannot find you in our database"
+            redirect_to forgot_password_affiliate_account_path
+          end
+        end
+      end
+    else
+      respond_to do |format|
+        format.html
       end
     end
   end
@@ -105,10 +126,6 @@ class AffiliateAccountsController < ApplicationController
         render :json => {:success => @logged_in}.to_json 
       end
     end  
-  end
-  
-  def choose_layout
-    "plain-html"
   end
   
   protected
