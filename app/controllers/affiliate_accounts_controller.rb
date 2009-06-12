@@ -1,6 +1,6 @@
 class AffiliateAccountsController < ApplicationController
   skip_before_filter :login_required, :only => [:login]
-  required_permissions %w(show update logout) => "current_user?"
+  required_permissions %w(show update logout change_password) => "current_user?"
   
   def show
     respond_to do |format|
@@ -13,7 +13,24 @@ class AffiliateAccountsController < ApplicationController
     @updated = self.current_user.save
     respond_to do |format|
       format.js do 
-        render(:json => {:success => @updated}.to_json)
+        render(:json => {:success => @updated, :errors => self.current_user.errors.full_messages}.to_json)
+      end
+    end
+  end
+  
+  def change_password
+    begin
+      success = self.current_user.change_password!(params[:affiliate_account])
+      respond_to do |format|
+        format.js do
+          render(:json => {:success => true}.to_json)
+        end
+      end
+    rescue XlSuite::AuthenticatedUser::BadAuthentication => e
+      respond_to do |format|
+        format.js do
+          render(:json => {:success => false, :errors => e.message})
+        end
       end
     end
   end
