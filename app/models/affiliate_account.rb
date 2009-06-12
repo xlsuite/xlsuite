@@ -284,7 +284,8 @@ class AffiliateAccount < ActiveRecord::Base
   validates_uniqueness_of :email_address, :username
   
   before_create :generate_random_uuid
-  
+  attr_accessor :confirmed
+    
   # The following methods are needed for authentication purpose
   def archived?
     false
@@ -298,6 +299,23 @@ class AffiliateAccount < ActiveRecord::Base
     account = self.find_by_email_address(email_address)
     raise UnknownUser unless account
     account.attempt_password_authentication!(password)
+  end
+
+  def reset_password
+    Party.transaction do
+      if self.email_address.blank?
+        return false
+      else
+        new_password = self.randomize_password!
+        AffiliateAccountNotification.deliver_password_reset(
+            :affiliate_account => self,
+            :username => self.email_address,
+            :password => new_password)
+        self.confirmed = true
+        #call save instead of update_attribute so callbacks are executed
+        self.save
+      end
+    end
   end
   
   def full_name

@@ -321,7 +321,8 @@ class AffiliateAccountsController < ApplicationController
       respond_to do |format|
         format.html do
           if @affiliate_account
-            flash_success "We have sent you a new password. Please check your email."
+            @affiliate_account.reset_password
+            flash_success "We have sent you a new password. Please check your email including your spam folder."
             redirect_to login_affiliate_account_path
           else
             flash_failure "We cannot find you in our database"
