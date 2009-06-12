@@ -245,7 +245,7 @@ xl.widget.FormField = function(config) {
     break;
     
     case 'htmleditor':
-      field = new Ext.form.HtmlEditor(config);  
+      field = new Ext.ux.HtmlEditor(config);  
     
   }
   
