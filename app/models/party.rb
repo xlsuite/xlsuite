@@ -1749,7 +1749,8 @@ class Party < ActiveRecord::Base
         affiliate_account.send(attr_name + "=", self.send(attr_name))
       end
       affiliate_account.email_address = email_address
-      affiliate_account.save!
+      affiliate_account.save(false)
+      affiliate_account.generate_username
       affiliate_account.password_hash = self.password_hash
       affiliate_account.password_salt = self.password_salt
       affiliate_account.save!
