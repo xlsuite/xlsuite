@@ -1754,6 +1754,12 @@ class Party < ActiveRecord::Base
       affiliate_account.password_hash = self.password_hash
       affiliate_account.password_salt = self.password_salt
       affiliate_account.save!
+      unless self.main_address.new_record?
+        t_attrs = self.main_address.attributes
+        t_attrs[:name] = "Mailing"
+        affiliate_account.update_address(t_attrs)
+      end
+      affiliate_account
     end
   end
   
