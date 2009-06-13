@@ -392,13 +392,11 @@ module XlSuite
             party = context.current_user
             
             expiring_assets_ids = party ? ExpiringPartyItem.all(:conditions => {:party_id => party.id, :item_type => "Asset"}, :select => 'item_id').map(&:item_id) : []
-            granted_assets_ids = party ? party.granted_assets.map(&:id) : []
-            accessible_groups_ids = expiring_assets_ids + granted_assets_ids
             
-            if accessible_groups_ids.empty?
+            if expiring_assets_ids.empty?
               conditions << "assets.id IN (0)"
             else
-              conditions << "assets.id in (#{accessible_groups_ids.join(',')})"
+              conditions << "assets.id in (#{expiring_assets_ids.join(',')})"
             end
           else
             conditions << "assets.id IN (0)"
