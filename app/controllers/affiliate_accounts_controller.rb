@@ -279,8 +279,8 @@
 # 
 # 		     END OF TERMS AND CONDITIONS
 class AffiliateAccountsController < ApplicationController
-  skip_before_filter :login_required, :only => [:login, :forgot_password, :confirm_forgot_password]
-  required_permissions %w(show update logout change_password) => "current_user?"
+  skip_before_filter :login_required, :only => [:login, :forgot_password, :confirm_forgot_password, :logout]
+  required_permissions %w(show update change_password) => "current_user?"
   
   def show
     respond_to do |format|
