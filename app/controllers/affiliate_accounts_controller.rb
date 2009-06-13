@@ -289,11 +289,21 @@ class AffiliateAccountsController < ApplicationController
   end
   
   def update
+    errors = []
     self.current_user.attributes = params[:affiliate_account]
     @updated = self.current_user.save
+    unless @updated
+      errors += self.current_user.errors.full_messages
+    end
+    address = nil
+    if params[:address]
+      address = self.current_user.update_address(params[:address])
+      @updated = @updated & address.valid?
+      errors += address.errors.full_messages
+    end
     respond_to do |format|
       format.js do 
-        render(:json => {:success => @updated, :errors => self.current_user.errors.full_messages}.to_json)
+        render(:json => {:success => @updated, :errors => errors }.to_json)
       end
     end
   end

@@ -11,10 +11,10 @@
   <%= cached_javascript_include_tag "affiliate_account_ui.js" %>
   
   <script type="text/javascript">
-    xl.affiliate.editAccountTab = new Ext.form.FormPanel({
-      title:"Account info"
-      ,height:250
-      ,autoWidth:true
+    var editAccountLeftPanel = new Ext.form.FieldSet({
+      columnWidth:0.5
+      ,title:"General Info"
+      ,height:245
       ,items:[
         new Ext.form.TextField({
           fieldLabel:"Affiliate ID"
@@ -64,6 +64,75 @@
           ,value:<%= self.current_user.position.to_json %>
         })
       ]
+    });
+
+    <%= self.create_countries_and_states_store %>
+    var editAccountRightPanel = new Ext.form.FieldSet({
+      columnWidth:0.5
+      ,height:245
+      ,title:"Mailing Address"
+      ,items:[
+        new Ext.form.TextField({
+          fieldLabel:"Line 1"
+          ,width:250
+          ,name:"address[line1]"
+          ,value:<%= self.current_user.address_line1.to_json %>
+        })
+        ,new Ext.form.TextField({
+          fieldLabel:"Line 2"
+          ,width:250
+          ,name:"address[line2]"
+          ,value:<%= self.current_user.address_line2.to_json %>
+        })
+        ,new Ext.form.TextField({
+          fieldLabel:"Line 3"
+          ,width:250
+          ,name:"address[line3]"
+          ,value:<%= self.current_user.address_line3.to_json %>
+        })
+        ,new Ext.form.TextField({
+          fieldLabel:"City"
+          ,width:250
+          ,name:"address[city]"
+          ,value:<%= self.current_user.address_city.to_json %>
+        })
+        ,new Ext.form.ComboBox({
+          width:167
+          ,name:'address[state]' 
+          ,displayField:'value' 
+          ,valueField:'value'
+          ,fieldLabel:'Province/State' 
+          ,store:statesStore
+          ,triggerAction:'all'
+          ,mode:'local'
+          ,value:<%= self.current_user.address_state.to_json %>
+        })
+        ,new Ext.form.ComboBox({
+          width:167
+          ,listWidth:250
+          ,name:'address[country]' 
+          ,displayField:'value' 
+          ,valueField:'value'
+          ,fieldLabel:'Country' 
+          ,store:countriesStore
+          ,triggerAction:'all'
+          ,mode:'local'
+          ,value:<%= self.current_user.address_country.to_json %>
+        })
+        ,new Ext.form.TextField({
+          fieldLabel:"Zip/Postal code"
+          ,name:"address[zip]"
+          ,value:<%= self.current_user.address_zip.to_json %>
+        })
+      ]
+    });
+    
+    xl.affiliate.editAccountTab = new Ext.form.FormPanel({
+      title:"Account info"
+      ,layout:"column"
+      ,height:260
+      ,autoWidth:true
+      ,items:[editAccountLeftPanel, editAccountRightPanel]
     });
 
     xl.affiliate.editAccountTab.addButton("Save", function(){
