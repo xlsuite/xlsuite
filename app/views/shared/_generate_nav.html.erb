@@ -20,7 +20,7 @@ Ext.onReady(function() {
         ,handler:function(){<%= change_centre_iframe_src("/") %>}
       }
       ,{
-        text:<%= (current_user? ? truncate(current_user.name.to_s, 26) : "Anonymous").to_json %>
+        text:<%= (current_user? ? truncate(current_user.name.to_s, 22) : "Anonymous").to_json %>
         ,ctCls:"menu-item-less-padding"
         ,handler:function(){xl.openNewTabPanel('parties_edit_<%= current_user.id %>', <%= edit_party_path(current_user).to_json %>)}
       }    
