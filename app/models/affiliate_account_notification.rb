@@ -287,7 +287,7 @@ class AffiliateAccountNotification < ActionMailer::Base
   end
   
   def notification_from_account_signup(domain, affiliate_account)
-    @subject = "[XL] XLsuite Affiliate Account Signup"
+    @subject = "[XL] Your XLsuite Affiliate Account"
     @body = {:domain => domain}
     @recipients = affiliate_account.email_address
     @from = "XLsuite Admin<admin@xlsuite.com>"
