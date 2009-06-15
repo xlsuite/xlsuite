@@ -7,8 +7,10 @@ class ContactRoute < ActiveRecord::Base
   acts_as_list :scope => 'routable_type = \"#{routable_type}\" AND routable_id = #{routable_id}'
   belongs_to :routable, :polymorphic => true
 
+  attr_accessor :skip_account
+  
   belongs_to :account
-  validates_presence_of :account_id
+  validates_presence_of :account_id, :unless => :skip_account
 
   before_validation :set_name
   validates_presence_of :name, :routable_type, :routable_id
@@ -16,7 +18,7 @@ class ContactRoute < ActiveRecord::Base
 
   before_validation :set_account
   
-  before_create :generate_random_uuid
+  before_create :generate_random_uuid, :unless => :skip_account
 
   %w(email address phone link).each do |attr|
     define_method("#{attr}_route?") do
@@ -60,7 +62,9 @@ class ContactRoute < ActiveRecord::Base
   
   protected
   def set_account
-    self.account = self.routable.account if self.routable
+    if self.routable && self.routable.respond_to?(:account)
+      self.account = self.routable.account
+    end 
   end
   
   def set_name

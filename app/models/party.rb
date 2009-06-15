@@ -126,19 +126,19 @@ class Party < ActiveRecord::Base
   def granted_blogs
     products = self.granted_products
     return [] if products.empty?
-    self.account.blogs.find(:all, :joins => "INNER JOIN product_items ON blogs.id = product_items.item_id AND product_items.item_type = 'Blog'", :conditions => "product_items.product_id IN (#{self.granted_products.map(&:id)})")
+    self.account.blogs.find(:all, :joins => "INNER JOIN product_items ON blogs.id = product_items.item_id AND product_items.item_type = 'Blog'", :conditions => "product_items.product_id IN (#{self.granted_products.map(&:id).join(',')})")
   end
   
   def granted_assets
     products = self.granted_products
     return [] if products.empty?
-    self.account.assets.find(:all, :joins => "INNER JOIN product_items ON assets.id = product_items.item_id AND product_items.item_type = 'Asset'", :conditions => "product_items.product_id IN (#{self.granted_products.map(&:id)})")
+    self.account.assets.find(:all, :joins => "INNER JOIN product_items ON assets.id = product_items.item_id AND product_items.item_type = 'Asset'", :conditions => "product_items.product_id IN (#{self.granted_products.map(&:id).join(',')})")
   end
   
   def granted_groups
     products = self.granted_products
     return [] if products.empty?
-    self.account.groups.find(:all, :joins => "INNER JOIN product_items ON groups.id = product_items.item_id AND product_items.item_type = 'Group'", :conditions => "product_items.product_id IN (#{self.granted_products.map(&:id)})")
+    self.account.groups.find(:all, :joins => "INNER JOIN product_items ON groups.id = product_items.item_id AND product_items.item_type = 'Group'", :conditions => "product_items.product_id IN (#{self.granted_products.map(&:id).join(',')})")
   end
 
   def deliver_signup_confirmation_email(options)
@@ -1477,6 +1477,12 @@ class Party < ActiveRecord::Base
       affiliate_account.password_hash = self.password_hash
       affiliate_account.password_salt = self.password_salt
       affiliate_account.save!
+      unless self.main_address.new_record?
+        t_attrs = self.main_address.attributes
+        t_attrs[:name] = "Mailing"
+        affiliate_account.update_address(t_attrs)
+      end
+      affiliate_account
     end
   end
   

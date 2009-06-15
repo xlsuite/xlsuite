@@ -285,6 +285,43 @@ class AffiliateAccount < ActiveRecord::Base
   
   before_create :generate_random_uuid
   attr_accessor :confirmed
+  
+  has_one :address, :class_name => "AddressContactRoute", :as => :routable, :dependent => :destroy
+
+  def update_address(attrs)
+    t_address = self.address
+    if !t_address
+      t_address = AddressContactRoute.new(:name => "Mailing", :routable => self)
+    end
+    t_address.attributes = attrs 
+    t_address.skip_account = true
+    t_address.save
+    t_address
+  end
+  
+  def full_name
+    [self.first_name, self.middle_name, self.last_name].reject(&:blank?).join(" ")
+  end
+  
+  def generate_username
+    return true unless self.username.blank?
+    c_username = self.email_address.split("@").first
+    t = self.class.find_by_username(c_username)
+    if t
+      self.update_attribute(:username, c_username+self.id.to_s)
+    else
+      self.update_attribute(:username, c_username)
+    end
+    true
+  end
+  
+  %w(line1 line2 line3 state country zip city).each do |cr_attr|
+    class_eval <<-EOF
+      def address_#{cr_attr}
+        self.address ? self.address.#{cr_attr} : nil
+      end
+    EOF
+  end
     
   # The following methods are needed for authentication purpose
   def archived?
@@ -316,21 +353,5 @@ class AffiliateAccount < ActiveRecord::Base
         self.save
       end
     end
-  end
-  
-  def full_name
-    [self.first_name, self.middle_name, self.last_name].reject(&:blank?).join(" ")
-  end
-  
-  def generate_username
-    return true unless self.username.blank?
-    c_username = self.email_address.split("@").first
-    t = self.class.find_by_username(c_username)
-    if t
-      self.update_attribute(:username, c_username+self.id.to_s)
-    else
-      self.update_attribute(:username, c_username)
-    end
-    true
   end
 end

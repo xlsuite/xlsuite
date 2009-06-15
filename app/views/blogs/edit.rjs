@@ -227,7 +227,12 @@ page << create_tab_using_ajax_response("Edit Blog | #{truncate(@blog.title, 10)}
 
   var gridTopToolbar = new Ext.Toolbar({
     cls: "top-toolbar",
-    items: [{text:"&nbsp;&nbsp;&nbsp;Filter: "}, filterField, clearButton, { text: "Actions", menu: selectionMenu }]
+    items: [
+      {xtype:"tbtext", text:"&nbsp;&nbsp;&nbsp;Filter: "}
+      ,filterField
+      ,clearButton
+      ,{ text: "Actions", menu: selectionMenu }
+    ]
   });
   
   var editRenderer = function(value, cell, record) {
@@ -304,7 +309,6 @@ page << create_tab_using_ajax_response("Edit Blog | #{truncate(@blog.title, 10)}
   
   var tabPanelTbar = new Ext.Toolbar({
     items: [
-      {text: #{"Editing #{@blog.title}".to_json}, disabled: true, disabledClass:"x-item-text"},
       {
         text: "New Post", 
         handler: function(btn, event){
@@ -313,6 +317,8 @@ page << create_tab_using_ajax_response("Edit Blog | #{truncate(@blog.title, 10)}
           });
         }
       }
+      ,"->"
+      ,{text: #{"Editing #{@blog.title}".to_json}, xtype:"tbtext"}
     ]
   });
   

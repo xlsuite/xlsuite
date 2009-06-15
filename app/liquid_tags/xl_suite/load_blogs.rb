@@ -106,10 +106,10 @@ module XlSuite
           ids = []
           if context.current_user? 
             party = context.current_user
-            if accessible_blogs_ids.empty?
+            if expiring_blogs_ids.empty?
               conditions << "blogs.id IN (0)"
             else
-              conditions << "blogs.id in (#{accessible_blogs_ids.join(',')})"
+              conditions << "blogs.id in (#{expiring_blogs_ids.join(',')})"
             end
           else
             conditions << "blogs.id IN (0)"
