@@ -528,6 +528,11 @@ class AccountsController < ApplicationController
         @domain.activate!
         
         MethodCallbackFuture.create!(:account => @acct, :model => @acct, :method => "update_account_owner_info_in_master_account")
+        
+        affiliate_account = @owner.convert_to_affiliate_account!
+        if affiliate_account
+          AffiliateAccountNotification.deliver_notification_from_account_signup(@domain, affiliate_account)
+        end
 
         return redirect_to(:action => :index) if current_superuser?
     
