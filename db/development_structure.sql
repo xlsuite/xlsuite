@@ -125,7 +125,9 @@ CREATE TABLE `affiliate_accounts` (
   `first_referred_by_id` int(11) default NULL,
   `created_at` datetime default NULL,
   `updated_at` datetime default NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `by_username` (`username`),
+  KEY `by_email_address` (`email_address`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `affiliates` (
@@ -2758,3 +2760,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090612220411');
 INSERT INTO schema_migrations (version) VALUES ('20090616024915');
 
 INSERT INTO schema_migrations (version) VALUES ('20090616214940');
+
+INSERT INTO schema_migrations (version) VALUES ('20090616235004');
