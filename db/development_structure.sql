@@ -244,7 +244,8 @@ CREATE TABLE `blog_posts` (
   PRIMARY KEY  (`id`),
   KEY `by_blog_published_at` (`blog_id`,`published_at`),
   KEY `by_blog_id_published_at_updated_at` (`blog_id`,`published_at`,`updated_at`),
-  KEY `by_account_blog_published_at` (`account_id`,`blog_id`,`published_at`)
+  KEY `by_account_blog_published_at` (`account_id`,`blog_id`,`published_at`),
+  KEY `by_author_published_at` (`author_id`,`published_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `blogs` (
@@ -1608,6 +1609,7 @@ CREATE TABLE `parties` (
   `own_point` int(11) default '0',
   `referrals_point` int(11) default '0',
   `delta` tinyint(1) default '0',
+  `gigya_uid` varchar(255) default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_token` (`account_id`,`token`),
   UNIQUE KEY `by_profile` (`profile_id`),
@@ -2735,3 +2737,11 @@ INSERT INTO schema_migrations (version) VALUES ('20090609192208');
 INSERT INTO schema_migrations (version) VALUES ('20090609203701');
 
 INSERT INTO schema_migrations (version) VALUES ('20090609234902');
+
+INSERT INTO schema_migrations (version) VALUES ('20090612015343');
+
+INSERT INTO schema_migrations (version) VALUES ('20090612213755');
+
+INSERT INTO schema_migrations (version) VALUES ('20090612220411');
+
+INSERT INTO schema_migrations (version) VALUES ('20090616024915');
