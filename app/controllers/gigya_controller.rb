@@ -1,12 +1,12 @@
-# 		    GNU GENERAL PUBLIC LICENSE
-# 		       Version 2, June 1991
+#         GNU GENERAL PUBLIC LICENSE
+#            Version 2, June 1991
 # 
 #  Copyright (C) 1989, 1991 Free Software Foundation, Inc.,
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #  Everyone is permitted to copy and distribute verbatim copies
 #  of this license document, but changing it is not allowed.
 # 
-# 			    Preamble
+#           Preamble
 # 
 #   The licenses for most software are designed to take away your
 # freedom to share and change it.  By contrast, the GNU General Public
@@ -56,7 +56,7 @@
 #   The precise terms and conditions for copying, distribution and
 # modification follow.
 # 
-# 		    GNU GENERAL PUBLIC LICENSE
+#         GNU GENERAL PUBLIC LICENSE
 #    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 # 
 #   0. This License applies to any program or other work which contains
@@ -255,7 +255,7 @@
 # of preserving the free status of all derivatives of our free software and
 # of promoting the sharing and reuse of software generally.
 # 
-# 			    NO WARRANTY
+#           NO WARRANTY
 # 
 #   11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
 # FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN
@@ -277,395 +277,235 @@
 # PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGES.
 # 
-# 		     END OF TERMS AND CONDITIONS
-require "digest/sha1"
+#          END OF TERMS AND CONDITIONS
+class GigyaController < ApplicationController
+  skip_before_filter :login_required
+  before_filter :authenticate, :only => %w(login signup)
+  before_filter :load_party, :only => %w(login signup authorize)
 
-module XlSuite
-  # An ActiveRecord mixin that can authenticate and authorize users.
-  module AuthenticatedUser
-    # The base exception class.
-    class AuthenticationException < RuntimeError; end
-
-    class UnknownUser < AuthenticationException; end
-    class BadAuthentication < AuthenticationException; end
-    class TokenExpired < AuthenticationException; end
-    class ConfirmationTokenExpired < AuthenticationException; end
-    class InvalidConfirmationToken < AuthenticationException; end
-    class BadConfirmationToken < AuthenticationException; end
-
-    def self.included(base) #:nodoc:
-      base.send :extend, AuthenticatedUser::ClassMethods
-      base.send :include, AuthenticatedUser::InstanceMethods
-
-      base.send :attr_accessor, :password, :email, :old_password, :confirmation_url
-      base.attr_protected :password_hash, :password_salt, :token, :token_expires_at, :confirmation_token, :confirmation_token_expires_at
-
-      base.validates_confirmation_of :password
-      base.validates_length_of :password, :minimum => 6, :allow_nil => true
-      base.validates_uniqueness_of :token, :allow_nil => true
-
-      base.before_save :generate_password_salt
-      base.before_save :crypt_password
-      base.after_save :clear_password
-    end
-
-    module ClassMethods
-      # Authenticates using an E-Mail address and password.  Raises UnknownUser
-      # if we cannot find the E-Mail address.
-      def authenticate_with_email_and_password!(email, password)
-        email = EmailContactRoute.find_by_address(email)
-        raise UnknownUser unless email
-        raise UnknownUser unless email.routable
-        
-        email.routable.attempt_password_authentication!(password)
-      end
-
-      # Attempts to authenticate using the specified token.  If this token is
-      # unknown, this method raises UnknownUser.
-      def authenticate_with_token!(token, account)
-        user = self.find(:first, :conditions => {:token => token, :account_id => account.id})
-        raise UnknownUser unless user
-        user.attempt_token_authentication!(token)
-      end
-
-      # Signs a new user up.  This sets #confirmation_token and #confirmation_token_expires_at.
-      # The create scope is respected.
-      def signup!(params={})
-        self.transaction do
-          attributes = params[:party] || {}
-          attributes.reverse_merge!(scope(:create)) if scoped?(:create)
-          returning(self.new(attributes)) do |party|
-            do_signup(party, params)
-          end
+  def login
+    if @party
+      @party.last_logged_in_at = Time.now.utc
+      @party.confirm! unless @party.confirmed?
+      self.current_user = @party
+      respond_to do |format|
+        format.html do
+          return redirect_to(blank_landing_url) if (current_user == current_domain.account.owner)
+  
+          redirect_url = params[:next] || current_domain.get_config("login_redirection") || forum_categories_url
+          return redirect_to(redirect_url)
+        end
+        format.js do
+          render :json => {:success => true, :parameters => params}.to_json
         end
       end
-      
-      # Signs up an unconfirmed user
-      # Similar to signup, but does not create a new party
-      def resignup!(party, params={})
-        do_signup(party, params, true)
-      end
-      
-      def gigya_signup!(params={})
-        self.transaction do
-          attributes = params[:party] || {}
-          attributes.reverse_merge!(scope(:create)) if scoped?(:create)
-          returning(self.new(attributes)) do |party|
-            do_signup(party, params, true, false)
-          end
+    else
+      message = params[:error_message] || "No account is associated with this user. Please login using the user you signed up with or register a new account."
+      respond_to do |format|
+        format.html do
+          if params[:return_to]
+            flash_failure message
+            return redirect_to(params[:return_to])
+          else
+            flash_failure :now, message
+            render :action => :new
+          end        
         end
-      end
-      
-      protected
-      def do_signup(party, params, resignup=false, send_confirmation_email = true)
-        party.confirmation_token = UUID.random_create.to_s
-        party.confirmation_token_expires_at = params[:confirmation_token_expires_at] if party.confirmation_token_expires_at.blank?
-        party.confirmation_token_expires_at = party.account.get_config(:confirmation_token_duration_in_seconds).from_now \
-            if party.confirmation_token_expires_at.blank?
-
-        party.tag_list = party.tag_list << "," << params[:domain].name if params[:domain]
-        if params[:profile]
-          party.profile = params[:profile] 
-          party.profile.tag_list = party.profile.tag_list << "," << party.tag_list
-          party.profile.save
-        end
-        party.save
-        group = party.account.groups.find_by_name(Configuration.get("add_to_group_on_signup", party.account))
-        party.groups << group if group
-        party.account.groups.find(params[:group_ids].split(",").map(&:strip).reject(&:blank?)).to_a.each do |g|
-          party.groups << g unless party.groups.include?(g)
-        end if params[:group_ids]
-        party.update_effective_permissions = true
-        party.append_permissions(:edit_own_account)
-        party.save
-        party.reload
-        
-        party.confirmation_url = params[:confirmation_url]
-        unless resignup
-          party_main_email = party.main_email
-          party_main_email.attributes = params[:email_address]
-          
-          raise ActiveRecord::RecordInvalid.new(party || party_main_email) unless party_main_email.save
-        end
-        
-        if send_confirmation_email
-          begin
-            AdminMailer.deliver_signup_confirmation_email(:route => party.main_email(true),
-                :confirmation_url => party.confirmation_url,
-                :confirmation_token => party.confirmation_token)
-          rescue
-            MethodCallbackFuture.create!(:models => [party], :account => party.account, :method => :deliver_signup_confirmation_email, 
-              :scheduled_at => 1.minute.from_now, 
-              :params => {:confirmation_url => party.confirmation_url.call(party, party.confirmation_token), 
-                          :confirmation_token => party.confirmation_token, :errored => 1})
-          end
+        format.js do
+          render :json => {:success => false, :messages => message}.to_json
         end
       end
     end
-
-    module InstanceMethods
-      include XlSuite::Permissionable
-
-      # The characters available for generating new passwords
-      PasswordSource = "abcdefghijklmnopqrstuvwxyz1234567890".freeze
-
-      # The total number of characters available in PasswordSource
-      PasswordSourceLength = PasswordSource.length.freeze
-
-      # Changes the user's password, confirming that we have an old 
-      # password and that it matches with the prior password.
-      def change_password!(options={})
-        old_password = options.delete(:old_password)
-        password = options.delete(:password)
-        password_confirmation = options.delete(:password_confirmation)
-
-        # TODO skipping attempt_password_authentication if old_password is nil? are you kidding?!
-        self.attempt_password_authentication!(old_password) unless self.password_hash.blank?
-        self.password, self.password_confirmation = password, password_confirmation
-        self.save!
+  end
+  
+  def signup
+    params[:party] ||= {}
+    if params[:party][:group_labels]
+      params[:party][:group_labels] = params[:party][:group_labels].split(",") if params[:party][:group_labels].is_a?(String)
+      # Flatten array such as ["lead", "news, local_news"]
+      params[:party][:group_labels] = params[:party][:group_labels].join(",").split(",")
+      groups = current_account.groups.find(:all, :select => "groups.id", :conditions => {:label => params[:party].delete(:group_labels).map(&:strip).reject(&:blank?)})
+      params[:party][:group_ids] = groups.map(&:id).join(",") unless groups.empty?
+    end
+    if @party
+      @party.last_logged_in_at = Time.now.utc
+      @party.confirm! unless @party.confirmed?
+      self.current_user = @party
+      if !params[:party][:tag_list].blank?
+        @party.update_attributes!(:tag_list => @party.tag_list + "," + params[:party][:tag_list] + "," + current_domain.name)
       end
+      if !params[:party][:group_ids].blank?
+        groups = current_account.groups.find(params[:party][:group_ids].split(",").map(&:strip).reject(&:blank?))
 
-      # Generates a new random password salt and password.  Returns the password.
-      def randomize_password!
-        returning "" do |passwd|
-          self.password_salt = self.password_hash = nil
-          6.times do
-           passwd << PasswordSource[rand(PasswordSourceLength)]
+        # Check if party already belongs to all those groups
+        if (@party.groups + groups).uniq.size == @party.groups.uniq.size
+          obj = groups.size == 1 ? "group" : "groups"
+          respond_to do |format|
+            format.html do
+              flash_failure "You already belong to the #{obj} #{groups.map(&:name).join(", ")}"
+              return redirect_to(params[:return_to] || new_session_path)
+            end
+            format.js do
+              return render(:json => {:status => "already_joined_group"}).to_json
+            end
           end
-
-          self.password = self.password_confirmation = passwd
-          self.save!
-        end
-      end
-
-      # Deletes the cookie authentication token and the token's expiration time.
-      def forget_me!
-        returning self do
-          self.token = self.token_expires_at = nil
-          self.save!
-        end
-      end
-
-      def unconfirm!(expires_at=24.hours.from_now)
-        self.confirmation_token = UUID.random_create.to_s
-        self.confirmation_token_expires_at = expires_at
-        self.confirmed = false
-        self.save!
-      end
-
-      # Returns a token value that is good for cookies, which can be used to
-      # authenticate by calling #authenticate_with_token!
-      #
-      # In fact, this method returns a Hash with two items.  The first is :value,
-      # and the second is :expires.  Both together are good for a call to
-      # #cookies[]=.
-      def remember_me!(expires_at=30.days.from_now)
-        attempts_left = 5
-        begin
-          self.token_expires_at = expires_at
-          self.token = self.sha1("#{UUID.random_create.to_s}--#{expires_at.to_s}")
-          self.save!
-        rescue ActiveRecord::RecordInvalid
-          raise unless self.errors.on(:token)
-          raise if attempts_left == 0
-          attempts_left -= 1
-          retry
-        end
-
-        {:value => self.token, :expires => self.token_expires_at}
-      end
-
-      # Attempts to authenticate this AuthenticatedUser with the password.  Raises
-      # UnknownUser if this user is destroyed, or BadAuthentication if the password
-      # does not match.
-      def attempt_password_authentication!(password)
-        raise UnknownUser, "This user has been archived" if self.archived?
-        raise BadAuthentication, "The passwords do not match" if self.encrypted_password(password) != self.password_hash
-        self.login!
-      end
-
-      # Attempts to authenticate this AuthenticatedUser using the token.  Raises
-      # UnknownUser if this user is destroyed, or TokenExpired if the token has
-      # expired.
-      def attempt_token_authentication!(token)
-        raise UnknownUser if self.archived?
-        raise TokenExpired if self.token_expires_at.blank? || self.token_expires_at < Time.now
-        self.token_expires_at = 30.days.from_now
-        self.login!
-      end
-      
-      # Attempts to authenticate user using the confirmation token
-      # Raises UnknownUser if the user is archived or TokenExpired if the token has expired
-      def attempt_confirmation_token_authentication!(token)
-        raise UnknownUser if self.archived?
-        raise InvalidConfirmationToken if token.blank?
-        raise ConfirmationTokenExpired if self.confirmation_token_expires_at < Time.now
-        raise BadConfirmationToken unless self.confirmation_token == token
-        self
-      end
-      
-      def confirm!
-        self.confirmation_token = nil
-        self.confirmation_token_expires_at = nil
-        self.confirmed = true
-        self.save!
-      end
-      
-      # An alternate method of doing confirmation token authentication.
-      def confirmation_code=(token)
-        logger.debug {"==> \#confirmation_code: #{token.inspect}"}
-        return if token.blank?
-
-        logger.debug {"==> attempt confirmation token authentication"}
-        self.attempt_confirmation_token_authentication!(token)
-
-        logger.debug {"==> confirmation token accepted"}
-        self.confirmation_token = nil
-        self.confirmation_token_expires_at = nil
-      end
-
-      # Returns the SHA1 hex digest of the value.
-      def sha1(value)
-        Digest::SHA1.hexdigest(value)
-      end
-
-      # Asserts that this Party can or cannot do something:
-      #  party.can?(:edit_permissions) #=> false
-      #  party.can?(:edit_article) #=> true
-      #
-      # It is possible to do multiple checks at once:
-      #  party.can?(:supervise, :edit_article, :any => true)
-      #  party.can?(:edit_schedule, :edit_own_schedule, :all => true)
-      #
-      # It is also possible to assert that none of the permissions is assigned to this party:
-      #  party.can?(:supervise, :none => true) #=> false
-      #
-      # See Permission
-      def can?(*args)
-        args.flatten!
-        args.compact!
-        return false if args.empty?
-        options = if args.last.kind_of?(Hash) then
-                    args.pop
-                  else
-                    {:all => true}
-                  end
-        raise ArgumentError, "Can accept only one of :none, :all or :any in options" if options.size != 1
-
-        permissions = args.map {|p| Permission.normalize(p)}
-        return false if permissions.empty?
-        
-        permissions.uniq!
-        permissions = permissions.map do |perm_name|
-          Permission.find_by_name(perm_name)
-        end
-        
-        permissions.compact!
-        return false if permissions.empty?
-        
-        permission_ids = permissions.map(&:id).join(",")
-        count = ActiveRecord::Base.connection().select_value(%Q~
-          SELECT COUNT(*) FROM effective_permissions WHERE party_id=#{self.id} AND permission_id IN (#{permission_ids})
-        ~).to_i
-
-        if options[:any]
-          return true if count > 0
-        elsif options[:all]
-          return true if count == permissions.size 
-        elsif options[:none]
-          return true if count == 0
         else
-          raise ArgumentError, ":all or :any MUST be specified - none found"
-        end
-=begin
-        return false if permissions - denied_permissions.map(&:name) != permissions
-
-        perms = (self.permissions + self.groups.map(&:permissions)).flatten.uniq
-        if options[:any] then
-          perms.each do |perm|
-            return true if permissions.include?(perm.name)
-          end
-        elsif options[:all] then
-          authz = perms.map {|p| p.name}
-          return true if (permissions - authz).empty?
-        elsif options[:none] then
-          authz = perms.map {|p| p.name}
-          return true if (authz - permissions) == authz
-        else
-          raise ArgumentError, ":all or :any MUST be specified - none found"
-        end
-=end
-        false
-      end
-      
-      # Takes in a hash of confirmation_token and attributes
-      # Returns self object immediately if a user has been been authorized,
-      # otherwise sets confirmation_token, confirmation_token_expires_at to blank
-      # and then update user attributes and save
-      def authorize!(params={})
-        self.class.transaction do  
-          return self if self.confirmation_token.blank?
-          raise InvalidConfirmationToken if self.confirmation_token != params[:confirmation_token]
-          returning(self) do
-            self.attributes = params[:attributes]
-            self.confirmation_token = nil
-            self.confirmation_token_expires_at = nil
-            self.confirmed = true
-            self.login!
+          # Already authenticated by gigya, so add to group
+          @party.groups << groups
+          @party.groups.uniq!
+          @party.update_effective_permissions = true
+          group_ids = params[:party].delete(:group_ids)
+          [:group_labels, :tag_list].each do |p|
+            params[:party].delete(p)
+          end unless params[:party].blank?
+          @party.attributes=params[:party] unless params[:party].blank?
+          @party.save
+          obj = groups.size == 1 ? "group" : "groups"
+          respond_to do |format|
+            format.html do
+              flash_success "You have successfully subscribed to the #{obj} #{groups.map(&:name).join(", ")}"
+              return redirect_to(params[:signed_up] ? params[:signed_up]+"?gids=#{group_ids}" : new_session_path)
+            end
+            format.js do
+              return render(:json => {:status => "group_joined"}).to_json
+            end
           end
         end
-      end
-      
-      def member_of?(group_or_role)
-        raise ArgumentError, "#{group_or_role.class.name} object type not supported, has to be Group or Role or nil" unless group_or_role.kind_of?(Group) || group_or_role.kind_of?(Role) || group_or_role.kind_of?(NilClass)
-        return false if group_or_role.blank?
-        object = group_or_role.class.find_by_name(group_or_role.name)
-        return false if group_or_role.blank?
-        
-        relation_name = if group_or_role.kind_of?(Group)
-                          "groups"
-                        elsif group_or_role.kind_of?(Role)
-                          "roles"
-                        end
-        
-        self.send(relation_name).each do |o|
-          name_list = o.ancestors.map(&:name) + [o.name]
-          return true if name_list.index(object.name)
-        end
+      end      
+      # Only show failure message if party is confirmed
 
-        return false
-      end
-      
-      protected
-      # Changes this user's last logged in at time.
-      def login!
-        returning self do
-          self.last_logged_in_at = Time.now.utc
-          self.save!
+      respond_to do |format|
+        format.html do
+          if @party.confirmed?
+            flash_success "Thank you for logging in" 
+            flash_failure "You are already registered"
+          end
+          return redirect_to(params[:return_to])
+        end
+        format.js do
+          return render(:json => {:status => "already_registered"}).to_json
         end
       end
-
-      # Encrypts the password using the local salt.
-      def encrypted_password(password)
-        self.sha1("#{self.password_salt}--#{password}--")
-      end
-
-      # Clears @password and @password_confirmation.
-      def clear_password
-        self.password = self.password_confirmation = nil
-      end
-
-      # A callback to encrypt the password before save.
-      def crypt_password
-        return if self.password.blank?
-        self.password_hash = self.encrypted_password(self.password)
-      end
-
-      # A callback to generate a password salt if none set.
-      def generate_password_salt
-        return unless self.password_salt.blank?
-        self.password_salt = self.sha1("#{Time.now.to_s}--#{rand()}")
+    else
+      group_ids = params[:party].delete(:group_ids) if params[:party]
+      params[:party] ||= {}
+      @party = current_account.parties.gigya_signup!(:domain => current_domain, :party => params[:party].merge!(:gigya_uid => params[:UID]),
+          :group_ids => group_ids )
+      respond_to do |format|
+        format.html do
+          if params[:next]
+            next_params = "uid=#{params[:UID]}&signature=#{params[:signature]}&timestamp=#{params[:timestamp]}&code=#{@party.confirmation_token}&gids=#{group_ids}&signed_up=#{params[:signed_up]}"
+            redirect_url = params[:next] + "#{params[:next] =~ /\?/ ? '&' : '?'}" + next_params
+            return redirect_to(redirect_url)
+          end
+          render_within_public_layout(:action => "signup")
+        end
+        format.js do
+          return render(:json => {:status => "needs_confirm"}).to_json
+        end
       end
     end
+
+    rescue ActiveRecord::RecordInvalid
+      logger.debug {$!}
+      @party = $!.record
+      @tags = params[:party][:tag_list]
+      @email_address = @party.main_email
+      @email_address.attributes = params[:email_address]
+      flash_failure @email_address.errors.full_messages.join(", ") unless @email_address.valid?
+      respond_to do |format|
+        format.html {return redirect_to(params[:return_to]) if params[:return_to]}
+        format.js {return render(:json => {:success => false, :errors => flash_messages_to_s}).to_json}
+      end
+      render_within_public_layout(:action => "register")
+    rescue ActiveRecord::RecordNotFound
+      logger.debug {$!}
+      flash_failure $!.message
+      respond_to do |format|
+        format.html {return redirect_to(params[:return_to]) if params[:return_to]}
+        format.js {return render(:json => {:success => false, :errors => flash_messages_to_s}).to_json}
+      end
+      render_within_public_layout(:action => "register")
+  end
+
+  def authorize
+    
+    if params[:party][:group_labels]
+      params[:party][:group_labels] = params[:party][:group_labels].split(",") if params[:party][:group_labels].is_a?(String)
+      # Flatten array such as ["lead", "news, local_news"]
+      params[:party][:group_labels] = params[:party][:group_labels].join(",").split(",")
+      groups = current_account.groups.find(:all, :select => "groups.id", :conditions => {:label => params[:party].delete(:group_labels).map(&:strip).reject(&:blank?)})
+      params[:party][:group_ids] = groups.map(&:id).join(",") unless groups.empty?
+    end
+
+    party_main_email = @party.main_email
+    party_main_email.attributes = params[:email_address]
+    
+    raise ActiveRecord::RecordInvalid.new(@party || party_main_email) unless party_main_email.save
+    
+    unless params[:party][:avatar_url].blank? then
+      @party.avatar.destroy if @party.avatar
+      avatar = @party.build_avatar(:external_url => params[:party].delete(:avatar_url), :account => @party.account)
+      avatar.save!
+    else
+      params[:party].delete("avatar_url")
+    end
+
+    params[:gids] = params[:gids].split(",") if params[:gids]
+    @party.account.groups.find(params[:party].delete(:group_ids).split(",").map(&:strip).reject(&:blank?)).to_a.each do |g|
+      unless @party.groups.include?(g)
+        @party.groups << g
+        params[:gids] << g.id
+      end
+    end if params[:party][:group_ids]
+    
+    @party.save
+    @party.authorize!(:attributes => params[:party], :confirmation_token => params[:code])
+    self.current_user = @party
+
+    flash_success "You have been successfully authorized.  Welcome!"
+
+    redirect_path = params[:signed_up] || params[:next]
+    redirect_path.blank? ? (redirect_to_specified_or_default forum_categories_url) : (return redirect_to(params[:gids].blank? ? redirect_path : redirect_path + "?gids=#{params[:gids].join(",")}"))
+
+    rescue ActiveRecord::RecordInvalid
+      logger.warn $!.message.to_s
+      @code = params[:code]
+      flash_failure @party.errors.full_messages + party_main_email.errors.full_messages
+      return redirect_to_return_to_or_back_or_home
+
+    rescue XlSuite::AuthenticatedUser::ConfirmationTokenExpired
+      flash_failure :now, "Confirmation token has expired.  Please register again."
+      render(:action => "confirmation_token_expired", :status => "400 Bad Request")
+
+    rescue XlSuite::AuthenticatedUser::AuthenticationException
+      flash_failure :now, "Bad token or user.  Please register again."
+      render(:action => "bad_token_or_user", :status => "400 Bad Request")
+  end
+  
+  def authenticate
+    begin      
+      secret_key = current_domain.get_config("gigya_socialize_secret_key")
+      raise StandardError, "Secret key is missing, please set the configuration 'gigya_socialize_secret_key'" if secret_key.blank?
+      uid = params[:UID]
+      signature = params[:signature]
+      timestamp = params[:timestamp]
+      
+      base = timestamp + "_" + uid
+      
+      binsig = HMAC::SHA1.digest(Base64.decode64(secret_key), base)
+      generated_sig = Base64.encode64(binsig)
+      
+      authenticated = generated_sig.strip == signature
+      return true if authenticated
+      return access_denied
+    rescue
+      return access_denied($!.message)
+    end
+  end
+  
+  protected  
+  def load_party
+    @party = params[:UID].blank? ? nil : current_account.parties.find_by_gigya_uid(params[:UID])
   end
 end

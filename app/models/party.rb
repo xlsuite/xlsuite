@@ -374,6 +374,7 @@ class Party < ActiveRecord::Base
 
   composed_of :tz, :class_name => "TZInfo::Timezone", :mapping => %w(timezone identifier)
   validates_uniqueness_of :forum_alias, :scope => :account_id, :if => Proc.new {|p| !p.forum_alias.blank?}
+  validates_uniqueness_of :gigya_uid, :scope => :account_id, :if => Proc.new {|p| !p.gigya_uid.blank?}
 
   serialize :info, Hash
   
@@ -423,7 +424,6 @@ class Party < ActiveRecord::Base
       AdminMailer.deliver_signup_confirmation_email(:route => self.main_email(true),
           :confirmation_url => options[:confirmation_url],
           :confirmation_token => options[:confirmation_token])
-
     rescue
       errored = (options[:errored]||0)+1
       if errored > 30
@@ -1198,6 +1198,10 @@ class Party < ActiveRecord::Base
     end
     target.tag_list = target.tag_list << " #{self.tag_list}"
     target.save!
+    
+    self.groups.each do |g|
+      target.groups << g unless target.groups.include?(g)
+    end
     
     copy_routes_to(target)
   end
