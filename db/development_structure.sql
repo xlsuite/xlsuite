@@ -98,7 +98,9 @@ CREATE TABLE `affiliate_account_items` (
   `target_id` int(11) default NULL,
   `created_at` datetime default NULL,
   `updated_at` datetime default NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `by_affiliate_account` (`affiliate_account_id`),
+  KEY `by_target` (`target_type`,`target_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `affiliate_accounts` (
@@ -2762,3 +2764,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090616024915');
 INSERT INTO schema_migrations (version) VALUES ('20090616214940');
 
 INSERT INTO schema_migrations (version) VALUES ('20090616235004');
+
+INSERT INTO schema_migrations (version) VALUES ('20090616235555');
