@@ -281,12 +281,23 @@
 module XlSuite
   module Commentable
     def self.included(base)
+      base.send :extend, Commentable::ClassMethods
+      
       base.send("attr_accessor", :current_domain)
       base.before_validation_on_create :set_comment_approval_method
       base.validates_format_of :comment_approval_method, :with => /(moderated)|(always\sapproved)|(no comments)/i
       
       base.has_many :comments, :as => :commentable, :order => "created_at DESC", :dependent => :destroy
     end
+    
+    module ClassMethods
+      def recalculate_average_rating
+        self.find(:all).each do |commentable|
+          commentable.update_attribute("average_rating", commentable.average_comments_rating)
+        end
+        true
+      end
+    end 
     
     def approved_comments
       self.comments.find(:all, :conditions => "approved_at IS NOT NULL")
@@ -324,7 +335,8 @@ module XlSuite
       return 0 if self.approved_comments_count == 0
       ratings_sum = 0
       ratings = self.approved_comments.map(&:rating).reject(&:blank?)
-      ratings.each{|r| ratings_sum += r} unless ratings.blank?
+      return 0 if ratings.blank?
+      ratings.each{|r| ratings_sum += r}
       ratings_sum/ratings.size.to_f
     end
   
