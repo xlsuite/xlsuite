@@ -325,7 +325,7 @@ module XlSuite
       ratings_sum = 0
       ratings = self.approved_comments.map(&:rating).reject(&:blank?)
       ratings.each{|r| ratings_sum += r} unless ratings.blank?
-      ratings_sum/self.approved_comments_count.to_f
+      ratings_sum/ratings.size.to_f
     end
   
     def approve_all_comments
