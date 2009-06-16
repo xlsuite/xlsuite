@@ -287,6 +287,7 @@ class AffiliateAccount < ActiveRecord::Base
   attr_accessor :confirmed
   
   has_one :address, :class_name => "AddressContactRoute", :as => :routable, :dependent => :destroy
+  has_many :affiliate_account_items, :dependent => :destroy
 
   def update_address(attrs)
     t_address = self.address
