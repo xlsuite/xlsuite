@@ -90,6 +90,17 @@ CREATE TABLE `accounts` (
   KEY `by_master` (`master`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `affiliate_account_items` (
+  `id` int(11) NOT NULL auto_increment,
+  `affiliate_account_id` int(11) default NULL,
+  `level` int(11) default '0',
+  `target_type` varchar(255) default NULL,
+  `target_id` int(11) default NULL,
+  `created_at` datetime default NULL,
+  `updated_at` datetime default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `affiliate_accounts` (
   `id` int(11) NOT NULL auto_increment,
   `email_address` varchar(255) default NULL,
@@ -2745,3 +2756,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090612213755');
 INSERT INTO schema_migrations (version) VALUES ('20090612220411');
 
 INSERT INTO schema_migrations (version) VALUES ('20090616024915');
+
+INSERT INTO schema_migrations (version) VALUES ('20090616214940');
