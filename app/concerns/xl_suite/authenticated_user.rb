@@ -69,8 +69,18 @@ module XlSuite
         do_signup(party, params, true)
       end
       
+      def gigya_signup!(params={})
+        self.transaction do
+          attributes = params[:party] || {}
+          attributes.reverse_merge!(scope(:create)) if scoped?(:create)
+          returning(self.new(attributes)) do |party|
+            do_signup(party, params, true, false)
+          end
+        end
+      end
+      
       protected
-      def do_signup(party, params, resignup=false)
+      def do_signup(party, params, resignup=false, send_confirmation_email = true)
         party.confirmation_token = UUID.random_create.to_s
         party.confirmation_token_expires_at = params[:confirmation_token_expires_at] if party.confirmation_token_expires_at.blank?
         party.confirmation_token_expires_at = party.account.get_config(:confirmation_token_duration_in_seconds).from_now \
@@ -101,15 +111,17 @@ module XlSuite
           raise ActiveRecord::RecordInvalid.new(party || party_main_email) unless party_main_email.save
         end
         
-        begin
-          AdminMailer.deliver_signup_confirmation_email(:route => party.main_email(true),
-              :confirmation_url => party.confirmation_url,
-              :confirmation_token => party.confirmation_token)
-        rescue
-          MethodCallbackFuture.create!(:models => [party], :account => party.account, :method => :deliver_signup_confirmation_email, 
-            :scheduled_at => 1.minute.from_now, 
-            :params => {:confirmation_url => party.confirmation_url.call(party, party.confirmation_token), 
-                        :confirmation_token => party.confirmation_token, :errored => 1})
+        if send_confirmation_email
+          begin
+            AdminMailer.deliver_signup_confirmation_email(:route => party.main_email(true),
+                :confirmation_url => party.confirmation_url,
+                :confirmation_token => party.confirmation_token)
+          rescue
+            MethodCallbackFuture.create!(:models => [party], :account => party.account, :method => :deliver_signup_confirmation_email, 
+              :scheduled_at => 1.minute.from_now, 
+              :params => {:confirmation_url => party.confirmation_url.call(party, party.confirmation_token), 
+                          :confirmation_token => party.confirmation_token, :errored => 1})
+          end
         end
       end
     end
@@ -214,7 +226,14 @@ module XlSuite
         raise BadConfirmationToken unless self.confirmation_token == token
         self
       end
-
+      
+      def confirm!
+        self.confirmation_token = nil
+        self.confirmation_token_expires_at = nil
+        self.confirmed = true
+        self.save!
+      end
+      
       # An alternate method of doing confirmation token authentication.
       def confirmation_code=(token)
         logger.debug {"==> \#confirmation_code: #{token.inspect}"}

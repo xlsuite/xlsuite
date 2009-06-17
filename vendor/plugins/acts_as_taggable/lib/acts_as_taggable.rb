@@ -244,6 +244,12 @@ module ActiveRecord
           tag_list
         end
         
+        def remove_tags(list)
+          list = Tag.parse(list)
+          @tag_list = tags(true).reject{|t|list.include?(t.name)}.map(&:name)
+          tag_list
+        end
+        
       protected
         def update_taggings
           tag_with(@tag_list) if @tag_list

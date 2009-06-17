@@ -278,25 +278,26 @@
 # POSSIBILITY OF SUCH DAMAGES.
 # 
 # 		     END OF TERMS AND CONDITIONS
-class AffiliateAccountNotification < ActionMailer::Base
-  def password_reset(options)
-    @subject    = "[XL] XLsuite Affiliate Account New Password Notification"
-    @body       = options
-    @recipients = options[:affiliate_account].email_address
-    @from       = "XLsuite Admin<admin@xlsuite.com>"
-  end
+class AffiliateAccountItem < ActiveRecord::Base
+  attr_protected :level
+
+  belongs_to :affiliate_account
+  belongs_to :target, :polymorphic => true
   
-  def notification_from_account_signup(domain, affiliate_account)
-    @subject = "[XL] Your XLsuite Affiliate Account"
-    @body = {:domain => domain}
-    @recipients = affiliate_account.email_address
-    @from = "XLsuite Admin<admin@xlsuite.com>"
-  end
+  validates_presence_of :affiliate_account_id, :level, :target_type, :target_id
+  validates_uniqueness_of :affiliate_account_id, :scope => [:target_type, :target_id]
   
-  def notification_from_contact_signup(domain, affiliate_account)
-    @subject = "[XL] Your XLsuite Affiliate Account"
-    @body = {:domain => domain}
-    @recipients = affiliate_account.email_address
-    @from = "XLsuite Admin<admin@xlsuite.com>"
+  before_create :set_level
+  
+  protected
+  
+  def set_level
+    max_level = self.class.maximum(:level, :conditions => {:target_type => self.target_type, :target_id => self.target_id})
+    if max_level
+      self.level = max_level + 1
+    else
+      self.level = 1
+    end
+    true
   end
 end

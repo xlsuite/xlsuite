@@ -75,7 +75,7 @@ class AccountsController < ApplicationController
         
         @acct.owner = @owner
         @acct.save!
-        MethodCallbackFuture.create!(:model => @acct, :method => :grant_all_permissions_to_owner, :system => true, :priority => 10)
+        MethodCallbackFuture.create!(:model => @acct, :method => :grant_all_permissions_to_owner, :account => @acct, :priority => 10)
         
         @acct.copy_profile_to_owner!(:profile_id => params[:profile_id]) if params[:profile_id]
 
@@ -251,6 +251,11 @@ class AccountsController < ApplicationController
         @domain.activate!
         
         MethodCallbackFuture.create!(:account => @acct, :model => @acct, :method => "update_account_owner_info_in_master_account")
+        
+        affiliate_account = @owner.convert_to_affiliate_account!
+        if affiliate_account
+          AffiliateAccountNotification.deliver_notification_from_account_signup(@domain, affiliate_account)
+        end
 
         return redirect_to(:action => :index) if current_superuser?
     

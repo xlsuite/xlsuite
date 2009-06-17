@@ -40,6 +40,9 @@ class CartsController < ApplicationController
   end
   
   def checkout
+    flash[:liquid] ||= {}
+    flash[:liquid][:params] = params
+    
     if params[:empty_cart_url] && @cart.total_amount.cents == 0
       return redirect_to(params[:empty_cart_url])
     end
@@ -70,9 +73,6 @@ class CartsController < ApplicationController
       end
     end
     rescue
-    
-      flash[:liquid] ||= {}
-      flash[:liquid][:params] = params
       errors = $!.message.to_s
       logger.warn(errors.inspect)
       logger.warn($!.backtrace.join("\n"))

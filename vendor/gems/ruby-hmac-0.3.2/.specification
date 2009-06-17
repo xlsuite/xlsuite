@@ -1,0 +1,75 @@
+--- !ruby/object:Gem::Specification 
+name: ruby-hmac
+version: !ruby/object:Gem::Version 
+  version: 0.3.2
+platform: ruby
+authors: 
+- Daiki Ueno
+- Geoffrey Grosenbach
+autorequire: 
+bindir: bin
+cert_chain: []
+
+date: 2008-08-21 00:00:00 -07:00
+default_executable: 
+dependencies: 
+- !ruby/object:Gem::Dependency 
+  name: hoe
+  type: :development
+  version_requirement: 
+  version_requirements: !ruby/object:Gem::Requirement 
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        version: 1.7.0
+    version: 
+description: A MAC provides a way to check the integrity of information transmitted over or stored in an unreliable medium, based on a secret key.
+email: boss@topfunky.com
+executables: []
+
+extensions: []
+
+extra_rdoc_files: 
+- History.txt
+- Manifest.txt
+- README.txt
+files: 
+- History.txt
+- Manifest.txt
+- README.txt
+- Rakefile
+- lib/hmac-md5.rb
+- lib/hmac-rmd160.rb
+- lib/hmac-sha1.rb
+- lib/hmac-sha2.rb
+- lib/hmac.rb
+- test/test_hmac.rb
+has_rdoc: true
+homepage: http://ruby-hmac.rubyforge.org
+post_install_message: 
+rdoc_options: 
+- --main
+- README.txt
+require_paths: 
+- lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+requirements: []
+
+rubyforge_project: ruby-hmac
+rubygems_version: 1.3.0
+signing_key: 
+specification_version: 2
+summary: An implementation of the HMAC authentication code in Ruby.
+test_files: 
+- test/test_hmac.rb

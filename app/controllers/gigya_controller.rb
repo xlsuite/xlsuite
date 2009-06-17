@@ -1,12 +1,12 @@
-# 		    GNU GENERAL PUBLIC LICENSE
-# 		       Version 2, June 1991
+#         GNU GENERAL PUBLIC LICENSE
+#            Version 2, June 1991
 # 
 #  Copyright (C) 1989, 1991 Free Software Foundation, Inc.,
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #  Everyone is permitted to copy and distribute verbatim copies
 #  of this license document, but changing it is not allowed.
 # 
-# 			    Preamble
+#           Preamble
 # 
 #   The licenses for most software are designed to take away your
 # freedom to share and change it.  By contrast, the GNU General Public
@@ -56,7 +56,7 @@
 #   The precise terms and conditions for copying, distribution and
 # modification follow.
 # 
-# 		    GNU GENERAL PUBLIC LICENSE
+#         GNU GENERAL PUBLIC LICENSE
 #    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 # 
 #   0. This License applies to any program or other work which contains
@@ -255,7 +255,7 @@
 # of preserving the free status of all derivatives of our free software and
 # of promoting the sharing and reuse of software generally.
 # 
-# 			    NO WARRANTY
+#           NO WARRANTY
 # 
 #   11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
 # FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN
@@ -277,26 +277,246 @@
 # PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGES.
 # 
-# 		     END OF TERMS AND CONDITIONS
-class AffiliateAccountNotification < ActionMailer::Base
-  def password_reset(options)
-    @subject    = "[XL] XLsuite Affiliate Account New Password Notification"
-    @body       = options
-    @recipients = options[:affiliate_account].email_address
-    @from       = "XLsuite Admin<admin@xlsuite.com>"
+#          END OF TERMS AND CONDITIONS
+class GigyaController < ApplicationController
+  skip_before_filter :login_required
+  before_filter :authenticate, :only => %w(login signup)
+  before_filter :load_party, :only => %w(login signup authorize)
+
+  def login
+    if @party
+      @party.last_logged_in_at = Time.now.utc
+      @party.confirm! unless @party.confirmed?
+      self.current_user = @party
+      respond_to do |format|
+        format.html do
+          return redirect_to(blank_landing_url) if (current_user == current_domain.account.owner)
+  
+          redirect_url = params[:next] || current_domain.get_config("login_redirection") || forum_categories_url
+          return redirect_to(redirect_url)
+        end
+        format.js do
+          render :json => {:success => true, :parameters => params}.to_json
+        end
+      end
+    else
+      message = params[:error_message] || "No account is associated with this user. Please login using the user you signed up with or register a new account."
+      respond_to do |format|
+        format.html do
+          if params[:return_to]
+            flash_failure message
+            return redirect_to(params[:return_to])
+          else
+            flash_failure :now, message
+            render :action => :new
+          end        
+        end
+        format.js do
+          render :json => {:success => false, :messages => message}.to_json
+        end
+      end
+    end
   end
   
-  def notification_from_account_signup(domain, affiliate_account)
-    @subject = "[XL] Your XLsuite Affiliate Account"
-    @body = {:domain => domain}
-    @recipients = affiliate_account.email_address
-    @from = "XLsuite Admin<admin@xlsuite.com>"
+  def signup
+    params[:party] ||= {}
+    if params[:party][:group_labels]
+      params[:party][:group_labels] = params[:party][:group_labels].split(",") if params[:party][:group_labels].is_a?(String)
+      # Flatten array such as ["lead", "news, local_news"]
+      params[:party][:group_labels] = params[:party][:group_labels].join(",").split(",")
+      groups = current_account.groups.find(:all, :select => "groups.id", :conditions => {:label => params[:party].delete(:group_labels).map(&:strip).reject(&:blank?)})
+      params[:party][:group_ids] = groups.map(&:id).join(",") unless groups.empty?
+    end
+    if @party
+      if !@party.confirmed?
+        respond_to do |format|
+          format.html do
+            if params[:next]
+              next_params = "uid=#{params[:UID]}&signature=#{params[:signature]}&timestamp=#{params[:timestamp]}&code=#{@party.confirmation_token}&gids=#{group_ids}&signed_up=#{params[:signed_up]}"
+              redirect_url = params[:next] + "#{params[:next] =~ /\?/ ? '&' : '?'}" + next_params
+              return redirect_to(redirect_url)
+            end
+            render_within_public_layout(:action => "signup")
+          end
+          format.js do
+            return render(:json => {:status => "needs_confirm"}).to_json
+          end
+        end
+      end
+      @party.last_logged_in_at = Time.now.utc
+      self.current_user = @party
+      if !params[:party][:tag_list].blank?
+        @party.update_attributes!(:tag_list => @party.tag_list + "," + params[:party][:tag_list] + "," + current_domain.name)
+      end
+      if !params[:party][:group_ids].blank?
+        groups = current_account.groups.find(params[:party][:group_ids].split(",").map(&:strip).reject(&:blank?))
+
+        # Check if party already belongs to all those groups
+        if (@party.groups + groups).uniq.size == @party.groups.uniq.size
+          obj = groups.size == 1 ? "group" : "groups"
+          respond_to do |format|
+            format.html do
+              flash_failure "You already belong to the #{obj} #{groups.map(&:name).join(", ")}"
+              return redirect_to(params[:return_to] || new_session_path)
+            end
+            format.js do
+              return render(:json => {:status => "already_joined_group"}).to_json
+            end
+          end
+        else
+          # Already authenticated by gigya, so add to group
+          @party.groups << groups
+          @party.groups.uniq!
+          @party.update_effective_permissions = true
+          group_ids = params[:party].delete(:group_ids)
+          [:group_labels, :tag_list].each do |p|
+            params[:party].delete(p)
+          end unless params[:party].blank?
+          @party.attributes=params[:party] unless params[:party].blank?
+          @party.save
+          obj = groups.size == 1 ? "group" : "groups"
+          respond_to do |format|
+            format.html do
+              flash_success "You have successfully subscribed to the #{obj} #{groups.map(&:name).join(", ")}"
+              return redirect_to(params[:signed_up] ? params[:signed_up]+"?gids=#{group_ids}" : new_session_path)
+            end
+            format.js do
+              return render(:json => {:status => "group_joined"}).to_json
+            end
+          end
+        end
+      end
+      respond_to do |format|
+        format.html do
+          if @party.confirmed?
+            flash_success "Thank you for logging in."
+          end
+          return redirect_to(params[:return_to])
+        end
+        format.js do
+          return render(:json => {:status => "already_registered"}).to_json
+        end
+      end
+    else
+      group_ids = params[:party].delete(:group_ids) if params[:party]
+      params[:party] ||= {}
+      @party = current_account.parties.gigya_signup!(:domain => current_domain, :party => params[:party].merge!(:gigya_uid => params[:UID]),
+          :group_ids => group_ids )
+      respond_to do |format|
+        format.html do
+          if params[:next]
+            next_params = "uid=#{params[:UID]}&signature=#{params[:signature]}&timestamp=#{params[:timestamp]}&code=#{@party.confirmation_token}&gids=#{group_ids}&signed_up=#{params[:signed_up]}"
+            redirect_url = params[:next] + "#{params[:next] =~ /\?/ ? '&' : '?'}" + next_params
+            return redirect_to(redirect_url)
+          end
+          render_within_public_layout(:action => "signup")
+        end
+        format.js do
+          return render(:json => {:status => "needs_confirm"}).to_json
+        end
+      end
+    end
+
+    rescue ActiveRecord::RecordInvalid
+      logger.debug {$!}
+      @party = $!.record
+      @tags = params[:party][:tag_list]
+      @email_address = @party.main_email
+      @email_address.attributes = params[:email_address]
+      flash_failure @email_address.errors.full_messages.join(", ") unless @email_address.valid?
+      respond_to do |format|
+        format.html {return redirect_to(params[:return_to]) if params[:return_to]}
+        format.js {return render(:json => {:success => false, :errors => flash_messages_to_s}).to_json}
+      end
+      render_within_public_layout(:action => "register")
+    rescue ActiveRecord::RecordNotFound
+      logger.debug {$!}
+      flash_failure $!.message
+      respond_to do |format|
+        format.html {return redirect_to(params[:return_to]) if params[:return_to]}
+        format.js {return render(:json => {:success => false, :errors => flash_messages_to_s}).to_json}
+      end
+      render_within_public_layout(:action => "register")
+  end
+
+  def authorize
+    
+    if params[:party][:group_labels]
+      params[:party][:group_labels] = params[:party][:group_labels].split(",") if params[:party][:group_labels].is_a?(String)
+      # Flatten array such as ["lead", "news, local_news"]
+      params[:party][:group_labels] = params[:party][:group_labels].join(",").split(",")
+      groups = current_account.groups.find(:all, :select => "groups.id", :conditions => {:label => params[:party].delete(:group_labels).map(&:strip).reject(&:blank?)})
+      params[:party][:group_ids] = groups.map(&:id).join(",") unless groups.empty?
+    end
+
+    party_main_email = @party.main_email
+    party_main_email.attributes = params[:email_address]
+    
+    raise ActiveRecord::RecordInvalid.new(@party || party_main_email) unless party_main_email.save
+    
+    unless params[:party][:avatar_url].blank? then
+      @party.avatar.destroy if @party.avatar
+      avatar = @party.build_avatar(:external_url => params[:party].delete(:avatar_url), :account => @party.account)
+      avatar.save!
+    else
+      params[:party].delete("avatar_url")
+    end
+
+    params[:gids] = params[:gids].split(",") if params[:gids]
+    @party.account.groups.find(params[:party].delete(:group_ids).split(",").map(&:strip).reject(&:blank?)).to_a.each do |g|
+      unless @party.groups.include?(g)
+        @party.groups << g
+        params[:gids] << g.id
+      end
+    end if params[:party][:group_ids]
+    
+    @party.save
+    @party.authorize!(:attributes => params[:party], :confirmation_token => params[:code])
+    self.current_user = @party
+
+    flash_success "You have been successfully authorized.  Welcome!"
+
+    redirect_path = params[:signed_up] || params[:next]
+    redirect_path.blank? ? (redirect_to_specified_or_default forum_categories_url) : (return redirect_to(params[:gids].blank? ? redirect_path : redirect_path + "?gids=#{params[:gids].join(",")}"))
+
+    rescue ActiveRecord::RecordInvalid
+      logger.warn $!.message.to_s
+      @code = params[:code]
+      flash_failure @party.errors.full_messages + party_main_email.errors.full_messages
+      return redirect_to_return_to_or_back_or_home
+
+    rescue XlSuite::AuthenticatedUser::ConfirmationTokenExpired
+      flash_failure :now, "Confirmation token has expired.  Please register again."
+      render(:action => "confirmation_token_expired", :status => "400 Bad Request")
+
+    rescue XlSuite::AuthenticatedUser::AuthenticationException
+      flash_failure :now, "Bad token or user.  Please register again."
+      render(:action => "bad_token_or_user", :status => "400 Bad Request")
   end
   
-  def notification_from_contact_signup(domain, affiliate_account)
-    @subject = "[XL] Your XLsuite Affiliate Account"
-    @body = {:domain => domain}
-    @recipients = affiliate_account.email_address
-    @from = "XLsuite Admin<admin@xlsuite.com>"
+  def authenticate
+    begin      
+      secret_key = current_domain.get_config("gigya_socialize_secret_key")
+      raise StandardError, "Secret key is missing, please set the configuration 'gigya_socialize_secret_key'" if secret_key.blank?
+      uid = params[:UID]
+      signature = params[:signature]
+      timestamp = params[:timestamp]
+      
+      base = timestamp + "_" + uid
+      
+      binsig = HMAC::SHA1.digest(Base64.decode64(secret_key), base)
+      generated_sig = Base64.encode64(binsig)
+      
+      authenticated = generated_sig.strip == signature
+      return true if authenticated
+      return access_denied
+    rescue
+      return access_denied($!.message)
+    end
+  end
+  
+  protected  
+  def load_party
+    @party = params[:UID].blank? ? nil : current_account.parties.find_by_gigya_uid(params[:UID])
   end
 end

@@ -5,11 +5,11 @@
   <p>Please confirm you want to unsubscribe from the following lists: </p>
   <table>
   <% @recipient.unsubscribeable_groups.each do |group| %>
-    <tr><td><%= check_box_tag "groups", group.id, true%></td><td>Group "<%= group.name %>" </td></tr>
+    <tr><td><%= check_box_tag "groups[]", group.id, true%></td><td>Group "<%= group.name %>" </td></tr>
   <% end %>
   
   <% @recipient.unsubscribeable_tags.each do |tag| %>
-    <tr><td><%= check_box_tag "tags", tag.name, true %></td><td>Tag "<%= tag.name %>" </td></tr>
+    <tr><td><%= check_box_tag "tags[]", tag.name, true %></td><td>Tag "<%= tag.name %>" </td></tr>
   <% end %>
   
   </table>

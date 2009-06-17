@@ -104,6 +104,7 @@ require "actionpack_ext"
 
 require "tmail_mail_extension"
 require "multiple_smtp_action_mailer"
+require 'hmac-sha1'
 
 Money.default_currency = 'CAD'
 InchesPerFeet = 12.0

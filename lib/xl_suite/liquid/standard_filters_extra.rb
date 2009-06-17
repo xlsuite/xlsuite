@@ -8,6 +8,10 @@ module XlSuite
         CGI.escape(input).gsub(/%2F/, "%252F") rescue input
       end
 
+      def param_escape(input)
+        CGI.escape(input) rescue input
+      end
+
       def month(input)
         return nil unless input.respond_to?(:month)
         input.month

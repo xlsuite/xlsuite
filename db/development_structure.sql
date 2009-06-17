@@ -90,6 +90,19 @@ CREATE TABLE `accounts` (
   KEY `by_master` (`master`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `affiliate_account_items` (
+  `id` int(11) NOT NULL auto_increment,
+  `affiliate_account_id` int(11) default NULL,
+  `level` int(11) default '0',
+  `target_type` varchar(255) default NULL,
+  `target_id` int(11) default NULL,
+  `created_at` datetime default NULL,
+  `updated_at` datetime default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `by_affiliate_account` (`affiliate_account_id`),
+  KEY `by_target` (`target_type`,`target_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `affiliate_accounts` (
   `id` int(11) NOT NULL auto_increment,
   `email_address` varchar(255) default NULL,
@@ -114,7 +127,9 @@ CREATE TABLE `affiliate_accounts` (
   `first_referred_by_id` int(11) default NULL,
   `created_at` datetime default NULL,
   `updated_at` datetime default NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `by_username` (`username`),
+  KEY `by_email_address` (`email_address`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `affiliates` (
@@ -244,7 +259,8 @@ CREATE TABLE `blog_posts` (
   PRIMARY KEY  (`id`),
   KEY `by_blog_published_at` (`blog_id`,`published_at`),
   KEY `by_blog_id_published_at_updated_at` (`blog_id`,`published_at`,`updated_at`),
-  KEY `by_account_blog_published_at` (`account_id`,`blog_id`,`published_at`)
+  KEY `by_account_blog_published_at` (`account_id`,`blog_id`,`published_at`),
+  KEY `by_author_published_at` (`author_id`,`published_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `blogs` (
@@ -1608,6 +1624,7 @@ CREATE TABLE `parties` (
   `own_point` int(11) default '0',
   `referrals_point` int(11) default '0',
   `delta` tinyint(1) default '0',
+  `gigya_uid` varchar(255) default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_token` (`account_id`,`token`),
   UNIQUE KEY `by_profile` (`profile_id`),
@@ -2735,3 +2752,17 @@ INSERT INTO schema_migrations (version) VALUES ('20090609192208');
 INSERT INTO schema_migrations (version) VALUES ('20090609203701');
 
 INSERT INTO schema_migrations (version) VALUES ('20090609234902');
+
+INSERT INTO schema_migrations (version) VALUES ('20090612015343');
+
+INSERT INTO schema_migrations (version) VALUES ('20090612213755');
+
+INSERT INTO schema_migrations (version) VALUES ('20090612220411');
+
+INSERT INTO schema_migrations (version) VALUES ('20090616024915');
+
+INSERT INTO schema_migrations (version) VALUES ('20090616214940');
+
+INSERT INTO schema_migrations (version) VALUES ('20090616235004');
+
+INSERT INTO schema_migrations (version) VALUES ('20090616235555');

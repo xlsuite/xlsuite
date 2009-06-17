@@ -278,25 +278,28 @@
 # POSSIBILITY OF SUCH DAMAGES.
 # 
 # 		     END OF TERMS AND CONDITIONS
-class AffiliateAccountNotification < ActionMailer::Base
-  def password_reset(options)
-    @subject    = "[XL] XLsuite Affiliate Account New Password Notification"
-    @body       = options
-    @recipients = options[:affiliate_account].email_address
-    @from       = "XLsuite Admin<admin@xlsuite.com>"
-  end
-  
-  def notification_from_account_signup(domain, affiliate_account)
-    @subject = "[XL] Your XLsuite Affiliate Account"
-    @body = {:domain => domain}
-    @recipients = affiliate_account.email_address
-    @from = "XLsuite Admin<admin@xlsuite.com>"
-  end
-  
-  def notification_from_contact_signup(domain, affiliate_account)
-    @subject = "[XL] Your XLsuite Affiliate Account"
-    @body = {:domain => domain}
-    @recipients = affiliate_account.email_address
-    @from = "XLsuite Admin<admin@xlsuite.com>"
+module XlSuite
+  module AffiliateAccountHelper
+    def self.included(base)
+      base.send :include, AffiliateAccountHelper::InstanceMethods
+      base.send :attr_accessor, :affiliate_username, :affiliate_id
+      base.send :after_save, :add_affiliate_account_item
+    end
+    
+    module InstanceMethods
+      def add_affiliate_account_item
+        return true if self.affiliate_username.blank? && self.affiliate_id.blank?
+        affiliate_reference = self.affiliate_username.blank? ? self.affiliate_id : self.affiliate_username
+        self.affiliate_username = nil
+        self.affiliate_id = nil
+        return false if affiliate_reference.blank?
+        affiliate_account = AffiliateAccount.find_by_username(affiliate_reference)
+        return false unless affiliate_account
+        affiliate_item = AffiliateAccountItem.new
+        affiliate_item.affiliate_account = affiliate_account
+        affiliate_item.target = self
+        affiliate_item.save
+      end
+    end
   end
 end

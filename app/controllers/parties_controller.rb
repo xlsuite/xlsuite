@@ -644,6 +644,11 @@ class PartiesController < ApplicationController
     @party.save
     @party.authorize!(:attributes => params[:party], :confirmation_token => params[:code])
     self.current_user = @party
+    
+    affiliate_account = @party.convert_to_affiliate_account!
+    if affiliate_account
+      AffiliateAccountNotification.deliver_notification_from_contact_signup(self.current_domain, affiliate_account)
+    end
 
     flash_success "You have been successfully authorized.  Welcome!"
 

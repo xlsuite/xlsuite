@@ -29,7 +29,7 @@ class OptOutsController < ApplicationController
     end
     
     unless params[:groups].blank? then
-      params[:groups].split(",").map(&:strip).reject(&:blank?).each do |g_id|
+      params[:groups].reject(&:blank?).each do |g_id|
         group = account.groups.find(g_id)
         @recipient.party.groups.delete(group) if group && @recipient.party.member_of?(group)
       end
