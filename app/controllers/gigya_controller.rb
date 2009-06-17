@@ -385,14 +385,11 @@ class GigyaController < ApplicationController
             end
           end
         end
-      end      
-      # Only show failure message if party is confirmed
-
+      end
       respond_to do |format|
         format.html do
           if @party.confirmed?
-            flash_success "Thank you for logging in" 
-            flash_failure "You are already registered"
+            flash_success "Thank you for logging in."
           end
           return redirect_to(params[:return_to])
         end
