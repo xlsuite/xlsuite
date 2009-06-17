@@ -328,8 +328,22 @@ class GigyaController < ApplicationController
       params[:party][:group_ids] = groups.map(&:id).join(",") unless groups.empty?
     end
     if @party
+      if !@party.confirmed?
+        respond_to do |format|
+          format.html do
+            if params[:next]
+              next_params = "uid=#{params[:UID]}&signature=#{params[:signature]}&timestamp=#{params[:timestamp]}&code=#{@party.confirmation_token}&gids=#{group_ids}&signed_up=#{params[:signed_up]}"
+              redirect_url = params[:next] + "#{params[:next] =~ /\?/ ? '&' : '?'}" + next_params
+              return redirect_to(redirect_url)
+            end
+            render_within_public_layout(:action => "signup")
+          end
+          format.js do
+            return render(:json => {:status => "needs_confirm"}).to_json
+          end
+        end
+      end
       @party.last_logged_in_at = Time.now.utc
-      @party.confirm! unless @party.confirmed?
       self.current_user = @party
       if !params[:party][:tag_list].blank?
         @party.update_attributes!(:tag_list => @party.tag_list + "," + params[:party][:tag_list] + "," + current_domain.name)
