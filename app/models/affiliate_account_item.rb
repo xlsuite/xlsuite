@@ -286,7 +286,6 @@ class AffiliateAccountItem < ActiveRecord::Base
   
   validates_presence_of :affiliate_account_id, :level, :target_type, :target_id
   validates_uniqueness_of :affiliate_account_id, :scope => [:target_type, :target_id]
-  validates_uniqueness_of :level, :scope => [:target_type, :target_id]
   
   before_create :set_level
   
