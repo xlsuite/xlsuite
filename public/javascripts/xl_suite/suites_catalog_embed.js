@@ -191,6 +191,7 @@ var xlSuiteEmbedBody = function(suitesCollection){
         "<form style='display:none;' id='xlsuite-install-form-top-{id}' class='xlsuite-embed-suite-item-form' action='http://", getReferralDomain(), "/admin/accounts' method='post'>",
           "<input type='hidden' name='account[referral_domain]' value='", getReferralDomain(), "' />",
           "<input type='hidden' name='account[suite_id]' value='{id}' />",
+          "<input type='hidden' name='account[affiliate_id]' value='" + xlsuiteAffiliateId + "' />",
           "<input type='hidden' value='' name='domain[name]' autocomplete='off' id='account-signup-domain-name-top-{id}'/>",
           "<span id='account-signup-domain-checker-status-top-{id}' class='account-signup-domain-checker-status'></span>",
           "<input class='account_signup_domain_name_check' onblur='setXlCounter(0);doDomainNameCheck({id});return false;' onfocus='setXlCounter(0);this.select();return false;' value='choose a subdomain' name='' autocomplete='off' id='account-signup-domain-name-checker-top-{id}'/>",
@@ -245,6 +246,7 @@ var xlSuiteEmbedBody = function(suitesCollection){
         "<form style='display:none;' id='xlsuite-install-form-{id}' class='xlsuite-embed-suite-item-form' action='http://", getReferralDomain(), "/admin/accounts' method='post'>",
           "<input type='hidden' name='account[referral_domain]' value='", getReferralDomain(), "' />",
           "<input type='hidden' name='account[suite_id]' value='{id}' />",
+          "<input type='hidden' name='account[affiliate_id]' value='" + xlsuiteAffiliateId + "' />",
           "<input type='hidden' value='' name='domain[name]' autocomplete='off' id='account-signup-domain-name-{id}'/>",
           "<span id='account-signup-domain-checker-status-{id}' class='account-signup-domain-checker-status'></span>",
           "<input class='account_signup_domain_name_check' onblur='setXlCounter(1);doDomainNameCheck({id});return false;' onfocus='setXlCounter(1);this.select();return false;' value='choose a subdomain' name='' autocomplete='off' id='account-signup-domain-name-checker-{id}'/>",
@@ -419,29 +421,56 @@ var generateSuitesCatalogBody = function(parameters){
 };
 
 var currentPageNum = function(){
-  return parseInt(document.getElementById("xlsuite-embed-suites-search-bar-page_num").value);
+  var el = document.getElementById("xlsuite-embed-suites-search-bar-page_num");
+  if(el){
+    return parseInt(el.value);
+  }
+  else{
+    return xlsuiteEmbedSuitesCurrentPageNum;
+  }
 };
 
 var currentPerPage = function(){
-  return parseInt(document.getElementById("xlsuite-embed-suites-search-bar-per_page").value);
+  var el = document.getElementById("xlsuite-embed-suites-search-bar-per_page");
+  if(el) {
+    return parseInt(el.value);
+  }
+  else{
+    return xlsuiteEmbedSuitesPerPage;
+  }
 };
 
 var replacePageNumWith = function(number){
   var el = document.getElementById("xlsuite-embed-suites-search-bar-page_num");
-  el.value = number;
+  if(el){
+    el.value = number;
+  }
+  else{
+    xlsuiteEmbedSuitesCurrentPageNum = number;
+  }
 };
 
 var replacePerPageWith = function(number){
   var el = document.getElementById("xlsuite-embed-suites-search-bar-per_page");
-  el.value = number;
+  if(el){
+    el.value = number;
+  }
+  else{
+    xlsuiteEmbedSuitesPerPage = number;
+  }
 };
 
 var getReferralDomain = function(){
   var el = document.getElementById("xlsuite-embed-suites-referral-domain");
   if(el)
     return el.innerHTML;
-  else
-    return "xlsuite.com";
+  else{
+    if(typeof(xlsuiteEmbedSuitesReferralDomain) == "undefined")
+      return "xlsuite.com";
+    else{
+      return xlsuiteEmbedSuitesReferralDomain;
+    }
+  }  
 };
 
 var getAjaxRequestUrl = function(){

@@ -289,7 +289,13 @@ class SuitesController < ApplicationController
   
   def embed_code
     per_page = params[:per_page].to_i
-    @embed_code = %Q~<script type="text/javascript" src="#{self.absolute_current_domain_url}/javascripts/xl_suite/suites_catalog_embed_extjs.js"></script>
+    @embed_code = %Q~<script type="text/javascript">
+  var xlsuiteAffiliateId = "#{params[:affiliate_id]}";
+  var xlsuiteEmbedSuitesReferralDomain = "#{self.current_domain.name}";
+  var xlsuiteEmbedSuitesCurrentPageNum = 1;
+  var xlsuiteEmbedSuitesPerPage = #{per_page};
+</script>
+<script type="text/javascript" src="#{self.absolute_current_domain_url}/javascripts/xl_suite/suites_catalog_embed_extjs.js"></script>
 <script type="text/javascript" src="#{self.absolute_current_domain_url}/javascripts/xl_suite/suites_catalog_embed.js"></script>
 ~
     @embed_code << %Q~<link type="text/css" rel="stylesheet" href="#{self.absolute_current_domain_url}/stylesheets/suites_catalog_embed.css"/>
@@ -339,7 +345,7 @@ li.xlsuite-embed-suite-item h2 a.xlsuite_install_button {top: 5px; right: 13px;}
     @embed_code << %Q~      <input type="hidden" name="ids" value="#{params[:ids]}" />
 ~ unless params[:ids].blank?
     
-    @embed_code << %Q~      <input type="hidden" id="xlsuite-embed-suites-search-bar-page_num" name="page_num" value="1">
+    @embed_code << %Q~
       <input type="hidden" id="xlsuite-embed-suites-search-bar-per_page" name="per_page" value="#{per_page}">
 ~
     @embed_code << %Q~      <input id="xlsuite-embed-suites-search-bar-button" type="submit" value="Search">
