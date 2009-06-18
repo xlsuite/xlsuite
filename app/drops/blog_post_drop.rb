@@ -318,10 +318,7 @@ class BlogPostDrop < Liquid::Drop
   end
 
   def summary
-    summary = self.blog_post.excerpt
-    summary = self.blog_post.body if summary.blank?
-    template = Liquid::Template.parse(summary)
-    template.render(context)
+    self.blog_post.parsed_excerpt
   end
   alias_method :content, :summary
 
