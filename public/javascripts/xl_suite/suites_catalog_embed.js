@@ -184,6 +184,10 @@ var disableEnableSubmitButton = function(){
 
 var xlSuiteEmbedBody = function(suitesCollection){
   var htmlCode = "";
+  var tAffiliateId = "";
+  if(typeof(xlsuiteAffiliateId) == "string"){
+    tAffiliateId = xlsuiteAffiliateId;
+  }
   var suiteXTemplate = new Ext.XTemplate(
     "<li class='xlsuite-embed-suite-item'>",
       '<h2><a href="#" title="" target="_blank">{name}</a><a class="xlsuite_install_button" href="#" onClick="setXlCounter(0);toggleInstallForm({id});return false;" id="xlsuite-install-link-{id}" class="xlsuite_install_button">INSTALL</a></h2>',
@@ -191,7 +195,7 @@ var xlSuiteEmbedBody = function(suitesCollection){
         "<form style='display:none;' id='xlsuite-install-form-top-{id}' class='xlsuite-embed-suite-item-form' action='http://", getReferralDomain(), "/admin/accounts' method='post'>",
           "<input type='hidden' name='account[referral_domain]' value='", getReferralDomain(), "' />",
           "<input type='hidden' name='account[suite_id]' value='{id}' />",
-          "<input type='hidden' name='account[affiliate_id]' value='" + xlsuiteAffiliateId + "' />",
+          "<input type='hidden' name='account[affiliate_id]' value='" + tAffiliateId + "' />",
           "<input type='hidden' value='' name='domain[name]' autocomplete='off' id='account-signup-domain-name-top-{id}'/>",
           "<span id='account-signup-domain-checker-status-top-{id}' class='account-signup-domain-checker-status'></span>",
           "<input class='account_signup_domain_name_check' onblur='setXlCounter(0);doDomainNameCheck({id});return false;' onfocus='setXlCounter(0);this.select();return false;' value='choose a subdomain' name='' autocomplete='off' id='account-signup-domain-name-checker-top-{id}'/>",
@@ -246,7 +250,7 @@ var xlSuiteEmbedBody = function(suitesCollection){
         "<form style='display:none;' id='xlsuite-install-form-{id}' class='xlsuite-embed-suite-item-form' action='http://", getReferralDomain(), "/admin/accounts' method='post'>",
           "<input type='hidden' name='account[referral_domain]' value='", getReferralDomain(), "' />",
           "<input type='hidden' name='account[suite_id]' value='{id}' />",
-          "<input type='hidden' name='account[affiliate_id]' value='" + xlsuiteAffiliateId + "' />",
+          "<input type='hidden' name='account[affiliate_id]' value='" + tAffiliateId + "' />",
           "<input type='hidden' value='' name='domain[name]' autocomplete='off' id='account-signup-domain-name-{id}'/>",
           "<span id='account-signup-domain-checker-status-{id}' class='account-signup-domain-checker-status'></span>",
           "<input class='account_signup_domain_name_check' onblur='setXlCounter(1);doDomainNameCheck({id});return false;' onfocus='setXlCounter(1);this.select();return false;' value='choose a subdomain' name='' autocomplete='off' id='account-signup-domain-name-checker-{id}'/>",
