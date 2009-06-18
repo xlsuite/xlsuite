@@ -304,6 +304,7 @@ class BlogPost < ActiveRecord::Base
 
   before_save :set_author_name
   before_save :set_domain_if_blank
+  before_save :set_parsed_excerpt
   
   def to_liquid
     BlogPostDrop.new(self)
@@ -391,5 +392,11 @@ class BlogPost < ActiveRecord::Base
       self.domain = self.blog.domain
       self.domain_id = self.blog.domain_id
     end
+  end
+  
+  def set_parsed_excerpt
+    text = self.excerpt.blank? ? self.body : self.excerpt
+    self.parsed_excerpt = Liquid::Template.parse(text).render
+    true
   end
 end
