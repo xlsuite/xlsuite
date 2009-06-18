@@ -284,8 +284,10 @@ class Public::SuitesController < ApplicationController
   
   def index
     conditions = ["stable_account_id IS NOT NULL"]
-    conditions << "approved_at IS NOT NULL" unless params[:include_unapproved]
-
+    unless params[:ids]
+      conditions << "approved_at IS NOT NULL" unless params[:include_unapproved]
+    end
+    
     if (!params[:main_theme].blank? || !params[:industry].blank?)
       master_acct = Account.find_by_master(true)
       account_template_ids = []
