@@ -345,14 +345,10 @@ li.xlsuite-embed-suite-item h2 a.xlsuite_install_button {top: 5px; right: 13px;}
     @embed_code << %Q~      <input type="hidden" name="ids" value="#{params[:ids]}" />
 ~ unless params[:ids].blank?
     
-    @embed_code << %Q~
-      <input type="hidden" id="xlsuite-embed-suites-search-bar-per_page" name="per_page" value="#{per_page}">
-~
     @embed_code << %Q~      <input id="xlsuite-embed-suites-search-bar-button" type="submit" value="Search">
 ~ if params[:include_search_bar]
     @embed_code << %Q~    </form>
   </div>
-  <span id="xlsuite-embed-suites-referral-domain" style="display:none;">#{self.current_domain.name}</span>
   <div id="xlsuite-embed-suites-collection"><ul id="xlsuite-embed-suites-selection"></ul></div>
   <div id="xlsuite-embed-suites-paging" class="xlsuite-embed-suites-paging"></div>
 </div>~
