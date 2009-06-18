@@ -242,6 +242,27 @@ class Profile < ActiveRecord::Base
     true
   end
   
+  # create_first_blog method should only be called for a saved profile
+  # calling it on a new record will return false immediately
+  # for a profile who has at least one blog, this method will immediately return false
+  def create_first_blog(domain)
+    return false if self.new_record? || self.party.blogs.count > 0
+    new_blog = Blog.new(:account => self.party.account)
+    new_blog.owner = self.party
+    new_blog.domain = domain
+    new_blog.author_name = self.display_name.blank? ? "Anonymous" : self.display_name
+    new_blog.title = "#{new_blog.author_name} Blog"
+    new_blog.created_by = self.party
+    c_label = self.display_name.blank? ? "profile-#{self.id}" : self.display_name.parameterize
+    existing_blog = self.party.account.blogs.find_by_label(c_label)
+    if existing_blog
+      new_blog.label = UUID.random_create.to_s
+    else
+      new_blog.label = c_label
+    end
+    new_blog.save
+  end
+  
   protected
   
   def generate_display_name

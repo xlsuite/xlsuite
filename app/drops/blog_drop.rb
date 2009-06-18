@@ -33,6 +33,10 @@ class BlogDrop < Liquid::Drop
     self.blog.posts.published.by_publication_date
   end
   
+  def all_posts
+    self.blog.posts.by_publication_date
+  end
+  
   def posts_tags
     self.blog.posts.tags
   end

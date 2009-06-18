@@ -103,6 +103,10 @@ class ProfileDrop < Liquid::Drop
     self.profile.comment_approval_method =~ /no comments/i ? true : false
   end
   
+  def has_blog
+    self.profile.party.blogs.count > 0
+  end
+  
   def blogs
     self.profile.party.blogs
   end
@@ -156,5 +160,9 @@ class ProfileDrop < Liquid::Drop
   
   def point
     self.profile.read_attribute(:point) || self.profile.read_attribute(:own_point)
+  end
+  
+  def create_first_blog
+    self.profile.create_first_blog(self.context["domain"].domain)
   end
 end
