@@ -2162,13 +2162,10 @@ module PartiesHelper
         defaults: { style: "padding-bottom: 20px"},
         layout: 'column',
         items:[
-          {columnWidth:1, items:[addressGridPanel]},
-          {columnWidth: 1/3, items: [emailGridPanel]},
-          {columnWidth: 1/3, items: [{
-                style:"padding-left:5px; padding-right:5px",
-                items:[phoneGridPanel]
-              }]},
-          {columnWidth: 1/3, items: [linkGridPanel]}
+          addressGridPanel
+          ,emailGridPanel
+          ,phoneGridPanel
+          ,linkGridPanel       
         ],
         autoScroll:true
       });
@@ -2208,6 +2205,8 @@ module PartiesHelper
 
       var linkGridPanel = new Ext.grid.EditorGridPanel({
         title: "Links",
+        columnWidth:1/3,
+        height:175,
         store: linkDataStore,
         cm: new Ext.grid.ColumnModel([
             {id: "delete", width: 10, dataIndex: 'id', renderer: editRenderer, sortable: false, menuDisabled: true, hideable: false, tooltip: "Delete row" },
@@ -2396,6 +2395,9 @@ module PartiesHelper
 
       var phoneGridPanel = new Ext.grid.EditorGridPanel({
         title: "Phones",
+        columnWidth:1/3,
+        height:175,
+        style:{"padding-left":"5px", "padding-right":"5px"},
         store: phoneDataStore,
         cm: new Ext.grid.ColumnModel([
             {id: "delete", width: 10, dataIndex: 'id', renderer: editRenderer, sortable: false, menuDisabled: true, hideable: false, tooltip: "Delete row" },{id: "name", header: "Name", sortable: true, dataIndex: 'name', editor: #{render_grid_name_combobox}},
@@ -2593,6 +2595,8 @@ module PartiesHelper
       var emailGridPanel = new Ext.grid.EditorGridPanel({
         title: "Emails",
         store: emailDataStore,
+        columnWidth:1/3,
+        height:175,
         cm: new Ext.grid.ColumnModel([
             {id: "delete", width: 10, dataIndex: 'id', renderer: editRenderer, sortable: false, menuDisabled: true, hideable: false, tooltip: "Delete row" },
             {id: "name", header: "Name", sortable: true, dataIndex: 'name', editor: #{render_grid_name_combobox}},
@@ -2812,6 +2816,8 @@ module PartiesHelper
 
       var addressGridPanel = new Ext.grid.EditorGridPanel({
         title: "Addresses",
+        columnWidth:1,
+        height:175,
         store: addressDataStore,
         cm: new Ext.grid.ColumnModel([
             {id: "delete", width: 10, dataIndex: 'id', renderer: editRenderer, sortable: false, menuDisabled: true, hideable: false, tooltip: "Delete row" },
