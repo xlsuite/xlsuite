@@ -256,6 +256,7 @@ CREATE TABLE `blog_posts` (
   `hide_comments` tinyint(1) default NULL,
   `average_rating` decimal(5,3) NOT NULL default '0.000',
   `domain_id` int(11) default NULL,
+  `parsed_excerpt` text,
   PRIMARY KEY  (`id`),
   KEY `by_blog_published_at` (`blog_id`,`published_at`),
   KEY `by_blog_id_published_at_updated_at` (`blog_id`,`published_at`,`updated_at`),
@@ -2766,3 +2767,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090616214940');
 INSERT INTO schema_migrations (version) VALUES ('20090616235004');
 
 INSERT INTO schema_migrations (version) VALUES ('20090616235555');
+
+INSERT INTO schema_migrations (version) VALUES ('20090618231112');
