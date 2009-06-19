@@ -210,11 +210,11 @@ module XlSuite
                      else
                        raise SyntaxError, "None of search, tagged_any, tagged_all, all_blog_posts, ids, or from_blogs available"
                      end
-          context[@options[:pages_count]] = (blog_posts_count / limit).to_i + (blog_posts_count % limit > 0 ? 1 : 0)
-          context[@options[:total_count]] = blog_posts_count
+          context.scopes.last[@options[:pages_count]] = (blog_posts_count / limit).to_i + (blog_posts_count % limit > 0 ? 1 : 0)
+          context.scopes.last[@options[:total_count]] = blog_posts_count
         end
 
-        context[@options[:in]] = blog_posts
+        context.scopes.last[@options[:in]] = blog_posts
       end
     end
   end
