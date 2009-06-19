@@ -493,7 +493,7 @@ class ProfileRequestsController < ApplicationController
   
   def process_request(request, params)
       unless @avatar.blank? || @avatar.size == 0 then
-        @avatar = @profile_claim_request.build_avatar(:uploaded_data => @avatar, :account => current_account)
+        @avatar = request.build_avatar(:uploaded_data => @avatar, :account => current_account)
         @avatar.save!
       end      
       if @group_labels
