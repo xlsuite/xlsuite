@@ -436,7 +436,7 @@ class Comment < ActiveRecord::Base
   end
   
   def set_approved
-    if self.commentable.respond_to?(:author_id) && (self.created_by_id == self.commentable.author_id)
+    if (self.commentable.respond_to?(:author_id) && (self.created_by_id == self.commentable.author_id)) || (self.created_by_id == self.account.owner.id)
       self.approved_at = Time.now
       return true
     end
