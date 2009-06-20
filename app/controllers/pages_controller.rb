@@ -665,6 +665,7 @@ class PagesController < ApplicationController
 
   def load_page_by_slug
     @fullslug = request.env["PATH_INFO"]
+    RAILS_DEFAULT_LOGGER.warn("^^^^@fullslug = #{@fullslug.inspect}")
     @fullslug = "/" if @fullslug.blank?
     logger.debug {"==> fullslug: #{@fullslug.inspect}"}
     if self.current_user.can?(:edit_pages) then
