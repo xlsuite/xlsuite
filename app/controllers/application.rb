@@ -307,6 +307,7 @@ class ApplicationController < ActionController::Base
   before_filter :remove_values_as_labels, :only => %w(create update)
   
   before_filter :block_until_paid_in_full
+  before_filter :set_affiliate_account_ids_session
 
   prepend_after_filter :set_content_type
 
@@ -324,6 +325,28 @@ class ApplicationController < ActionController::Base
   end
 
   protected
+  def set_affiliate_account_ids_session
+    # immediately return if no affiliate ids parameter supplied
+    return true if params[AFFILIATE_IDS_PARAM_KEY].blank?
+    # set affiliate ids session based on affiliate ids parameter
+    # overwrite value of affiliate ids session if affiliate ids session is blank
+    # otherwise only replace the last session id in the affiliate ids session with the first affiliate id provided in param
+    if session[AFFILIATE_IDS_SESSION_KEY].blank?
+      param_affiliate_ids = params[AFFILIATE_IDS_PARAM_KEY].split(",").map(&:strip).reject(&:blank?).uniq
+      return true if param_affiliate_ids.empty?
+      @_affiliate_account_ids = AffiliateAccount.find(:all, :select => "username", :conditions => {:username => param_affiliate_ids}).map(&:username)
+      session[AFFILIATE_IDS_SESSION_KEY] = @_affiliate_account_ids.join(",")
+    else
+      session_ids = session[AFFILIATE_IDS_SESSION_KEY].split(",").map(&:strip).reject(&:blank?)
+      param_affiliate_ids = params[AFFILIATE_IDS_PARAM_KEY].split(",").map(&:strip).reject(&:blank?).uniq
+      @_affiliate_account_ids = AffiliateAccount.find(:all, :select => "username", :conditions => {:username => param_affiliate_ids}).map(&:username)
+      session_ids += @_affiliate_account_ids
+      session_ids.uniq!
+      session[AFFILIATE_IDS_SESSION_KEY] = session_ids.join(",")
+    end
+    return true
+  end
+  
   def ssl_required? 
     # Default behavior of ssl_required?
     ssl_required = (self.class.read_inheritable_attribute(:ssl_required_actions) || []).include?(action_name.to_sym)
