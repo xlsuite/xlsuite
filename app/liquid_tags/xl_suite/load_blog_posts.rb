@@ -416,13 +416,13 @@ module XlSuite
           :joins => [%Q`LEFT JOIN authorizations ON authorizations.object_type="Blog" AND authorizations.object_id=blogs.id`, 
               %Q`LEFT JOIN groups ON groups.id=authorizations.group_id`].join(" "), 
           :conditions => "groups.id IS NULL OR groups.id IN (#{group_ids.join(",").blank? ? 0 : group_ids.join(",")})").map(&:id)
-        blog_ids = from_blog_ids & blog_ids unless from_blog_ids.empty?
+        blog_ids = from_blog_ids & blog_ids unless (!@options[:from_blogs] && from_blog_ids.empty?)
         
         conditions << "blog_posts.blog_id IN (#{blog_ids.join(",")})" unless blog_ids.empty?
 
         if blog_ids.empty?
-          context[@options[:pages_count]] = context[@options[:total_count]] = 0
-          context[@options[:in]] = nil
+          context.scopes.last[@options[:pages_count]] = context[@options[:total_count]] = 0
+          context.scopes.last[@options[:in]] = nil
           return
         end
         
