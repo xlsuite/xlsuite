@@ -313,6 +313,7 @@ class PointBlogObserver < ActiveRecord::Observer
   
   # Reduce points of the blog owner
   def after_destroy(blog)
-    blog.owner.add_point_in_domain(-BLOG_CREATE, blog.domain)
+    blog.owner.add_point_in_domain(-BLOG_CREATE, blog.domain) if blog.owner
+    true
   end
 end
