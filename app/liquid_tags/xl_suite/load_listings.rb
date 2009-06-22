@@ -283,6 +283,7 @@ module XlSuite
     PageNumSyntax    = /page_num:\s*(#{Liquid::QuotedFragment})/
     PerPageSyntax    = /per_page:\s*(#{Liquid::QuotedFragment})/
     MlsNoSyntax      = /mls_no:\s*(#{Liquid::QuotedFragment})/
+    RealtorSyntax    = /realtor:\s*(#{Liquid::QuotedFragment})/
     StatusSyntax     = /status:\s*(#{Liquid::QuotedFragment})/
     SearchSyntax     = /search:\s*(#{Liquid::QuotedFragment})/
     TaggedAllSyntax  = /tagged_all:\s*(#{Liquid::QuotedFragment})/
@@ -310,6 +311,7 @@ module XlSuite
       @options[:per_page]     = $1 if markup =~ PerPageSyntax
       @options[:mls_no]       = $1 if markup =~ MlsNoSyntax
       @options[:status]       = $1 if markup =~ StatusSyntax
+      @options[:realtor]      = $1 if markup =~ RealtorSyntax
       @options[:search]       = $1 if markup =~ SearchSyntax
       @options[:tagged_all]   = $1 if markup =~ TaggedAllSyntax
       @options[:tagged_any]   = $1 if markup =~ TaggedAnySyntax
@@ -368,6 +370,20 @@ module XlSuite
         conditions << "listings.account_id=#{current_account.id}"
         if !context.current_user?        
           conditions << "listings.public=1"
+        end
+        
+        if @options[:realtor]
+          party_id = case context_options[:realtor]
+            when String
+              context_options[:realtor].to_i
+            when Integer
+              context_options[:realtor]
+            when Fixnum
+              context_options[:realtor]
+            when ProfileDrop
+              context_options[:realtor].profile.party.id
+            end
+          conditions << "listings.realtor_id = #{party_id}"
         end
         
         if @options[:price_min]
