@@ -388,14 +388,15 @@ class PagesController < ApplicationController
 
   def load_page_by_slug
     @fullslug = request.env["PATH_INFO"]
+    @fullslug.gsub!(/\/\Z/i, "") unless @fullslug == "/"
     @fullslug = "/" if @fullslug.blank?
     logger.debug {"==> fullslug: #{@fullslug.inspect}"}
-    if current_user.can?(:edit_pages) then
+    if self.current_user.can?(:edit_pages) then
       logger.debug {"==> Authenticated access w/:edit_pages permission to #{@fullslug}"}
-      @page, @page_params = current_domain.recognize(@fullslug)
+      @page, @page_params = self.current_domain.recognize(@fullslug)
     else
       logger.debug {"==> Anonymous access to #{@fullslug}"}
-      @page, @page_params = current_domain.recognize!(@fullslug)
+      @page, @page_params = self.current_domain.recognize!(@fullslug)
       raise ActiveRecord::RecordNotFound unless @page.published?
     end
   end

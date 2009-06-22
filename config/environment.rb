@@ -126,6 +126,8 @@ FightTheMelons::Helpers::FormMultipleSelectHelperConfiguration.alternate = true
 WhiteListHelper.tags.merge %w(meta dl dd dt input form select option label table caption thead tbody tfoot tr th td)
 WhiteListHelper.attributes.merge %w(id style action type name value)
 
+AFFILIATE_IDS_PARAM_KEY = :pal
+AFFILIATE_IDS_SESSION_KEY = :affiliate_ids
 
 REJECTED_RETURN_TO_PATH = /(^\/admin$|^\/admin\/ui|^\/javascripts|\.xml\?|\.json\?|^\/sessions|^\/stylesheets\/)/i.freeze
 EXPIRED_ACCOUNT_DEADLINE_IN_MONTH = 3

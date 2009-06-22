@@ -332,7 +332,7 @@ class GigyaController < ApplicationController
         respond_to do |format|
           format.html do
             if params[:next]
-              next_params = "uid=#{params[:UID]}&signature=#{params[:signature]}&timestamp=#{params[:timestamp]}&code=#{@party.confirmation_token}&gids=#{group_ids}&signed_up=#{params[:signed_up]}"
+              next_params = "uid=#{params[:UID]}&signature=#{params[:signature]}&timestamp=#{params[:timestamp]}&code=#{@party.confirmation_token}&gids=#{params[:party][:group_ids]}&signed_up=#{params[:signed_up]}"
               redirect_url = params[:next] + "#{params[:next] =~ /\?/ ? '&' : '?'}" + next_params
               return redirect_to(redirect_url)
             end
