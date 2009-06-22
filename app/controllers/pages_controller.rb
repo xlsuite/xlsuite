@@ -665,7 +665,7 @@ class PagesController < ApplicationController
 
   def load_page_by_slug
     @fullslug = request.env["PATH_INFO"]
-    @fullslug.gsub!(/\/\Z/i, "") unless @fullslug == "/"
+    @fullslug.gsub!(/\/\Z/i, "") unless (@fullslug && @fullslug == "/")
     @fullslug = "/" if @fullslug.blank?
     logger.debug {"==> fullslug: #{@fullslug.inspect}"}
     if self.current_user.can?(:edit_pages) then
