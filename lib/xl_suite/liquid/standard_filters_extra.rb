@@ -321,6 +321,16 @@ module XlSuite
       def titleize(input)
         input.titleize
       end
+      
+      def include_any(input, input2, case_insensitive = false)
+        input = input.split(",").map(&:strip) if input.is_a?(String)
+        input2 = input2.split(",").map(&:strip) if input2.is_a?(String)
+        if case_insensitive
+          input = input.map(&:downcase) rescue input
+          input2 = input2.map(&:downcase) rescue input2
+        end
+        input.any?{|i|input2.include?(i)}
+      end
     end
   end
 end
