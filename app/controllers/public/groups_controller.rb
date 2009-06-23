@@ -330,15 +330,18 @@ class Public::GroupsController < ApplicationController
       if @updated then
         flash_success :now, "Group updated"      
         respond_to do |format|
-          format.html { redirect_to groups_path }
+          format.html { return redirect_to_next_or_back_or_home }
           format.js { render :json => {:success => true, :flash => flash[:notice].to_s}.to_json}
         end
       else
+        errors = $!.message.to_s
         respond_to do |format|
-          format.html {render :action => :edit}
+          format.html do
+            flash_failure errors
+            return redirect_to_return_to_or_back_or_home
+          end
           format.js do
-            @group_id = true
-            return render_json_response
+            render :json => {:success => false, :errors => [errors]}
           end
         end
       end
