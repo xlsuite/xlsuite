@@ -318,7 +318,7 @@ module XlSuite
 	      input2 = input2.map(&:downcase) rescue input2
 	    end
 	    
-      context[@options[:in]] = input1.any?{|i|input2.include?(i)}
+      context.scopes.last[@options[:in]] = input1.any?{|i|input2.include?(i)}
       nil
     end
   end
