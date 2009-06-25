@@ -149,6 +149,17 @@ CREATE TABLE `affiliate_accounts` (
   KEY `by_email_address` (`email_address`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `affiliate_setup_lines` (
+  `id` int(11) NOT NULL auto_increment,
+  `target_type` varchar(255) default NULL,
+  `target_id` int(11) default NULL,
+  `percentage` decimal(5,2) default NULL,
+  `level` int(11) default NULL,
+  `created_at` datetime default NULL,
+  `updated_at` datetime default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `affiliates` (
   `id` int(11) NOT NULL auto_increment,
   `target_url` varchar(1024) default NULL,
@@ -2792,3 +2803,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090619003241');
 INSERT INTO schema_migrations (version) VALUES ('20090622185400');
 
 INSERT INTO schema_migrations (version) VALUES ('20090623213932');
+
+INSERT INTO schema_migrations (version) VALUES ('20090624215539');
