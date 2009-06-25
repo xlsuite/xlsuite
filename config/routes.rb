@@ -34,6 +34,7 @@ ActionController::Routing::Routes.draw do |map|
         :destroy_collection => :delete, :install => :get}
     
   map.resources :account_modules, :path_prefix => "/admin"
+  map.resources :affiliate_setup_lines, :path_prefix => "/admin", :collection => {:destroy_collection => :delete}
   
   map.resource :gigya, :member => {:login => :any, :signup => :any, :authenticate => :any, :authorize => :any}, 
     :controller => "gigya", :path_prefix => "/admin"
