@@ -231,6 +231,9 @@ class AccountsController < ApplicationController
         # TODO: replace self.master_account with @acct.parent ?
         @order = @acct.generate_order_on!(self.master_account)
 
+        if session[AFFILIATE_IDS_SESSION_KEY]
+          @acct.affiliate_usernames = session[AFFILIATE_IDS_SESSION_KEY]
+        end
         @acct.update_attributes!(params[:acct])
         
         @acct_template = nil

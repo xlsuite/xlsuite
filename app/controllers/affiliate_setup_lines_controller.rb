@@ -278,53 +278,67 @@
 # POSSIBILITY OF SUCH DAMAGES.
 # 
 # 		     END OF TERMS AND CONDITIONS
-module XlSuite
-  module AffiliateAccountHelper
-    def self.included(base)
-      base.send :include, AffiliateAccountHelper::InstanceMethods
-      base.send :attr_accessor, :affiliate_usernames
-      base.send :after_save, :add_affiliate_account_items
-    end
-    
-    module InstanceMethods
-      def affiliate_username=(username)
-        @affiliate_username = username
-        self.affiliate_usernames = self.affiliate_usernames || []
-        if self.affiliate_usernames.kind_of?(String)
-          self.affiliate_usernames += ("," + username)
-        elsif self.affiliate_usernames.kind_of?(Enumerable)
-          self.affiliate_usernames << username
-        end
-        nil
-      end
-      alias_method("affiliate_id=","affiliate_username=")
-      
-      def affiliate_username
-        @affiliate_username
-      end
-      alias_method(:affiliate_id, :affiliate_username)
-      
-      def add_affiliate_account_items
-        return true if self.affiliate_usernames.blank?
-        return true if self.affiliate_usernames.respond_to?(:empty?) && self.affiliate_usernames.empty?
-        affiliate_references = if self.affiliate_usernames.kind_of?(String)
-            self.affiliate_usernames.split(",").map(&:strip).reject(&:blank?).uniq
-          elsif self.affiliate_usernames.kind_of?(Enumerable)
-            self.affiliate_usernames.uniq
-          end
-        self.affiliate_usernames = nil
-        affiliate_accounts = AffiliateAccount.find(:all, :conditions => {:username => affiliate_references})
-        return false if affiliate_accounts.empty?
-        ActiveRecord::Base.transaction do
-          affiliate_accounts.each do |affiliate_account|
-            affiliate_item = AffiliateAccountItem.new
-            affiliate_item.affiliate_account = affiliate_account
-            affiliate_item.target = self
-            affiliate_item.save!
-          end
-        end        
-        true
+class AffiliateSetupLinesController < ApplicationController
+  required_permissions :none #check authorized?
+  
+  before_filter :load_target
+  
+  def index
+    @lines = AffiliateSetupLine.all(:conditions => {:target_type => @target.class.name, :target_id => @target.id}, :order => "level")
+    respond_to do |format|
+      format.json do
+        render(:json => {:collection => self.assemble_records(@lines), :total => @lines.size}.to_json)
       end
     end
+  end
+  
+  def create
+    @line = AffiliateSetupLine.new
+    @line.target = @target
+    @line.attributes = params[:line]
+    @created = @line.save
+    respond_to do |format|
+      format.js do
+        render(:json => {:success => @created}.to_json)
+      end
+    end
+  end
+  
+  def update
+    @line = AffiliateSetupLine.first(:conditions => {:id => params[:id], :target_type => @target.class.name, :target_id => @target.id})
+    @line.attributes = params[:line]
+    @updated = @line.save
+    respond_to do |format|
+      format.js do
+        render(:json => {:success => @updated}.to_json)
+      end
+    end
+  end
+  
+  def destroy_collection
+    @lines = AffiliateSetupLine.all(:conditions => {:id => params[:ids].split(",").map(&:strip).map(&:to_i)})
+    @lines.map(&:destroy)
+    respond_to do |format|
+      format.js do
+        render(:json => {:success => true}.to_json)
+      end
+    end
+  end
+  
+protected
+  def assemble_records(records)
+    out = []
+    records.each do |record|
+      out << {:id => record.id, :level => record.level, :percentage => record.percentage.to_s}
+    end
+    out
+  end
+
+  def load_target
+    @target = params[:target_type].classify.constantize.find(params[:target_id])
+  end
+  
+  def authorized?
+    self.current_user?
   end
 end

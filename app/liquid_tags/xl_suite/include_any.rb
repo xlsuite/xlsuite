@@ -279,52 +279,47 @@
 # 
 # 		     END OF TERMS AND CONDITIONS
 module XlSuite
-  module AffiliateAccountHelper
-    def self.included(base)
-      base.send :include, AffiliateAccountHelper::InstanceMethods
-      base.send :attr_accessor, :affiliate_usernames
-      base.send :after_save, :add_affiliate_account_items
-    end
+  class IncludeAny < Liquid::Tag
+    Input1Syntax = /input1:\s*(#{Liquid::QuotedFragment})/
+    Input2Syntax = /input2:\s*(#{Liquid::QuotedFragment})/
+    CaseInsensitive = /case_insensitive:\s*(#{Liquid::QuotedFragment})/
     
-    module InstanceMethods
-      def affiliate_username=(username)
-        @affiliate_username = username
-        self.affiliate_usernames = self.affiliate_usernames || []
-        if self.affiliate_usernames.kind_of?(String)
-          self.affiliate_usernames += ("," + username)
-        elsif self.affiliate_usernames.kind_of?(Enumerable)
-          self.affiliate_usernames << username
-        end
-        nil
-      end
-      alias_method("affiliate_id=","affiliate_username=")
+    InSyntax = /in:\s*(#{Liquid::QuotedFragment})/
+
+    def initialize(tag_name, markup, tokens)
+      super
+
+      @options = Hash.new
+      @options[:input1] = $1 if markup =~ Input1Syntax
+      @options[:input2] = $1 if markup =~ Input2Syntax
+      @options[:case_insensitive] = $1 if markup =~ CaseInsensitive
+      @options[:in] = $1 if markup =~ InSyntax
+
+      specifications = [@options[:input1], @options[:input2]].flatten.compact
+      raise SyntaxError, "Please specify either :input1 or :input2 options for include_any" if specifications.size < 2
       
-      def affiliate_username
-        @affiliate_username
-      end
-      alias_method(:affiliate_id, :affiliate_username)
+      raise SyntaxError, "Missing in: parameter in #{markup.inspect}" unless @options[:in]
+    end
+
+    def render(context)
+      current_account = context.current_account
+
+      context_options = Hash.new
       
-      def add_affiliate_account_items
-        return true if self.affiliate_usernames.blank?
-        return true if self.affiliate_usernames.respond_to?(:empty?) && self.affiliate_usernames.empty?
-        affiliate_references = if self.affiliate_usernames.kind_of?(String)
-            self.affiliate_usernames.split(",").map(&:strip).reject(&:blank?).uniq
-          elsif self.affiliate_usernames.kind_of?(Enumerable)
-            self.affiliate_usernames.uniq
-          end
-        self.affiliate_usernames = nil
-        affiliate_accounts = AffiliateAccount.find(:all, :conditions => {:username => affiliate_references})
-        return false if affiliate_accounts.empty?
-        ActiveRecord::Base.transaction do
-          affiliate_accounts.each do |affiliate_account|
-            affiliate_item = AffiliateAccountItem.new
-            affiliate_item.affiliate_account = affiliate_account
-            affiliate_item.target = self
-            affiliate_item.save!
-          end
-        end        
-        true
+      [:input1, :input2, :case_insensitive].each do |option_sym|
+        context_options[option_sym] = context[@options[option_sym]]
+        context_options[option_sym] = @options[option_sym] unless context_options[option_sym]
       end
+      
+      input1 = context_options[:input1].split(",").map(&:strip) if context_options[:input1].is_a?(String)
+      input2 = context_options[:input2].split(",").map(&:strip) if context_options[:input2].is_a?(String)
+	    if context_options[:case_insensitive]
+	      input1 = input1.map(&:downcase) rescue input1
+	      input2 = input2.map(&:downcase) rescue input2
+	    end
+	    
+      context.scopes.last[@options[:in]] = input1.any?{|i|input2.include?(i)}
+      nil
     end
   end
 end

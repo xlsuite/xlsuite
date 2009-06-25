@@ -282,6 +282,7 @@ class AffiliateAccount < ActiveRecord::Base
   include XlSuite::AuthenticatedUser
   validates_presence_of :email_address, :username
   validates_uniqueness_of :email_address, :username
+  validates_format_of :username, :with => /\A[-\w]+\Z/i, :message => "can contain only a-z, A-Z, 0-9, _ and -, cannot contain space(s)"
   
   before_create :generate_random_uuid
   attr_accessor :confirmed

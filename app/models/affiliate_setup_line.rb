@@ -278,53 +278,9 @@
 # POSSIBILITY OF SUCH DAMAGES.
 # 
 # 		     END OF TERMS AND CONDITIONS
-module XlSuite
-  module AffiliateAccountHelper
-    def self.included(base)
-      base.send :include, AffiliateAccountHelper::InstanceMethods
-      base.send :attr_accessor, :affiliate_usernames
-      base.send :after_save, :add_affiliate_account_items
-    end
-    
-    module InstanceMethods
-      def affiliate_username=(username)
-        @affiliate_username = username
-        self.affiliate_usernames = self.affiliate_usernames || []
-        if self.affiliate_usernames.kind_of?(String)
-          self.affiliate_usernames += ("," + username)
-        elsif self.affiliate_usernames.kind_of?(Enumerable)
-          self.affiliate_usernames << username
-        end
-        nil
-      end
-      alias_method("affiliate_id=","affiliate_username=")
-      
-      def affiliate_username
-        @affiliate_username
-      end
-      alias_method(:affiliate_id, :affiliate_username)
-      
-      def add_affiliate_account_items
-        return true if self.affiliate_usernames.blank?
-        return true if self.affiliate_usernames.respond_to?(:empty?) && self.affiliate_usernames.empty?
-        affiliate_references = if self.affiliate_usernames.kind_of?(String)
-            self.affiliate_usernames.split(",").map(&:strip).reject(&:blank?).uniq
-          elsif self.affiliate_usernames.kind_of?(Enumerable)
-            self.affiliate_usernames.uniq
-          end
-        self.affiliate_usernames = nil
-        affiliate_accounts = AffiliateAccount.find(:all, :conditions => {:username => affiliate_references})
-        return false if affiliate_accounts.empty?
-        ActiveRecord::Base.transaction do
-          affiliate_accounts.each do |affiliate_account|
-            affiliate_item = AffiliateAccountItem.new
-            affiliate_item.affiliate_account = affiliate_account
-            affiliate_item.target = self
-            affiliate_item.save!
-          end
-        end        
-        true
-      end
-    end
-  end
+class AffiliateSetupLine < ActiveRecord::Base
+  belongs_to :target, :polymorphic => true
+  acts_as_list :column => :level, :scope => 'target_type=#{self.target_type.inspect} AND target_id=#{self.target_id}'
+  
+  validates_presence_of :target_type, :target_id, :percentage
 end

@@ -90,6 +90,22 @@ CREATE TABLE `accounts` (
   KEY `by_master` (`master`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `affiliate_account_item_lines` (
+  `id` int(11) NOT NULL auto_increment,
+  `affiliate_account_item_id` int(11) default NULL,
+  `target_type` varchar(255) default NULL,
+  `target_id` int(11) default NULL,
+  `price_cents` int(11) default NULL,
+  `price_currency` varchar(255) default NULL,
+  `commission_percentage` decimal(5,2) default NULL,
+  `commission_cents` int(11) default NULL,
+  `commission_currency` varchar(255) default NULL,
+  `subscription` tinyint(1) default NULL,
+  `created_at` datetime default NULL,
+  `updated_at` datetime default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `affiliate_account_items` (
   `id` int(11) NOT NULL auto_increment,
   `affiliate_account_id` int(11) default NULL,
@@ -131,6 +147,17 @@ CREATE TABLE `affiliate_accounts` (
   PRIMARY KEY  (`id`),
   KEY `by_username` (`username`),
   KEY `by_email_address` (`email_address`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `affiliate_setup_lines` (
+  `id` int(11) NOT NULL auto_increment,
+  `target_type` varchar(255) default NULL,
+  `target_id` int(11) default NULL,
+  `percentage` decimal(5,2) default NULL,
+  `level` int(11) default NULL,
+  `created_at` datetime default NULL,
+  `updated_at` datetime default NULL,
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `affiliates` (
@@ -2774,3 +2801,7 @@ INSERT INTO schema_migrations (version) VALUES ('20090618231112');
 INSERT INTO schema_migrations (version) VALUES ('20090619003241');
 
 INSERT INTO schema_migrations (version) VALUES ('20090622185400');
+
+INSERT INTO schema_migrations (version) VALUES ('20090623213932');
+
+INSERT INTO schema_migrations (version) VALUES ('20090624215539');

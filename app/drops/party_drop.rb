@@ -119,4 +119,8 @@ class PartyDrop < Liquid::Drop
     end
     nil
   end
+  
+  def group_labels_to_s
+    self.party.groups.map(&:label).join(",")
+  end
 end
