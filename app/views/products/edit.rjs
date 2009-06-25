@@ -899,8 +899,7 @@ page << create_tab_using_ajax_response("Product | #{truncate(@product.name, 20)}
   });
   
   ///////////////////////////////////////////////AFFILIATE TAB///////////////////////////////////////////////////////
-  
-  
+
   var affiliateSimpleStoreWidget = xl.widget.SimpleJSONStore({
     url:#{@affiliate_setup_lines_product_path.to_json}
     ,fields:[
@@ -928,9 +927,31 @@ page << create_tab_using_ajax_response("Product | #{truncate(@product.name, 20)}
     affiliateSetupGrid.startEditing(affiliateProductStore.getCount()-1, 1);
   };
   
+  var removeAffiliateSetupLines = function(){
+    if(affiliateSetupGrid.getSelectionModel().hasSelection()){
+      Ext.Msg.confirm("Deleting affiliate setup line", "Are you sure?", function(btn){
+        if(btn=="yes"){
+          var selectedRecord = affiliateSetupGrid.getStore().getAt(affiliateSetupGrid.getSelectionModel().getSelectedCell()[0]);
+          Ext.Ajax.request({
+            url:#{@destroy_collection_affiliate_setup_lines_path.to_json}
+            ,method:"DELETE"
+            ,params:{"ids":selectedRecord.get("id"), "target_type":"Product", "target_id":#{@product.id}}
+            ,success:function(response, options){
+              affiliateSetupGrid.getStore().reload()
+            }
+          });
+          console.log("btn is %o", btn);
+        }
+      });
+    }
+  };
+  
   var affiliateSetupGrid = new Ext.grid.EditorGridPanel({
     store:affiliateProductStore
-    ,tbar:[{text:"New", handler:addAffiliateSetupLine}]
+    ,tbar:[
+      {text:"New", handler:addAffiliateSetupLine}
+      ,{text:"Remove", handler:removeAffiliateSetupLines}
+    ]
     ,cm:new Ext.grid.ColumnModel([
       {header:"Level", width:50, dataIndex:"level", sortable:false}
       ,{header:"Percentage", width:100, dataIndex:"percentage", sortable:false, editor:new Ext.form.NumberField()}
@@ -939,10 +960,6 @@ page << create_tab_using_ajax_response("Product | #{truncate(@product.name, 20)}
     ,height:300
     ,width:200
   });
-
-
-
-
 
   var affiliateSetupLineProductPath = #{@affiliate_setup_line_product_path.to_json};
   affiliateSetupGrid.on("validateedit", function(event){
@@ -974,14 +991,6 @@ page << create_tab_using_ajax_response("Product | #{truncate(@product.name, 20)}
     }
     return true;
   });
-
-
-
-
-
-
-
-
 
   var affiliateSetupPanel = new Ext.Panel({
     title:"Affiliate"

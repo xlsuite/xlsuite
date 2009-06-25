@@ -316,7 +316,7 @@ class AffiliateSetupLinesController < ApplicationController
   end
   
   def destroy_collection
-    @lines = AffiliateSetupLine.all(:conditions => {:ids => params[:ids].split(",").map(&:strip).map(&:to_i)})
+    @lines = AffiliateSetupLine.all(:conditions => {:id => params[:ids].split(",").map(&:strip).map(&:to_i)})
     @lines.map(&:destroy)
     respond_to do |format|
       format.js do
