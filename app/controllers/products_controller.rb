@@ -354,6 +354,8 @@ class ProductsController < ApplicationController
   
   def edit
     @formatted_comments_path = formatted_comments_path(:commentable_type => "Product", :commentable_id => @product.id, :format => :json)
+    @affiliate_setup_lines_product_path = affiliate_setup_lines_path(:target_type => "Product", :target_id => @product.id)
+    @affiliate_setup_line_product_path = affiliate_setup_line_path(:target_type => "Product", :target_id => @product.id, :id => "__ID__")
     @edit_comment_path = edit_comment_path(:commentable_type => "Product", :commentable_id => @product.id, :id => "__ID__")
     respond_to do |format|
       format.js

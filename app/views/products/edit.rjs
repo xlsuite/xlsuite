@@ -897,6 +897,100 @@ page << create_tab_using_ajax_response("Product | #{truncate(@product.name, 20)}
         }
       }
   });
+  
+  ///////////////////////////////////////////////AFFILIATE TAB///////////////////////////////////////////////////////
+  
+  
+  var affiliateSimpleStoreWidget = xl.widget.SimpleJSONStore({
+    url:#{@affiliate_setup_lines_product_path.to_json}
+    ,fields:[
+      {name:"id", type:"int"}
+      ,{name:"level", type:"int"}
+      ,{name:"percentage", type:"float"}
+    ]
+  });
+
+  var affiliateProductStore = affiliateSimpleStoreWidget.store;
+  var AffiliateSetupLineRecord = affiliateSimpleStoreWidget.record;
+  
+  var addAffiliateSetupLine = function(){
+    var level = 1;
+    if(affiliateProductStore.getCount()>0){
+      level = affiliateProductStore.getAt(affiliateProductStore.getCount()-1).get("level") + 1;
+    };
+    var newAffiliateSetupLine = new AffiliateSetupLineRecord({
+      id:""
+      ,level:level
+      ,percentage:0
+    });
+    affiliateSetupGrid.stopEditing();
+    affiliateProductStore.insert(affiliateProductStore.getCount(), newAffiliateSetupLine);
+    affiliateSetupGrid.startEditing(affiliateProductStore.getCount()-1, 1);
+  };
+  
+  var affiliateSetupGrid = new Ext.grid.EditorGridPanel({
+    store:affiliateProductStore
+    ,tbar:[{text:"New", handler:addAffiliateSetupLine}]
+    ,cm:new Ext.grid.ColumnModel([
+      {header:"Level", width:50, dataIndex:"level", sortable:false}
+      ,{header:"Percentage", width:100, dataIndex:"percentage", sortable:false, editor:new Ext.form.NumberField()}
+    ])
+    ,listeners:{"render":function(){affiliateProductStore.load()}}
+    ,height:300
+    ,width:200
+  });
+
+
+
+
+
+  var affiliateSetupLineProductPath = #{@affiliate_setup_line_product_path.to_json};
+  affiliateSetupGrid.on("validateedit", function(event){
+    var record = event.record;
+    var editedFieldName = event.field;
+
+    record.set(editedFieldName, event.value);
+    var objectId = record.get("id");
+    
+    if(objectId == ""){
+      Ext.Ajax.request({
+        url:#{@affiliate_setup_lines_product_path.to_json}
+        ,method:"POST"
+        ,params:{"line[percentage]":record.get("percentage")}
+        ,success:function(response, options){
+          affiliateSetupGrid.getStore().reload()
+        }
+      });
+    }
+    else{
+      Ext.Ajax.request({
+        url:affiliateSetupLineProductPath.sub("__ID__", objectId)
+        ,method:"PUT"
+        ,params:{"line[percentage]":record.get("percentage")}
+        ,success:function(response, options){
+          affiliateSetupGrid.getStore().reload()
+        }
+      })
+    }
+    return true;
+  });
+
+
+
+
+
+
+
+
+
+  var affiliateSetupPanel = new Ext.Panel({
+    title:"Affiliate"
+    ,items:[affiliateSetupGrid]
+    ,listeners: {show: function(panel){xl.viewport.render();}}
+  });
+  
+  /////////////////////////////////////////////END AFFILIATE TAB/////////////////////////////////////////////////////
+
 
   var tabPanel = new Ext.TabPanel({
     style: 'padding: 10px;',
@@ -941,7 +1035,8 @@ page << create_tab_using_ajax_response("Product | #{truncate(@product.name, 20)}
         title: "Free Access",
         items: freeAccessGroupsTreePanel,
         listeners: {show: function(panel){xl.viewport.render();}}
-      }
+      },
+      affiliateSetupPanel
     ]
   });
 
