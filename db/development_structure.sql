@@ -98,8 +98,8 @@ CREATE TABLE `affiliate_account_item_lines` (
   `price_cents` int(11) default NULL,
   `price_currency` varchar(255) default NULL,
   `commission_percentage` decimal(5,2) default NULL,
-  `commission_cents` int(11) default NULL,
-  `commission_currency` varchar(255) default NULL,
+  `commission_amount_cents` int(11) default NULL,
+  `commission_amount_currency` varchar(255) default NULL,
   `created_at` datetime default NULL,
   `updated_at` datetime default NULL,
   `subscription_period_length` int(11) default NULL,
@@ -2812,3 +2812,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090623213932');
 INSERT INTO schema_migrations (version) VALUES ('20090624215539');
 
 INSERT INTO schema_migrations (version) VALUES ('20090625231844');
+
+INSERT INTO schema_migrations (version) VALUES ('20090626230149');

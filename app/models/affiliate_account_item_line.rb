@@ -3,7 +3,7 @@ class AffiliateAccountItemLine < ActiveRecord::Base
   belongs_to :target, :polymorphic => true
   
   acts_as_money :price
-  acts_as_money :commission
+  acts_as_money :commission_amount
   
   acts_as_period :subscription_period, :allow_nil => true
   
