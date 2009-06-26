@@ -100,9 +100,14 @@ CREATE TABLE `affiliate_account_item_lines` (
   `commission_percentage` decimal(5,2) default NULL,
   `commission_cents` int(11) default NULL,
   `commission_currency` varchar(255) default NULL,
-  `subscription` tinyint(1) default NULL,
   `created_at` datetime default NULL,
   `updated_at` datetime default NULL,
+  `subscription_period_length` int(11) default NULL,
+  `subscription_period_unit` varchar(8) default NULL,
+  `status` varchar(255) default NULL,
+  `subscription_started_at` datetime default NULL,
+  `subscription_cancelled_at` datetime default NULL,
+  `level` int(11) default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -2805,3 +2810,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090622185400');
 INSERT INTO schema_migrations (version) VALUES ('20090623213932');
 
 INSERT INTO schema_migrations (version) VALUES ('20090624215539');
+
+INSERT INTO schema_migrations (version) VALUES ('20090625231844');
