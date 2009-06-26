@@ -285,7 +285,7 @@ class ProductDrop < Liquid::Drop
       :pay_period_unit, :pay_period_length, :free_period_unit, :free_period_length, 
       :approved_comments_count, :unapproved_comments_count, :description, 
       :creator_id, :editor_id, :owner_id, :main_image, :external_url, 
-      :accessible_items, :accessible_assets, :to => :product
+      :accessible_items, :accessible_assets, :private, :to => :product
 
   def initialize(product)
     @product = product
