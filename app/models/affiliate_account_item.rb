@@ -284,6 +284,8 @@ class AffiliateAccountItem < ActiveRecord::Base
   belongs_to :affiliate_account
   belongs_to :target, :polymorphic => true
   
+  has_many :lines, :class_name => "AffiliateAccountItemLine", :foreign_key => "affiliate_account_item_id"
+  
   validates_presence_of :affiliate_account_id, :level, :target_type, :target_id
   validates_uniqueness_of :affiliate_account_id, :scope => [:target_type, :target_id]
   
