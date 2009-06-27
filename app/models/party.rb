@@ -1147,7 +1147,7 @@ class Party < ActiveRecord::Base
 
     def authenticate_with_account_email_and_password!(account, *args)
       self.with_scope(
-          :find => {:conditions => ["parties.account_id = ? and confirmed = 1", account.id]},
+          :find => {:conditions => ["parties.account_id = ? and confirmed_at IS NOT NULL", account.id]},
           :create => {:account => account}) do
         EmailContactRoute.with_scope(
             :find => {:conditions => ["contact_routes.account_id = ? AND contact_routes.routable_type = 'Party' ", account.id]},
@@ -1167,9 +1167,7 @@ class Party < ActiveRecord::Base
           :party => self, :site_name => domain_name,
           :username => self.main_email.address,
           :password => new_password) if self.main_email
-      self.confirmed = true
-      #call save instead of update_attribute so callbacks are executed
-      self.save
+      self.confirm!
     end
   end
 

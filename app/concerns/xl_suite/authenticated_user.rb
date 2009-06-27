@@ -449,7 +449,7 @@ module XlSuite
       def unconfirm!(expires_at=24.hours.from_now)
         self.confirmation_token = UUID.random_create.to_s
         self.confirmation_token_expires_at = expires_at
-        self.confirmed = false
+        self.confirmed_at = nil
         self.save!
       end
 
@@ -504,10 +504,14 @@ module XlSuite
         self
       end
       
+      def confirmed?
+        return self.confirmed_at ? true : false
+      end
+      
       def confirm!
         self.confirmation_token = nil
         self.confirmation_token_expires_at = nil
-        self.confirmed = true
+        self.confirmed_at = Time.now
         self.save!
       end
       
@@ -610,7 +614,7 @@ module XlSuite
             self.attributes = params[:attributes]
             self.confirmation_token = nil
             self.confirmation_token_expires_at = nil
-            self.confirmed = true
+            self.confirmed_at = Time.now
             self.login!
           end
         end

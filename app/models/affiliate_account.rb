@@ -350,9 +350,7 @@ class AffiliateAccount < ActiveRecord::Base
             :affiliate_account => self,
             :username => self.email_address,
             :password => new_password)
-        self.confirmed = true
-        #call save instead of update_attribute so callbacks are executed
-        self.save
+        self.confirm!
       end
     end
   end

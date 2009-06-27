@@ -886,10 +886,7 @@ class PartiesController < ApplicationController
       @party.groups << g unless @party.groups.include?(g)
     end
 
-    @party.confirmation_token = nil
-    @party.confirmation_token_expires_at = nil
-    @party.confirmed = true
-    @party.save!
+    @party.confirm!
     self.current_user = @party
     flash_success "Successfully subscribed to group(s)"
     return redirect_to(params[:signed_up].blank? ? new_session_path : (params[:signed_up] + "?gids=#{params[:gids]}") )
