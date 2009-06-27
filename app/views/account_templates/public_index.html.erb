@@ -9,7 +9,11 @@
     <td><%= account_template.subscription_fee %>&nbsp;/&nbsp;month</td>
   </tr>
   <tr>
-    <td colspan="10"><%= image_tag account_template.main_image_url %><div class="details">
+    <td colspan="10">
+  <% if image = account_template.images.first %>
+    <%= link_to image_tag("http://#{account_template.trunk_account.domains.first.name}#{image.thumbnails.find_by_thumbnail('medium') ? image.thumbnails.find_by_thumbnail('medium').src : image.src}"), "http://#{account_template.trunk_account.domains.first.name}#{image.src}", :popup => true %>
+  <% end %>
+    <div class="details">
       <%= account_template.description.blank? ? "No Description" : account_template.description%></div>
     </td>
   </tr>
