@@ -121,6 +121,7 @@ CREATE TABLE `affiliate_account_items` (
   `updated_at` datetime default NULL,
   `percentage` decimal(5,2) default NULL,
   `account_id` int(11) default NULL,
+  `domain_id` int(11) default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_affiliate_account` (`affiliate_account_id`),
   KEY `by_target` (`target_type`,`target_id`)
@@ -2817,3 +2818,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090625231844');
 INSERT INTO schema_migrations (version) VALUES ('20090626230149');
 
 INSERT INTO schema_migrations (version) VALUES ('20090626235221');
+
+INSERT INTO schema_migrations (version) VALUES ('20090626235904');
