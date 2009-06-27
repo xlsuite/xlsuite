@@ -183,11 +183,50 @@
           Ext.Msg.alert("Change password FAILED", action.result.errors);
         }
       })
-    });    
+    });
+    
+    xl.affiliate.ItemLineRecord = new Ext.data.Record.create([
+      {name:"id", type:"int"}
+      ,{name:"subscription_flag", type:"boolean"}
+      ,{name:"price", type:"float"}
+      ,{name:"commission_percentage", type:"float"}
+      ,{name:"commission_amount", type:"float"}
+      ,{name:"status"}
+      ,{name:"main_identifier"}
+      ,{name:"domain_name"}      
+    ]);
+    
+    var itemLinesGridPanelStoreReader = new Ext.data.JsonReader(
+      {totalProperty: "total", root: "collection", id: "id"}
+      ,xl.affiliate.ItemLineRecord
+    );
+    var itemLinesGridPanelStoreProxy = new Ext.data.HttpProxy(new Ext.data.Connection({
+      url:<%= formatted_referred_item_lines_affiliate_account_path(:format => :json).to_json %>
+      ,method:"GET"
+    })); 
+    
+    xl.affiliate.itemLinesGridPanelStore = new Ext.data.Store({
+      proxy:itemLinesGridPanelStoreProxy
+      ,reader:itemLinesGridPanelStoreReader
+      ,autoLoad:true
+    });
+    
+    xl.affiliate.itemLinesGridPanel = new Ext.grid.GridPanel({
+      title:"Referred Items"
+      ,store:xl.affiliate.itemLinesGridPanelStore
+      ,cm:new Ext.grid.ColumnModel([
+        {header:"Description", dataIndex:"main_identifier"}
+        ,{header:"Status", dataIndex:"status"}
+        ,{header:"Domain origin", dataIndex:"main_identifier"}
+        ,{header:"Commission percentage", dataIndex:"commission_percentage"}
+        ,{header:"Commission amount", dataIndex:"commission_amount"}
+      ])
+      ,height:500
+    });
 
     xl.affiliate.mainTabPanel = new Ext.TabPanel({
       activeTab:0
-      ,items:[xl.affiliate.editAccountTab, xl.affiliate.settingsTab]
+      ,items:[xl.affiliate.itemLinesGridPanel, xl.affiliate.editAccountTab, xl.affiliate.settingsTab]
     });
 
     xl.affiliate.wrapperPanel = new Ext.Panel({
