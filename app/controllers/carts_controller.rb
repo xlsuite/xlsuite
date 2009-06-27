@@ -337,6 +337,10 @@ class CartsController < ApplicationController
       @cart.invoice_to = current_account.parties.create! unless @cart.invoice_to
       @cart.add_routes_to_invoice_to!      
       @order = @cart.to_order!
+      if session[AFFILIATE_IDS_SESSION_KEY]
+        @order.affiliate_usernames = session[AFFILIATE_IDS_SESSION_KEY]
+        @order.save!
+      end
       @cart.destroy
       session[:cart_id] = @cart = nil
     end
