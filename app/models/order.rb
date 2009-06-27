@@ -377,6 +377,8 @@ class Order < ActiveRecord::Base
     item = AffiliateAccountItem.new
     item.target = self
     item.affiliate_account = affiliate_account
+    item.account_id = self.account_id
+    item.domain_id = self.domain_id
     item.save!
     item_line = nil
     product = nil
