@@ -199,8 +199,7 @@ class AccountsController < ApplicationController
       Party.transaction do
         # make sure to confirm account owner otherwise they won't be able to login
         # the Party#authorize! will return immediately since the party does not have confirmation token
-        @owner.confirmed = true 
-        @owner.save!
+        @owner.confirm!
         
         @address.account = @phone.account = @acct
         @address.routable = @phone.routable = @owner

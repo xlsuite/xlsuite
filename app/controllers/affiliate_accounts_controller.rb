@@ -280,7 +280,7 @@
 # 		     END OF TERMS AND CONDITIONS
 class AffiliateAccountsController < ApplicationController
   skip_before_filter :login_required, :only => [:login, :forgot_password, :confirm_forgot_password, :logout]
-  required_permissions %w(show update change_password) => "current_user?"
+  required_permissions %w(show update change_password referred_item_lines) => "current_user?"
   
   def show
     respond_to do |format|
@@ -418,8 +418,36 @@ class AffiliateAccountsController < ApplicationController
       end
     end  
   end
+
+  def referred_item_lines
+    item_ids = AffiliateAccountItem.all(:select => "id", :conditions => {:affiliate_account_id => self.current_user.id}).map(&:id)
+    @lines = AffiliateAccountItemLine.all(:conditions => {:affiliate_account_item_id => item_ids})
+    @lines_count = AffiliateAccountItemLine.count(:id, :conditions => {:affiliate_account_item_id => item_ids})
+    respond_to do |format|
+      format.json do
+        render(:json => {:collection => self.assemble_affiliate_line_items(@lines), :total => @lines_count}.to_json)
+      end
+    end
+  end
   
-  protected
+protected
+  def assemble_affiliate_line_items(records)
+    out = []
+    records.each do |record|
+      out << {
+        :id => record.id,
+        :subscription_flag => record.subscription?,
+        :price => record.price.to_s,
+        :commission_percentage => record.comission_percentage.to_s,
+        :commission_amount => record.commission_amount.to_s,
+        :status => record.status,
+        :main_identifier => record.main_identifier,
+        :domain_name => record.domain.blank? ? "" : record.domain.name
+      }
+    end
+    out
+  end
+  
   def current_user
     return self.stub_user unless self.current_user?
     returning @_current_user ||= AffiliateAccount.find(session[self.session_current_user_id]) do

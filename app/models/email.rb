@@ -631,10 +631,7 @@ EOF
           if self.body =~ /\{\{\s*randomize_password_if_none\s*\}\}/ && party.password_hash.blank? then
             pw = party.randomize_password!
             unless pw.blank?
-              party.confirmation_token = nil
-              party.confirmation_token_expires_at = nil
-              party.confirmed = true
-              party.save!
+              party.confirm!
               attrs['randomize_password_if_none'] = "Password: #{pw}"
             end
           end

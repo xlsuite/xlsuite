@@ -3,6 +3,7 @@
 
 class Order < ActiveRecord::Base
   include XlSuite::Invoicable
+  include XlSuite::AffiliateAccountHelper
 
   acts_as_reportable
   acts_as_fulltext %w(care_of_name number date notes fst_name pst_name shipping_method status invoiced_to_name
@@ -95,6 +96,41 @@ class Order < ActiveRecord::Base
   end
 
   protected
+  def process_affiliate_account(affiliate_account)
+    item = AffiliateAccountItem.new
+    item.target = self
+    item.affiliate_account = affiliate_account
+    item.account_id = self.account_id
+    item.domain_id = self.domain_id
+    item.save!
+    item_line = nil
+    product = nil
+    self.lines.each do |o_line|
+      next unless o_line.product
+      product = o_line.product
+      product_affiliate = AffiliateSetupLine.first(:conditions => {:target_id => product.id, :target_type => product.class.name, :level => item.level})
+      next unless product_affiliate
+      item_line = AffiliateAccountItemLine.new
+      item_line.affiliate_account_item = item
+      item_line.target = product
+      item_line.commission_percentage = product_affiliate.percentage
+      item_line.status = self.status
+      item_line.price = line.retail_price
+      item_line.commission_amount = line.retail_price * (product_affiliate.percentage.to_f / 100)
+      item_line.level = item.level
+      if product.pay_period
+        item_line.subscription_period = product.pay_period
+        start_time = Time.now.utc
+        start_time += product.free_period.to_i if product.free_period
+        item_line.subscription_started_at = start_time
+      end
+      item_line.save!
+    end
+    item.reload
+    item.destroy if item.lines.count == 0
+    true
+  end
+  
   def copy_ship_to_from_customer
     return unless self.customer || self.ship_to
     self.ship_to = self.customer.main_address.dup unless self.ship_to

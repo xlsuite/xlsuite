@@ -304,6 +304,8 @@ module XlSuite
       end
       alias_method(:affiliate_id, :affiliate_username)
       
+      protected
+      
       def add_affiliate_account_items
         return true if self.affiliate_usernames.blank?
         return true if self.affiliate_usernames.respond_to?(:empty?) && self.affiliate_usernames.empty?
@@ -317,13 +319,14 @@ module XlSuite
         return false if affiliate_accounts.empty?
         ActiveRecord::Base.transaction do
           affiliate_accounts.each do |affiliate_account|
-            affiliate_item = AffiliateAccountItem.new
-            affiliate_item.affiliate_account = affiliate_account
-            affiliate_item.target = self
-            affiliate_item.save!
+            self.process_affiliate_account(affiliate_account)
           end
         end        
         true
+      end
+      
+      def process_affiliate_account(affiliate_account)
+        raise "You need to overwrite #process_affiliate_account instance method"
       end
     end
   end

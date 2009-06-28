@@ -19,7 +19,7 @@ class Party < ActiveRecord::Base
 
   acts_as_taggable
   acts_as_reportable \
-    :columns => %w(honorific first_name last_name middle_name company_name display_name referal forum_alias timezone created_at updated_at confirmed),
+    :columns => %w(honorific first_name last_name middle_name company_name display_name referal forum_alias timezone created_at updated_at confirmed_at),
     :map => {:addresses => :address_contact_route, :phones => :phone_contact_route, :links => :link_contact_route, :emails => :email_contact_route}
 
   acts_as_fulltext %w(display_name links_as_text phones_as_text addresses_as_text email_addresses_as_text tags_as_text position), :weight => 50 
@@ -870,7 +870,7 @@ class Party < ActiveRecord::Base
 
     def authenticate_with_account_email_and_password!(account, *args)
       self.with_scope(
-          :find => {:conditions => ["parties.account_id = ? and confirmed = 1", account.id]},
+          :find => {:conditions => ["parties.account_id = ? and confirmed_at IS NOT NULL", account.id]},
           :create => {:account => account}) do
         EmailContactRoute.with_scope(
             :find => {:conditions => ["contact_routes.account_id = ? AND contact_routes.routable_type = 'Party' ", account.id]},
@@ -890,9 +890,7 @@ class Party < ActiveRecord::Base
           :party => self, :site_name => domain_name,
           :username => self.main_email.address,
           :password => new_password) if self.main_email
-      self.confirmed = true
-      #call save instead of update_attribute so callbacks are executed
-      self.save
+      self.confirm!
     end
   end
 

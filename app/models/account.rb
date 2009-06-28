@@ -1089,6 +1089,21 @@ class Account < ActiveRecord::Base
   end
   
   protected
+  def process_affiliate_account(affiliate_account)
+    item = AffiliateAccountItem.new
+    item.target = self
+    item.affiliate_account = affiliate_account
+    item.percentage = 40
+    item.save!
+    item_line = AffiliateAccountItemLine.new
+    item_line.target = self
+    item_line.affiliate_account_item = item
+    item_line.commission_percentage = 40
+    item_line.status = "Free trial"
+    item_line.level = item.level
+    item_line.save!
+  end
+  
   def available_names_by_role(role)
     domain_names = self.domains.find(:all, :order=> "name").map(&:name).reject(&:blank?)
     result = [] 
