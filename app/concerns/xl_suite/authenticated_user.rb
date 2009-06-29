@@ -307,6 +307,7 @@ module XlSuite
       base.before_save :generate_password_salt
       base.before_save :crypt_password
       base.after_save :clear_password
+      base.before_save :set_confirmed
     end
 
     module ClassMethods
@@ -669,6 +670,11 @@ module XlSuite
       def generate_password_salt
         return unless self.password_salt.blank?
         self.password_salt = self.sha1("#{Time.now.to_s}--#{rand()}")
+      end
+      
+      def set_confirmed
+        self.confirmed = self.confirmed_at ? true : false
+        true
       end
     end
   end
