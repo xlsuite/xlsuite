@@ -185,7 +185,8 @@
       ,{name:"commission_amount", type:"float"}
       ,{name:"status"}
       ,{name:"main_identifier"}
-      ,{name:"domain_name"}      
+      ,{name:"domain_name"}
+      ,{name:"month_timestamp"}
     ]);
     
     var itemLinesGridPanelStoreReader = new Ext.data.JsonReader(
@@ -201,7 +202,7 @@
       proxy:itemLinesGridPanelStoreProxy
       ,reader:itemLinesGridPanelStoreReader
       ,sortInfo:{field:"status", direction:'ASC'}
-      ,groupField:['main_identifier', 'domain_name']
+      ,groupField:['month_timestamp', 'main_identifier']
       ,autoLoad:true
     });
     
@@ -218,7 +219,8 @@
       store:xl.affiliate.itemLinesGridPanelStore
       ,view:xl.affiliate.itemLinesGridView
       ,cm:new Ext.grid.ColumnModel([
-        {header:"Description", dataIndex:"main_identifier"}
+        {header:"Month", dataIndex:"month_timestamp"}
+        ,{header:"Item", dataIndex:"main_identifier"}
         ,{header:"Domain origin", dataIndex:"domain_name"}
         ,{header:"Commission %", dataIndex:"commission_percentage", width:100, align:"right"}
         ,{header:"Commission $", dataIndex:"commission_amount", width:120, align:"right"}
