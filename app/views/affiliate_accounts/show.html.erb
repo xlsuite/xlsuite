@@ -142,6 +142,7 @@
     xl.affiliate.settingsTab = new Ext.form.FormPanel({
       title:"Settings"
       ,height:125
+      ,border:false
       ,items:[
         new Ext.form.TextField({
           name:"affiliate_account[old_password]"
@@ -211,27 +212,28 @@
         ,{header:"Commission percentage", dataIndex:"commission_percentage"}
         ,{header:"Commission amount", dataIndex:"commission_amount"}
       ])
-      ,height:500
       ,columnWidth:1
+      ,border:false
     });
 
     xl.affiliate.referralItemsWrapper = new Ext.Panel({
       layout:"column"
       ,title:"Referred items"
-      ,height:500
       ,items:[
         {width:175, html:"Test", border:false}
         ,xl.affiliate.itemLinesGridPanel
       ]
+      ,border:false
     });
     
     xl.affiliate.mainTabPanel = new Ext.TabPanel({
       activeTab:0
+      ,border:false
       ,items:[xl.affiliate.referralItemsWrapper, xl.affiliate.editAccountTab, xl.affiliate.settingsTab]
     });
 
     xl.affiliate.wrapperPanel = new Ext.Panel({
-      width:1024
+      width:"100%"
       ,items:[xl.affiliate.mainTabPanel]
       ,tbar:[
         {
@@ -244,9 +246,11 @@
           ,handler:function(){window.location=<%= logout_affiliate_account_url.to_json %>}
         }
       ]
+      ,height:Ext.getBody().getViewSize().height
     });
 
     Ext.onReady(function(){
+      xl.affiliate.wrapperPanel.setHeight(Ext.getBody().getViewSize().height);
       xl.affiliate.wrapperPanel.render("affiliate-account-ui-body");
     });
   </script>
