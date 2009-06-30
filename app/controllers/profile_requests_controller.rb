@@ -409,20 +409,27 @@ class ProfileRequestsController < ApplicationController
   end
   
   def create_add
+    flash[:liquid] ||= {}
+    flash[:liquid][:params] = params
     begin
-      flash[:liquid] ||= {}
-      flash[:liquid][:params] = params
+      if params[:profile][:email].blank? || params[:profile][:email][:main].blank? || params[:profile][:email][:main][:email_address].blank?
+        params[:profile].delete("email")
+      elsif Party.find_by_account_and_email_address(current_account, params[:profile][:email][:main][:email_address])
+        raise "Email has already been taken"
+      end
       
+      @email = params[:profile].delete("email")
       @avatar = params[:profile].delete("avatar")
       @phone = params[:profile].delete("phone")
       @link = params[:profile].delete("link")
       @address = params[:profile].delete("address")
       @group_labels = params[:profile].delete(:group_labels)
       
-      @profile_add_request = current_account.profile_add_requests.build(params[:profile])
+      @profile_add_request = current_account.profile_add_requests.create!(params[:profile])
       
       self.process_request(@profile_add_request, params) 
       @profile_add_request.created_by = current_user if current_user?
+      @profile_add_request.email = @email unless @email.blank?
       
       @profile_add_request.save!
       
@@ -453,6 +460,18 @@ class ProfileRequestsController < ApplicationController
         end
         format.js do
           render :json => {:success => true, :message => flash[:notice].join(", ")}
+        end
+      end
+    rescue
+      flash_failure $!.message
+      logger.debug($!.message)
+      logger.warn($!.backtrace.join("\n"))
+      respond_to do |format|
+        format.html do
+          return redirect_to_return_to_or_back_or_home
+        end
+        format.js do
+          render :json => {:success => false, :message => $!.message}
         end
       end
     end
