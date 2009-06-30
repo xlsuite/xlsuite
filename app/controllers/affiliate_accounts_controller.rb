@@ -442,7 +442,7 @@ protected
         :commission_amount => record.commission_amount.to_s,
         :status => record.status,
         :main_identifier => record.main_identifier,
-        :month_timestamp => record.created_at.strftime("%b %Y"),
+        :month_timestamp => record.created_at.strftime("%B %Y"),
         :domain_name => record.affiliate_account_item.domain.blank? ? "N/A" : record.affiliate_account_item.domain.name
       }
     end
