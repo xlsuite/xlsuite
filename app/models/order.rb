@@ -392,8 +392,8 @@ class Order < ActiveRecord::Base
       item_line.target = product
       item_line.commission_percentage = product_affiliate.percentage
       item_line.status = self.status
-      item_line.price = line.retail_price
-      item_line.commission_amount = line.retail_price * (product_affiliate.percentage.to_f / 100)
+      item_line.price = o_line.retail_price
+      item_line.commission_amount = o_line.retail_price * (product_affiliate.percentage.to_f / 100)
       item_line.level = item.level
       if product.pay_period
         item_line.subscription_period = product.pay_period
