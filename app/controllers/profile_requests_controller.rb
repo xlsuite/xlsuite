@@ -64,6 +64,9 @@ class ProfileRequestsController < ApplicationController
   end
   
   def create_claim
+    flash[:liquid] ||= {}
+    flash[:liquid][:params] = params
+    
     @profile = current_account.profiles.find(params[:profile_id])
 
     begin
@@ -130,6 +133,8 @@ class ProfileRequestsController < ApplicationController
   
   def create_add
     begin
+      flash[:liquid] ||= {}
+      flash[:liquid][:params] = params
       
       @avatar = params[:profile].delete("avatar")
       @phone = params[:profile].delete("phone")
