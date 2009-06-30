@@ -197,23 +197,42 @@
       ,method:"GET"
     })); 
     
-    xl.affiliate.itemLinesGridPanelStore = new Ext.data.Store({
+    xl.affiliate.itemLinesGridPanelStore = new Ext.ux.MultiGroupingStore({
       proxy:itemLinesGridPanelStoreProxy
       ,reader:itemLinesGridPanelStoreReader
+      ,sortInfo:{field:"status", direction:'ASC'}
+      ,groupField:['main_identifier', 'domain_name']
       ,autoLoad:true
     });
     
-    xl.affiliate.itemLinesGridPanel = new Ext.grid.GridPanel({
+    xl.affiliate.itemLinesGridView = new Ext.ux.MultiGroupingView({
+      hideGroupedColumn:true
+      ,emptyGroupText:"All Group Fields Empty"
+      ,displayEmptyFields:true
+      ,sortInfo:{field:"status", direction:'ASC'}
+      ,groupTextTpl:'{text} : {gvalue} ({[values.rs.length]} {[values.rs.length == 1 ? "Record" : "Records"]})'
+      ,displayFieldSeparator:", "
+    });
+    
+    xl.affiliate.itemLinesGridPanel = new Ext.ux.MultiGroupingPanel({
       store:xl.affiliate.itemLinesGridPanelStore
+      ,view:xl.affiliate.itemLinesGridView
       ,cm:new Ext.grid.ColumnModel([
         {header:"Description", dataIndex:"main_identifier"}
-        ,{header:"Status", dataIndex:"status"}
-        ,{header:"Domain origin", dataIndex:"main_identifier"}
-        ,{header:"Commission percentage", dataIndex:"commission_percentage"}
-        ,{header:"Commission amount", dataIndex:"commission_amount"}
+        ,{header:"Domain origin", dataIndex:"domain_name"}
+        ,{header:"Commission %", dataIndex:"commission_percentage", width:100, align:"right"}
+        ,{header:"Commission $", dataIndex:"commission_amount", width:120, align:"right"}
+        ,{header:"Status", dataIndex:"status", id:"item-line-status"}
       ])
-      ,columnWidth:1
       ,border:false
+      ,autoExpandColumn:"item-line-status"
+      ,columnWidth:1
+      ,listeners:{
+        "render":function(cpt){
+          var ownerCtSize = cpt.ownerCt.getSize();
+          cpt.setHeight(ownerCtSize.height);
+        }
+      }
     });
 
     xl.affiliate.referralItemsWrapper = new Ext.Panel({
@@ -224,12 +243,18 @@
         ,xl.affiliate.itemLinesGridPanel
       ]
       ,border:false
+      ,listeners:{
+        "render":function(cpt){cpt.setHeight(cpt.ownerCt.getSize().height)}
+      }
     });
     
     xl.affiliate.mainTabPanel = new Ext.TabPanel({
       activeTab:0
       ,border:false
       ,items:[xl.affiliate.referralItemsWrapper, xl.affiliate.editAccountTab, xl.affiliate.settingsTab]
+      ,listeners:{
+        "render":function(cpt){cpt.setHeight(cpt.ownerCt.getSize().height-cpt.ownerCt.getTopToolbar().getSize().height)}
+      }
     });
 
     xl.affiliate.wrapperPanel = new Ext.Panel({
@@ -246,7 +271,6 @@
           ,handler:function(){window.location=<%= logout_affiliate_account_url.to_json %>}
         }
       ]
-      ,height:Ext.getBody().getViewSize().height
     });
 
     Ext.onReady(function(){

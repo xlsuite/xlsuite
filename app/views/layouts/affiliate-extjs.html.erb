@@ -9,14 +9,15 @@
   <%= cached_javascript_include_tag "extjs/adapter/ext/ext-base.js" %>
   <%= cached_javascript_include_tag "extjs/ext-all-debug.js" unless RAILS_ENV == "production" %>
   <%= cached_javascript_include_tag "extjs/ext-all.js" if RAILS_ENV == "production" %>
+  <%= cached_javascript_include_tag "Ext.ux.MultiGrouping.js" %>
   <%= cached_javascript_include_tag "affiliate_account_ui.js" %>  
   <%= yield(:js) %>
   
   <%= cached_stylesheet_link_tag "/javascripts/extjs/resources/css/ext-all.css" %>
   <%= cached_stylesheet_link_tag "/javascripts/extjs/resources/css/xtheme-default.css", :id => "theme" %>
   <style type="text/css">
-    body{height:100%; width:100%;text-align:center}
-    #affiliate-account-ui-body{margin:0 auto; width:1024px; text-align:left}
+    body{height:100%; width:100%;}
+    #affiliate-account-ui-body{margin:0 auto; width:1024px;}
   </style>
   <%= yield(:css) %>
 </head>
