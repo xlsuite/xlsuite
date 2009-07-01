@@ -385,7 +385,7 @@ class Future < ActiveRecord::Base
   end
 
   def errored?
-    self.status[ERRORED_STATUS]
+    self.status[ERRORED_STATUS] ? true : false
   end
   
   def ==(other)
