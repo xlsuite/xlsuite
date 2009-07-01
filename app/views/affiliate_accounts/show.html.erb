@@ -237,14 +237,43 @@
         }
       }
     });
+    
+    var changeGroupBy = function(e, t){
+      console.log("t is %o", t);
+      var input = t.innerHTML;
+      var t = ["month_timestamp"];
+      if(input.match(/item/gi)){
+        t.push("main_identifier");
+      } else {
+        t.push("domain_name") ;
+      }
+      xl.affiliate.itemLinesGridPanelStore.groupField = t;
+      xl.affiliate.itemLinesGridPanelStore.reload();
+    };
+    
+    xl.affiliate.GroupingPanel = new Ext.Panel({
+      title:"Group by"
+      ,html:<%= self.group_by_panel_content.to_json %>
+      ,frame:true
+      ,width:173
+    });
+    
+    var referredItemsActionsPanel = new Ext.Panel({
+      width:175
+      ,items:[xl.affiliate.GroupingPanel]
+      ,listeners:{
+        "render":function(cpt){
+          var ab = cpt.body;
+          ab.on('mousedown', changeGroupBy, null, {delegate:'a'});
+	        ab.on('click', Ext.emptyFn, null, {delegate:'a', preventDefault:true})          
+        }
+      }
+    });
 
     xl.affiliate.referralItemsWrapper = new Ext.Panel({
       layout:"column"
       ,title:"Referred items"
-      ,items:[
-        {width:175, html:"Test", border:false}
-        ,xl.affiliate.itemLinesGridPanel
-      ]
+      ,items:[referredItemsActionsPanel, xl.affiliate.itemLinesGridPanel]
       ,border:false
       ,listeners:{
         "render":function(cpt){cpt.setHeight(cpt.ownerCt.getSize().height)}
