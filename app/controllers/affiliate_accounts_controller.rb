@@ -440,6 +440,7 @@ protected
         :price => record.price.to_s,
         :commission_percentage => record.commission_percentage.to_s,
         :commission_amount => record.commission_amount.to_s,
+        :created_on => record.created_at.strftime(DATE_STRFTIME_FORMAT),
         :status => record.status,
         :main_identifier => record.main_identifier,
         :month_timestamp => record.created_at.strftime("%B %Y"),
