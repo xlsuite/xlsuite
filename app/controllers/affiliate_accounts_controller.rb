@@ -438,11 +438,12 @@ protected
         :id => record.id,
         :subscription_flag => record.subscription?,
         :price => record.price.to_s,
-        :commission_percentage => record.comission_percentage.to_s,
+        :commission_percentage => record.commission_percentage.to_s,
         :commission_amount => record.commission_amount.to_s,
         :status => record.status,
         :main_identifier => record.main_identifier,
-        :domain_name => record.domain.blank? ? "" : record.domain.name
+        :month_timestamp => record.created_at.strftime("%B %Y"),
+        :domain_name => record.affiliate_account_item.domain.blank? ? "N/A" : record.affiliate_account_item.domain.name
       }
     end
     out

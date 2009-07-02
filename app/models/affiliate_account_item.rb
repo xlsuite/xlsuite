@@ -284,6 +284,7 @@ class AffiliateAccountItem < ActiveRecord::Base
   belongs_to :affiliate_account
   belongs_to :target, :polymorphic => true
   belongs_to :account
+  belongs_to :domain
   
   has_many :lines, :class_name => "AffiliateAccountItemLine", :foreign_key => "affiliate_account_item_id", :dependent => :destroy
   
