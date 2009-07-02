@@ -187,6 +187,7 @@
       ,{name:"main_identifier"}
       ,{name:"domain_name"}
       ,{name:"month_timestamp"}
+      ,{name:"created_on", type:"date"}
     ]);
     
     var itemLinesGridPanelStoreReader = new Ext.data.JsonReader(
@@ -201,20 +202,20 @@
     xl.affiliate.itemLinesGridPanelStore = new Ext.ux.MultiGroupingStore({
       proxy:itemLinesGridPanelStoreProxy
       ,reader:itemLinesGridPanelStoreReader
-      ,sortInfo:{field:"status", direction:'ASC'}
+      ,sortInfo:{field:"created_on", direction:'ASC'}
       ,groupField:['month_timestamp', 'main_identifier']
       ,autoLoad:true
     });
-    
+
     xl.affiliate.itemLinesGridView = new Ext.ux.MultiGroupingView({
       hideGroupedColumn:true
       ,emptyGroupText:"All Group Fields Empty"
       ,displayEmptyFields:true
-      ,sortInfo:{field:"status", direction:'ASC'}
+      ,sortInfo:{field:"created_on", direction:'ASC'}
       ,groupTextTpl:'{text} : {gvalue} ({[values.rs.length]} {[values.rs.length == 1 ? "Record" : "Records"]})'
       ,displayFieldSeparator:", "
     });
-    
+
     xl.affiliate.itemLinesGridPanel = new Ext.ux.MultiGroupingPanel({
       store:xl.affiliate.itemLinesGridPanelStore
       ,view:xl.affiliate.itemLinesGridView
@@ -222,9 +223,10 @@
         {header:"Month", dataIndex:"month_timestamp"}
         ,{header:"Item", dataIndex:"main_identifier"}
         ,{header:"Domain origin", dataIndex:"domain_name"}
-        ,{header:"Selling price $", dataIndex:"price", width:100, align:"right"}
-        ,{header:"Commission %", dataIndex:"commission_percentage", width:100, align:"right"}
-        ,{header:"Commission $", dataIndex:"commission_amount", width:100, align:"right"}
+        ,{header:"Selling price $", dataIndex:"price", width:100, align:"right", summaryType:"sum"}
+        ,{header:"Commission %", dataIndex:"commission_percentage", width:100, align:"right", summaryType:"average"}
+        ,{header:"Commission $", dataIndex:"commission_amount", width:100, align:"right", summaryType:"sum"}
+        ,{header:"Created on", dataIndex:"created_on", renderer:Ext.util.Format.dateRenderer("M d, Y"), width:80}
         ,{header:"Status", dataIndex:"status", id:"item-line-status"}
       ])
       ,border:false
@@ -236,10 +238,10 @@
           cpt.setHeight(ownerCtSize.height);
         }
       }
+      ,plugins:[new Ext.grid.GroupSummary()]
     });
     
     var changeGroupBy = function(e, t){
-      console.log("t is %o", t);
       var input = t.innerHTML;
       var t = ["month_timestamp"];
       if(input.match(/item/gi)){
