@@ -1375,6 +1375,7 @@ class Account < ActiveRecord::Base
     item_line = AffiliateAccountItemLine.new
     item_line.target = self
     item_line.affiliate_account_item = item
+    item_line.quantity = 1
     item_line.commission_percentage = 40
     item_line.status = "Free trial"
     item_line.level = item.level
