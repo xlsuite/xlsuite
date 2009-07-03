@@ -188,7 +188,9 @@
     xl.affiliate.ItemLineRecord = new Ext.data.Record.create([
       {name:"id", type:"int"}
       ,{name:"subscription_flag", type:"boolean"}
+      ,{name:"quantity", type:"float"}
       ,{name:"price", type:"float"}
+      ,{name:"extension_price", type:"float"}
       ,{name:"commission_percentage", type:"float"}
       ,{name:"commission_amount", type:"float"}
       ,{name:"status"}
@@ -241,9 +243,11 @@
         {header:"Month", dataIndex:"month_timestamp"}
         ,{header:"Item", dataIndex:"main_identifier"}
         ,{header:"Domain origin", dataIndex:"domain_name"}
-        ,{header:"Selling price $", dataIndex:"price", width:200, align:"right", summaryType:"sum", summaryRenderer:xl.affiliate.totalAmountRenderer}
-        ,{header:"Commission %", dataIndex:"commission_percentage", width:100, align:"right", summaryType:"average", summaryRenderer:xl.affiliate.percentageRenderer}
-        ,{header:"Commission $", dataIndex:"commission_amount", width:200, align:"right", summaryType:"sum", summaryRenderer:xl.affiliate.totalAmountRenderer}
+        ,{header:"Quantity", dataIndex:"quantity", width:50, align:"right"}
+        ,{header:"Unit Price $", dataIndex:"price", width:65, align:"right"}
+        ,{header:"Total Price $", dataIndex:"extension_price", width:140, align:"right", summaryType:"sum", summaryRenderer:xl.affiliate.totalAmountRenderer}
+        ,{header:"Commission %", dataIndex:"commission_percentage", width:110, align:"right", summaryType:"average", summaryRenderer:xl.affiliate.percentageRenderer}
+        ,{header:"Commission $", dataIndex:"commission_amount", width:140, align:"right", summaryType:"sum", summaryRenderer:xl.affiliate.totalAmountRenderer}
         ,{header:"Created on", dataIndex:"created_on", renderer:Ext.util.Format.dateRenderer("M d, Y"), width:80}
         ,{header:"Status", dataIndex:"status", id:"item-line-status", width:150}
       ])

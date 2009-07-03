@@ -437,7 +437,9 @@ protected
       out << {
         :id => record.id,
         :subscription_flag => record.subscription?,
+        :quantity => record.quantity,
         :price => record.price.to_s,
+        :extension_price => record.extension_price.to_s,
         :commission_percentage => record.commission_percentage.to_s,
         :commission_amount => record.commission_amount.to_s,
         :created_on => record.created_at.strftime(DATE_STRFTIME_FORMAT),
