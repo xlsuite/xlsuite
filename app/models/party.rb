@@ -1774,6 +1774,20 @@ class Party < ActiveRecord::Base
     (EmailContactRoute.count(:id, :conditions => {:routable_type => "Party", :routable_id => self.id}) > 0)
   end
   
+  def has_affiliate_account?
+    email = self.main_email
+    return false if email.new_record?
+    af = AffiliateAccount.find(:first, :select => "id", :conditions => {:email_address => email.email_address})
+    af ? true : false
+  end
+  
+  def affiliate_id
+    af = AffiliateAccount.find(:first, :select => "username", :conditions => {:email_address => self.main_email.email_address})
+    return nil unless af
+    af.username
+  end
+  alias_method :affiliate_username, :affiliate_id
+  
   protected
   before_create :generate_random_uuid
 
