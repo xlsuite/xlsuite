@@ -426,7 +426,7 @@ class Public::GroupsController < ApplicationController
 
   protected
   def load_group
-    @group = current_account.groups.public.find(params[:id])
+    @group = current_account.groups.find(params[:id])
   end
   
   def load_party
