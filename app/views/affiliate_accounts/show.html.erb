@@ -1,6 +1,14 @@
 <% content_for :js  do %>
 
   <script type="text/javascript">
+    Array.prototype.sum = function(field){
+      if(field)
+        for(var i=0,sum=0;i<this.length;sum+=parseFloat(this[i++].data[field]));
+      else
+        for(var i=0,sum=0;i<this.length;sum+=this[i++]);
+      return sum;
+    };
+  
     var editAccountLeftPanel = new Ext.form.FieldSet({
       columnWidth:0.5
       
@@ -212,7 +220,7 @@
       ,emptyGroupText:"All Group Fields Empty"
       ,displayEmptyFields:true
       ,sortInfo:{field:"created_on", direction:'ASC'}
-      ,groupTextTpl:'{text} : {gvalue} ({[values.rs.length]} {[values.rs.length == 1 ? "Record" : "Records"]})'
+      ,groupTextTpl:'{text} : {gvalue} ({[values.rs.length]} {[values.rs.length == 1 ? "Record" : "Records"]}) / Total Commission ${[values.rs.sum("commission_amount")]}'
       ,displayFieldSeparator:", "
     });
 
@@ -238,7 +246,6 @@
           cpt.setHeight(ownerCtSize.height);
         }
       }
-      ,plugins:[new Ext.grid.GroupSummary()]
     });
     
     var changeGroupBy = function(e, t){
