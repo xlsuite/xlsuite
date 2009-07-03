@@ -223,29 +223,36 @@
       ,groupTextTpl:'{text} : {gvalue} ({[values.rs.length]} {[values.rs.length == 1 ? "Record" : "Records"]}) / Total Commission ${[values.rs.sum("commission_amount")]}'
       ,displayFieldSeparator:", "
     });
+    
+    xl.affiliate.totalAmountRenderer = function(v, params, data){
+      return("Total: " + Ext.util.Format.usMoney(v));
+    };
+    
+    xl.affiliate.percentageRenderer = function(v, params, data){
+      var p = Math.round(v*100)/100.00;
+      return("Average:&#160;" + p.toString() + "%");
+    }
 
     xl.affiliate.itemLinesGridPanel = new Ext.ux.MultiGroupingPanel({
-      store:xl.affiliate.itemLinesGridPanelStore
+      id:"referred-items"
+      ,store:xl.affiliate.itemLinesGridPanelStore
       ,view:xl.affiliate.itemLinesGridView
       ,cm:new Ext.grid.ColumnModel([
         {header:"Month", dataIndex:"month_timestamp"}
         ,{header:"Item", dataIndex:"main_identifier"}
         ,{header:"Domain origin", dataIndex:"domain_name"}
-        ,{header:"Selling price $", dataIndex:"price", width:100, align:"right", summaryType:"sum"}
-        ,{header:"Commission %", dataIndex:"commission_percentage", width:100, align:"right", summaryType:"average"}
-        ,{header:"Commission $", dataIndex:"commission_amount", width:100, align:"right", summaryType:"sum"}
+        ,{header:"Selling price $", dataIndex:"price", width:200, align:"right", summaryType:"sum", summaryRenderer:xl.affiliate.totalAmountRenderer}
+        ,{header:"Commission %", dataIndex:"commission_percentage", width:100, align:"right", summaryType:"average", summaryRenderer:xl.affiliate.percentageRenderer}
+        ,{header:"Commission $", dataIndex:"commission_amount", width:200, align:"right", summaryType:"sum", summaryRenderer:xl.affiliate.totalAmountRenderer}
         ,{header:"Created on", dataIndex:"created_on", renderer:Ext.util.Format.dateRenderer("M d, Y"), width:80}
-        ,{header:"Status", dataIndex:"status", id:"item-line-status"}
+        ,{header:"Status", dataIndex:"status", id:"item-line-status", width:150}
       ])
       ,border:false
-      ,autoExpandColumn:"item-line-status"
+      ,autoHeight:true
       ,columnWidth:1
-      ,listeners:{
-        "render":function(cpt){
-          var ownerCtSize = cpt.ownerCt.getSize();
-          cpt.setHeight(ownerCtSize.height);
-        }
-      }
+      ,autoWidth:true
+      ,autoExpandColumn:"item-line-status"
+      ,plugins:[new Ext.ux.grid.GridSummary({cls:"wider-left-margin"})]
     });
     
     var changeGroupBy = function(e, t){
