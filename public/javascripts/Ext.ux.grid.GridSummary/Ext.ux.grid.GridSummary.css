@@ -1,0 +1,20 @@
+/*
+ * Ext JS Library 2.0
+ * Copyright(c) 2006-2007, Ext JS, LLC.
+ * licensing@extjs.com
+ *
+ * http://extjs.com/license
+ */
+
+/* [OPTIONAL] -- may be used for either Ext.grid.GroupSummary / Ext.ux.grid.GridSummary plugins */
+.x-grid3-summary-row{border-left:1px solid #fff;border-right:1px solid #fff;color:#333;background:#f1f2f4;}
+.x-grid3-summary-row .x-grid3-cell-inner{font-weight:bold;padding-bottom:4px;}
+.x-grid3-cell-first .x-grid3-cell-inner{padding-left:16px;}
+.x-grid-hide-summary .x-grid3-summary-row{display:none;}
+.x-grid3-summary-msg{padding:4px 16px;font-weight:bold;}
+
+
+/* [REQUIRED] (by Ext.ux.grid.GridSummary plugin) */
+.x-grid3-gridsummary-row-inner{overflow:hidden;width:100%;}/* IE6 requires width:100% for hori. scroll to work */
+.x-grid3-gridsummary-row-offset{width:10000px;}
+.x-grid-hide-gridsummary .x-grid3-gridsummary-row-inner{display:none;}
