@@ -108,7 +108,7 @@ CREATE TABLE `affiliate_account_item_lines` (
   `subscription_started_at` datetime default NULL,
   `subscription_cancelled_at` datetime default NULL,
   `level` int(11) default NULL,
-  `quantity` decimal(12,4) default NULL,
+  `quantity` decimal(12,4) default '0.0000',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -1961,6 +1961,7 @@ CREATE TABLE `profiles` (
   `claimable` tinyint(1) default '0',
   `owner_id` int(11) default NULL,
   `custom_url` varchar(255) default NULL,
+  `claimed_at` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -2828,3 +2829,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090626235904');
 INSERT INTO schema_migrations (version) VALUES ('20090629190117');
 
 INSERT INTO schema_migrations (version) VALUES ('20090703021052');
+
+INSERT INTO schema_migrations (version) VALUES ('20090703192504');
