@@ -1491,6 +1491,10 @@ class Party < ActiveRecord::Base
       end
       line.add_conditions!(sql, "#{table_name}_#{attr_name}.#{attr_name}", "#{alias_name}")
     end
+    
+    def join_on_profiles
+      ["INNER JOIN profiles ON profiles.id = parties.profile_id"]
+    end
 
     def join_on_groups
       self.join_on_memberships + ["INNER JOIN groups ON groups.id = memberships.group_id"]

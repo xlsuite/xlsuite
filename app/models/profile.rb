@@ -284,6 +284,10 @@ class Profile < ActiveRecord::Base
   has_one :party, :class_name => "Party", :foreign_key => :profile_id
   belongs_to :owner, :class_name => "Party", :foreign_key => :owner_id
   
+  acts_as_reportable \
+    :columns => %w(honorific first_name last_name middle_name company_name display_name alias created_at updated_at average_rating claimable custom_url),
+    :map => {:addresses => :address_contact_route, :phones => :phone_contact_route, :links => :link_contact_route, :emails => :email_contact_route}
+
   include XlSuite::PicturesHelper
   belongs_to :avatar, :class_name => "Asset", :foreign_key => "avatar_id"
 
