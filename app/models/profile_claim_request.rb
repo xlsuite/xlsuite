@@ -297,6 +297,7 @@ class ProfileClaimRequest < ProfileRequest
     end
     @profile.info = self.info
     @profile.owner = nil
+    @profile.claimed_at = Time.now
     @profile.save!
     @party.save!
     
