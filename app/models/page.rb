@@ -361,7 +361,8 @@ class Page < Item
 
     options.nested_stringify_keys!
     assigns = options.merge("page" => PageDrop.new(self), "user" => PartyDrop.new(user), 
-            "domain" => DomainDrop.new(domain), 
+            "domain" => DomainDrop.new(domain), "user_affiliate_username" => options["user_affiliate_username"],
+            "user_affiliate_id" => options["user_affiliate_username"],
             "account" => AccountDrop.new(account), "account_owner" => PartyDrop.new(account_owner),
             "logged_in" => options["logged_in"], "page_url" => options["current_page_url"],
             "cart" => options["cart"].to_liquid, "current_time" => Time.now)
