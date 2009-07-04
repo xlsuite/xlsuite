@@ -305,5 +305,25 @@ class String
       result.gsub!(/(-)$/, '')
       result.gsub!(/^(-)/, '')
     end
-  end  
+  end
+  
+  def append_affiliate_username(username)
+    return self if username.blank?
+    if self.include?("?")
+      t_input = self
+      t_input = t_input.split("?").last.split("&")
+      index = nil
+      t_input.each_with_index do |e, i|
+        index = i if e =~ /^pal=/i
+      end
+      if index
+        t_input[index] = "pal=#{username}"
+      else
+        t_input << "pal=#{username}"
+      end
+      return self.split("?").first + "?" + t_input.join("&")
+    else
+      return self + "?pal=" + username
+    end
+  end
 end
