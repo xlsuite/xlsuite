@@ -10,14 +10,18 @@
   <%= cached_javascript_include_tag "extjs/ext-all-debug.js" unless RAILS_ENV == "production" %>
   <%= cached_javascript_include_tag "extjs/ext-all.js" if RAILS_ENV == "production" %>
   <%= cached_javascript_include_tag "Ext.ux.MultiGrouping.js" %>
+  <%= cached_javascript_include_tag "Ext.grid.GroupSummary.js" %>
+  <%= cached_javascript_include_tag "Ext.ux.grid.GridSummary/Ext.ux.grid.GridSummary.js" %>  
   <%= cached_javascript_include_tag "affiliate_account_ui.js" %>  
   <%= yield(:js) %>
   
   <%= cached_stylesheet_link_tag "/javascripts/extjs/resources/css/ext-all.css" %>
   <%= cached_stylesheet_link_tag "/javascripts/extjs/resources/css/xtheme-default.css", :id => "theme" %>
+  <%= cached_stylesheet_link_tag "/javascripts/Ext.ux.grid.GridSummary/Ext.ux.grid.GridSummary.css" %>
   <style type="text/css">
     body{height:100%; width:100%;}
     #affiliate-account-ui-body{margin:0 auto; width:1024px;}
+    #referred-items .x-grid3-summary-row{margin-left:24px;}
   </style>
   <%= yield(:css) %>
 </head>

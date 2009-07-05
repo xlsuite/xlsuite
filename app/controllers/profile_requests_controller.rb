@@ -226,6 +226,8 @@ class ProfileRequestsController < ApplicationController
       :profile_id => record.profile_id,
       :links => record.links.map(&:url).join(", "),
       :phones => record.phones.map(&:number).join(", "),
+      :emails => record.email_addresses.map(&:email_address).join(", "),
+      :tag_list => record.tag_list, 
       :addresses => record.addresses.map {|addr| addr.to_formatted_s(:html => {:tag => "p", :class => "other-address"}) }.join(""), 
       :view_profile => view_profile,
       :groups => record.group_ids.blank? ? "" : current_account.groups.all(:conditions => ["id IN (?)", record.group_ids.split(",")]).map(&:name).join(", "),

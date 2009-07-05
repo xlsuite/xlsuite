@@ -57,7 +57,7 @@ class Step < ActiveRecord::Base
   end
 
   def models
-    model_class.run_report(self.account, self.lines.dup)
+    model_class.run_report(self.account, self.lines.dup).uniq
   end
 
   def run

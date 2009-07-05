@@ -83,7 +83,7 @@ class PagesController < ApplicationController
     end
 
     options = {:current_account => current_account, :current_account_owner => current_account.owner,
-      :tags => TagsDrop.new,
+      :tags => TagsDrop.new, :user_affiliate_username => self.current_user? ? self.current_user.affiliate_username : "",
       :current_page_url => get_absolute_current_page_url, :cart => @cart,
       :flash => {:errors => flash[:warning], :messages => flash[:message], :notices => flash[:notice]}.merge(flash[:liquid] || {})}
 

@@ -54,6 +54,11 @@ module XlSuite
         end
         input.any?{|i|input2.include?(i)}
       end
+      
+      def append_affiliate_username(input, username)
+        input.append_affiliate_username(username)
+      end
+      alias_method :append_affiliate_id, :append_affiliate_username
     end
   end
 end

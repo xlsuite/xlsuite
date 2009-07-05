@@ -9,6 +9,7 @@ class AddTagAction < Action
     models = args.flatten.compact
     models.flatten.compact.each do |model|
       model.tag(tag_name)
+      model.save!
     end
   end
 

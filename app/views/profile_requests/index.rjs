@@ -24,6 +24,8 @@ page << create_tab_using_ajax_response("ProfileRequests | Index", after_render) 
     {name: 'avatar_url', mapping: 'avatar_url'},
     {name: 'links', mapping: 'links'},
     {name: 'phones', mapping: 'phones'},
+    {name: 'emails', mapping: 'emails'},
+    {name: 'tag_list', mapping: 'tag_list'},
     {name: 'addresses', mapping: 'addresses'},
     {name: 'info', mapping: 'info'},
     {name: 'created_by_id', mapping: 'created_by_id'},
@@ -60,13 +62,15 @@ page << create_tab_using_ajax_response("ProfileRequests | Index", after_render) 
   #{create_grid_tbar_clear_button}
   
     // create row expander of the grid object
-    var expander = new Ext.grid.RowExpander({ contains: ["links", "addresses", "phones", "avatar_url", "info", "groups"],
+    var expander = new Ext.grid.RowExpander({ contains: ["links", "addresses", "phones", "avatar_url", "info", "groups", "tag_list", "emails"],
       tpl : new Ext.Template(
         '<table><tr><td>',
         '<img src="{avatar_url}"/></td><td>',
+        '<div>Phone: {phones}</div>',
         '<div>Addresses: {addresses}</div>',
         '<div>Groups: {groups}</div>',
-        '<div>{info}</div></td></tr></table>'
+        '<div>{info}</div>',
+        '<div>Tags: {tag_list}</div></td></tr></table>'
       )
     });
   
@@ -80,18 +84,18 @@ page << create_tab_using_ajax_response("ProfileRequests | Index", after_render) 
   var grid = new Ext.grid.EditorGridPanel({
       store: ds,
       cm: new Ext.grid.ColumnModel([expander, 
-          {id: "type", width: 75, header: "Type", sortable: true, dataIndex: 'type'},
+          {id: "type", width: 40, header: "Type", sortable: true, dataIndex: 'type'},
           {id: "name", width: 110, header: "Name", sortable: true, dataIndex: 'name'},
-          {id: "company_name", width: 130, header: "Company Name", sortable: true, dataIndex: 'company_name'},
-          {id: "links", width: 75, header: "Websites", sortable: true, dataIndex: 'links'},
-          {id: "phones", width: 75, header: "Phones", sortable: true, dataIndex: 'phones'},
-          {id: "created_by_name", width: 150, header: "Submitted By", sortable: true, dataIndex: 'created_by_name'},
-          {id: "created_at", width: 75, header: "Created At", sortable: true, dataIndex: 'created_at'},
-          {id: "approved_at", width: 75, header: "Approved At", sortable: true, dataIndex: 'approved_at'},
-          {id: "view_profile", width: 85, header: "Profile", sortable: true, dataIndex: 'view_profile'}
+          {id: "company_name", header: "Company Name", sortable: true, dataIndex: 'company_name'},
+          {id: "links", header: "Websites", sortable: true, dataIndex: 'links'},
+          {id: "emails", header: "Email", sortable: true, dataIndex: 'emails'},
+          {id: "created_by_name", header: "Submitted By", sortable: true, dataIndex: 'created_by_name'},
+          {id: "created_at", width: 50, header: "Created At", sortable: true, dataIndex: 'created_at'},
+          {id: "approved_at", width: 50, header: "Approved At", sortable: true, dataIndex: 'approved_at'},
+          {id: "view_profile", width: 40, header: "Profile", sortable: true, dataIndex: 'view_profile'}
         ]),
       autoScroll: true,
-      autoExpandColumn: 'company_name',
+      viewConfig: {autoFill: true, forceFit: true},
       autoExpandMin: 150,
       autoWidth: true,
       height: #{get_default_grid_height(nil)},

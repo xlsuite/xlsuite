@@ -1,0 +1,180 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Ext.ux.grid.GridSummary Plugin Example</title>
+
+<link rel="stylesheet" href="../../resources/css/ext-all.css"/>
+<link rel="stylesheet" href="Ext.ux.grid.GridSummary.css"/><!-- CSS required by Ext.ux.grid.GridSummary plugin -->
+
+<script src="../../adapter/ext/ext-base.js"></script>
+<script src="../../ext-all.js"></script>
+<script src='Ext.ux.grid.GridSummary.js'></script><!-- Ext.ux.grid.GridSummary plugin -->
+
+<script>
+Ext.util.Format.usMoney = function(v) { // override Ext.util.usMoney
+    v = Ext.num(v, 0); // ensure v is a valid numeric value, otherwise use 0 as a base (fixes $NaN.00 appearing in summaryRow when no records exist)
+    v = (Math.round((v - 0) * 100)) / 100;
+    v = (v == Math.floor(v)) ? v + ".00" : ((v * 10 == Math.floor(v * 10)) ? v + "0" : v);
+    v = String(v);
+
+    var ps = v.split('.');
+    var whole = ps[0];
+    var sub = ps[1] ? '.'+ ps[1] : '.00';
+    var r = /(\d+)(\d{3})/;
+
+    while (r.test(whole)) {
+            whole = whole.replace(r, '$1' + ',' + '$2');
+    }
+
+    v = whole + sub;
+
+    if (v.charAt(0) == '-') {
+        return '-$' + v.substr(1);
+    }
+
+    return "$" + v;
+}
+
+Ext.onReady(function() {
+    Ext.QuickTips.init();
+
+    var myData = [
+        ['3m Co',71.72,0.02,0.03,'9/1 12:00am'],
+        ['Alcoa Inc',29.01,0.42,1.47,'9/1 12:00am'],
+        ['Altria Group Inc',83.81,0.28,0.34,'9/1 12:00am'],
+        ['American Express Company',52.55,0.01,0.02,'9/1 12:00am'],
+        ['American International Group, Inc.',64.13,0.31,0.49,'9/1 12:00am'],
+        ['AT&T Inc.',31.61,-0.48,-1.54,'9/1 12:00am'],
+        ['Boeing Co.',75.43,0.53,0.71,'9/1 12:00am'],
+        ['Caterpillar Inc.',67.27,0.92,1.39,'9/1 12:00am'],
+        ['Citigroup, Inc.',49.37,0.02,0.04,'9/1 12:00am'],
+        ['E.I. du Pont de Nemours and Company',40.48,0.51,1.28,'9/1 12:00am'],
+        ['Exxon Mobil Corp',68.1,-0.43,-0.64,'9/1 12:00am'],
+        ['General Electric Company',34.14,-0.08,-0.23,'9/1 12:00am'],
+        ['General Motors Corporation',30.27,1.09,3.74,'9/1 12:00am'],
+        ['Hewlett-Packard Co.',36.53,-0.03,-0.08,'9/1 12:00am'],
+        ['Honeywell Intl Inc',38.77,0.05,0.13,'9/1 12:00am'],
+        ['Intel Corporation',19.88,0.31,1.58,'9/1 12:00am'],
+        ['International Business Machines',81.41,0.44,0.54,'9/1 12:00am'],
+        ['Johnson & Johnson',64.72,0.06,0.09,'9/1 12:00am'],
+        ['JP Morgan & Chase & Co',45.73,0.07,0.15,'9/1 12:00am'],
+        ['McDonald\'s Corporation',36.76,0.86,2.40,'9/1 12:00am'],
+        ['Merck & Co., Inc.',40.96,0.41,1.01,'9/1 12:00am'],
+        ['Microsoft Corporation',25.84,0.14,0.54,'9/1 12:00am'],
+        ['Pfizer Inc',27.96,0.4,1.45,'9/1 12:00am'],
+        ['The Coca-Cola Company',45.07,0.26,0.58,'9/1 12:00am'],
+        ['The Home Depot, Inc.',34.64,0.35,1.02,'9/1 12:00am'],
+        ['The Procter & Gamble Company',61.91,0.01,0.02,'9/1 12:00am'],
+        ['United Technologies Corporation',63.26,0.55,0.88,'9/1 12:00am'],
+        ['Verizon Communications',35.57,0.39,1.11,'9/1 12:00am'],
+        ['Wal-Mart Stores, Inc.',45.45,0.73,1.63,'9/1 12:00am']
+    ];
+
+    // custom renderer example
+    function change(val) {
+        if (val > 0) {
+            return '<span style="color:green;">' + val + '</span>';
+        } else if (val < 0) {
+            return '<span style="color:red;">' + val + '</span>';
+        }
+        return val;
+    }
+
+    // custom renderer example
+    function pctChange(val) {
+        if (val > 0) {
+            return '<span style="color:green;">' + val + '%</span>';
+        } else if(val < 0) {
+            return '<span style="color:red;">' + val + '%</span>';
+        }
+        return val;
+    }
+
+    // custom summary renderer example
+    function totalCompanies(v, params, data) {
+            params.attr = 'ext:qtip="Total no. of companies"'; // summary column tooltip example
+            return v? ((v === 0 || v > 1) ? '(' + v +' Companies)' : '(1 Company)') : '';
+    }
+
+    // custom summary renderer example
+    function averageChange(v, params, data) {
+            params.attr = 'ext:qtip="Average % Change"'; // summary column tooltip example
+            return v? ('Average:&#160;' + v) : '';
+    }
+
+
+
+    // this could be inline, but we want to define the Company record
+    // type so we can add records dynamically
+    var Company = Ext.data.Record.create([
+        {name: 'company'},
+        {name: 'price', type: 'float'},
+        {name: 'change', type: 'float'},
+        {name: 'pctChange', type: 'float'},
+        {name: 'lastChange', type: 'date', dateFormat: 'n/j h:ia'}
+    ]);
+
+    // create the data store
+    var store = new Ext.data.Store({
+        reader: new Ext.data.ArrayReader({
+            id: 0
+        }, Company)
+    });
+    store.loadData(myData);
+
+    var summary = new Ext.ux.grid.GridSummary();
+
+    // create the Grid
+    var grid = new Ext.grid.EditorGridPanel({
+        renderTo: 'grid-example',
+        store: store,
+        columns: [
+            new Ext.grid.RowNumberer(),
+            {id:'company',header: "Company", width: 160, sortable: true, dataIndex: 'company', summaryType: 'count', summaryRenderer: totalCompanies},
+            {header: "Price", width: 75, sortable: true, renderer: 'usMoney', dataIndex: 'price', summaryType: 'sum', editor: new Ext.form.NumberField({allowDecimals: true})},
+            {header: "Change", width: 100, sortable: true, renderer: change, dataIndex: 'change', summaryType: 'average', summaryRenderer: averageChange},
+            {header: "% Change", width: 75, sortable: true, renderer: pctChange, dataIndex: 'pctChange', summaryType: 'min'},
+
+            // intentionally set a large width for the "Last Updated" column (so horizontal scrolling takes place)
+            // to demonstrate a scrolling GridSummary row
+            {header: "Last Updated", width: 300, sortable: true, renderer: Ext.util.Format.dateRenderer('m/d/Y'), dataIndex: 'lastChange'}
+        ],
+        plugins: [summary], // have the EditorGridPanel use the GridSummary plugin
+        stripeRows: true,
+        height:350,
+        width:600,
+        title:'Array Grid',
+
+        tbar: [{
+            text: 'Add Company',
+            handler : function() {
+                var p = new Company({
+                    company: 'New Company 1',
+                    price: 1,
+                    change: 1,
+                    pctChange: 100,
+                    lastChange: (new Date()).clearTime()
+                });
+                grid.stopEditing();
+                store.insert(0, p);
+                grid.startEditing(0, 0);
+            }
+        }]
+    });
+
+    new Ext.Button({
+        renderTo: 'toggleSummary',
+        text: 'Toggle Summary',
+        handler: function(btn, e) {
+            summary.toggleSummary();
+        }
+    });
+});
+</script>
+</head>
+<body scroll="no"><!-- scroll="no" to remove IE's irritating scrollbar -->
+    <div id="grid-example"></div>
+    <br/>
+    <div id="toggleSummary"></div>
+</body>
+</html>

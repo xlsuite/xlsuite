@@ -6,7 +6,8 @@ class PartyDrop < Liquid::Drop
   delegate :id, :email, :honorific, :first_name, :last_name, :middle_name, :full_name, :biography, :avatar, :groups,
     :company_name, :position, :info, :forum_alias, :display_name, :quick_description, :gmap_query, :blogs,
     :posts, :created_listings, :created_groups, :profile, :purchased_products, :last_logged_in_at, 
-    :granted_products, :granted_blogs, :granted_assets, :granted_groups, :uuid, :confirmed_at, :to => :party
+    :granted_products, :granted_blogs, :granted_assets, :granted_groups, :uuid, :confirmed_at, 
+    :affiliate_id, :affiliate_username, :has_affiliate_account?, :to => :party
 
   def initialize(party)
     @party = party
@@ -122,5 +123,5 @@ class PartyDrop < Liquid::Drop
   
   def group_labels_to_s
     self.party.groups.map(&:label).join(",")
-  end
+  end  
 end

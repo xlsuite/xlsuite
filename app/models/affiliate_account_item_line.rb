@@ -24,4 +24,8 @@ class AffiliateAccountItemLine < ActiveRecord::Base
   def subscription?
     !(self.subscription_period_unit.blank? or self.subscription_period_length.blank?)
   end
+  
+  def extension_price
+    self.price * self.quantity
+  end
 end
