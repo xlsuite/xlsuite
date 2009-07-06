@@ -162,7 +162,7 @@ module ActsAsReportable
     def run_report(account, lines, options={})
       self.account = account
       with_scope(:find => options) do
-        account.send(self.name.pluralize.downcase).find(:all, self.to_report_sql(lines))
+        account.send(self.name.tableize).find(:all, self.to_report_sql(lines))
       end
     end
 
