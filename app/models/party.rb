@@ -1744,7 +1744,7 @@ class Party < ActiveRecord::Base
     products.compact.uniq
   end
   
-  def convert_to_affiliate_account!
+  def convert_to_affiliate_account!(s_domain=nil)
     return false if self.confirmation_token || !self.has_email_contact_route? || self.password_hash.blank? || self.password_salt.blank?
     email_address = self.main_email.email_address
     affiliate_account = AffiliateAccount.find_by_email_address(email_address)
@@ -1755,6 +1755,8 @@ class Party < ActiveRecord::Base
         affiliate_account.send(attr_name + "=", self.send(attr_name))
       end
       affiliate_account.email_address = email_address
+      affiliate_account.source_domain = s_domain if s_domain
+      affiliate_account.source_party = self
       affiliate_account.save(false)
       affiliate_account.generate_username
       affiliate_account.password_hash = self.password_hash
