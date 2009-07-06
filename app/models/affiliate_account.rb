@@ -287,6 +287,9 @@ class AffiliateAccount < ActiveRecord::Base
   before_create :generate_random_uuid
   attr_accessor :confirmed, :confirmed_at
   
+  belongs_to :source_party, :class_name => "Party", :foreign_key => "source_party_id"
+  belongs_to :source_domain, :class_name => "Domain", :foreign_key => "source_domain_id"
+  
   has_one :address, :class_name => "AddressContactRoute", :as => :routable, :dependent => :destroy
   has_many :affiliate_account_items, :dependent => :destroy
 
