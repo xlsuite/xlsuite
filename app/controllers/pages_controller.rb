@@ -674,7 +674,7 @@ class PagesController < ApplicationController
     else
       logger.debug {"==> Anonymous access to #{@fullslug}"}
       @page, @page_params = self.current_domain.recognize!(@fullslug)
-      raise ActiveRecord::RecordNotFound unless @page.published?
+      raise ActiveRecord::RecordNotFound if @page.blank? || !@page.published?
     end
   end
 
