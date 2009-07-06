@@ -531,7 +531,7 @@ class AccountsController < ApplicationController
         
         MethodCallbackFuture.create!(:account => @acct, :model => @acct, :method => "update_account_owner_info_in_master_account")
         
-        affiliate_account = @owner.convert_to_affiliate_account!
+        affiliate_account = @owner.convert_to_affiliate_account!(@domain)
         if affiliate_account
           AffiliateAccountNotification.deliver_notification_from_account_signup(@domain, affiliate_account)
         end
