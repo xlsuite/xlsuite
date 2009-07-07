@@ -27,7 +27,9 @@ module TemplatesHelper
     
     "randomize_password_if_none" => "Randomizes the recipient's password and pastes it into the body in the format 'Password: (new pw)'",
     
-    "domain.name" => "Name of the selected domain"
+    "domain.name" => "Name of the selected domain",
+    
+    "recipient.profile.id" => "Recipient's profile ID"
     }.sort.freeze
 
   def render_template_syntaxes
@@ -44,7 +46,7 @@ module TemplatesHelper
     out = []
     out << "<ul>"
     TemplateSyntaxes.each do |key, desc|
-      out << content_tag( :li, "{{ #{key} }}") 
+      out << content_tag( :li, "{{#{key}}}") 
     end
     out << "</ul>"
     out

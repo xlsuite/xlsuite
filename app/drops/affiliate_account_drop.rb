@@ -278,87 +278,11 @@
 # POSSIBILITY OF SUCH DAMAGES.
 # 
 # 		     END OF TERMS AND CONDITIONS
-class AffiliateAccount < ActiveRecord::Base
-  include XlSuite::AuthenticatedUser
-  validates_presence_of :email_address, :username
-  validates_uniqueness_of :email_address, :username
-  validates_format_of :username, :with => /\A[-\w]+\Z/i, :message => "can contain only a-z, A-Z, 0-9, _ and -, cannot contain space(s)"
-  
-  before_create :generate_random_uuid
-  attr_accessor :confirmed, :confirmed_at
-  
-  belongs_to :source_party, :class_name => "Party", :foreign_key => "source_party_id"
-  belongs_to :source_domain, :class_name => "Domain", :foreign_key => "source_domain_id"
-  
-  has_one :address, :class_name => "AddressContactRoute", :as => :routable, :dependent => :destroy
-  has_many :affiliate_account_items, :dependent => :destroy
-  
-  def to_liquid
-    AffiliateAccountDrop.new(self)
-  end
+class AffiliateAccountDrop < Liquid::Drop
+  delegate :uuid, :to => :affilate
+  attr_reader :affiliate_account
 
-  def update_address(attrs)
-    t_address = self.address
-    if !t_address
-      t_address = AddressContactRoute.new(:name => "Mailing", :routable => self)
-    end
-    t_address.attributes = attrs 
-    t_address.skip_account = true
-    t_address.save
-    t_address
-  end
-  
-  def full_name
-    [self.first_name, self.middle_name, self.last_name].reject(&:blank?).join(" ")
-  end
-  
-  def generate_username
-    return true unless self.username.blank?
-    c_username = self.email_address.split("@").first
-    t = self.class.find_by_username(c_username)
-    if t
-      self.update_attribute(:username, c_username+self.id.to_s)
-    else
-      self.update_attribute(:username, c_username)
-    end
-    true
-  end
-  
-  %w(line1 line2 line3 state country zip city).each do |cr_attr|
-    class_eval <<-EOF
-      def address_#{cr_attr}
-        self.address ? self.address.#{cr_attr} : nil
-      end
-    EOF
-  end
-    
-  # The following methods are needed for authentication purpose
-  def archived?
-    false
-  end
-  
-  def confirmed?
-    true
-  end
-  
-  def self.authenticate_with_email_and_password!(email_address, password)
-    account = self.find_by_email_address(email_address)
-    raise UnknownUser unless account
-    account.attempt_password_authentication!(password)
-  end
-
-  def reset_password
-    Party.transaction do
-      if self.email_address.blank?
-        return false
-      else
-        new_password = self.randomize_password!
-        AffiliateAccountNotification.deliver_password_reset(
-            :affiliate_account => self,
-            :username => self.email_address,
-            :password => new_password)
-        self.confirm!
-      end
-    end
+  def initialize(affilate_account=nil)
+    @affilate_account = affilate_account
   end
 end

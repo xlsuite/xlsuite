@@ -27,6 +27,7 @@ class Page < Item
   # This is not very efficient, but it's the best I can do at the moment.
   before_save :retrieve_old_object
   after_save :update_domain_routing_if_needed
+  after_destroy :update_domain_routing_if_needed
 
   validate :title_template_syntax
   before_save :cache_title_template

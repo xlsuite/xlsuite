@@ -7,7 +7,7 @@ class PartyDrop < Liquid::Drop
     :company_name, :position, :info, :forum_alias, :display_name, :quick_description, :gmap_query, :blogs,
     :posts, :created_listings, :created_groups, :profile, :purchased_products, :last_logged_in_at, 
     :granted_products, :granted_blogs, :granted_assets, :granted_groups, :uuid, :confirmed_at, 
-    :affiliate_id, :affiliate_username, :has_affiliate_account?, :to => :party
+    :affiliate_id, :affiliate_username, :affiliate_account_uuid, :has_affiliate_account?, :to => :party
 
   def initialize(party)
     @party = party

@@ -152,6 +152,9 @@ CREATE TABLE `affiliate_accounts` (
   `first_referred_by_id` int(11) default NULL,
   `created_at` datetime default NULL,
   `updated_at` datetime default NULL,
+  `source_party_id` int(11) default NULL,
+  `source_domain_id` int(11) default NULL,
+  `status` varchar(15) default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_username` (`username`),
   KEY `by_email_address` (`email_address`)
@@ -2831,3 +2834,7 @@ INSERT INTO schema_migrations (version) VALUES ('20090629190117');
 INSERT INTO schema_migrations (version) VALUES ('20090703021052');
 
 INSERT INTO schema_migrations (version) VALUES ('20090703192504');
+
+INSERT INTO schema_migrations (version) VALUES ('20090706225628');
+
+INSERT INTO schema_migrations (version) VALUES ('20090707004344');
