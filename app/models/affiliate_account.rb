@@ -292,6 +292,10 @@ class AffiliateAccount < ActiveRecord::Base
   
   has_one :address, :class_name => "AddressContactRoute", :as => :routable, :dependent => :destroy
   has_many :affiliate_account_items, :dependent => :destroy
+  
+  def to_liquid
+    AffiliateAccountDrop.new(self)
+  end
 
   def update_address(attrs)
     t_address = self.address
