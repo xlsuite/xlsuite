@@ -81,7 +81,7 @@ ActionController::Routing::Routes.draw do |map|
       :member => {:pay => :post}
 
   map.resource :affiliate_account, :path_prefix => "/admin", :member => {:login => :any, :logout => :any,
-    :change_password => :put, :forgot_password => :any, :referred_item_lines => :any}
+    :change_password => :put, :forgot_password => :any, :referred_item_lines => :any, :activate => :put}
   
   map.resource :product_catalog, :path_prefix => "/admin",
       :member => {:add_product => :post, :remove_product => :post, :create_category => :post, :delete_category => :post}
