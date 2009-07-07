@@ -300,6 +300,7 @@ class Profile < ActiveRecord::Base
   serialize :info, Hash
   
   after_create :set_alias_if_blank
+  after_create :set_custom_url_if_blank
 
   has_many :contact_routes, :as => :routable, :order => "position", :dependent => :destroy do
     def addresses(force=false)
@@ -616,34 +617,41 @@ class Profile < ActiveRecord::Base
     self.update_attribute(:alias, c_alias)
   end
   
+  def set_custom_url_if_blank
+    return unless self.custom_url.blank?
+    self.generate_custom_url
+  end
+  
   def generate_custom_url
     t_alias = self.company_name.to_s.dup
-    t_alias = self.name.to_s.dup if t_alias.blank?
-    return if t_alias.blank?
     t_alias.gsub!(/[^(\d\w\s)]/, "")
     t_alias.gsub!(/\s+/, " ")
     t_alias.downcase!
-    t_alias.gsub!(/\s/, "_")
+    t_alias.gsub!(/\s/, "-")
     c_alias, t_profile = nil, nil
-    count, counter = 0, 0
-    c_alias = t_alias
-    loop do
-      count = self.class.count(:conditions => {:custom_url => c_alias, :account_id => self.account.id})
-      counter += 1
-      if count > 0
-        t_profile = self.class.find(:all, :select => "id", :conditions => {:custom_url => c_alias, :account_id => self.account.id}).map(&:id)
-        if t_profile.size > 1
-          logger.warn("You should not see this message, found the cause in Profile#generate_alias")
-          return
-        end
-        if t_profile.first == self.id
-          return
+    unless t_alias.blank?
+      count, counter = 0, 0
+      c_alias = t_alias
+      loop do
+        count = self.class.count(:conditions => {:custom_url => c_alias, :account_id => self.account.id})
+        counter += 1
+        if count > 0
+          t_profile = self.class.find(:all, :select => "id", :conditions => {:custom_url => c_alias, :account_id => self.account.id}).map(&:id)
+          if t_profile.size > 1
+            logger.warn("You should not see this message, found the cause in Profile#generate_custom_url")
+            return
+          end
+          if t_profile.first == self.id
+            return
+          else
+            c_alias = t_alias + counter.to_s
+          end
         else
-          c_alias = t_alias + counter.to_s
+          break
         end
-      else
-        break
       end
+    else
+      c_alias = "profile-#{self.id}"
     end
     self.update_attribute(:custom_url, c_alias)
   end
