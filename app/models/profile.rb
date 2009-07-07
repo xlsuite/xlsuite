@@ -623,20 +623,20 @@ class Profile < ActiveRecord::Base
   end
   
   def generate_custom_url
-    t_alias = self.company_name.to_s.dup
-    t_alias.gsub!(/[^(\d\w\s)]/, "")
-    t_alias.gsub!(/\s+/, " ")
-    t_alias.downcase!
-    t_alias.gsub!(/\s/, "-")
-    c_alias, t_profile = nil, nil
-    unless t_alias.blank?
+    t_custom_url = self.company_name.to_s.dup
+    t_custom_url.gsub!(/[^(\d\w\s\-_)]/, "")
+    t_custom_url.gsub!(/\s+/, " ")
+    t_custom_url.downcase!
+    t_custom_url.gsub!(/\s/, "-")
+    c_custom_url, t_profile = nil, nil
+    unless t_custom_url.blank?
       count, counter = 0, 0
-      c_alias = t_alias
+      c_custom_url = t_custom_url
       loop do
-        count = self.class.count(:conditions => {:custom_url => c_alias, :account_id => self.account.id})
+        count = self.class.count(:conditions => {:custom_url => c_custom_url, :account_id => self.account.id})
         counter += 1
         if count > 0
-          t_profile = self.class.find(:all, :select => "id", :conditions => {:custom_url => c_alias, :account_id => self.account.id}).map(&:id)
+          t_profile = self.class.find(:all, :select => "id", :conditions => {:custom_url => c_custom_url, :account_id => self.account.id}).map(&:id)
           if t_profile.size > 1
             logger.warn("You should not see this message, found the cause in Profile#generate_custom_url")
             return
@@ -644,16 +644,16 @@ class Profile < ActiveRecord::Base
           if t_profile.first == self.id
             return
           else
-            c_alias = t_alias + counter.to_s
+            c_custom_url = t_custom_url + counter.to_s
           end
         else
           break
         end
       end
     else
-      c_alias = "profile-#{self.id}"
+      c_custom_url = "profile-#{self.id}"
     end
-    self.update_attribute(:custom_url, c_alias)
+    self.update_attribute(:custom_url, c_custom_url)
   end
 
   def email_addresses_as_text
