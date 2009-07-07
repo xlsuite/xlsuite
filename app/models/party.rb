@@ -1790,6 +1790,12 @@ class Party < ActiveRecord::Base
   end
   alias_method :affiliate_username, :affiliate_id
   
+  def affiliate_account_uuid
+    af = AffiliateAccount.find(:first, :select => "uuid", :conditions => {:email_address => self.main_email.email_address})
+    return nil unless af
+    af.uuid
+  end
+  
   protected
   before_create :generate_random_uuid
 
