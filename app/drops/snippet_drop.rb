@@ -293,4 +293,9 @@ class SnippetDrop < Liquid::Drop
   def json_body
     self.snippet.body.to_json
   end
+  
+  def split_domain_patterns
+    self.domain_patterns.split(/[,\n]/).reject(&:blank?).map(&:strip)
+
+  end
 end
