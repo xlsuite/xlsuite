@@ -314,7 +314,7 @@ class SendMassMailAction < SendMailAction
   end
 
   def domain
-    @domain ||= (self.domain_id ? Domain.find(self.domain_id) : nil rescue nil)
+    @domain = (self.domain_id ? Domain.find(self.domain_id) : nil rescue nil)
   end
 
   def domain=(domain)
