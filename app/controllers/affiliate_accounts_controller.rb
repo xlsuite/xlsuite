@@ -435,7 +435,7 @@ class AffiliateAccountsController < ApplicationController
     @success = false
     begin
     ActiveRecord::Base.transaction do
-      email_template_label =  @affiliate_account.source_domain.get_config(:affiliate_account_signup_email_template)
+      email_template_label =  self.current_domain.get_config(:affiliate_account_signup_email_template)
       if !email_template_label.blank?
         template = self.current_account.templates.find_by_label(email_template_label)
         sender = Sender.create!(:account => self.current_account, :address => "admin@xlsuite.com")
