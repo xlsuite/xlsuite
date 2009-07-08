@@ -554,7 +554,7 @@ class Import < ActiveRecord::Base
 
     self.imported_lines << true
   rescue ActiveRecord::RecordInvalid
-    party.destroy if initial_party_id == resolved_party_id
+    party.destroy if party && (initial_party_id == resolved_party_id)
     self.import_errors << [row, $!.record.errors.full_messages]
     self.imported_lines << false
   end
