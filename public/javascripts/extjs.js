@@ -86,7 +86,7 @@ Ext.onReady(function() {
         id:'westPanel-quickEntryPanel',
         title: 'Quick Entry',
         contentEl: 'quickEntryPanel'
-      },{
+      },/**{
         id:'westPanel-mailPanel',
         title: "<span id='mail-panel-title'>My Recent Unread Messages</span>",
         contentEl: 'mailPanel',
@@ -125,7 +125,7 @@ Ext.onReady(function() {
             }
           }
         }]
-      },
+      },**/
       {
         id: 'westPanel-feedsPanel',
         title: '<span id="feeds-panel-title">My Feeds</span>',
@@ -138,11 +138,11 @@ Ext.onReady(function() {
             }
           }
         }]
-      },{
-      id: 'westPanel-savedSearchesPanel',
+      }/**,{
+        id: 'westPanel-savedSearchesPanel',
         title: 'My Saved Searches',
         contentEl: 'mySavedSearchesPanel'
-      }
+      }**/
     ]
   });
 
@@ -184,7 +184,7 @@ Ext.onReady(function() {
             }
           }
         }]
-      },
+      }/**,
       {
         id: 'eastPanel-filesPanel',
         title: "<span id='record-files-title'>Files</span>",
@@ -230,7 +230,7 @@ Ext.onReady(function() {
             }
           }
         }]
-      }
+      }**/
     ]
   });
 
