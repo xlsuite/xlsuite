@@ -640,6 +640,10 @@ EOF
           if recipient.email.generate_password then
             attrs['new_password'] = recipient.party.randomize_password!
           end
+          
+          if self.domain
+            attrs['domain'] = self.domain.name
+          end
 
           self.mass_recipients.create!(:name => route.fullname, :address => route.address, :account => self.account,
               :party_id => route.routable_id, :extras => attrs)
