@@ -629,7 +629,7 @@ var removeTagsComboBox = new Ext.form.ComboBox({
 }); manager.add(removeTagsComboBox);
 
 var optOutRegexp = new RegExp('<br *\\/*><p class=\\"optOutMessage\\">.+?<\\/p>');
-var optOutMessage = #{(@disable_opt_out ? "" : '<br /><p class="optOutMessage">If you feel you have received this email in error, or would like to remove yourself from future mailings. Simply opt out here : {% opt_out_url %}, Thank you.</p>').to_json};
+var optOutMessage = #{(@disable_opt_out ? "" : '<br /><p class="optOutMessage">If you feel you have received this email in error, or would like to remove yourself from future mailings, simply opt out here : {% opt_out_url %}. Thank you.</p>').to_json};
 
 var optOutPanel = new Ext.form.FieldSet({
   title: 'Opt Out Control',
