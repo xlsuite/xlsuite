@@ -288,9 +288,15 @@ class SuitesController < ApplicationController
   end
   
   def embed_code
+    affiliate_username = nil
+    if params[:affiliate_id].blank?
+      affiliate_username = self.current_user? ? self.current_user.affiliate_username : ""
+    else
+      affiliate_username = params[:affiliate_id]
+    end
     per_page = params[:per_page].to_i
     @embed_code = %Q~<script type="text/javascript">
-  var xlsuiteAffiliateId = "#{params[:affiliate_id]}";
+  var xlsuiteAffiliateId = "#{affiliate_username}";
   var xlsuiteEmbedSuitesReferralDomain = "#{self.current_domain.name}";
   var xlsuiteEmbedSuitesCurrentPageNum = 1;
   var xlsuiteEmbedSuitesPerPage = #{per_page};
