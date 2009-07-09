@@ -395,7 +395,7 @@ class Public::ListingsController < ApplicationController
       affiliate_username = self.current_user? ? self.current_user.affiliate_username : ""
       liquid_assigns = {"account" => self.current_account.to_liquid, "user" => PartyDrop.new(self.current_user), "logged_in" => self.current_user?,
         "listing" => @listing.to_liquid, "profile" => @profile, "domain" => self.current_domain.to_liquid,
-        "affiliate_username" => affiliate_username, "affiliate_id" => affiliate_username}
+        "user_affiliate_username" => affiliate_username, "user_affiliate_id" => affiliate_username}
       registers = {"account" => self.current_account, "domain" => self.current_domain}
       liquid_context = Liquid::Context.new(liquid_assigns, registers, false)
       @text = Liquid::Template.parse(snippet.body).render!(liquid_context)
