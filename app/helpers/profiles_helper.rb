@@ -325,6 +325,19 @@ module ProfilesHelper
       var avatarPanel = new Ext.Panel({
         style: "padding:10px",
         items: {html: "<center>" + #{avatar_image_tag.to_json}},
+        tbar: [
+          {
+            text: "Edit party",
+            listeners: {
+              click: function(button, event){
+                Ext.Ajax.request({
+                  url: #{edit_party_path(@profile.party).to_json},
+                  method: "GET"
+                });
+              }
+            }
+          }
+        ],
         bbar:[
           {
             text: "Change/Upload picture",
