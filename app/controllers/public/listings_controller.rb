@@ -392,8 +392,11 @@ class Public::ListingsController < ApplicationController
     end
     snippet = self.current_account.snippets.find_by_title(self.current_domain.get_config("listing_embed_code_snippet"))
     if success && snippet
-      liquid_assigns = {"account" => self.current_account.to_liquid, "listing" => @listing.to_liquid, "profile" => @profile, "domain" => self.current_domain.to_liquid}
-      registers = registers = {"account" => self.current_account, "domain" => self.current_domain}
+      affiliate_username = self.current_user? ? self.current_user.affiliate_username : ""
+      liquid_assigns = {"account" => self.current_account.to_liquid, "user" => PartyDrop.new(self.current_user), "logged_in" => self.current_user?,
+        "listing" => @listing.to_liquid, "profile" => @profile, "domain" => self.current_domain.to_liquid,
+        "affiliate_username" => affiliate_username, "affiliate_id" => affiliate_username}
+      registers = {"account" => self.current_account, "domain" => self.current_domain}
       liquid_context = Liquid::Context.new(liquid_assigns, registers, false)
       @text = Liquid::Template.parse(snippet.body).render!(liquid_context)
     else
