@@ -365,7 +365,7 @@ class Page < Item
             "domain" => DomainDrop.new(domain), "user_affiliate_username" => options["user_affiliate_username"],
             "user_affiliate_id" => options["user_affiliate_username"],
             "account" => AccountDrop.new(account), "account_owner" => PartyDrop.new(account_owner),
-            "logged_in" => options["logged_in"], "page_url" => options["current_page_url"],
+            "logged_in" => options["logged_in"], "page_url" => options["current_page_url"], "page_slug" => options["current_page_slug"],
             "cart" => options["cart"].to_liquid, "current_time" => Time.now)
     registers = {"user" => user, "account" => account, "domain" => domain, "page_url" => options["current_page_url"]}
 
