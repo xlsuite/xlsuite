@@ -291,11 +291,12 @@ class ProfileClaimRequest < ProfileRequest
   def copy_request_to_profile!
     @profile = self.profile
     @party =  @profile.party
-    %w( first_name middle_name last_name company_name position honorific avatar_id).each do |column|
+    %w( first_name middle_name last_name company_name position honorific).each do |column|
       @profile.send(column+"=", self.send(column))
       @party.send(column+"=", self.send(column))
     end
     
+    @profile.avatar_id = self.avatar_id unless self.avatar_id.blank?
     @profile.tag_list = @profile.tag_list + "," + self.tag_list
     @party.tag_list = @party.tag_list + "," + self.tag_list
     
