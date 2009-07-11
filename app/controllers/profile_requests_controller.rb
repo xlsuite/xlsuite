@@ -446,6 +446,7 @@ class ProfileRequestsController < ApplicationController
       @profile_add_request.save!
       
       if params[:comment] && !params[:comment][:body].blank?
+        params[:comment].merge!(:rating => params[:rating]) unless params[:rating].blank?
         @comment = current_account.comments.build(params[:comment])
         @comment.commentable = @profile_add_request
         @comment.domain = current_domain
