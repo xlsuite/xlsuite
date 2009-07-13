@@ -396,7 +396,13 @@ class BlogPost < ActiveRecord::Base
   
   def set_parsed_excerpt
     text = self.excerpt.blank? ? self.body : self.excerpt
-    self.parsed_excerpt = Liquid::Template.parse(text).render
+    
+    assigns = {"domain" => DomainDrop.new(self.domain), "account" => AccountDrop.new(self.account), 
+               "account_owner" => PartyDrop.new(self.account.owner)}
+    registers = {"account" => self.account, "domain" => self.domain}
+
+    context = Liquid::Context.new(assigns, registers, false)
+    self.parsed_excerpt = Liquid::Template.parse(text).render(context)
     true
   end
 end
