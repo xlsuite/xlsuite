@@ -123,6 +123,26 @@ page << create_tab_using_ajax_response("ProfileRequests | Index", after_render) 
     iconCls: "display_none",
     disabled: true
   });
+
+  var deleteAction = new Ext.Action({
+    text: "Delete",
+    iconCls: "display_none",
+    disabled: true,
+    handler: function() {
+      Ext.Msg.confirm("", "Delete selected requests permanently?", function(btn){
+        if(btn == "yes"){
+          var params = {};
+          params['ids'] = selectedIds.toString();
+          Ext.Ajax.request({
+            url: #{destroy_collection_profile_requests_path.to_json},
+            params: params,
+            method: "DELETE"
+          });
+          #{mask_grid_with_key("profile_request", "Deleting...")}
+        }
+      });
+    }
+  });
     
   function getSelectedIdsString(records){ 
     var ids = new Array();
@@ -137,6 +157,8 @@ page << create_tab_using_ajax_response("ProfileRequests | Index", after_render) 
   });
   selectionMenu.addSeparator();
   selectionMenu.add(approveAction);
+  selectionMenu.addSeparator();
+  selectionMenu.add(deleteAction);  
   
   clearAllAction.setHandler(function(e) {
     grid.getSelectionModel().clearSelections();
@@ -205,10 +227,12 @@ page << create_tab_using_ajax_response("ProfileRequests | Index", after_render) 
     if(ids.length>0){
       clearAllAction.enable();
       approveAction.enable();
+      deleteAction.enable();
     }
     else{
       approveAction.disable();
       selectAllAction.enable();
+      deleteAction.disable();
     }
   });
 `

@@ -201,6 +201,7 @@ Ext.ux.MultiGroupingView = Ext.extend(Ext.grid.GroupingView, {
      Ext.ux.MultiGroupingView.superclass.constructor.apply(this, arguments);
      // Added so we can clear cached rows each time the view is refreshed
      this.on("beforerefresh", function() {
+       //console.debug("Cleared Row Cache");
        if(this.rowsCache) delete rowsCache;
      }, this);
    }
@@ -218,9 +219,10 @@ Ext.ux.MultiGroupingView = Ext.extend(Ext.grid.GroupingView, {
        var colIndexes = [];
        for (var i = 0, len = groupField.length; i < len; ++i) {
          var cidx=this.cm.findColumnIndex(groupField[i]);
-         if(cidx>=0)   
-           colIndexes.push(cidx);
-         else
+         if(cidx>=0){   
+           colIndexes.push(cidx);}
+         //else
+           //console.debug("Ignore unknown column : ",groupField[i]);
        }
        if (!eg && this.lastGroupField !== undefined) {
          this.mainBody.update('');
@@ -271,6 +273,7 @@ Ext.ux.MultiGroupingView = Ext.extend(Ext.grid.GroupingView, {
     * The store at this point is already stored based on the groups.
     */
   ,doRender: function(cs, rs, ds, startRow, colCount, stripe){
+     //console.debug ("doRender: ",cs, rs, ds, startRow, colCount, stripe);
      var ss = this.grid.getTopToolbar();
      if (rs.length < 1) {
        return '';
@@ -287,6 +290,7 @@ Ext.ux.MultiGroupingView = Ext.extend(Ext.grid.GroupingView, {
      
      if(gfLen==0) {
        ss.addItem(new Ext.Toolbar.TextItem("Drop Columns Here To Group"));
+       //console.debug("No Groups");
      } else {
        // Add back all entries to toolbar from GroupField[]    
        ss.addItem(new Ext.Toolbar.TextItem("Grouped By:"));
@@ -299,6 +303,7 @@ Ext.ux.MultiGroupingView = Ext.extend(Ext.grid.GroupingView, {
          });
          b.fieldName = t;
          ss.addItem(b);
+         //console.debug("Added Group to Toolbar :",this, t, b.text);
        }
      }
 
@@ -356,6 +361,7 @@ Ext.ux.MultiGroupingView = Ext.extend(Ext.grid.GroupingView, {
            } else {
              if (lastvalues[j] != v) {
                // This record is not in same group as previous one
+               //console.debug("Row ",i," added group. Values differ: prev=",lastvalues[j]," curr=",v);
                addGroup.push({idx:j,dataIndex:fieldName,header:fieldLabel,value:v});
                lastvalues[j] = v;
                //differ = 1;
@@ -368,18 +374,21 @@ Ext.ux.MultiGroupingView = Ext.extend(Ext.grid.GroupingView, {
                 if (gfLen-1 == j && changed != 1) {
                   // This row is in all the same groups to the previous group
                   curGroup.rs.push(r);
+                  //console.debug("Row ",i," added to current group ",glbl);
                 } else if (changed == 1) {
                   // This group has changed because an earlier group changed.
                   addGroup.push({idx:j,dataIndex:fieldName,header:fieldLabel,value:v});
+                  //console.debug("Row ",i," added group. Higher level group change");
    
                   gvalue.push(v);
                   grpFieldNames.push(fieldName);
                   grpFieldLabels.push(fieldLabel + ': ' + v);
                 } else if(j<gfLen-1) {
                     // This is a parent group, and this record is part of this parent so add it
-                    if(currGroups[fieldName])
-                        currGroups[fieldName].rs.push(r);
-                    else
+                    if(currGroups[fieldName]){
+                        currGroups[fieldName].rs.push(r);}
+                    //else
+                        //console.error("Missing on row ",i," current group for ",fieldName);
                         
                 }
              }
@@ -394,6 +403,7 @@ Ext.ux.MultiGroupingView = Ext.extend(Ext.grid.GroupingView, {
        }//for j
             
        
+       //if(addGroup.length>0) console.debug("Added groups for row=",i,", Groups=",addGroup);
        
 /*            
        if (gvalue.length < 1 && this.emptyGroupText) 
@@ -647,8 +657,8 @@ Ext.extend(Ext.ux.MultiGroupingPanel, Ext.grid.GridPanel, {
                 //console.dir(button);
                 var cidx=this.panel.view.cm.findColumnIndex(fld);
                 
-                if(cidx<0)
-                    //console.error("Can't find column for field ", fld);
+                //if(cidx<0)
+                //    console.error("Can't find column for field ", fld);
                 
                 this.panel.view.cm.setHidden(cidx, false);
 

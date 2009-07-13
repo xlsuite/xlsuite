@@ -3,7 +3,7 @@
 
 class ProfileRequestsController < ApplicationController
   required_permissions %w(index new create_add create_claim) => true,
-      %w(approve_collection edit) => :edit_profiles
+      %w(approve_collection edit destroy_collection) => :edit_profiles
   
   def index    
     respond_to do |format|
@@ -58,6 +58,18 @@ class ProfileRequestsController < ApplicationController
     error_message << "#{@claimed_items_size} profile(s) were already claimed" if @claimed_items_size > 0
 
     flash_success :now, error_message.join(", ")
+    respond_to do |format|
+      format.js
+    end
+  end
+  
+  def destroy_collection
+    destroyed_items_size = 0
+    current_account.profile_requests.find(params[:ids].split(",").map(&:strip)).to_a.each do |req|
+      destroyed_items_size += 1 if req.destroy
+    end
+
+    flash_success :now, "#{destroyed_items_size} profile request(s) successfully deleted"
     respond_to do |format|
       format.js
     end
@@ -157,6 +169,7 @@ class ProfileRequestsController < ApplicationController
       @profile_add_request.save!
       
       if params[:comment] && !params[:comment][:body].blank?
+        params[:comment].merge!(:rating => params[:rating]) unless params[:rating].blank?
         @comment = current_account.comments.build(params[:comment])
         @comment.commentable = @profile_add_request
         @comment.domain = current_domain

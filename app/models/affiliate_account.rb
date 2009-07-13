@@ -315,6 +315,7 @@ class AffiliateAccount < ActiveRecord::Base
   def generate_username
     return true unless self.username.blank?
     c_username = self.email_address.split("@").first
+    c_username.gsub!(/[^-\w]/i, "-")
     t = self.class.find_by_username(c_username)
     if t
       self.update_attribute(:username, c_username+self.id.to_s)

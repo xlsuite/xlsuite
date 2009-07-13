@@ -8,10 +8,11 @@ class SendMassMailAction < SendMailAction
     options = args.last.kind_of?(Hash) ? args.pop : Hash.new
     recipients = args.flatten.compact
     return if recipients.empty?
-    returning(Email.create!(:subject => self.template.subject, :body => self.template.body,
+    returning(Email.create!(:subject => self.template.subject, :body => self.template_body,
         :mail_type => self.mail_type, :mass_mail => true, :domain => self.domain,
         :sender => self.sender, :tos => recipients, :account => options[:account],
-        :return_to_url => self.return_to_url, :tags_to_remove => self.tags_to_remove, :opt_out_url => self.opt_out_url)) do |email|
+        :return_to_url => self.return_to_url.blank? ? '/admin/opt-out/unsubscribed' : self.return_to_url, 
+        :tags_to_remove => self.tags_to_remove, :opt_out_url => self.opt_out_url.blank? ? '/admin/opt-out' : self.opt_out_url)) do |email|
       email.release!
       
       # building inactive recipients TagListBuilder and GroupListBuilder for the email
@@ -47,6 +48,14 @@ class SendMassMailAction < SendMailAction
 
   def description
     "Send mass mail template \"#{self.template.label rescue nil}\" from \"#{self.sender.display_name rescue nil}\""
+  end
+  
+  def template_body
+    t_body = self.template.body || ""
+    unless t_body =~ /\{%\s*opt_out_url\s*%\}/
+      t_body = t_body + "<br /><p>If you feel you have received this email in error, or would like to remove yourself from future mailings, simply opt out here : {% opt_out_url %}. Thank you.</p>"
+    end
+    t_body
   end
   
   def duplicate(account, options={})

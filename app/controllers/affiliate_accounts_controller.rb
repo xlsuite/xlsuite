@@ -438,7 +438,7 @@ class AffiliateAccountsController < ApplicationController
       email_template_label =  self.current_domain.get_config(:affiliate_account_signup_email_template)
       if !email_template_label.blank?
         template = self.current_account.templates.find_by_label(email_template_label)
-        sender = Sender.create!(:account => self.current_account, :address => "admin@xlsuite.com")
+        sender = Sender.create!(:account => self.current_account, :address => "affiliates@xlsuite.com")
         email = Email.create!(:subject => template.subject, :body => template.body,
           :mail_type => "HTML+Plain", :mass_mail => true, :domain => self.current_domain,
           :sender => sender, :tos => [@affiliate_account.email_address], :account => self.current_account)
