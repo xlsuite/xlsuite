@@ -448,6 +448,21 @@ class AffiliateAccountsController < ApplicationController
         @affiliate_account.save
         @affiliate_account_domain_activation = AffiliateAccountDomainActivation.new(:domain => self.current_domain, :affiliate_account => @affiliate_account)
         @affiliate_account_domain_activation.save!
+
+        @party = Party.find_by_account_and_email_address(self.current_account, @affiliate_account.email_address)
+        if params[:group_labels]
+          params[:group_labels] = params[:group_labels].split(",") if params[:group_labels].is_a?(String)
+          # Flatten array such as ["lead", "news, local_news"]
+          params[:group_labels] = params[:group_labels].join(",").split(",")
+          groups = self.current_account.groups.find(:all, :select => "groups.id", :conditions => {:label => params[:group_labels].map(&:strip).reject(&:blank?)})
+          params[:group_ids] = groups.map(&:id).join(",") unless groups.empty?
+        end    
+        @party.account.groups.find(params[:group_ids].split(",").map(&:strip).reject(&:blank?)).to_a.each do |g|
+          unless @party.groups.include?(g)
+            @party.groups << g
+          end
+        end if params[:group_ids]
+
         @success = true
       end
     end
