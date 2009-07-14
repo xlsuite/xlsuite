@@ -1784,6 +1784,14 @@ class Party < ActiveRecord::Base
     af ? true : false
   end
   
+  def affiliate_account
+    AffiliateAccount.find(:first, :conditions => {:email_address => self.main_email.email_address})
+  end
+  
+  def affiliate_account_real_id
+    AffiliateAccount.find(:first, :select => "id", :conditions => {:email_address => self.main_email.email_address})
+  end
+  
   def affiliate_id
     af = AffiliateAccount.find(:first, :select => "username", :conditions => {:email_address => self.main_email.email_address})
     return nil unless af
