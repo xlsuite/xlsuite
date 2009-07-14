@@ -292,6 +292,7 @@ class AffiliateAccount < ActiveRecord::Base
   
   has_one :address, :class_name => "AddressContactRoute", :as => :routable, :dependent => :destroy
   has_many :affiliate_account_items, :dependent => :destroy
+  has_many :affiliate_account_domain_activations, :class_name => "AffiliateAccountDomainActivation", :foreign_key => "affiliate_account_id"
   
   def to_liquid
     AffiliateAccountDrop.new(self)
