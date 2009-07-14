@@ -446,6 +446,8 @@ class AffiliateAccountsController < ApplicationController
         @affiliate_account.source_domain = self.current_domain
         @affiliate_account.status = "Active"
         @affiliate_account.save
+        @affiliate_account_domain_activation = AffiliateAccountDomainActivation.new(:domain => self.current_domain, :affiliate_account => @affiliate_account)
+        @affiliate_account_domain_activation.save!
         @success = true
       end
     end
