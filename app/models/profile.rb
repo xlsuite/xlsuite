@@ -300,7 +300,7 @@ class Profile < ActiveRecord::Base
   serialize :info, Hash
   
   after_create :set_alias_if_blank
-  after_create :set_custom_url_if_blank
+  after_save :set_custom_url_if_blank
 
   has_many :contact_routes, :as => :routable, :order => "position", :dependent => :destroy do
     def addresses(force=false)
@@ -618,7 +618,7 @@ class Profile < ActiveRecord::Base
   end
   
   def set_custom_url_if_blank
-    return unless self.custom_url.blank?
+    return unless (self.custom_url.blank? or (!self.company_name.blank? and self.custom_url == "profile-#{self.id}"))
     self.generate_custom_url
   end
   
