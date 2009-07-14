@@ -400,5 +400,11 @@ class PartyDrop < Liquid::Drop
   
   def group_labels_to_s
     self.party.groups.map(&:label).join(",")
+  end
+  
+  def affiliate_account_activated?
+    return false unless self.party.has_affiliate_account?
+    af = AffiliateAccountDomainActivation.find(:first, :conditions => {:domain_id => self.context['domain'].domain.id, :affiliate_account_id => self.party.affiliate_account_real_id})
+    af ? true : false
   end  
 end
