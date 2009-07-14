@@ -79,6 +79,7 @@ class ProfilesController < ApplicationController
       end
       format.js do
         flash_success :now, "Tag list of selected profiles have been successfully updated"
+        render :template => "/profiles/destroy_collection.rjs"
       end
     end
   end

@@ -22,8 +22,28 @@ class Profile < ActiveRecord::Base
 
   serialize :info, Hash
   
+  def twitter_username=(username)
+    @_twitter_changed = true
+    @twitter_username = username
+  end
+  
+  def twitter_username
+    if @_twitter_changed
+      @twitter_username
+    else
+      @_twitter_username = self.party.twitter_username
+      @_twitter_username
+    end
+  end
+  
+  def set_party_twitter_username
+    return true unless @_twitter_changed
+    self.party.update_attribute(:twitter_username, self.twitter_username)
+  end
+  
   after_create :set_alias_if_blank
-  after_create :set_custom_url_if_blank
+  after_save :set_custom_url_if_blank
+  after_save :set_party_twitter_username
 
   has_many :contact_routes, :as => :routable, :order => "position", :dependent => :destroy do
     def addresses(force=false)
@@ -341,7 +361,7 @@ class Profile < ActiveRecord::Base
   end
   
   def set_custom_url_if_blank
-    return unless self.custom_url.blank?
+    return unless (self.custom_url.blank? or (!self.company_name.blank? and self.custom_url == "profile-#{self.id}"))
     self.generate_custom_url
   end
   
@@ -377,6 +397,10 @@ class Profile < ActiveRecord::Base
       c_custom_url = "profile-#{self.id}"
     end
     self.update_attribute(:custom_url, c_custom_url)
+  end
+
+  def set_party_twitter_username
+    self.party.update_attribute("twitter_username", self.twitter_username)
   end
 
   def email_addresses_as_text

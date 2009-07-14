@@ -90,6 +90,14 @@ CREATE TABLE `accounts` (
   KEY `by_master` (`master`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `affiliate_account_domain_activations` (
+  `id` int(11) NOT NULL auto_increment,
+  `affiliate_account_id` int(11) default NULL,
+  `domain_id` int(11) default NULL,
+  `created_at` datetime default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `affiliate_account_item_lines` (
   `id` int(11) NOT NULL auto_increment,
   `affiliate_account_item_id` int(11) default NULL,
@@ -1666,6 +1674,7 @@ CREATE TABLE `parties` (
   `gigya_uid` varchar(255) default NULL,
   `confirmed_at` datetime default NULL,
   `confirmed` tinyint(1) default '0',
+  `twitter_username` varchar(255) default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_token` (`account_id`,`token`),
   UNIQUE KEY `by_profile` (`profile_id`),
@@ -2844,3 +2853,7 @@ INSERT INTO schema_migrations (version) VALUES ('20090707204725');
 INSERT INTO schema_migrations (version) VALUES ('20090707221634');
 
 INSERT INTO schema_migrations (version) VALUES ('20090709012006');
+
+INSERT INTO schema_migrations (version) VALUES ('20090714011913');
+
+INSERT INTO schema_migrations (version) VALUES ('20090714023144');
