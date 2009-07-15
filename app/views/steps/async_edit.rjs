@@ -244,7 +244,7 @@ page << %Q`
     fields: ['display', 'value'],
     data: [["Starts with", "ReportStartsWithLine"], ["Ends with", "ReportEndsWithLine"], 
            ["Contains", "ReportContainsLine"], ["Equals", "ReportEqualsLine"], ["Display only", "ReportDisplayOnlyLine"], 
-           ["Greater than", "ReportGreaterThanLine"], ["Less than", "ReportLessThanLine"]]
+           ["Greater than", "ReportGreaterThanLine"], ["Less than", "ReportLessThanLine"], ["Is Null", "ReportIsNullLine"]]
   });
   
   var createTriggerLineFormPanel = new Ext.form.FormPanel({
