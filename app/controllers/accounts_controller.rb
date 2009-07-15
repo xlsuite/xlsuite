@@ -330,6 +330,9 @@ class AccountsController < ApplicationController
       Account.transaction do
         @acct.expires_at = Configuration.get(:account_expiration_duration_in_seconds).from_now
         @acct.disable_copy_account_configurations = true
+        if @acct.affiliate_usernames.blank? && session[AFFILIATE_IDS_SESSION_KEY]
+          @acct.affiliate_usernames = session[AFFILIATE_IDS_SESSION_KEY]
+        end
         @acct.save!
         
         @owner.account = @domain.account = @acct
