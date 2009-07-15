@@ -308,7 +308,7 @@ class Profile < ActiveRecord::Base
     if @_twitter_changed
       @twitter_username
     else
-      @_twitter_username = self.party.twitter_username
+      @_twitter_username = self.party.twitter_username if self.party
       @_twitter_username
     end
   end
