@@ -98,7 +98,7 @@ page << %Q`
         var parameters = {};
         if(checked) {
           activatedDateField.enable();
-          parameters["step[activated_at]"] = activatedDateField.getValue().format("F j, Y");
+          parameters["step[activated_at]"] = activatedDateField.getValue().format("F j, Y")+ " 0:00am";
         }
         else {
           activatedDateField.disable();
