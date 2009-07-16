@@ -280,7 +280,7 @@
 # 		     END OF TERMS AND CONDITIONS
 class AffiliateAccountsController < ApplicationController
   skip_before_filter :login_required, :only => [:login, :forgot_password, :confirm_forgot_password, :logout, :activate]
-  required_permissions %w(show update change_password referred_item_lines) => "current_user?"
+  required_permissions %w(show update change_password referred_item_lines tracking_lines) => "current_user?"
 
   def show
     respond_to do |format|
@@ -429,6 +429,19 @@ class AffiliateAccountsController < ApplicationController
       end
     end
   end
+  
+  def tracking_lines
+    @lines = AffiliateAccountTracking.all(
+      :select => "COUNT(affiliate_account_id) as counter, affiliate_account_id, referrer_url, target_url, ip_address, created_at", 
+      :group => "year, month, day, referrer_url", :conditions => {:affiliate_account_id => self.current_user.id})
+    @lines_count = AffiliateAccountTracking.count(:id, :conditions => {:affiliate_account_id => self.current_user.id},
+      :group => "year, month, day, referrer_url")
+    respond_to do |format|
+      format.json do
+        render(:json => {:collection => self.assemble_affiliate_tracking_lines(@lines), :total => @lines_count}.to_json)
+      end
+    end
+  end
 
   def activate
     @affiliate_account = AffiliateAccount.find_by_uuid(params[:uuid])
@@ -498,6 +511,22 @@ protected
         :main_identifier => record.main_identifier,
         :month_timestamp => record.created_at.strftime("%B %Y"),
         :domain_name => record.affiliate_account_item.domain.blank? ? "N/A" : record.affiliate_account_item.domain.name
+      }
+    end
+    out
+  end
+  
+  def assemble_affiliate_tracking_lines(records)
+    out = []
+    records.each do |record|
+      out << {
+        :counter => record.counter,
+        :target_url => record.target_url,
+        :referrer_url => record.referrer_url,
+        :month => record.created_at.strftime("%m"),
+        :day => record.created_at.strftime("%d"),
+        :year => record.created_at.strftime("%Y"),
+        :created_on => record.created_at.strftime(DATE_STRFTIME_FORMAT)
       }
     end
     out
