@@ -281,7 +281,12 @@
 class StepRunnerFuture < Future
   def run
     Step.find_next_runnable_steps.each do |step|
-      MethodCallbackFuture.create!(:system => true, :method => :run!, :model => step)
+      begin
+        step.run!
+      rescue
+        ExceptionNotifier.deliver_exception_caught($!, nil, :current_user => self.owner, :account => self.account, :request => OpenStruct.new(:parameters => self.args))
+        next
+      end
     end
 
     self.complete!
