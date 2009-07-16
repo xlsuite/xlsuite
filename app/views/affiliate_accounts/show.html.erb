@@ -214,7 +214,6 @@
       ,reader:itemLinesGridPanelStoreReader
       ,sortInfo:{field:"created_on", direction:'ASC'}
       ,groupField:['month_timestamp', 'main_identifier']
-      ,autoLoad:true
     });
 
     xl.affiliate.itemLinesGridView = new Ext.ux.MultiGroupingView({
@@ -257,6 +256,9 @@
       ,autoWidth:true
       ,autoExpandColumn:"item-line-status"
       ,plugins:[new Ext.ux.grid.GridSummary({cls:"wider-left-margin"})]
+      ,listeners:{
+        render:function(cpt){cpt.getStore().load()}
+      }
     });
     
     var changeGroupBy = function(e, t){
@@ -315,7 +317,6 @@
       ,reader:trackingLinesGridPanelStoreReader
       ,sortInfo:{field:"created_on", direction:'ASC'}
       ,groupField:['year', 'month']
-      ,autoLoad:true
     });
 
     xl.affiliate.trackingLinesGridView = new Ext.ux.MultiGroupingView({
@@ -349,6 +350,9 @@
       ,columnWidth:1
       ,autoWidth:true
       ,plugins:[new Ext.ux.grid.GridSummary({cls:"wider-left-margin"})]
+      ,listeners:{
+        render:function(cpt){cpt.getStore().load()}
+      }
     });
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -365,7 +369,7 @@
     xl.affiliate.mainTabPanel = new Ext.TabPanel({
       activeTab:0
       ,border:false
-      ,items:[xl.affiliate.referralItemsWrapper, xl.affiliate.editAccountTab, xl.affiliate.settingsTab, xl.affiliate.trackingLinesGridPanel]
+      ,items:[xl.affiliate.referralItemsWrapper, xl.affiliate.trackingLinesGridPanel, xl.affiliate.editAccountTab, xl.affiliate.settingsTab]
       ,listeners:{
         "render":function(cpt){cpt.setHeight(cpt.ownerCt.getSize().height-cpt.ownerCt.getTopToolbar().getSize().height)}
       }
