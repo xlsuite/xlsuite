@@ -293,6 +293,7 @@ class PagesController < ApplicationController
   before_filter :load_source_domains, :only => %w(index update)
 
   before_filter :load_cart, :only => %w(show embed_code)
+  before_filter :process_affiliate_tracking, :only => %w(show)
   
   before_filter :process_page_params, :only => %w(create update)
 
@@ -705,6 +706,16 @@ class PagesController < ApplicationController
       (self.class.read_inheritable_attribute(:ssl_required_actions) || []).include?(action_name.to_sym)
     end
     ssl_required && ENV["RAILS_ENV"] == "production"
+  end
+  
+  def process_affiliate_tracking
+    unless params[AFFILIATE_IDS_PARAM_KEY].blank?
+      affiliate_account = AffiliateAccount.find_by_username(params[AFFILIATE_IDS_PARAM_KEY])
+      return true unless affiliate_account
+      AffiliateAccountTracking.create!(:affiliate_account => affiliate_account, :referrer_url => request.env["HTTP_REFERER"],
+        :target_url => self.get_absolute_current_page_url, :http_header => request.env, :ip_address => request.env["HTTP_X_FORWARDED_FOR"] || request.remote_ip)
+    end
+    true
   end
 
   private
