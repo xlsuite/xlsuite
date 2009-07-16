@@ -281,4 +281,14 @@
 class AffiliateAccountTracking < ActiveRecord::Base
   belongs_to :affiliate_account
   serialize :http_header
+  
+  before_create :init_year_month_day
+  
+  protected
+  def init_year_month_day
+    time = Time.now.utc
+    self.year = time.year
+    self.month = time.month
+    self.day = time.day
+  end
 end
