@@ -440,7 +440,7 @@ class ProfilesController < ApplicationController
           
           flash_success "Profile successfully updated"
           
-          return redirect_to((params[:next] || "/profiles/view?id=__ID__").sub("__ID__", @profile.id.to_s))
+          return redirect_to((params[:next] || "/profiles/view?id=__ID__").sub("__ID__", @profile.id.to_s).sub("__CUSTOM_URL__", @profile.custom_url))
         rescue
           logger.info {"==> profiles\#update:  #{$!}"}
           logger.info {$!.backtrace.join("\n")}
@@ -498,7 +498,7 @@ class ProfilesController < ApplicationController
             self.current_user = @profile.party unless current_user? # Don't login unless we were anonymous
           end
           flash_success "Profile has been successfully created"
-          return redirect_to((params[:next] || "/profiles/view?id=__ID__").sub("__ID__", @profile.id.to_s))
+          return redirect_to((params[:next] || "/profiles/view?id=__ID__").sub("__ID__", @profile.id.to_s).sub("__CUSTOM_URL__", @profile.custom_url))
         rescue
           %w(addresses phones links email_addresses).each do |method|
             @profile.send(method).each do |model|
