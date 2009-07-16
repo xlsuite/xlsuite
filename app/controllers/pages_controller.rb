@@ -712,8 +712,11 @@ class PagesController < ApplicationController
     unless params[AFFILIATE_IDS_PARAM_KEY].blank?
       affiliate_account = AffiliateAccount.find_by_username(params[AFFILIATE_IDS_PARAM_KEY])
       return true unless affiliate_account
-      AffiliateAccountTracking.create!(:affiliate_account => affiliate_account, :referrer_url => request.env["HTTP_REFERER"],
-        :target_url => self.get_absolute_current_page_url, :http_header => request.env, :ip_address => request.env["HTTP_X_FORWARDED_FOR"] || request.remote_ip)
+      target_url = self.get_absolute_current_page_url
+      referrer_url = request.env["HTTP_REFERER"]
+      return true if target_url == referrer_url
+      AffiliateAccountTracking.create!(:affiliate_account => affiliate_account, :referrer_url => referrer_url,
+        :target_url => target_url, :http_header => request.env, :ip_address => request.env["HTTP_X_FORWARDED_FOR"] || request.remote_ip)
     end
     true
   end
