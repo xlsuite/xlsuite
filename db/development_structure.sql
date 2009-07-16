@@ -136,6 +136,17 @@ CREATE TABLE `affiliate_account_items` (
   KEY `by_target` (`target_type`,`target_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `affiliate_account_trackings` (
+  `id` int(11) NOT NULL auto_increment,
+  `affiliate_account_id` int(11) default NULL,
+  `referrer_url` varchar(1024) default NULL,
+  `target_url` varchar(1024) default NULL,
+  `ip_address` varchar(30) default NULL,
+  `http_header` text,
+  `created_at` datetime default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `affiliate_accounts` (
   `id` int(11) NOT NULL auto_increment,
   `email_address` varchar(255) default NULL,
@@ -2857,3 +2868,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090709012006');
 INSERT INTO schema_migrations (version) VALUES ('20090714011913');
 
 INSERT INTO schema_migrations (version) VALUES ('20090714023144');
+
+INSERT INTO schema_migrations (version) VALUES ('20090715232643');
