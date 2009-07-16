@@ -96,7 +96,7 @@ CREATE TABLE `affiliate_account_domain_activations` (
   `domain_id` int(11) default NULL,
   `created_at` datetime default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `affiliate_account_item_lines` (
   `id` int(11) NOT NULL auto_increment,
@@ -118,7 +118,7 @@ CREATE TABLE `affiliate_account_item_lines` (
   `level` int(11) default NULL,
   `quantity` decimal(12,4) default '0.0000',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `affiliate_account_items` (
   `id` int(11) NOT NULL auto_increment,
@@ -134,7 +134,7 @@ CREATE TABLE `affiliate_account_items` (
   PRIMARY KEY  (`id`),
   KEY `by_affiliate_account` (`affiliate_account_id`),
   KEY `by_target` (`target_type`,`target_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `affiliate_account_trackings` (
   `id` int(11) NOT NULL auto_increment,
@@ -144,6 +144,9 @@ CREATE TABLE `affiliate_account_trackings` (
   `ip_address` varchar(30) default NULL,
   `http_header` text,
   `created_at` datetime default NULL,
+  `year` int(11) default NULL,
+  `month` int(11) default NULL,
+  `day` int(11) default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -177,7 +180,7 @@ CREATE TABLE `affiliate_accounts` (
   PRIMARY KEY  (`id`),
   KEY `by_username` (`username`),
   KEY `by_email_address` (`email_address`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `affiliate_setup_lines` (
   `id` int(11) NOT NULL auto_increment,
@@ -188,7 +191,7 @@ CREATE TABLE `affiliate_setup_lines` (
   `created_at` datetime default NULL,
   `updated_at` datetime default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `affiliates` (
   `id` int(11) NOT NULL auto_increment,
@@ -317,8 +320,8 @@ CREATE TABLE `blog_posts` (
   `parsed_excerpt` text,
   PRIMARY KEY  (`id`),
   KEY `by_blog_published_at` (`blog_id`,`published_at`),
-  KEY `by_blog_id_published_at_updated_at` (`blog_id`,`published_at`,`updated_at`),
   KEY `by_account_blog_published_at` (`account_id`,`blog_id`,`published_at`),
+  KEY `by_blog_id_published_at_updated_at` (`blog_id`,`published_at`,`updated_at`),
   KEY `by_author_published_at` (`author_id`,`published_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -990,7 +993,7 @@ CREATE TABLE `flaggings` (
   `referrer_url` varchar(255) default NULL,
   `completed` tinyint(1) default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `folder_editors` (
   `folder_id` int(11) default NULL,
@@ -1085,7 +1088,7 @@ CREATE TABLE `fulltext_row_updates` (
   `deletion` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
   KEY `by_subject` (`subject_type`,`subject_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `fulltext_rows` (
   `id` int(11) NOT NULL auto_increment,
@@ -1869,7 +1872,7 @@ CREATE TABLE `product_grants` (
   `object_id` int(11) default NULL,
   `object_type` varchar(255) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `product_items` (
   `id` int(11) NOT NULL auto_increment,
@@ -2831,8 +2834,6 @@ INSERT INTO schema_migrations (version) VALUES ('20090616235555');
 
 INSERT INTO schema_migrations (version) VALUES ('20090618231112');
 
-INSERT INTO schema_migrations (version) VALUES ('20090619003241');
-
 INSERT INTO schema_migrations (version) VALUES ('20090622185400');
 
 INSERT INTO schema_migrations (version) VALUES ('20090623213932');
@@ -2870,3 +2871,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090714011913');
 INSERT INTO schema_migrations (version) VALUES ('20090714023144');
 
 INSERT INTO schema_migrations (version) VALUES ('20090715232643');
+
+INSERT INTO schema_migrations (version) VALUES ('20090716213622');
