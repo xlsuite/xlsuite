@@ -147,7 +147,9 @@ CREATE TABLE `affiliate_account_trackings` (
   `year` int(11) default NULL,
   `month` int(11) default NULL,
   `day` int(11) default NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `by_affiliate_account` (`affiliate_account_id`),
+  KEY `by_affiliate_account_created_at` (`affiliate_account_id`,`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `affiliate_accounts` (
@@ -2875,3 +2877,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090715232643');
 INSERT INTO schema_migrations (version) VALUES ('20090716213622');
 
 INSERT INTO schema_migrations (version) VALUES ('20090716215008');
+
+INSERT INTO schema_migrations (version) VALUES ('20090717001306');
