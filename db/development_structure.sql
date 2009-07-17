@@ -173,7 +173,6 @@ CREATE TABLE `affiliate_accounts` (
   `own_point` int(11) default NULL,
   `referrals_point` int(11) default NULL,
   `last_referred_by_id` int(11) default NULL,
-  `first_referred_by_id` int(11) default NULL,
   `created_at` datetime default NULL,
   `updated_at` datetime default NULL,
   `source_party_id` int(11) default NULL,
@@ -2879,3 +2878,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090716213622');
 INSERT INTO schema_migrations (version) VALUES ('20090716215008');
 
 INSERT INTO schema_migrations (version) VALUES ('20090717001306');
+
+INSERT INTO schema_migrations (version) VALUES ('20090717230752');
