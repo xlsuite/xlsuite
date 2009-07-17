@@ -456,12 +456,7 @@ class AffiliateAccountsController < ApplicationController
           :mail_type => "HTML+Plain", :mass_mail => true, :domain => self.current_domain,
           :sender => sender, :tos => [@affiliate_account.email_address], :account => self.current_account)
         email.release!
-        @affiliate_account.source_domain = self.current_domain
-        @affiliate_account.status = "Active"
-        @affiliate_account.save
-        @affiliate_account_domain_activation = AffiliateAccountDomainActivation.new(:domain => self.current_domain, :affiliate_account => @affiliate_account)
-        @affiliate_account_domain_activation.save!
-
+        @affiliate_account.activate_on!(self.current_domain)
         @party = Party.find_by_account_and_email_address(self.current_account, @affiliate_account.email_address)
         if params[:group_labels]
           params[:group_labels] = params[:group_labels].split(",") if params[:group_labels].is_a?(String)
