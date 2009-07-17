@@ -367,15 +367,20 @@ class ContactRequestsController < ApplicationController
                                   current_account.contact_requests.build(contact_request_params.merge({:request_ip => request.remote_ip, :referrer_url => request.referer})) 
       @contact_request.account = current_account
       @contact_request.domain = current_domain
-
+      
+      if params[:party][:group_ids]
+        params[:party][:group_ids] = params[:party][:group_ids].split(",") if params[:party][:group_ids].is_a?(String)
+        params[:party][:group_ids] = params[:party][:group_ids].map(&:strip).reject(&:blank?)
+      end
+      
       if @party 
         # update blank attributes of parties if party params is specified
         if params[:party]
           if params[:party][:tag_list]
             @party.tag_list = @party.tag_list << ", #{params[:party].delete(:tag_list)}"
           end
-          if params[:party][:group_ids]
-            current_account.groups.find(params[:party][:group_ids].split(",").map(&:strip).reject(&:blank?)).to_a.each do |g|
+          if params[:party][:group_ids]            
+            current_account.groups.find(params[:party][:group_ids]).to_a.each do |g|
               @party.groups << g unless @party.groups.include?(g)
             end
             @party.update_effective_permissions = true
