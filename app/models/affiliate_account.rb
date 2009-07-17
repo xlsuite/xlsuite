@@ -297,6 +297,30 @@ class AffiliateAccount < ActiveRecord::Base
   def to_liquid
     AffiliateAccountDrop.new(self)
   end
+  
+  def activate_on!(domain)
+    ActiveRecord::Base.transaction do
+      # if affiliate account not active yet then set the affiliate account parent
+      # along with all its referrers
+      party = Party.find_by_account_and_email_address(domain.account, self.email_address)
+      if self.status =~ /pending/i && AffiliateAccountItem.count(:id, :conditions => {:target_type => party.class.name, :target_id => party.id}) > 0
+        a_item = AffiliateAccountItem.last(:conditions => {:target_type => party.class.name, :target_id => party.id})
+        self.last_referred_by_id = a_item.affiliate_account.id
+        # assign the newly activated affiliate account to be the referrer's affiliate account item
+        AffiliateAccountItem.all(:conditions => {:target_type => party.class.name, :target_id => party.id}).each do |e|
+          new_affiliate_account_item = AffiliateAccountItem.new(:target => self, :affiliate_account => e.affiliate_account)
+          new_affiliate_account_item.save!
+        end
+      end
+    
+      self.source_domain = domain
+      self.status = "Active"
+      self.save!
+      affiliate_account_domain_activation = AffiliateAccountDomainActivation.new(:domain => domain, :affiliate_account => self)
+      affiliate_account_domain_activation.save!
+      true
+    end
+  end
 
   def update_address(attrs)
     t_address = self.address
