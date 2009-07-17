@@ -1812,7 +1812,7 @@ class Party < ActiveRecord::Base
   
   def process_affiliate_account(affiliate_account)
     ac_item = AffiliateAccountItem.new(:affiliate_account => affiliate_account, :target => self)
-    ac_item.save!
+    ac_item.save
     true
   end
 
