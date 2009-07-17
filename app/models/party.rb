@@ -288,6 +288,8 @@ class Party < ActiveRecord::Base
   extend ActionView::Helpers::SanitizeHelper::ClassMethods
   include ActionView::Helpers::SanitizeHelper
 
+  include XlSuite::AffiliateAccountHelper
+
   attr_accessor :update_effective_permissions
   attr_protected :update_effective_permissions
   
@@ -1807,6 +1809,12 @@ class Party < ActiveRecord::Base
   
   protected
   before_create :generate_random_uuid
+  
+  def process_affiliate_account(affiliate_account)
+    ac_item = AffiliateAccountItem.new(:affiliate_account => affiliate_account, :target => self)
+    ac_item.save!
+    true
+  end
 
   def update_auto_permissions
     if self.customer? || self.client? then
