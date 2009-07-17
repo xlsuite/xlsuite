@@ -494,6 +494,9 @@ class PartiesController < ApplicationController
     @party = current_account.parties.build(params[:party])
     @party.created_by = @party.updated_by = current_user
     Party.transaction do
+      if @party.affiliate_usernames.blank? && session[AFFILIATE_IDS_SESSION_KEY]
+        @party.affiliate_usernames = session[AFFILIATE_IDS_SESSION_KEY]
+      end
       @party.save!
 
       {:address => nil, :phone => :number, :link => :url, :email_address => :email_address}.each_pair do |model_type, main_attribute|
