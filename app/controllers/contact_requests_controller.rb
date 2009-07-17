@@ -340,7 +340,9 @@ class ContactRequestsController < ApplicationController
     
     params[:party] ||= {}
     if params[:party][:group_labels]
-      groups = current_account.groups.find(:all, :select => "groups.id", :conditions => {:label => params[:party].delete(:group_labels).split(",").map(&:strip).reject(&:blank?)})
+      params[:party][:group_labels] = params[:party][:group_labels].split(",") if params[:party][:group_labels].is_a?(String)
+
+      groups = current_account.groups.find(:all, :select => "groups.id", :conditions => {:label => params[:party].delete(:group_labels).map(&:strip).reject(&:blank?)})
       params[:party][:group_ids] = groups.map(&:id).join(",") unless groups.empty?
     end
     
