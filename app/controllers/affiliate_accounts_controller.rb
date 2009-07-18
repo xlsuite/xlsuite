@@ -456,6 +456,9 @@ class AffiliateAccountsController < ApplicationController
           :mail_type => "HTML+Plain", :mass_mail => true, :domain => self.current_domain,
           :sender => sender, :tos => [@affiliate_account.email_address], :account => self.current_account)
         email.release!
+        if @affiliate_account.affiliate_usernames.blank? && session[AFFILIATE_IDS_SESSION_KEY]
+          @affiliate_account.affiliate_usernames = session[AFFILIATE_IDS_SESSION_KEY]
+        end
         @affiliate_account.activate_on!(self.current_domain)
         @party = Party.find_by_account_and_email_address(self.current_account, @affiliate_account.email_address)
         if params[:group_labels]
