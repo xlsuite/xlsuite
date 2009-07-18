@@ -280,6 +280,8 @@
 # 		     END OF TERMS AND CONDITIONS
 class AffiliateAccount < ActiveRecord::Base
   include XlSuite::AuthenticatedUser
+  include XlSuite::AffiliateAccountHelper
+  
   validates_presence_of :email_address, :username
   validates_uniqueness_of :email_address, :username
   validates_format_of :username, :with => /\A[-\w]+\Z/i, :message => "can contain only a-z, A-Z, 0-9, _ and -, cannot contain space(s)"
@@ -394,4 +396,10 @@ class AffiliateAccount < ActiveRecord::Base
   def set_pending_status
     self.status = "Pending" if self.status.blank?
   end
+  
+  def process_affiliate_account(affiliate_account)
+    ac_item = AffiliateAccountItem.new(:affiliate_account => affiliate_account, :target => self)
+    ac_item.save
+    true
+  end  
 end
