@@ -291,6 +291,7 @@ class AffiliateAccount < ActiveRecord::Base
   
   belongs_to :source_party, :class_name => "Party", :foreign_key => "source_party_id"
   belongs_to :source_domain, :class_name => "Domain", :foreign_key => "source_domain_id"
+  belongs_to :last_referred_by, :class_name => "AffiliateAccount", :foreign_key => "last_referred_by_id"
   
   has_one :address, :class_name => "AddressContactRoute", :as => :routable, :dependent => :destroy
   has_many :affiliate_account_items, :dependent => :destroy
@@ -303,6 +304,7 @@ class AffiliateAccount < ActiveRecord::Base
   end
   
   def activate_on!(domain)
+    return false if AffiliateAccountDomainActivation.count(:id, :conditions => {:affiliate_account_id => self.id, :domain_id => domain.id}) > 0
     ActiveRecord::Base.transaction do
       # if affiliate account not active yet then set the affiliate account parent
       # along with all its referrers
@@ -313,12 +315,15 @@ class AffiliateAccount < ActiveRecord::Base
         # assign the newly activated affiliate account to be the referrer's affiliate account item
         AffiliateAccountItem.all(:conditions => {:target_type => party.class.name, :target_id => party.id}).each do |e|
           new_affiliate_account_item = AffiliateAccountItem.new(:target => self, :affiliate_account => e.affiliate_account)
-          new_affiliate_account_item.save!
+          new_affiliate_account_item.save
         end
       end
     
       self.source_domain = domain
       self.status = "Active"
+      # set affiliate_usernames to nil if last_referred_by_id is already set
+      # this needs to be done so that no more affiliate account item entries will be created
+      self.affiliate_usernames = nil if self.last_referred_by_id.blank? && self.last_referred_by.blank?
       self.save!
       affiliate_account_domain_activation = AffiliateAccountDomainActivation.new(:domain => domain, :affiliate_account => self)
       affiliate_account_domain_activation.save!
