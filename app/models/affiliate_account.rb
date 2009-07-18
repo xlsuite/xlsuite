@@ -294,6 +294,8 @@ class AffiliateAccount < ActiveRecord::Base
   has_many :affiliate_account_items, :dependent => :destroy
   has_many :affiliate_account_domain_activations, :class_name => "AffiliateAccountDomainActivation", :foreign_key => "affiliate_account_id"
   
+  before_save :set_pending_status
+  
   def to_liquid
     AffiliateAccountDrop.new(self)
   end
@@ -386,5 +388,10 @@ class AffiliateAccount < ActiveRecord::Base
         self.confirm!
       end
     end
+  end
+  
+  protected
+  def set_pending_status
+    self.status = "Pending" if self.status.blank?
   end
 end

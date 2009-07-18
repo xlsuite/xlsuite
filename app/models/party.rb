@@ -1763,7 +1763,6 @@ class Party < ActiveRecord::Base
       affiliate_account.generate_username
       affiliate_account.password_hash = self.password_hash
       affiliate_account.password_salt = self.password_salt
-      affiliate_account.status = "Pending"
       affiliate_account.save!
       unless self.main_address.new_record?
         t_attrs = self.main_address.attributes
