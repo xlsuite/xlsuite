@@ -68,7 +68,7 @@ class ContactRequest < ActiveRecord::Base
             t_party.tag_list = t_party.tag_list << %Q!, #{params["party"].delete(:tag_list)}!
           end
           if params["party"][:group_ids]
-            self.account.groups.find(params["party"][:group_ids].split(",").map(&:strip).reject(&:blank?)).to_a.each do |g|
+            self.account.groups.find(params["party"][:group_ids]).to_a.each do |g|
               t_party.groups << g unless t_party.groups.include?(g)
             end
             t_party.update_effective_permissions = true
@@ -84,7 +84,7 @@ class ContactRequest < ActiveRecord::Base
     end
     errors = self.save_contact_routes_to_party(t_party, params)
     if new_party_group_ids
-      self.account.groups.find(new_party_group_ids.split(",").map(&:strip).reject(&:blank?)).to_a.each do |g|
+      self.account.groups.find(new_party_group_ids).to_a.each do |g|
         t_party.groups << g unless t_party.groups.include?(g)
       end
       t_party.update_effective_permissions = true

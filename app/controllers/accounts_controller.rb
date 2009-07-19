@@ -53,6 +53,9 @@ class AccountsController < ApplicationController
       Account.transaction do
         @acct.expires_at = Configuration.get(:account_expiration_duration_in_seconds).from_now
         @acct.disable_copy_account_configurations = true
+        if @acct.affiliate_usernames.blank? && session[AFFILIATE_IDS_SESSION_KEY]
+          @acct.affiliate_usernames = session[AFFILIATE_IDS_SESSION_KEY]
+        end
         @acct.save!
         
         @owner.account = @domain.account = @acct
@@ -89,6 +92,7 @@ class AccountsController < ApplicationController
         confirmation_options.merge!(:suite_id => @acct.suite_id) if @acct.suite_id
         @acct.confirmation_url = lambda {|confirmation_token| confirm_accounts_url(confirmation_options.merge(:code => confirmation_token)).gsub(self.current_domain.name, @domain.name)}
         @acct.save!
+        return redirect_to params[:next] if params[:next]
       end
     rescue 
       @acct.destroy if @acct.id
@@ -97,6 +101,8 @@ class AccountsController < ApplicationController
       logger.warn($!)
       logger.warn($!.backtrace.join("\n"))
       flash_failure :now, $!.message
+      flash_failure $!.message
+      return redirect_to params[:return_to] if params[:return_to]
       @_parent_domain = self.get_request_parent_domain
       render :action => :new, :layout => "plain-html"
     end

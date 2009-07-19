@@ -1,12 +1,12 @@
-# 		    GNU GENERAL PUBLIC LICENSE
-# 		       Version 2, June 1991
+#         GNU GENERAL PUBLIC LICENSE
+#            Version 2, June 1991
 # 
 #  Copyright (C) 1989, 1991 Free Software Foundation, Inc.,
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #  Everyone is permitted to copy and distribute verbatim copies
 #  of this license document, but changing it is not allowed.
 # 
-# 			    Preamble
+#           Preamble
 # 
 #   The licenses for most software are designed to take away your
 # freedom to share and change it.  By contrast, the GNU General Public
@@ -56,7 +56,7 @@
 #   The precise terms and conditions for copying, distribution and
 # modification follow.
 # 
-# 		    GNU GENERAL PUBLIC LICENSE
+#         GNU GENERAL PUBLIC LICENSE
 #    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 # 
 #   0. This License applies to any program or other work which contains
@@ -255,7 +255,7 @@
 # of preserving the free status of all derivatives of our free software and
 # of promoting the sharing and reuse of software generally.
 # 
-# 			    NO WARRANTY
+#           NO WARRANTY
 # 
 #   11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
 # FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN
@@ -277,134 +277,21 @@
 # PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGES.
 # 
-# 		     END OF TERMS AND CONDITIONS
-class AffiliateAccount < ActiveRecord::Base
-  include XlSuite::AuthenticatedUser
-  include XlSuite::AffiliateAccountHelper
-  
-  validates_presence_of :email_address, :username
-  validates_uniqueness_of :email_address, :username
-  validates_format_of :username, :with => /\A[-\w]+\Z/i, :message => "can contain only a-z, A-Z, 0-9, _ and -, cannot contain space(s)"
-  
-  before_create :generate_random_uuid
-  attr_accessor :confirmed, :confirmed_at
-  
-  belongs_to :source_party, :class_name => "Party", :foreign_key => "source_party_id"
-  belongs_to :source_domain, :class_name => "Domain", :foreign_key => "source_domain_id"
-  belongs_to :last_referred_by, :class_name => "AffiliateAccount", :foreign_key => "last_referred_by_id"
-  
-  has_one :address, :class_name => "AddressContactRoute", :as => :routable, :dependent => :destroy
-  has_many :affiliate_account_items, :dependent => :destroy
-  has_many :affiliate_account_domain_activations, :class_name => "AffiliateAccountDomainActivation", :foreign_key => "affiliate_account_id"
-  
-  before_save :set_pending_status
-  
-  def to_liquid
-    AffiliateAccountDrop.new(self)
+#          END OF TERMS AND CONDITIONS
+class ReportIsNullLine < ReportLine
+  def operator
+    self.excluded? ? " IS NOT NULL " : "IS NULL"
   end
   
-  def activate_on!(domain)
-    return false if AffiliateAccountDomainActivation.count(:id, :conditions => {:affiliate_account_id => self.id, :domain_id => domain.id}) > 0
-    ActiveRecord::Base.transaction do
-      # if affiliate account not active yet then set the affiliate account parent
-      # along with all its referrers
-      party = Party.find_by_account_and_email_address(domain.account, self.email_address)
-      if self.status =~ /pending/i && AffiliateAccountItem.count(:id, :conditions => {:target_type => party.class.name, :target_id => party.id}) > 0
-        a_item = AffiliateAccountItem.last(:conditions => {:target_type => party.class.name, :target_id => party.id})
-        self.last_referred_by_id = a_item.affiliate_account.id
-        # assign the newly activated affiliate account to be the referrer's affiliate account item
-        AffiliateAccountItem.all(:conditions => {:target_type => party.class.name, :target_id => party.id}).each do |e|
-          new_affiliate_account_item = AffiliateAccountItem.new(:target => self, :affiliate_account => e.affiliate_account)
-          new_affiliate_account_item.save
-        end
-      end
-    
-      self.source_domain = domain
-      self.status = "Active"
-      # set affiliate_usernames to nil if last_referred_by_id is already set
-      # this needs to be done so that no more affiliate account item entries will be created
-      self.affiliate_usernames = nil if self.last_referred_by_id.blank? && self.last_referred_by.blank?
-      self.save!
-      affiliate_account_domain_activation = AffiliateAccountDomainActivation.new(:domain => domain, :affiliate_account => self)
-      affiliate_account_domain_activation.save!
-      true
-    end
+  def value
+    ""
+  end
+  
+  def parsed_value
+    nil
   end
 
-  def update_address(attrs)
-    t_address = self.address
-    if !t_address
-      t_address = AddressContactRoute.new(:name => "Mailing", :routable => self)
-    end
-    t_address.attributes = attrs 
-    t_address.skip_account = true
-    t_address.save
-    t_address
+  def add_conditions!(sql, sql_name, alias_name, conditions=[])
+    sql[:conditions][0] << "#{sql_name} #{self.operator}"
   end
-  
-  def full_name
-    [self.first_name, self.middle_name, self.last_name].reject(&:blank?).join(" ")
-  end
-  
-  def generate_username
-    return true unless self.username.blank?
-    c_username = self.email_address.split("@").first
-    c_username.gsub!(/[^-\w]/i, "-")
-    t = self.class.find_by_username(c_username)
-    if t
-      self.update_attribute(:username, c_username+self.id.to_s)
-    else
-      self.update_attribute(:username, c_username)
-    end
-    true
-  end
-  
-  %w(line1 line2 line3 state country zip city).each do |cr_attr|
-    class_eval <<-EOF
-      def address_#{cr_attr}
-        self.address ? self.address.#{cr_attr} : nil
-      end
-    EOF
-  end
-    
-  # The following methods are needed for authentication purpose
-  def archived?
-    false
-  end
-  
-  def confirmed?
-    true
-  end
-  
-  def self.authenticate_with_email_and_password!(email_address, password)
-    account = self.find_by_email_address(email_address)
-    raise UnknownUser unless account
-    account.attempt_password_authentication!(password)
-  end
-
-  def reset_password
-    Party.transaction do
-      if self.email_address.blank?
-        return false
-      else
-        new_password = self.randomize_password!
-        AffiliateAccountNotification.deliver_password_reset(
-            :affiliate_account => self,
-            :username => self.email_address,
-            :password => new_password)
-        self.confirm!
-      end
-    end
-  end
-  
-  protected
-  def set_pending_status
-    self.status = "Pending" if self.status.blank?
-  end
-  
-  def process_affiliate_account(affiliate_account)
-    ac_item = AffiliateAccountItem.new(:affiliate_account => affiliate_account, :target => self)
-    ac_item.save
-    true
-  end  
 end

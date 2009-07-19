@@ -280,7 +280,7 @@
 # 		     END OF TERMS AND CONDITIONS
 class AffiliateAccountsController < ApplicationController
   skip_before_filter :login_required, :only => [:login, :forgot_password, :confirm_forgot_password, :logout, :activate]
-  required_permissions %w(show update change_password referred_item_lines) => "current_user?"
+  required_permissions %w(show update change_password referred_item_lines tracking_lines) => "current_user?"
 
   def show
     respond_to do |format|
@@ -429,6 +429,19 @@ class AffiliateAccountsController < ApplicationController
       end
     end
   end
+  
+  def tracking_lines
+    @lines = AffiliateAccountTracking.all(
+      :select => "COUNT(affiliate_account_id) as counter, affiliate_account_id, referrer_url, target_url, ip_address, created_at", 
+      :group => "year, month, day, referrer_url", :conditions => {:affiliate_account_id => self.current_user.id})
+    @lines_count = AffiliateAccountTracking.count(:id, :conditions => {:affiliate_account_id => self.current_user.id},
+      :group => "year, month, day, referrer_url")
+    respond_to do |format|
+      format.json do
+        render(:json => {:collection => self.assemble_affiliate_tracking_lines(@lines), :total => @lines_count}.to_json)
+      end
+    end
+  end
 
   def activate
     @affiliate_account = AffiliateAccount.find_by_uuid(params[:uuid])
@@ -443,11 +456,24 @@ class AffiliateAccountsController < ApplicationController
           :mail_type => "HTML+Plain", :mass_mail => true, :domain => self.current_domain,
           :sender => sender, :tos => [@affiliate_account.email_address], :account => self.current_account)
         email.release!
-        @affiliate_account.source_domain = self.current_domain
-        @affiliate_account.status = "Active"
-        @affiliate_account.save
-        @affiliate_account_domain_activation = AffiliateAccountDomainActivation.new(:domain => self.current_domain, :affiliate_account => @affiliate_account)
-        @affiliate_account_domain_activation.save!
+        if @affiliate_account.affiliate_usernames.blank? && session[AFFILIATE_IDS_SESSION_KEY]
+          @affiliate_account.affiliate_usernames = session[AFFILIATE_IDS_SESSION_KEY]
+        end
+        @affiliate_account.activate_on!(self.current_domain)
+        @party = Party.find_by_account_and_email_address(self.current_account, @affiliate_account.email_address)
+        if params[:group_labels]
+          params[:group_labels] = params[:group_labels].split(",") if params[:group_labels].is_a?(String)
+          # Flatten array such as ["lead", "news, local_news"]
+          params[:group_labels] = params[:group_labels].join(",").split(",")
+          groups = self.current_account.groups.find(:all, :select => "groups.id", :conditions => {:label => params[:group_labels].map(&:strip).reject(&:blank?)})
+          params[:group_ids] = groups.map(&:id).join(",") unless groups.empty?
+        end    
+        @party.account.groups.find(params[:group_ids].split(",").map(&:strip).reject(&:blank?)).to_a.each do |g|
+          unless @party.groups.include?(g)
+            @party.groups << g
+          end
+        end if params[:group_ids]
+
         @success = true
       end
     end
@@ -483,6 +509,22 @@ protected
         :main_identifier => record.main_identifier,
         :month_timestamp => record.created_at.strftime("%B %Y"),
         :domain_name => record.affiliate_account_item.domain.blank? ? "N/A" : record.affiliate_account_item.domain.name
+      }
+    end
+    out
+  end
+  
+  def assemble_affiliate_tracking_lines(records)
+    out = []
+    records.each do |record|
+      out << {
+        :counter => record.counter,
+        :target_url => record.target_url,
+        :referrer_url => record.referrer_url,
+        :month => record.created_at.strftime("%m"),
+        :day => record.created_at.strftime("%d"),
+        :year => record.created_at.strftime("%Y"),
+        :created_on => record.created_at.strftime(DATE_STRFTIME_FORMAT)
       }
     end
     out

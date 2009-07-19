@@ -31,14 +31,14 @@ class Profile < ActiveRecord::Base
     if @_twitter_changed
       @twitter_username
     else
-      @_twitter_username = self.party.twitter_username
+      @_twitter_username = self.party.twitter_username if self.party
       @_twitter_username
     end
   end
   
   def set_party_twitter_username
     return true unless @_twitter_changed
-    self.party.update_attribute(:twitter_username, self.twitter_username)
+    self.party.update_attribute(:twitter_username, self.twitter_username) if self.party
   end
   
   after_create :set_alias_if_blank
@@ -397,10 +397,6 @@ class Profile < ActiveRecord::Base
       c_custom_url = "profile-#{self.id}"
     end
     self.update_attribute(:custom_url, c_custom_url)
-  end
-
-  def set_party_twitter_username
-    self.party.update_attribute("twitter_username", self.twitter_username)
   end
 
   def email_addresses_as_text

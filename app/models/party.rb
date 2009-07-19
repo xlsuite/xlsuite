@@ -11,6 +11,8 @@ class Party < ActiveRecord::Base
   extend ActionView::Helpers::SanitizeHelper::ClassMethods
   include ActionView::Helpers::SanitizeHelper
 
+  include XlSuite::AffiliateAccountHelper
+
   attr_accessor :update_effective_permissions
   attr_protected :update_effective_permissions
   
@@ -19,7 +21,7 @@ class Party < ActiveRecord::Base
 
   acts_as_taggable
   acts_as_reportable \
-    :columns => %w(honorific first_name last_name middle_name company_name display_name referal forum_alias timezone created_at updated_at confirmed_at confirmed),
+    :columns => %w(honorific first_name last_name middle_name company_name display_name referal forum_alias timezone created_at updated_at confirmed_at confirmed last_logged_in_at),
     :map => {:addresses => :address_contact_route, :phones => :phone_contact_route, :links => :link_contact_route, :emails => :email_contact_route}
 
   acts_as_fulltext %w(display_name links_as_text phones_as_text addresses_as_text email_addresses_as_text tags_as_text position), :weight => 50 
@@ -1484,7 +1486,6 @@ class Party < ActiveRecord::Base
       affiliate_account.generate_username
       affiliate_account.password_hash = self.password_hash
       affiliate_account.password_salt = self.password_salt
-      affiliate_account.status = "Pending"
       affiliate_account.save!
       unless self.main_address.new_record?
         t_attrs = self.main_address.attributes
@@ -1507,6 +1508,14 @@ class Party < ActiveRecord::Base
     af ? true : false
   end
   
+  def affiliate_account
+    AffiliateAccount.find(:first, :conditions => {:email_address => self.main_email.email_address})
+  end
+  
+  def affiliate_account_real_id
+    AffiliateAccount.find(:first, :select => "id", :conditions => {:email_address => self.main_email.email_address})
+  end
+  
   def affiliate_id
     af = AffiliateAccount.find(:first, :select => "username", :conditions => {:email_address => self.main_email.email_address})
     return nil unless af
@@ -1522,6 +1531,12 @@ class Party < ActiveRecord::Base
   
   protected
   before_create :generate_random_uuid
+  
+  def process_affiliate_account(affiliate_account)
+    ac_item = AffiliateAccountItem.new(:affiliate_account => affiliate_account, :target => self)
+    ac_item.save
+    true
+  end
 
   def update_auto_permissions
     if self.customer? || self.client? then

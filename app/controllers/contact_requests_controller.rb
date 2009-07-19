@@ -63,7 +63,9 @@ class ContactRequestsController < ApplicationController
     
     params[:party] ||= {}
     if params[:party][:group_labels]
-      groups = current_account.groups.find(:all, :select => "groups.id", :conditions => {:label => params[:party].delete(:group_labels).split(",").map(&:strip).reject(&:blank?)})
+      params[:party][:group_labels] = params[:party][:group_labels].split(",") if params[:party][:group_labels].is_a?(String)
+
+      groups = current_account.groups.find(:all, :select => "groups.id", :conditions => {:label => params[:party].delete(:group_labels).map(&:strip).reject(&:blank?)})
       params[:party][:group_ids] = groups.map(&:id).join(",") unless groups.empty?
     end
     
@@ -90,15 +92,20 @@ class ContactRequestsController < ApplicationController
                                   current_account.contact_requests.build(contact_request_params.merge({:request_ip => request.remote_ip, :referrer_url => request.referer})) 
       @contact_request.account = current_account
       @contact_request.domain = current_domain
-
+      
+      if params[:party][:group_ids]
+        params[:party][:group_ids] = params[:party][:group_ids].split(",") if params[:party][:group_ids].is_a?(String)
+        params[:party][:group_ids] = params[:party][:group_ids].map(&:strip).reject(&:blank?)
+      end
+      
       if @party 
         # update blank attributes of parties if party params is specified
         if params[:party]
           if params[:party][:tag_list]
             @party.tag_list = @party.tag_list << ", #{params[:party].delete(:tag_list)}"
           end
-          if params[:party][:group_ids]
-            current_account.groups.find(params[:party][:group_ids].split(",").map(&:strip).reject(&:blank?)).to_a.each do |g|
+          if params[:party][:group_ids]            
+            current_account.groups.find(params[:party][:group_ids]).to_a.each do |g|
               @party.groups << g unless @party.groups.include?(g)
             end
             @party.update_effective_permissions = true
@@ -154,6 +161,10 @@ class ContactRequestsController < ApplicationController
         @error_messages << @contact_request.errors.full_messages
       end
     end
+    
+    flash[:liquid] ||= {}
+    flash[:liquid][:params] = params
+    
     if !@error_messages.blank?
       @error_messages = @error_messages.flatten
       flash_failure @error_messages
@@ -164,9 +175,6 @@ class ContactRequestsController < ApplicationController
       return redirect_to(params[:return_to]) unless params[:return_to].blank?
       return render(:text => "<html><head><title></title></head><body><h1>Thanks</h1><p>Thank you for your submission</p></body></html>")
     end
-    
-    flash[:liquid] ||= {}
-    flash[:liquid][:params] = params
     
     return redirect_to(:back) if request.env["HTTP_REFERER"]
     render(:missing)

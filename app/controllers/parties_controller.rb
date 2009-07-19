@@ -217,6 +217,9 @@ class PartiesController < ApplicationController
     @party = current_account.parties.build(params[:party])
     @party.created_by = @party.updated_by = current_user
     Party.transaction do
+      if @party.affiliate_usernames.blank? && session[AFFILIATE_IDS_SESSION_KEY]
+        @party.affiliate_usernames = session[AFFILIATE_IDS_SESSION_KEY]
+      end
       @party.save!
 
       {:address => nil, :phone => :number, :link => :url, :email_address => :email_address}.each_pair do |model_type, main_attribute|
@@ -492,6 +495,9 @@ class PartiesController < ApplicationController
     end
     @party = Party.find_by_account_and_email_address(current_account, params[:email_address][:email_address])
     if @party && @party.confirmed?
+      if @party.affiliate_usernames.blank? && session[AFFILIATE_IDS_SESSION_KEY]
+        @party.affiliate_usernames = session[AFFILIATE_IDS_SESSION_KEY]
+      end
       if !params[:party][:tag_list].blank?
         @party.update_attributes!(:tag_list => @party.tag_list + "," + params[:party][:tag_list] + "," + current_domain.name)
         if params[:party][:tag_list] =~ /newsletter/
@@ -545,6 +551,9 @@ class PartiesController < ApplicationController
       redirect_to new_session_path
     elsif @party && !@party.confirmed?
       #party exists in database, but is not confirmed yet
+      if @party.affiliate_usernames.blank? && session[AFFILIATE_IDS_SESSION_KEY]
+        @party.affiliate_usernames = session[AFFILIATE_IDS_SESSION_KEY]
+      end
       
       group_ids = params[:party].delete(:group_ids) if params[:party]
       
@@ -560,6 +569,10 @@ class PartiesController < ApplicationController
       @party = current_account.parties.signup!(:domain => current_domain, :email_address => params[:email_address], :party => params[:party],
           :group_ids => group_ids, :confirmation_url => lambda {|party, code| confirm_party_url(:id => party, :code => code, :signed_up => params[:signed_up], 
           :return_to => params[:return_to], :confirm => params[:confirm], :gids => group_ids)})
+      if @party.affiliate_usernames.blank? && session[AFFILIATE_IDS_SESSION_KEY]
+        @party.affiliate_usernames = session[AFFILIATE_IDS_SESSION_KEY]
+      end
+      @party.save
       if params[:next]
         return redirect_to(params[:next].gsub(/__id__/i, @party.id.to_s))
       end
