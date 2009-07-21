@@ -16,8 +16,17 @@ class AffiliateAccountItemLine < ActiveRecord::Base
       "XLsuite account signup for " + self.target.domains.map(&:name).join(", ")
     when Product
       self.target.name
+    when NilClass
+      case self.target_type
+      when /\Aaccount\Z/i
+        "XLsuite account referred has been removed"
+      when /\Aproduct\Z/i
+        "Referred product has been removed"
+      else
+        raise StandardError, "Affiliate account line item not yet supported but has been destroyed"
+      end
     else
-      raise "Affiliate account line item not yet supported"
+      raise StandardError, "Affiliate account line item not yet supported"
     end
   end
   
