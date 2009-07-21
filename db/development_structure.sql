@@ -147,6 +147,8 @@ CREATE TABLE `affiliate_account_trackings` (
   `year` int(11) default NULL,
   `month` int(11) default NULL,
   `day` int(11) default NULL,
+  `domain_id` int(11) default NULL,
+  `account_id` int(11) default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_affiliate_account` (`affiliate_account_id`),
   KEY `by_affiliate_account_created_at` (`affiliate_account_id`,`created_at`)
@@ -2880,3 +2882,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090716215008');
 INSERT INTO schema_migrations (version) VALUES ('20090717001306');
 
 INSERT INTO schema_migrations (version) VALUES ('20090717230752');
+
+INSERT INTO schema_migrations (version) VALUES ('20090721023746');
