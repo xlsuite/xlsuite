@@ -137,6 +137,7 @@ class Configuration < ActiveRecord::Base
   protected
 
   def find_other_configurations_with_same_name
+    return true unless self.account
     return false unless self.account.configurations.count(:conditions => ["name = ?", self.name]) > 1
     true
   end
@@ -146,6 +147,7 @@ class Configuration < ActiveRecord::Base
   end
 
   def set_only_config_domain_patterns_to_default
+    return true unless self.account
     configs = self.account.configurations.find_all_by_name(self.name)
     if configs.size == 1
       configs.first.update_attribute(:domain_patterns, "**")

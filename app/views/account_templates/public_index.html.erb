@@ -11,7 +11,7 @@
   <tr>
     <td colspan="10">
   <% if image = account_template.images.first %>
-    <%= link_to image_tag("http://#{account_template.trunk_account.domains.first.name}#{image.thumbnails.find_by_thumbnail('medium') ? image.thumbnails.find_by_thumbnail('medium').src : image.src}"), "http://#{account_template.trunk_account.domains.first.name}#{image.src}", :popup => true %>
+    <%= link_to image_tag(image.thumbnails.find_by_thumbnail('medium') ? image.thumbnails.find_by_thumbnail('medium').src : image.src), "http://#{account_template.trunk_account.domains.first.name}", :popup => true %>
   <% end %>
     <div class="details">
       <%= account_template.description.blank? ? "No Description" : account_template.description%></div>

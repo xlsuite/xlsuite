@@ -1,4 +1,5 @@
 <div id="reg_confirmationForm">
+  <%= show_flash_messages %>
   <p>Please fill in this form to complete your registration</p>
   <p>(<span class="colour">*</span>) denotes a required field</p>
   <% form_for(:party, @party, :url => authorize_party_path(@party), :html => {:method => :put}) do |f| %>
