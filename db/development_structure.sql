@@ -182,7 +182,8 @@ CREATE TABLE `affiliate_accounts` (
   `status` varchar(15) default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_username` (`username`),
-  KEY `by_email_address` (`email_address`)
+  KEY `by_email_address` (`email_address`),
+  KEY `by_last_referred_by` (`last_referred_by_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `affiliate_setup_lines` (
@@ -2886,3 +2887,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090717230752');
 INSERT INTO schema_migrations (version) VALUES ('20090721023746');
 
 INSERT INTO schema_migrations (version) VALUES ('20090721212911');
+
+INSERT INTO schema_migrations (version) VALUES ('20090721233525');
