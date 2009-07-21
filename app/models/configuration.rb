@@ -414,7 +414,7 @@ class Configuration < ActiveRecord::Base
   protected
 
   def find_other_configurations_with_same_name
-    return false unless self.account.configurations.count(:conditions => ["name = ?", self.name]) > 1
+    return false unless (self.account && self.account.configurations.count(:conditions => ["name = ?", self.name]) > 1)
     true
   end
 
