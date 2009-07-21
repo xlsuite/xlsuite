@@ -716,7 +716,8 @@ class PagesController < ApplicationController
       referrer_url = request.env["HTTP_REFERER"]
       return true if target_url == referrer_url
       AffiliateAccountTracking.create!(:affiliate_account => affiliate_account, :referrer_url => referrer_url,
-        :target_url => target_url, :http_header => request.env, :ip_address => request.env["HTTP_X_FORWARDED_FOR"] || request.remote_ip)
+        :target_url => target_url, :domain_id => self.current_domain.id, :account_id => self.current_account.id,
+        :http_header => request.env, :ip_address => request.env["HTTP_X_FORWARDED_FOR"] || request.remote_ip)
     end
     true
   end
