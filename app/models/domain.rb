@@ -290,7 +290,7 @@ class Domain < ActiveRecord::Base
 
   validates_presence_of :name, :if => :regular_domain?
   validates_uniqueness_of :name, :if => :regular_domain?
-
+  validates_format_of :name, :with => /\A(?:[a-z0-9][-\w.]+\.[a-z]{2,6}|127.0.0.1| )\Z/, :if => :regular_domain?
   validates_length_of :name, :in => 4..63, :if => :regular_domain?
   validate :name_prefix_match
   
@@ -414,6 +414,7 @@ class Domain < ActiveRecord::Base
     if domain_name.last == "localhost"
       return Domain.find_by_name(domain_name.join("."))
     end
+    nil
   end
 
   protected
