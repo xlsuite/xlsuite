@@ -362,6 +362,24 @@ class Link < ActiveRecord::Base
   def attributes_for_copy_to(account)
     self.attributes.dup.symbolize_keys.merge(:account_id => account.id, :tag_list => self.tag_list)
   end
+  
+  def copy_assets_from!(link)
+    unless link.assets.blank?
+      link.assets.each do |asset|
+        full_path = asset.file_directory_path.split("/")
+        name = full_path.pop
+        path = full_path.join("/")
+        existing_asset = self.account.assets.find_by_path_and_filename(path, name)
+        existing_asset = self.account.assets.create(asset.attributes_for_copy_to(self.account)) unless existing_asset
+        
+        unless self.views.map(&:asset_id).include?(existing_asset.id)
+          view = self.views.build(:asset_id => existing_asset.reload.id)
+          view.classification = "Image"
+          view.save!
+        end
+      end
+    end
+  end
 protected
   def normalize_url
     return if self.url.blank?
