@@ -280,6 +280,8 @@
 # 		     END OF TERMS AND CONDITIONS
 class AffiliateAccountTracking < ActiveRecord::Base
   belongs_to :affiliate_account
+  belongs_to :domain
+  belongs_to :account
   serialize :http_header
   
   before_create :init_year_month_day
