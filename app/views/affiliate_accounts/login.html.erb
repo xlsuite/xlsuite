@@ -14,7 +14,7 @@
     <div id="left" style="white-space:nowrap">
       <h1>
         Affiliate Tracking<br/>
-        <%= "on " + (current_domain.name == "xlsuite.com" ? "" : current_domain.name) %>
+        <%= current_domain.name == "xlsuite.com" ? "" : ("on " + current_domain.name) %>
       </h1>
     </div>
    
