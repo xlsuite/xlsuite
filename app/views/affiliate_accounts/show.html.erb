@@ -356,6 +356,53 @@
     });
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////// REFERRED AFFILIATES //////////////////////////////////////////////////
+    xl.affiliate.AffiliateAccountRecord = new Ext.data.Record.create([
+      {name:"id", type:"int"}
+      ,{name:"username", type:"string"}
+      ,{name:"email_address", type:"string"}
+      ,{name:"activated_at", type:"date"}
+      ,{name:"source_domain", type:"string"}
+      ,{name:"full_name", type:"string"}
+    ]);
+    
+    var referredAffiliatesGridPanelStoreReader = new Ext.data.JsonReader(
+      {totalProperty: "total", root: "collection", id:"id"}
+      ,xl.affiliate.AffiliateAccountRecord
+    );
+    var referredAffiliatesGridPanelStoreProxy = new Ext.data.HttpProxy(new Ext.data.Connection({
+      url:<%= formatted_referred_affiliate_accounts_affiliate_account_path(:format => :json).to_json %>
+      ,method:"GET"
+    }));
+    
+    xl.affiliate.referredAffiliatesGridPanelStore = new Ext.data.Store({
+      proxy:referredAffiliatesGridPanelStoreProxy
+      ,reader:referredAffiliatesGridPanelStoreReader
+    });
+
+    xl.affiliate.referredAffiliatesGridPanel = new Ext.grid.GridPanel({
+      title:"Referred Affiliates"
+      ,id:"referred-affiliates"
+      ,store:xl.affiliate.referredAffiliatesGridPanelStore
+      ,cm:new Ext.grid.ColumnModel([
+        {header:"Affiliate ID", dataIndex:"username", width:150}
+        ,{header:"Name", dataIndex:"full_name", width:150}
+        ,{header:"Email", dataIndex:"email_address", width:150}
+        ,{header:"Activated on", dataIndex:"activated_at", width:100, renderer:Ext.util.Format.dateRenderer("M d, Y")}
+        ,{header:"Domain", dataIndex:"source_domain", width:100}
+      ])
+      ,tbar:[{text:"Refresh", handler:function(){xl.affiliate.referredAffiliatesGridPanelStore.reload()}}]
+      ,border:false
+      ,autoHeight:true
+      ,columnWidth:1
+      ,autoWidth:true
+      ,listeners:{
+        render:function(cpt){cpt.getStore().load()}
+      }
+    });
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
     xl.affiliate.referralItemsWrapper = new Ext.Panel({
       layout:"column"
       ,title:"Referred items"
@@ -369,7 +416,12 @@
     xl.affiliate.mainTabPanel = new Ext.TabPanel({
       activeTab:0
       ,border:false
-      ,items:[xl.affiliate.referralItemsWrapper, xl.affiliate.trackingLinesGridPanel, xl.affiliate.editAccountTab, xl.affiliate.settingsTab]
+      ,items:[
+        xl.affiliate.referralItemsWrapper
+        ,xl.affiliate.trackingLinesGridPanel
+        ,xl.affiliate.referredAffiliatesGridPanel
+        ,xl.affiliate.editAccountTab
+        ,xl.affiliate.settingsTab]
       ,listeners:{
         "render":function(cpt){cpt.setHeight(cpt.ownerCt.getSize().height-cpt.ownerCt.getTopToolbar().getSize().height)}
       }
