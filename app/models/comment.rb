@@ -281,6 +281,8 @@
 class Comment < ActiveRecord::Base
   include XlSuite::Flaggable
   
+  COMMENTABLES = %w(BlogPost Listing Product Profiles)
+  
   attr_protected :approved_at, :referrer_url, :user_agent
   
   acts_as_reportable :columns => %w(name url email referrer_url body rating commentable_type spam spaminess)

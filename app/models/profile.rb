@@ -318,9 +318,40 @@ class Profile < ActiveRecord::Base
     self.party.update_attribute(:twitter_username, self.twitter_username) if self.party
   end
   
+  Comment::COMMENTABLES.map{|c|c.tableize.singularize}.each do |name|
+    class_eval <<-EOF
+      def #{name}_comment_notification=(value)
+        @_#{name}_comment_notification_changed = true
+        @#{name}_comment_notification = value
+      end
+      
+      def #{name}_comment_notification
+        if @_#{name}_comment_notification_changed
+          @#{name}_comment_notification
+        else
+          @_#{name}_comment_notification = self.party.#{name}_comment_notification if self.party
+          @_#{name}_comment_notification
+        end
+      end
+    EOF
+  end
+  
+  def set_party_comment_notification_fields
+    save = false
+    Comment::COMMENTABLES.map{|c|c.tableize.singularize}.each do |name|
+      if instance_variable_get("@_#{name}_comment_notification_changed")
+        save = true
+        self.party.send("#{name}_comment_notification=", self.send("#{name}_comment_notification")) if self.party
+      end
+    end
+    self.party.save(false) if save
+    true
+  end
+  
   after_create :set_alias_if_blank
   after_save :set_custom_url_if_blank
   after_save :set_party_twitter_username
+  after_save :set_party_comment_notification_fields
 
   has_many :contact_routes, :as => :routable, :order => "position", :dependent => :destroy do
     def addresses(force=false)
