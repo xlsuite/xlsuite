@@ -317,9 +317,11 @@ class AffiliateAccount < ActiveRecord::Base
           new_affiliate_account_item = AffiliateAccountItem.new(:target => self, :affiliate_account => e.affiliate_account)
           new_affiliate_account_item.save
         end
+        self.source_domain = domain
+        self.source_party = party
+        self.activated_at = Time.now.utc
       end
     
-      self.source_domain = domain
       self.status = "Active"
       # set affiliate_usernames to nil if last_referred_by_id is already set
       # this needs to be done so that no more affiliate account item entries will be created
