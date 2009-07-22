@@ -553,6 +553,12 @@ class Product < ActiveRecord::Base
     self.save!
   end
   
+  def send_comment_email_notification(comment)
+    if self.creator && self.creator.confirmed? && self.creator.product_comment_notification?
+      AdminMailer.deliver_comment_notification(comment, "product \"#{self.name}\"", self.creator.main_email.email_address)
+    end
+  end
+  
   protected
 
   def initialize_wholesale_peak_and_low_price

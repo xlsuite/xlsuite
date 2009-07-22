@@ -565,6 +565,12 @@ class Profile < ActiveRecord::Base
     new_blog.save
   end
   
+  def send_comment_email_notification(comment)
+    if self.party && self.party.confirmed? && self.party.listing_comment_notification?
+      AdminMailer.deliver_comment_notification(comment, "profile", self.party.main_email.email_address)
+    end
+  end
+  
   protected
   
   def generate_display_name

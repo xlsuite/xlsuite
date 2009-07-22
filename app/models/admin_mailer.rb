@@ -461,4 +461,21 @@ class AdminMailer < ActionMailer::Base
     content_type "text/html"
     body :domain_name => domain_name, :account_owner => account_owner, :account_template => template
   end
+  
+  def comment_notification(comment, commentable_description, recipient_email)
+    domain = comment.domain ? comment.domain : comment.account.domains.first
+    domain_name = domain.name
+    
+    recipients recipient_email
+    from "admin@#{domain_name.gsub("www.", "")}"
+    subject "New Comment on #{domain_name} on your #{comment.commentable_type.titleize}"
+    content_type "text/html"
+    body :domain_name => domain_name, :description => commentable_description, :referrer_url => comment.referrer_url
+    
+    account = Domain.find_by_name(domain_name.gsub("www.", "")).account
+    if account.get_config(:use_account_owner_smtp) && account.owner.own_smtp_account?
+      smtp_account = account.owner.own_smtp_account
+      self.alternate_smtp_settings = SmtpMailer.convert_email_account_to_smtp_settings(smtp_account)
+    end
+  end
 end

@@ -651,6 +651,12 @@ class Listing < ActiveRecord::Base
     end
   end
   
+  def send_comment_email_notification(comment)
+    if self.creator && self.creator.confirmed? && self.creator.listing_comment_notification?
+      AdminMailer.deliver_comment_notification(comment, "listing \"#{self.quick_description}\"", self.creator.main_email.email_address)
+    end
+  end
+  
   protected
   
   def set_open_house_flag
