@@ -180,6 +180,7 @@ CREATE TABLE `affiliate_accounts` (
   `source_party_id` int(11) default NULL,
   `source_domain_id` int(11) default NULL,
   `status` varchar(15) default NULL,
+  `activated_at` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_username` (`username`),
   KEY `by_email_address` (`email_address`),
@@ -2889,3 +2890,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090721023746');
 INSERT INTO schema_migrations (version) VALUES ('20090721212911');
 
 INSERT INTO schema_migrations (version) VALUES ('20090721233525');
+
+INSERT INTO schema_migrations (version) VALUES ('20090721235927');
