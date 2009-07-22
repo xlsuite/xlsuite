@@ -1,14 +1,10 @@
 <% content_for :css do %>
-  <%= cached_stylesheet_link_tag "accounts/confirm.css" %>
+  <%= cached_stylesheet_link_tag "accounts/confirm-new.css" %>
 <% end %>
-<style type="text/css">
-  #messages .notices {margin-top:20px; color:#FFFFFF;}
-</style>
 
 <div align="center">
   <div id="content">
     <div id="top">
-      <%= show_flash_messages %>
     </div>
    
     <div id="left" style="white-space:nowrap">
@@ -22,6 +18,7 @@
       <div>
         <fieldset>
           <legend>Login</legend>
+          <%= show_flash_messages %>
           <%= form_tag(login_affiliate_account_path, :method => "post") %>
             <label>Email:</label><%= text_field_tag("email_address","") %>
             <label>Password:</label><%= password_field_tag("password", "") %>
