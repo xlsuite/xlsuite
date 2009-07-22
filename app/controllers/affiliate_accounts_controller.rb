@@ -280,7 +280,7 @@
 # 		     END OF TERMS AND CONDITIONS
 class AffiliateAccountsController < ApplicationController
   skip_before_filter :login_required, :only => [:login, :forgot_password, :confirm_forgot_password, :logout, :activate]
-  required_permissions %w(show update change_password referred_item_lines tracking_lines) => "current_user?"
+  required_permissions %w(show update change_password referred_item_lines tracking_lines referred_affiliate_accounts) => "current_user?"
 
   def show
     respond_to do |format|
@@ -442,6 +442,16 @@ class AffiliateAccountsController < ApplicationController
       end
     end
   end
+  
+  def referred_affiliate_accounts
+    @affiliates = AffiliateAccount.all(:conditions => {:status => "Active" ,:last_referred_by_id => self.current_user.id}, :order => "username ASC")
+    @affiliates_count = AffiliateAccount.count(:id, :conditions => {:status => "Active", :last_referred_by_id => self.current_user.id})
+    respond_to do |format|
+      format.json do
+        render(:json => {:collection => self.assemble_affiliate_accounts(@affiliates), :total => @affiliates_count}.to_json)
+      end
+    end
+  end
 
   def activate
     @affiliate_account = AffiliateAccount.find_by_uuid(params[:uuid])
@@ -493,6 +503,21 @@ class AffiliateAccountsController < ApplicationController
   end
 
 protected
+  def assemble_affiliate_accounts(records)
+    out = []
+    records.each do |record|
+      out << {
+        :id => record.id,
+        :username => record.username,
+        :email_address => record.email_address,
+        :activated_at => record.activated_at.strftime(DATE_STRFTIME_FORMAT),
+        :source_domain => record.source_domain.name,
+        :full_name => record.full_name
+      }
+    end
+    out
+  end
+
   def assemble_affiliate_line_items(records)
     out = []
     records.each do |record|

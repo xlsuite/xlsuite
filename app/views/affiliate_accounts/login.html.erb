@@ -1,8 +1,42 @@
-<h1>Login</h1>
-<%= show_flash_messages %>
-<%= form_tag(login_affiliate_account_path, :method => "post") %>
-  <p><label>Email:</label><%= text_field_tag("email_address","") %></p>
-  <p><label>Password:</label><%= password_field_tag("password", "") %></p>
-  <%= submit_tag "Login" %>
-</form>
-<%= link_to "Forgot password", forgot_password_affiliate_account_path %>
+<% content_for :css do %>
+  <%= cached_stylesheet_link_tag "accounts/confirm.css" %>
+<% end %>
+
+<div align="center">
+  <div id="content">
+    <div id="top">
+      <%= show_flash_messages %>
+    </div>
+   
+    <div id="left" style="white-space:nowrap">
+      <h1>
+        Affiliate Tracking<br/>
+        <%= "on " + (current_domain.name == "xlsuite.com" ? "" : current_domain.name) %>
+      </h1>
+    </div>
+   
+    <div id="right">
+      <div>
+        <fieldset>
+          <legend>Login</legend>
+          <%= form_tag(login_affiliate_account_path, :method => "post") %>
+            <label>Email:</label><%= text_field_tag("email_address","") %>
+            <label>Password:</label><%= password_field_tag("password", "") %>
+            <%= submit_tag "Login" %>
+          </form>
+        </fieldset>
+        <%= link_to "Forgot password", forgot_password_affiliate_account_path %>    
+      </div>
+    </div>
+    <div id="footer">
+      <div id="leftFooter">
+        <p>Copyrights 2009 <a href="http://xlsuite.com">XLsuite.com.</a> All rights reserved</p>
+      </div>
+      <div id="rightFooter"></div>
+    </div>
+  </div>
+</div>
+
+
+
+

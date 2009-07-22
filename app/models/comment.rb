@@ -4,6 +4,8 @@
 class Comment < ActiveRecord::Base
   include XlSuite::Flaggable
   
+  COMMENTABLES = %w(BlogPost Listing Product Profiles)
+  
   attr_protected :approved_at, :referrer_url, :user_agent
   
   acts_as_reportable :columns => %w(name url email referrer_url body rating commentable_type spam spaminess)
@@ -25,6 +27,7 @@ class Comment < ActiveRecord::Base
   before_validation :ensure_absolute_url, :if => :url_not_blank
   before_validation :set_rating
   before_create :set_approved
+  after_save :send_comment_email_notification
   
   after_save :set_commentable_average_rating
   after_destroy :set_commentable_average_rating
@@ -71,12 +74,16 @@ class Comment < ActiveRecord::Base
   end
 
   def confirm_as_ham!
-    self.update_attribute("spam", false)
+    # call save to trigger after_save callbacks
+    self.spam = false
+    self.save!
     defensio.mark_as_ham(self)
   end
 
   def confirm_as_spam!
-    self.update_attribute("spam", true)
+    # call save to trigger after_save callbacks
+    self.spam = true
+    self.save!
     defensio.mark_as_spam(self)
   end
   
@@ -199,5 +206,15 @@ class Comment < ActiveRecord::Base
         "http://" + self.url
       end
     end
+  end
+  
+  def send_comment_email_notification
+    if ( !self.spam && self.approved_at && ( self.spam_changed? || self.approved_at_changed? ) )
+      unless self.sent_email_notification
+        self.commentable.send_comment_email_notification(self) if self.commentable
+        self.update_attribute("sent_email_notification", true)
+      end
+    end
+    true
   end
 end

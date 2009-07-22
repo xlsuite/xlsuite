@@ -147,6 +147,8 @@ CREATE TABLE `affiliate_account_trackings` (
   `year` int(11) default NULL,
   `month` int(11) default NULL,
   `day` int(11) default NULL,
+  `domain_id` int(11) default NULL,
+  `account_id` int(11) default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_affiliate_account` (`affiliate_account_id`),
   KEY `by_affiliate_account_created_at` (`affiliate_account_id`,`created_at`)
@@ -178,9 +180,11 @@ CREATE TABLE `affiliate_accounts` (
   `source_party_id` int(11) default NULL,
   `source_domain_id` int(11) default NULL,
   `status` varchar(15) default NULL,
+  `activated_at` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_username` (`username`),
-  KEY `by_email_address` (`email_address`)
+  KEY `by_email_address` (`email_address`),
+  KEY `by_last_referred_by` (`last_referred_by_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `affiliate_setup_lines` (
@@ -2880,3 +2884,11 @@ INSERT INTO schema_migrations (version) VALUES ('20090716215008');
 INSERT INTO schema_migrations (version) VALUES ('20090717001306');
 
 INSERT INTO schema_migrations (version) VALUES ('20090717230752');
+
+INSERT INTO schema_migrations (version) VALUES ('20090721023746');
+
+INSERT INTO schema_migrations (version) VALUES ('20090721212911');
+
+INSERT INTO schema_migrations (version) VALUES ('20090721233525');
+
+INSERT INTO schema_migrations (version) VALUES ('20090721235927');

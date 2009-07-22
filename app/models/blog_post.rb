@@ -70,6 +70,12 @@ class BlogPost < ActiveRecord::Base
   def author_profile
     self.author.profile
   end
+  
+  def send_comment_email_notification(comment)
+    if self.blog.author && self.blog.author.confirmed? && self.blog.author.blog_post_comment_notification?
+      AdminMailer.deliver_comment_notification(comment, "blog post \"#{self.title}\"", self.blog.author.main_email.email_address)
+    end
+  end
 
   protected
 

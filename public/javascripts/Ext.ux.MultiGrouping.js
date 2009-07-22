@@ -292,7 +292,8 @@ Ext.ux.MultiGroupingView = Ext.extend(Ext.grid.GroupingView, {
        ss.addItem(new Ext.Toolbar.TextItem("Drop Columns Here To Group"));
        //console.debug("No Groups");
      } else {
-       // Add back all entries to toolbar from GroupField[]    
+       // Add back all entries to toolbar from GroupField[]
+       ss.addItem(new Ext.Toolbar.Button({text:"Refresh", scope:this, handler:function(btn){this.grid.getStore().reload()}}));
        ss.addItem(new Ext.Toolbar.TextItem("Grouped By:"));
        for (var gfi = 0; gfi < gfLen; gfi++) {
          var t = groupField[gfi];

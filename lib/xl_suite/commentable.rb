@@ -83,5 +83,9 @@ module XlSuite
       true
     end
     protected :set_comment_approval_method
+    
+    def send_comment_email_notification(comment)
+      true
+    end
   end
 end

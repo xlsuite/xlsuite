@@ -1167,8 +1167,97 @@ module PartiesHelper
         ]
       });
 
+      var profileCommentsCheckbox = new Ext.form.Checkbox({
+        fieldLabel: "Comments on my Profile",
+        name: "profile_comment_notification",
+        checked: #{@party.profile_comment_notification.to_json},
+        type: 'checkbox',
+        listeners: {
+          'check': function(me, checked){
+            var parameters = {};
+            parameters["party[profile_comment_notification]"] = checked;
+            
+            Ext.Ajax.request({
+              url: #{party_path(@party).to_json},
+              params: parameters,
+              method: "PUT"
+            });
+          }
+        }
+      });
+
+      var blogPostCommentsCheckbox = new Ext.form.Checkbox({
+        fieldLabel: "Comments on my Blog Posts",
+        name: "blog_post_comment_notification",
+        checked: #{@party.blog_post_comment_notification.to_json},
+        type: 'checkbox',
+        listeners: {
+          'check': function(me, checked){
+            var parameters = {};
+            parameters["party[blog_post_comment_notification]"] = checked;
+            
+            Ext.Ajax.request({
+              url: #{party_path(@party).to_json},
+              params: parameters,
+              method: "PUT"
+            });
+          }
+        }
+      });
+
+      var listingCommentsCheckbox = new Ext.form.Checkbox({
+        fieldLabel: "Comments on my Listings",
+        name: "listing_comment_notification",
+        checked: #{@party.listing_comment_notification.to_json},
+        type: 'checkbox',
+        listeners: {
+          'check': function(me, checked){
+            var parameters = {};
+            parameters["party[listing_comment_notification]"] = checked;
+            
+            Ext.Ajax.request({
+              url: #{party_path(@party).to_json},
+              params: parameters,
+              method: "PUT"
+            });
+          }
+        }
+      });
+
+      var productCommentsCheckbox = new Ext.form.Checkbox({
+        fieldLabel: "Comments on my Product",
+        name: "product_comment_notification",
+        checked: #{@party.product_comment_notification.to_json},
+        type: 'checkbox',
+        listeners: {
+          'check': function(me, checked){
+            var parameters = {};
+            parameters["party[product_comment_notification]"] = checked;
+            
+            Ext.Ajax.request({
+              url: #{party_path(@party).to_json},
+              params: parameters,
+              method: "PUT"
+            });
+          }
+        }
+      });
+      
+      var emailNotificationsPanel = new Ext.Panel({
+        layout: 'form',
+        labelWidth: 175,
+        title: "Email Notifications",
+        items:[
+          {html: "<p>Send me an email notification when someone:</p><br />"},
+          blogPostCommentsCheckbox, 
+          listingCommentsCheckbox, 
+          productCommentsCheckbox, 
+          profileCommentsCheckbox
+        ]
+      });
+      
       var settingsPanel =  new Ext.Panel({
-        items: [changePasswordFormPanel]
+        items: [changePasswordFormPanel, emailNotificationsPanel]
       });
     `
   end

@@ -134,6 +134,9 @@ class Domain < ActiveRecord::Base
     if domain_name.size > 1
       return Domain.find_by_name(domain_name.join("."))
     end
+    if domain_name.last == "localhost"
+      return Domain.find_by_name(domain_name.join("."))
+    end
     nil
   end
 
