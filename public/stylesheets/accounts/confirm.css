@@ -25,10 +25,10 @@ a {
 	background: url('/images/register-signup/left-bg.jpg') no-repeat;
 	display: inline;
 	float: left;
-/*	margin-bottom: -2000px; */
+	margin-bottom: -2000px;
 	margin-left: 3px;
 	min-height: 401px;
-/*	padding-bottom: 2000px; */
+	padding-bottom: 2000px;
 	position: relative;
 	width: 275px;
 }
