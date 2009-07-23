@@ -433,9 +433,9 @@ class AffiliateAccountsController < ApplicationController
   def tracking_lines
     @lines = AffiliateAccountTracking.all(
       :select => "COUNT(affiliate_account_id) as counter, affiliate_account_id, referrer_url, target_url, ip_address, created_at", 
-      :group => "year, month, day, referrer_url", :conditions => {:affiliate_account_id => self.current_user.id})
+      :group => "year, month, day, referrer_url, target_url", :conditions => {:affiliate_account_id => self.current_user.id})
     @lines_count = AffiliateAccountTracking.count(:id, :conditions => {:affiliate_account_id => self.current_user.id},
-      :group => "year, month, day, referrer_url")
+      :group => "year, month, day, referrer_url, target_url")
     respond_to do |format|
       format.json do
         render(:json => {:collection => self.assemble_affiliate_tracking_lines(@lines), :total => @lines_count}.to_json)
