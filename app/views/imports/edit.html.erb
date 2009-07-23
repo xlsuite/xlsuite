@@ -47,6 +47,12 @@
     <label>Create Profile for Imports:</label>
     <%= check_box_tag "mappings[create_profile]", 1, (@import && @import.mappings ? (@import.mappings[:create_profile].blank? ? false : @import.mappings[:create_profile]) : false) %>
   </p>
+  <br class="clear" />
+  
+  <p>
+    Ignore websites matching&nbsp;
+     <%= text_field_tag "mappings[ignore_websites_regex]", (@import && @import.mappings ? (@import.mappings[:ignore_websites_regex] || "") : ""), :class => "ignore_websites_regex" %>
+  </p>
 
   <table id="mappingsTable">
     <thead>
