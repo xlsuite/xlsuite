@@ -289,13 +289,14 @@ class AffiliateAccountTrackingsController < ApplicationController
         conditions_option.merge!({:domain_id => params[:domain_id].to_i}) if params[:domain_id]
         @lines = AffiliateAccountTracking.all(
           :select => "COUNT(affiliate_account_trackings.id) AS counter, affiliate_account_trackings.affiliate_account_id, \
-            affiliate_accounts.username, affiliate_accounts.email_address, affiliate_account_trackings.created_at",
+            affiliate_accounts.username, affiliate_accounts.email_address, affiliate_account_trackings.created_at, \
+            affiliate_account_trackings.year, affiliate_account_trackings.month",
           :joins => "INNER JOIN affiliate_accounts ON affiliate_accounts.id = affiliate_account_trackings.affiliate_account_id",
           :group => "affiliate_account_trackings.year, affiliate_account_trackings.month, affiliate_account_trackings.affiliate_account_id",
-          :conditions => conditions_option, :order => "username")
+          :conditions => conditions_option, :order => "year DESC, month DESC, username ASC")
         @lines_count = AffiliateAccountTracking.count(:id, :conditions => conditions_option,
           :group => "year, month, affiliate_account_id")
-        render(:json => {:collection => self.assemble_affiliate_accounts(@lines), :total => @lines.size}.to_json)
+        render(:json => {:collection => self.assemble_affiliate_accounts(@lines), :total => @lines_count}.to_json)
       end
     end
   end
