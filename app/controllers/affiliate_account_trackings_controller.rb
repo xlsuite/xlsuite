@@ -296,7 +296,26 @@ class AffiliateAccountTrackingsController < ApplicationController
           :conditions => conditions_option, :order => "year DESC, month DESC, username ASC")
         @lines_count = AffiliateAccountTracking.count(:id, :conditions => conditions_option,
           :group => "year, month, affiliate_account_id")
-        render(:json => {:collection => self.assemble_affiliate_accounts(@lines), :total => @lines_count}.to_json)
+        render(:json => {:collection => self.assemble_affiliate_accounts(@lines), :total => @lines.size}.to_json)
+      end
+    end
+  end
+  
+  def show
+    @affiliate_account = AffiliateAccount.find_by_username(params[:id])
+    respond_to do |format|
+      format.js
+      format.json do
+        conditions_option = {:affiliate_account_id => @affiliate_account.id,
+          :account_id => self.current_account.id,
+          :domain_id => self.current_account.domains.all(:select => "id").map(&:id)}
+        @lines = AffiliateAccountTracking.all(
+          :select => "year, month, referrer_url, target_url, COUNT(affiliate_account_id) AS counter, created_at",
+          :group => "year, month, referrer_url, target_url",
+          :conditions => conditions_option, :order => "created_at DESC"
+        )
+        @lines_count = AffiliateAccountTracking.count(:id, :conditions => conditions_option, :group => "year, month, referrer_url, target_url")
+        render(:json => {:collection => self.assemble_individual_trackings(@lines), :total => @lines.size})
       end
     end
   end
@@ -310,6 +329,21 @@ class AffiliateAccountTrackingsController < ApplicationController
         :counter => record.counter,
         :month => record.created_at.strftime("%m").gsub(/\A0+/,""),
         :year => record.created_at.strftime("%Y")
+      }
+    end
+    out
+  end
+  
+  def assemble_individual_trackings(records)
+    out = []
+    records.each do |record|
+      out << {
+        :referrer_url => record.referrer_url,
+        :target_url => record.target_url,
+        :counter => record.counter,
+        :month => record.created_at.strftime("%m").gsub(/\A0+/,""),
+        :year => record.created_at.strftime("%Y"),
+        :day => record.created_at.strftime("%d")
       }
     end
     out
