@@ -564,6 +564,10 @@ Ext.onReady(function() {
               ,handler:function(){xl.openNewTabPanel('destinations_index_nil', <%= destinations_path.to_json %>)}
             }
 <% end -%>
+            ,{
+              text:"Affiliates Tracking"
+              ,handler:function(){xl.openNewTabPanel("affiliate_account_trackings_index_nil", <%= affiliate_account_trackings_path.to_json %>)}
+            }
 <% if current_user_is_account_owner? -%>
             ,{
               text:"Categories"
