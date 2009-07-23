@@ -6,6 +6,14 @@
   updateNotificationBar = function(){
     $("status-bar-notifications").innerHTML = "<%= e(render_plain_flash_messages) %>";
   }
+  
+  Array.prototype.sum = function(field){
+    if(field)
+      for(var i=0,sum=0;i<this.length;sum+=parseFloat(this[i++].data[field]));
+    else
+      for(var i=0,sum=0;i<this.length;sum+=this[i++]);
+    return sum;
+  };
 </script>
 
 <%# ExtJS %>
