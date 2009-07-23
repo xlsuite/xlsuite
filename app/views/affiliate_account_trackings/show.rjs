@@ -6,6 +6,7 @@ page << create_tab_using_ajax_response("Tracking #{@affiliate_account.username}"
     ,{name:"year", type:"int"}
     ,{name:"month", type:"int"}
     ,{name:"counter", type:"int"}
+    ,{name:"monthly_timestamp", type:"string"}
   ]);
   
   var trackingLinesGridPanelStoreReader = new Ext.data.JsonReader(
@@ -17,9 +18,16 @@ page << create_tab_using_ajax_response("Tracking #{@affiliate_account.username}"
     ,method:"GET"
   }));
   
-  var trackingLinesGridPanelStore = new Ext.data.Store({
+  var trackingLinesGridPanelStore = new Ext.data.GroupingStore({
     proxy:trackingLinesGridPanelStoreProxy
     ,reader:trackingLinesGridPanelStoreReader
+    ,sortInfo:{field:"year", direction:"desc"}
+    ,groupField:"monthly_timestamp"
+  });
+  
+  var trackingLinesGridPanelView = new Ext.grid.GroupingView({
+    forceFit:true
+    ,groupTextTpl:'{text} ({[values.rs.sum("counter")]} {[values.rs.sum("counter") > 1 ? "Clicks" : "Click"]})'
   });
 
   var totalClickRenderer = function(v, params, data){
@@ -28,9 +36,9 @@ page << create_tab_using_ajax_response("Tracking #{@affiliate_account.username}"
   
   var trackingLinesGridPanel = new Ext.grid.GridPanel({
     store:trackingLinesGridPanelStore
+    ,view:trackingLinesGridPanelView
     ,cm:new Ext.grid.ColumnModel([
-      {header:"Year", dataIndex:"year", width:100}
-      ,{header:"Month", dataIndex:"month", width:50}
+      {header:"Month", dataIndex:"monthly_timestamp"}
       ,{header:"Referrer URL", dataIndex:"referrer_url", width:250}
       ,{header:"Target URL", dataIndex:"target_url", width:250}
       ,{header:"Click(s)", width:250, dataIndex:"counter", align:"right", summaryType:"sum", summaryRenderer:totalClickRenderer}
