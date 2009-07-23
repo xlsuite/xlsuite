@@ -328,7 +328,8 @@ class AffiliateAccountTrackingsController < ApplicationController
         :username => record.username,
         :counter => record.counter,
         :month => record.created_at.strftime("%m").gsub(/\A0+/,""),
-        :year => record.created_at.strftime("%Y")
+        :year => record.created_at.strftime("%Y"),
+        :monthly_timestamp => record.created_at.strftime("%Y-%m")
       }
     end
     out
@@ -342,6 +343,7 @@ class AffiliateAccountTrackingsController < ApplicationController
         :target_url => record.target_url,
         :counter => record.counter,
         :month => record.created_at.strftime("%m").gsub(/\A0+/,""),
+        :monthly_timestamp => record.created_at.strftime("%Y-%m"),
         :year => record.created_at.strftime("%Y"),
         :day => record.created_at.strftime("%d")
       }
