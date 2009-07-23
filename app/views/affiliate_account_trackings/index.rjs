@@ -40,8 +40,8 @@ page << create_tab_using_ajax_response("Affiliates Tracking") do
     store:trackingLinesGridPanelStore
 //    ,view:trackingLinesGridView
     ,cm:new Ext.grid.ColumnModel([
-      {header:"Year", dataIndex:"year"}
-      ,{header:"Month", dataIndex:"month"}
+      {header:"Year", dataIndex:"year", width:100}
+      ,{header:"Month", dataIndex:"month", width:50}
       ,{header:"Affiliate ID", dataIndex:"username", width:250}
       ,{header:"Click(s)", width:250, dataIndex:"counter", align:"right", summaryType:"sum", summaryRenderer:totalClickRenderer}
     ])
