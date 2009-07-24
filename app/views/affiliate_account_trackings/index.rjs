@@ -1,0 +1,75 @@
+page << create_tab_using_ajax_response("Affiliates Tracking") do
+%Q`
+  var TrackingLineRecord = new Ext.data.Record.create([
+    {name:"username", type:"string"}
+    ,{name:"monthly_timestamp", type:"string"}
+    ,{name:"year", type:"int"}
+    ,{name:"month", type:"int"}
+    ,{name:"counter", type:"int"}
+  ]);
+  
+  var trackingLinesGridPanelStoreReader = new Ext.data.JsonReader(
+    {totalProperty:"total", root:"collection"}
+    ,TrackingLineRecord
+  );
+  var trackingLinesGridPanelStoreProxy = new Ext.data.HttpProxy(new Ext.data.Connection({
+    url:#{formatted_affiliate_account_trackings_path(:format => :json).to_json}
+    ,method:"GET"
+  }));
+  
+  var trackingLinesGridPanelStore = new Ext.data.GroupingStore({
+    proxy:trackingLinesGridPanelStoreProxy
+    ,reader:trackingLinesGridPanelStoreReader
+    ,sortInfo:{field:"username", direction:'ASC'}
+    ,groupField:"monthly_timestamp"
+  });
+
+  var trackingLinesGridView = new Ext.grid.GroupingView({
+    forceFit:true
+    ,groupTextTpl:'{text} ({[values.rs.sum("counter")]} {[values.rs.sum("counter") > 1 ? "Clicks" : "Click"]})'
+  });
+
+/*
+  var trackingLinesGridView = new Ext.ux.MultiGroupingView({
+    hideGroupedColumn:true
+    ,emptyGroupText:"All Group Fields Empty"
+    ,displayEmptyFields:true
+    ,sortInfo:{field:"username", direction:'ASC'}
+    ,groupTextTpl:'{text} : {gvalue} ({[values.rs.sum("counter")]} {[values.rs.sum("counter") == 1 ? "Click" : "Clicks"]})'
+    ,displayFieldSeparator:", "
+  });
+*/
+
+  var totalClickRenderer = function(v, params, data){
+    return("Total clicks: " + v);
+  };
+  
+  var affiliateAccountTrackingPath = #{affiliate_account_tracking_path(:id => "__USERNAME__").to_json};
+  
+  var trackingLinesGridPanel = new Ext.grid.GridPanel({
+    store:trackingLinesGridPanelStore
+    ,view:trackingLinesGridView
+    ,cm:new Ext.grid.ColumnModel([
+      {header:"Year", dataIndex:"year", width:100}
+      ,{header:"Monthly", dataIndex:"monthly_timestamp", width:50}
+      ,{header:"Month", dataIndex:"month", width:50}
+      ,{header:"Affiliate ID", dataIndex:"username", width:250}
+      ,{header:"Click(s)", width:250, dataIndex:"counter", align:"right", summaryType:"sum", summaryRenderer:totalClickRenderer}
+    ])
+    ,border:false
+    ,autoHeight:true
+    ,columnWidth:1
+    ,autoWidth:true
+    ,plugins:[new Ext.ux.grid.GridSummary({cls:"wider-left-margin"})]
+    ,listeners:{
+      render:function(cpt){cpt.getStore().load()}
+      ,rowdblclick:function(cpt, rowIndex, e){
+        var selectedRecord = cpt.getStore().getAt(rowIndex);
+        xl.openNewTabPanel(("affiliate_account_trackings_show_" + selectedRecord.get("username")), affiliateAccountTrackingPath.sub("__USERNAME__", selectedRecord.get("username")) );
+      }
+    }
+  });
+  
+  newPanel.add(trackingLinesGridPanel);
+`
+end

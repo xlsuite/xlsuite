@@ -80,6 +80,8 @@ ActionController::Routing::Routes.draw do |map|
       :collection => {:ipn => :post},
       :member => {:pay => :post}
 
+  map.resources :affiliate_account_trackings, :path_prefix => "/admin"
+
   map.resource :affiliate_account, :path_prefix => "/admin", :member => {:login => :any, :logout => :any,
     :change_password => :put, :forgot_password => :any, :referred_item_lines => :any, :activate => :put,
     :tracking_lines => :get, :referred_affiliate_accounts => :get}

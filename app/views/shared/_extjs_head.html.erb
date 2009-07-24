@@ -6,6 +6,14 @@
   updateNotificationBar = function(){
     $("status-bar-notifications").innerHTML = "<%= e(render_plain_flash_messages) %>";
   }
+  
+  Array.prototype.sum = function(field){
+    if(field)
+      for(var i=0,sum=0;i<this.length;sum+=parseFloat(this[i++].data[field]));
+    else
+      for(var i=0,sum=0;i<this.length;sum+=this[i++]);
+    return sum;
+  };
 </script>
 
 <%# ExtJS %>
@@ -57,6 +65,8 @@
 
 <%= cached_javascript_include_tag "xl_suite/widgets/xl.widget.FilePicker.js" %>
 <%= cached_javascript_include_tag "xl_suite/widgets/xl.widget.ContactSelection.js" %>
+
+<%= cached_javascript_include_tag "Ext.ux.grid.GridSummary/Ext.ux.grid.GridSummary.js" %>  
 
 <%# Rets !! To be removed !! %>
 <%= cached_javascript_include_tag 'rets/listings_import.js' %>
@@ -122,5 +132,7 @@
 
 <%= cached_stylesheet_link_tag "Ext.ux.Menubar.css" %>
 <%= cached_stylesheet_link_tag "/javascripts/extjs/resources/css/xtheme-default.css", :id => "theme" %>
+
+<%= cached_stylesheet_link_tag "/javascripts/Ext.ux.grid.GridSummary/Ext.ux.grid.GridSummary.css" %>
 
 <%= yield(:css) %>

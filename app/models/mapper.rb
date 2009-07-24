@@ -16,7 +16,11 @@ class Mapper < ActiveRecord::Base
       self.mappings[:map].each_with_index do |mapping, column|
         next if mapping.nil? || row[column].blank? || !mapping.has_key?(:field) || mapping[:field].blank?
         tr_row_column = row[column].to_s
+        
+        next if(mapping[:model] == "LinkContactRoute" && mapping[:field] == "url" && !self.mappings[:ignore_websites_regex].blank? && tr_row_column =~ Regexp.new(self.mappings[:ignore_websites_regex]))
+        
         obj = mapping_to_object(mapping, root)
+        
         case mapping[:tr]
         when /titleize/i
           tr_row_column = tr_row_column.titleize
@@ -81,7 +85,8 @@ class Mapper < ActiveRecord::Base
     mappings = mappings.clone || {}
     hash = {:header_lines_count => mappings[:header_lines_count].to_i, :tag_list => mappings[:tag_list], 
             :create_profile => mappings[:create_profile], :group => mappings[:group], 
-            :exclude_no_email => mappings[:exclude_no_email]}
+            :exclude_no_email => mappings[:exclude_no_email],
+            :ignore_websites_regex => mappings[:ignore_websites_regex]}
     map_array = []
     map = mappings[:map]
     map = map.to_a

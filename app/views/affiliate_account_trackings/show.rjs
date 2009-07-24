@@ -1,0 +1,58 @@
+page << create_tab_using_ajax_response("Tracking #{@affiliate_account.username}") do
+%Q`
+  var TrackingLineRecord = new Ext.data.Record.create([
+    {name:"referrer_url", type:"string"}
+    ,{name:"target_url", type:"string"}
+    ,{name:"year", type:"int"}
+    ,{name:"month", type:"int"}
+    ,{name:"counter", type:"int"}
+    ,{name:"monthly_timestamp", type:"string"}
+  ]);
+  
+  var trackingLinesGridPanelStoreReader = new Ext.data.JsonReader(
+    {totalProperty:"total", root:"collection"}
+    ,TrackingLineRecord
+  );
+  var trackingLinesGridPanelStoreProxy = new Ext.data.HttpProxy(new Ext.data.Connection({
+    url:#{formatted_affiliate_account_tracking_path(:id => @affiliate_account.username, :format => :json).to_json}
+    ,method:"GET"
+  }));
+  
+  var trackingLinesGridPanelStore = new Ext.data.GroupingStore({
+    proxy:trackingLinesGridPanelStoreProxy
+    ,reader:trackingLinesGridPanelStoreReader
+    ,sortInfo:{field:"year", direction:"desc"}
+    ,groupField:"monthly_timestamp"
+  });
+  
+  var trackingLinesGridPanelView = new Ext.grid.GroupingView({
+    forceFit:true
+    ,groupTextTpl:'{text} ({[values.rs.sum("counter")]} {[values.rs.sum("counter") > 1 ? "Clicks" : "Click"]})'
+  });
+
+  var totalClickRenderer = function(v, params, data){
+    return("Total clicks: " + v);
+  };
+  
+  var trackingLinesGridPanel = new Ext.grid.GridPanel({
+    store:trackingLinesGridPanelStore
+    ,view:trackingLinesGridPanelView
+    ,cm:new Ext.grid.ColumnModel([
+      {header:"Month", dataIndex:"monthly_timestamp"}
+      ,{header:"Referrer URL", dataIndex:"referrer_url", width:250}
+      ,{header:"Target URL", dataIndex:"target_url", width:250}
+      ,{header:"Click(s)", width:250, dataIndex:"counter", align:"right", summaryType:"sum", summaryRenderer:totalClickRenderer}
+    ])
+    ,border:false
+    ,autoHeight:true
+    ,columnWidth:1
+    ,autoWidth:true
+    ,plugins:[new Ext.ux.grid.GridSummary({cls:"wider-left-margin"})]
+    ,listeners:{
+      render:function(cpt){cpt.getStore().load()}
+    }
+  });
+  
+  newPanel.add(trackingLinesGridPanel);
+`
+end
