@@ -2184,6 +2184,17 @@ CREATE TABLE `sitemap_links` (
   KEY `index_sitemap_links_on_domain_id_and_url` (`domain_id`,`url`(255))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `sitemaps` (
+  `id` int(11) NOT NULL auto_increment,
+  `domain_id` int(11) default NULL,
+  `position` int(11) default NULL,
+  `text` mediumblob,
+  `created_at` datetime default NULL,
+  `updated_at` datetime default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `by_domain_position` (`domain_id`,`position`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `sort_lines` (
   `id` int(11) NOT NULL auto_increment,
   `order_name` varchar(40) default NULL,
@@ -2913,3 +2924,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090721233525');
 INSERT INTO schema_migrations (version) VALUES ('20090721235927');
 
 INSERT INTO schema_migrations (version) VALUES ('20090724213351');
+
+INSERT INTO schema_migrations (version) VALUES ('20090725020416');
