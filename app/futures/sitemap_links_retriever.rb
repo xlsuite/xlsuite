@@ -336,11 +336,11 @@ class SitemapLinksRetriever < SpiderFuture
     complete!
   end
 
-  def root=(root_value)
+  def root_raw_value=(root_value)
     self.args[:root] = root_value
   end
   
-  def root
+  def root_raw_value
     self.args[:root]
   end
   
