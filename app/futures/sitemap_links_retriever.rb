@@ -330,7 +330,7 @@ class SitemapLinksRetriever < SpiderFuture
 
       uris_to_visit.uniq!
     end
-
+    Sitemap.create_sitemaps_of!(self.domain)
     self.finalize
 
     complete!
