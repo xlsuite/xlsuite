@@ -1,0 +1,28 @@
+page << create_tab_using_ajax_response("Sitemaps") do
+%Q`
+  var updateSitemapButton = new Ext.Button({
+    text:"Update #{current_domain.name} sitemap"
+    ,handler:function(btn, event){
+      Ext.Ajax.request({
+        url:#{sitemaps_path.to_json}
+        ,method:"POST"
+        ,params:{"domain_id":#{current_domain.id}}
+        ,success:function(response){
+          var response = Ext.decode(response.responseText);
+          if(response.success){
+            Ext.Msg.alert("Sitemaps", "Your request has been put on the queue. Your sitemaps for #{current_domain.name} will be updated. Please check your sitemap index page later.")
+          }else{
+            Ext.Msg.alert("Sitemaps | Request Failed", "Failed sending request, please contact admin")
+          }
+        }
+      });
+    }
+  });
+  
+  var wrapperPanel = new Ext.Panel({
+    items:[updateSitemapButton]
+  });
+  
+  newPanel.add(wrapperPanel);
+`
+end
