@@ -301,7 +301,7 @@ class SitemapsController < ApplicationController
   def create
     domain = Domain.find(params[:domain_id])
     future = SitemapLinksRetriever.new(:account => self.current_account, :owner => self.current_account.owner,
-      :root => ("http://" + domain.name))
+      :root_raw_value => ("http://" + domain.name))
     respond_to do |format|
       format.js do
         render(:json => {:success => future.save}.to_json)
