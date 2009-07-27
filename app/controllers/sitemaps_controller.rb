@@ -290,9 +290,7 @@ class SitemapsController < ApplicationController
   end
   
   def show
-    domain_id = self.current_domain.id
-    domain_id = Domain.find_by_name("liveonthedrive.com").id
-    @sitemap = Sitemap.first(:conditions => {:domain_id => domain_id, :position => params[:id].to_i})
+    @sitemap = Sitemap.first(:conditions => {:domain_id => self.current_domain.id, :position => params[:id].to_i})
     respond_to do |format|
       format.xml do
         render(:text => @sitemap.text)
