@@ -568,6 +568,12 @@ Ext.onReady(function() {
               text:"Affiliates Tracking"
               ,handler:function(){xl.openNewTabPanel("affiliate_account_trackings_index_nil", <%= affiliate_account_trackings_path.to_json %>)}
             }
+<% if current_user.can?(:edit_pages) %>
+            ,{
+              text:"Sitemaps"
+              ,handler:function(){xl.openNewTabPanel('sitemaps_index_nil', <%= sitemaps_path.to_json %>)}
+            }
+<% end -%>
 <% if current_user_is_account_owner? -%>
             ,{
               text:"Categories"
