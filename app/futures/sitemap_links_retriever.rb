@@ -336,6 +336,13 @@ class SitemapLinksRetriever < SpiderFuture
     complete!
   end
 
+  def root=(root_value)
+    self.args[:root] = root_value
+  end
+  
+  def root
+    self.args[:root]
+  end
   
   def domain_name
     self.root.to_s.split("/").map(&:strip).reject(&:blank?)[1]
