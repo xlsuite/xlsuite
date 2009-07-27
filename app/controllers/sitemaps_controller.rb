@@ -293,7 +293,7 @@ class SitemapsController < ApplicationController
     @sitemap = Sitemap.first(:conditions => {:domain_id => self.current_domain.id, :position => params[:id].to_i})
     respond_to do |format|
       format.xml do
-        render(:text => @sitemap.text)
+        render(:xml => @sitemap.text)
       end
     end
   end
