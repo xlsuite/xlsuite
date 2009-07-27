@@ -280,7 +280,14 @@
 # 		     END OF TERMS AND CONDITIONS
 class SitemapsController < ApplicationController
   layout :nothing
-  skip_before_filter :login_required
+  required_permissions :none
+  skip_before_filter :login_required, :only => [:show]
+  
+  def index
+    respond_to do |format|
+      format.js
+    end
+  end
   
   def show
     domain_id = self.current_domain.id
@@ -291,5 +298,22 @@ class SitemapsController < ApplicationController
         render(:text => @sitemap.text)
       end
     end
+  end
+  
+  def create
+    domain = Domain.find(params[:domain_id])
+    future = SitemapLinksRetriever.new(:account => self.current_account, :owner => self.current_account.owner,
+      :root => ("http://" + domain.name))
+    respond_to do |format|
+      format.js do
+        render(:json => {:success => future.save}.to_json)
+      end
+    end
+  end
+  
+  protected
+  def authorized?
+    return false unless self.current_user?
+    self.current_user.can?(:edit_pages)
   end
 end
