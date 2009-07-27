@@ -47,6 +47,7 @@ Liquid::Template.register_tag('load_snippets', XlSuite::LoadSnippets)
 Liquid::Template.register_tag('load_testimonials', XlSuite::LoadTestimonials)
 Liquid::Template.register_tag('load_tags', XlSuite::LoadTags)
 Liquid::Template.register_tag('paginate', XlSuite::Paginate)
+Liquid::Template.register_tag('render_sitemap_index', XlSuite::RenderSitemapIndex)
 
 Liquid::Template.register_tag('load_xlsuite_public_images', XlSuite::LoadXlsuitePublicImages)
 
