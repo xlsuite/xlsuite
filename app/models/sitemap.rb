@@ -39,7 +39,7 @@ class Sitemap < ActiveRecord::Base
     level = sitemap_link.url.split("/").reject(&:blank?).size - 2
     frequency = freq[level]
     frequency = freq.last if frequency.blank?
-    self.text << %Q`<url><loc>#{t_link}</loc><lastmod>#{sitemap_link.updated_at.strftime("%Y-%m-%d")}</lastmod><changefreq>#{frequency}</changefreq><priority>0.5</priority></url>`
+    self.text << %Q`<url><loc>#{t_link}</loc><lastmod>#{sitemap_link.updated_at.strftime("%Y-%m-%d")}</lastmod><changefreq>#{frequency}</changefreq><priority>0.5</priority></url>\n`
     true
   end
   
