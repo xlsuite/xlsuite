@@ -349,7 +349,7 @@ class SpiderFuture < Future
   end
 
   def want_to_spider?(uri)
-    same_host?(root, uri) && !visited_uris.include?(uri)
+    self.same_host?(root, uri) && !self.visited_uris.include?(uri)
   end
 
   def each_link_on(uri, page)
