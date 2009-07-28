@@ -303,9 +303,9 @@ class FulltextRow < ActiveRecord::Base
     
     def count_results(query, options={})
       return 0 if query.length < MINIMUM_QUERY_LENGTH
-
-      condition_option = [fulltext(query), options.delete(:conditions)].reject(&:blank?).join(" AND ")
-      self.count(options.merge(:conditions => condition_option))
+      with_scope(:find => {:conditions => fulltext(query)}) do
+        self.count(:all, :conditions => options.delete(:conditions))
+      end
     end
 
     # Searches for instances of the specified class.  Returns instances of
