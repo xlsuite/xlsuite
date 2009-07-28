@@ -305,8 +305,8 @@ class SitemapLinksRetriever < SpiderFuture
     agent = WWW::Mechanize.new
     uris_to_visit << root
 
-    while uri = uris_to_visit.shift
-      visited_uris << uri
+    while uri = self.uris_to_visit.shift
+      @visited_uris << uri
       self.remember_uri!(uri)
 
       begin
@@ -325,15 +325,15 @@ class SitemapLinksRetriever < SpiderFuture
         new_uri.normalize! 
 
         # See if we should visit this URI at a later date
-        uris_to_visit << new_uri if want_to_spider?(new_uri)
+        @uris_to_visit << new_uri if want_to_spider?(new_uri)
       end
 
-      uris_to_visit.uniq!
+      self.uris_to_visit.uniq!
     end
     Sitemap.create_sitemaps_of!(self.domain)
     self.finalize
 
-    complete!
+    self.complete!
   end
 
   def root_raw_value=(root_value)
@@ -361,7 +361,6 @@ class SitemapLinksRetriever < SpiderFuture
   end
 
   def process(uri, page)
-    puts("Processing " + uri.to_s)
     if uris_to_visit.length.zero? then
       status!(:importing)
     else
