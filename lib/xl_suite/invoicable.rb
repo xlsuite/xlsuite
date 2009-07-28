@@ -195,14 +195,16 @@ module XlSuite
       subtotal = Money.zero(currency)
       subtotal += products_amount(currency) if fst_active? && apply_fst_on_products?
       subtotal += labor_amount(currency) if fst_active? && apply_fst_on_labor?
-      subtotal + fees_amount(currency)
+      subtotal += fees_amount(currency) if fst_active? && apply_fst_on_products?
+      subtotal
     end
 
     def pst_subtotal_amount(currency=Money.default_currency)
       subtotal = Money.zero(currency)
       subtotal += products_amount(currency) if pst_active? && apply_pst_on_products?
       subtotal += labor_amount(currency) if pst_active? && apply_pst_on_labor?
-      subtotal + fees_amount(currency)
+      subtotal += fees_amount(currency) if pst_active? && apply_pst_on_products?
+      subtotal
     end
 
     def balance(currency=Money.default_currency)

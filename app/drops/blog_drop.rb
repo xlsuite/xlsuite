@@ -30,11 +30,11 @@ class BlogDrop < Liquid::Drop
   end
 
   def posts
-    self.blog.posts.published.by_publication_date
+    self.blog.posts.published.by_publication_date.map(&:to_liquid)
   end
   
   def all_posts
-    self.blog.posts.by_publication_date
+    self.blog.posts.by_publication_date.map(&:to_liquid)
   end
   
   def posts_tags

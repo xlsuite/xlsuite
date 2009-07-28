@@ -77,14 +77,14 @@ class SpiderFuture < Future
 
   def each_link_on(uri, page)
     current_link = nil
-    begin
-      page.links.each do |link|
+    page.links.each do |link|
+      begin
         current_link = link
         yield new_link(uri, link.href)
-      end if page.respond_to?(:links)
-    rescue
-      log_link_error($!, uri, current_link)
-    end
+      rescue
+        log_link_error($!, uri, current_link)
+      end
+    end if page.respond_to?(:links)
 
     current_link = nil
     begin
@@ -146,7 +146,7 @@ class SpiderFuture < Future
       base_uri.merge(target.to_s)
     rescue URI::InvalidURIError
       # Try again, but encode the target first
-      base_uri.merge(target.gsub(" ", "+"))
+      base_uri.merge(target.gsub(/\s/, "+").gsub(",", "%2C").gsub("|","%7C"))
     end
   end
 

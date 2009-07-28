@@ -15,8 +15,8 @@ class GroupDrop < Liquid::Drop
   end
   
   def profile_member_of
-    return false unless self.context && self.context["profile"] && self.context["profile"].party
-    self.context["profile"].party.member_of?(self.group)
+    return false unless self.context && self.context.scopes.last["profile"] && self.context.scopes.last["profile"].party
+    self.context.scopes.last["profile"].party.member_of?(self.group)
   end
   
   def description

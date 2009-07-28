@@ -109,39 +109,39 @@ class ProfileDrop < Liquid::Drop
   end
   
   def blogs
-    self.profile.party.blogs
+    self.profile.party.blogs.map(&:to_liquid)
   end
   
   def blog_posts
-    self.profile.party.blog_posts.published.by_publication_date
+    self.profile.party.blog_posts.published.by_publication_date.map(&:to_liquid)
   end
   
   def created_listings
-    self.profile.party.created_listings
+    self.profile.party.created_listings.map(&:to_liquid)
   end
   
   def created_groups
-    self.profile.party.created_groups
+    self.profile.party.created_groups.map(&:to_liquid)
   end
   
   def public_groups
-    self.profile.party.created_groups.public
+    self.profile.party.created_groups.public.map(&:to_liquid)
   end
   
   def private_groups
-    self.profile.party.created_groups.private
+    self.profile.party.created_groups.private.map(&:to_liquid)
   end
   
   def joined_groups
-    self.profile.party.groups
+    self.profile.party.groups.map(&:to_liquid)
   end
   
   def joined_public_groups
-    self.profile.party.groups.public
+    self.profile.party.groups.public.map(&:to_liquid)
   end
   
   def joined_private_groups
-    self.profile.party.groups.private
+    self.profile.party.groups.private.map(&:to_liquid)
   end
   
   def company_name_or_full_name

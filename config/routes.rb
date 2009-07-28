@@ -51,6 +51,8 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :categories, :path_prefix => "/admin",
     :collection => {:destroy_collection => :delete}
   
+  map.resources :sitemaps, :path_prefix => "/admin"
+  
   map.resources :public_interests, :path_prefix => "/admin/public", :as => "interests", :controller => "public/interests", 
     :collection => {:destroy_collection => :delete}
   map.resources :public_groups, :path_prefix => "/admin/public", :as => "groups", :controller => "public/groups", 

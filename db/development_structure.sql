@@ -577,6 +577,7 @@ CREATE TABLE `comments` (
   `spam` tinyint(1) default '1',
   `domain_id` int(11) default NULL,
   `point_added` tinyint(1) default '0',
+  `sent_email_notification` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
   KEY `by_commentable` (`commentable_type`,`commentable_id`),
   KEY `by_account` (`account_id`,`commentable_type`,`commentable_id`)
@@ -1694,6 +1695,10 @@ CREATE TABLE `parties` (
   `confirmed_at` datetime default NULL,
   `confirmed` tinyint(1) default '0',
   `twitter_username` varchar(255) default NULL,
+  `profile_comment_notification` tinyint(1) default '1',
+  `blog_post_comment_notification` tinyint(1) default '1',
+  `listing_comment_notification` tinyint(1) default '1',
+  `product_comment_notification` tinyint(1) default '1',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `by_account_token` (`account_id`,`token`),
   UNIQUE KEY `by_profile` (`profile_id`),
@@ -2168,6 +2173,27 @@ CREATE TABLE `shared_email_accounts` (
   `target_id` int(11) default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `sitemap_links` (
+  `id` int(11) NOT NULL auto_increment,
+  `domain_id` int(11) default NULL,
+  `url` varchar(2048) default NULL,
+  `created_at` datetime default NULL,
+  `updated_at` datetime default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `index_sitemap_links_on_domain_id_and_url` (`domain_id`,`url`(255))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `sitemaps` (
+  `id` int(11) NOT NULL auto_increment,
+  `domain_id` int(11) default NULL,
+  `position` int(11) default NULL,
+  `text` mediumblob,
+  `created_at` datetime default NULL,
+  `updated_at` datetime default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `by_domain_position` (`domain_id`,`position`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `sort_lines` (
   `id` int(11) NOT NULL auto_increment,
@@ -2885,10 +2911,18 @@ INSERT INTO schema_migrations (version) VALUES ('20090717001306');
 
 INSERT INTO schema_migrations (version) VALUES ('20090717230752');
 
+INSERT INTO schema_migrations (version) VALUES ('20090718002539');
+
 INSERT INTO schema_migrations (version) VALUES ('20090721023746');
 
 INSERT INTO schema_migrations (version) VALUES ('20090721212911');
 
+INSERT INTO schema_migrations (version) VALUES ('20090721230557');
+
 INSERT INTO schema_migrations (version) VALUES ('20090721233525');
 
 INSERT INTO schema_migrations (version) VALUES ('20090721235927');
+
+INSERT INTO schema_migrations (version) VALUES ('20090724213351');
+
+INSERT INTO schema_migrations (version) VALUES ('20090725020416');
