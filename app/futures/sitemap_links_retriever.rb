@@ -310,7 +310,9 @@ class SitemapLinksRetriever < SpiderFuture
       self.remember_uri!(uri)
 
       begin
+        #puts "About to process #{uri.to_s}"
         page = agent.get(uri)
+        #puts "Processing #{uri.to_s}"
         self.process(uri, page)
       rescue WWW::Mechanize::ResponseCodeError, SocketError, SystemCallError
         log_link_error($!, uri)
@@ -325,10 +327,14 @@ class SitemapLinksRetriever < SpiderFuture
         new_uri.normalize! 
 
         # See if we should visit this URI at a later date
-        @uris_to_visit << new_uri if want_to_spider?(new_uri)
+        if want_to_spider?(new_uri)
+          @uris_to_visit << new_uri 
+        end
       end
 
       self.uris_to_visit.uniq!
+      #puts "visited URIS #{self.visited_uris.size}"
+      #puts "URIS to be visited #{self.uris_to_visit.size}"
     end
     Sitemap.create_sitemaps_of!(self.domain)
     self.finalize
@@ -409,6 +415,8 @@ class SitemapLinksRetriever < SpiderFuture
 
   def want_to_spider?(uri)
     results[:candidates] << uri.to_s
+    return false if self.uris_to_visit.include?(uri)
+    return false if uri.to_s.split(".").last =~ /(css|js)/i    
     super
   end
 end
