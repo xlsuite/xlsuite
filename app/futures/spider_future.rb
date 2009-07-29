@@ -72,7 +72,7 @@ class SpiderFuture < Future
   end
 
   def want_to_spider?(uri)
-    same_host?(root, uri) && !visited_uris.include?(uri)
+    self.same_host?(root, uri) && !self.visited_uris.include?(uri)
   end
 
   def each_link_on(uri, page)
@@ -164,7 +164,9 @@ class SpiderFuture < Future
       #  www.mydomain.com == mydomain.com
       #  jim.mydomain.com == john.mydomain.com
       #  mydomain.com == mydomain.com
-      uri0.normalize.host.split(".")[-2..-1] == uri1.normalize.host.split(".")[-2..-1]
+      uri0_host = uri0.normalize.host.split(".").map(&:strip).reject{|e| "www"}
+      uri1_host = uri1.normalize.host.split(".").map(&:strip).reject{|e| "www"}
+      uri0_host.join(".") == uri1_host.join(".")
     end
   end
 end
