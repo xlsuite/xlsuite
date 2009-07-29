@@ -296,10 +296,10 @@ class String
       result.gsub!(/['"]/, '')
   
       # strip all non word chars
-      result.gsub!(/\W/, ' ')
+      result.gsub!(/[^A-Za-z0-9_\-]/i, ' ')
   
       # replace all white space sections with a dash
-      result.gsub!(/\ +/, '-')
+      result.gsub!(/\s+/, '-')
   
       # trim dashes
       result.gsub!(/(-)$/, '')
