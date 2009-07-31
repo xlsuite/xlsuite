@@ -441,8 +441,8 @@ class SpiderFuture < Future
       #  www.mydomain.com == mydomain.com
       #  jim.mydomain.com == john.mydomain.com
       #  mydomain.com == mydomain.com
-      uri0_host = uri0.normalize.host.split(".").map(&:strip).reject{|e| "www"}
-      uri1_host = uri1.normalize.host.split(".").map(&:strip).reject{|e| "www"}
+      uri0_host = uri0.host.split(".").map(&:strip).reject{|e| e =~ /\Awww\Z/i}
+      uri1_host = uri1.host.split(".").map(&:strip).reject{|e| e =~ /\Awww\Z/i}
       uri0_host.join(".") == uri1_host.join(".")
     end
   end
