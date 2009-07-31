@@ -303,6 +303,7 @@ class SitemapLinksGenerator < Future
   end
   
   def run
+    self.update_attributes({:started_at => Time.now.utc, :status => "generating"})
     # setting current_domain and current_account
     current_domain = self.domain
     current_account = self.domain.account
@@ -351,6 +352,9 @@ class SitemapLinksGenerator < Future
         self.urls_to_visit << url if self.follow?(url)
       end
     end
+
+    Sitemap.create_sitemaps_of!(self.domain)
+    self.complete!
   end
   
   protected
