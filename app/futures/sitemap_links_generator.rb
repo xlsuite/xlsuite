@@ -320,7 +320,7 @@ class SitemapLinksGenerator < Future
     while new_url=self.urls_to_visit.shift
       self.visited_urls << new_url
 #      if new_url =~ /real-estate/i
-#      puts "Processing #{new_url}"
+      puts "Processing #{new_url}"
 #      end
       # get page object and params, proceed to the next url to be visited if page doesn't exist
       page, params = self.url_to_page(new_url)
@@ -360,7 +360,20 @@ class SitemapLinksGenerator < Future
   protected
   def correcting_url(new_url)
     new_url = new_url.strip.gsub(/#.*\Z/i, "")
-    new_url.gsub(/\s/, "+").gsub(",", "%2C").gsub("|","%7C")
+    url, params = new_url.split("?")
+    url = "" unless url
+    allow_param = false
+    if params # this is parameters of a url
+      params = params.split("&")
+      params.each do |t_param|
+        key, value = t_param.split("=")
+        if key =~ /(offset|\Apage\Z|\Apage_num\Z|\Aper_page\Z)/i
+          allow_param = true
+        end
+      end
+    end
+    url = new_url if allow_param
+    url.gsub(/\s/, "+").gsub(",", "%2C").gsub("|","%7C")
   end
   
   def get_links(nd)
