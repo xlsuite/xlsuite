@@ -452,13 +452,7 @@ class Party < ActiveRecord::Base
 
   def copy_contact_routes_to_profile!
     return false unless self.profile
-    %w(email_addresses links phones addresses).each do |cr_type|
-      self.send(cr_type).each do |cr|
-        profile_cr = cr.dup
-        profile_cr.routable = self.profile
-        profile_cr.save!
-      end
-    end
+    self.copy_routes_to(self.profile.reload)
     true
   end
   
