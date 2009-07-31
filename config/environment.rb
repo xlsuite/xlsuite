@@ -106,6 +106,8 @@ require "tmail_mail_extension"
 require "multiple_smtp_action_mailer"
 require 'hmac-sha1'
 
+require "nokogiri"
+
 Money.default_currency = 'CAD'
 InchesPerFeet = 12.0
 ItemsPerPage = 10 # 30 items per page, when navigation is required
