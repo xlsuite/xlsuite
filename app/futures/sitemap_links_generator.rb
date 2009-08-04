@@ -278,40 +278,189 @@
 # POSSIBILITY OF SUCH DAMAGES.
 # 
 # 		     END OF TERMS AND CONDITIONS
-class SitemapsController < ApplicationController
-  layout :nothing
-  required_permissions :none
-  skip_before_filter :login_required, :only => [:show]
+
+class SitemapLinksGenerator < Future
+  validate :presence_of_domain
   
-  def index
-    respond_to do |format|
-      format.js
-    end
+  attr_accessor :urls_to_visit
+  attr_accessor :visited_urls
+  attr_accessor :invalid_urls
+  
+  def domain_id=(num)
+    self.args[:domain_id] = num
   end
   
-  def show
-    @sitemap = Sitemap.first(:conditions => {:domain_id => self.current_domain.id, :position => params[:id].to_i})
-    respond_to do |format|
-      format.xml do
-        render(:xml => @sitemap.text)
-      end
-    end
+  def domain_id
+    self.args[:domain_id]
   end
   
-  def create
-    domain = Domain.find(params[:domain_id])
-    future = SitemapLinksGenerator.new(:account => self.current_account, :owner => self.current_account.owner,
-      :domain => domain)
-    respond_to do |format|
-      format.js do
-        render(:json => {:success => future.save}.to_json)
+  def domain=(new_domain)
+    self.domain_id = new_domain.id
+  end
+  
+  def domain
+    Domain.find(self.domain_id)
+  end
+  
+  def run
+    self.update_attributes({:started_at => Time.now.utc, :status => "generating"})
+    # setting current_domain and current_account
+    current_domain = self.domain
+    current_account = self.domain.account
+    # setting up fake cart object
+    cart = current_account.carts.build
+    cart.domain = current_domain
+    
+    # setting liquid options to be used for rendering a page
+    liquid_options = nil
+    self.urls_to_visit = []
+    self.visited_urls = []
+    self.invalid_urls = []
+    self.urls_to_visit << "/"
+    while new_url=self.urls_to_visit.shift
+      self.visited_urls << new_url
+#      if new_url =~ /real-estate/i
+      puts "Processing #{new_url}"
+#      end
+      # get page object and params, proceed to the next url to be visited if page doesn't exist
+      page, params = self.url_to_page(new_url)
+      next unless page
+      # add url to sitemap link
+      new_url = self.url_to_sitemap_link(new_url)
+      
+      # merging liquid options with current page url and render
+      # render_on_domain returns {:text => pagecontent, :content_type => type}
+      liquid_options = {:current_account => current_account, :current_account_owner => current_account.owner,
+        :tags => TagsDrop.new, :user_affiliate_username => "", :cart => cart,
+        :flash => {:errors => "", :messages => "", :notices => ""},
+        :current_page_url => new_url, :current_page_slug => URI.parse(new_url), 
+        :params => params, :logged_in => false}
+      render_options = page.render_on_domain(current_domain, liquid_options)
+      if render_options.kind_of?(Array) && render_options[0] && render_options[0].to_s == "redirect"
+        url = render_options[1]
+        self.urls_to_visit << url if self.follow?(url)
+        next
+      end
+#      if new_url =~ /real-estate/i
+#        RAILS_DEFAULT_LOGGER.debug("^^^render_options[:text] is #{render_options[:text]}")
+#      end
+      html_document = Nokogiri::HTML.parse(render_options[:text])
+      # get links on page
+      links_on_page = self.get_links(html_document)
+      links_on_page.each do |url|
+        url = self.correcting_url(url)
+        self.urls_to_visit << url if self.follow?(url)
       end
     end
+
+    Sitemap.create_sitemaps_of!(self.domain)
+    self.complete!
   end
   
   protected
-  def authorized?
-    return false unless self.current_user?
-    self.current_user.can?(:edit_pages)
+  def correcting_url(new_url)
+    new_url = new_url.strip.gsub(/#.*\Z/i, "")
+    url, params = new_url.split("?")
+    url = "" unless url
+    allow_param = false
+    if params # this is parameters of a url
+      params = params.split("&")
+      params.each do |t_param|
+        key, value = t_param.split("=")
+        if key =~ /(offset|\Apage\Z|\Apage_num\Z|\Aper_page\Z)/i
+          allow_param = true
+        end
+      end
+    end
+    url = new_url if allow_param
+    url.gsub(/\s/, "+").gsub(",", "%2C").gsub("|","%7C")
+  end
+  
+  def get_links(nd)
+    links = []
+    nd.css("a").each do |el|
+      links << el["href"] if el["href"]
+    end
+    links
+  end
+  
+  def url_to_page(url)
+    begin
+      t_paths, t_params = url.gsub(/\Ahttp:\/\/#{self.domain.name.gsub(".","\.")}/i, "").split("?")
+      t_paths.gsub!(/\/\Z/i, "") if (t_paths && t_paths != "/")
+      t_paths = "/" if t_paths.blank?
+      
+      # get page with its params
+      page, page_params = self.domain.recognize!(t_paths)
+
+      params = {}
+      if t_params
+        t_params.gsub!(/#.*/i, "")
+        t_params = t_params.split("&") 
+        t_params.each do |t_param|
+          key, value = t_param.split("=")
+          # sometimes a param doesn't have value
+          params[key] = CGI::unescape(value) if value
+        end
+      end
+      params.merge!(page_params)
+      
+      [page, params]
+    rescue ActiveRecord::RecordNotFound => e
+#      puts url + " cannot be found"
+      [nil, {}]
+    end
+  end
+  
+  def url_to_sitemap_link(new_url)
+    if new_url !~ /\Ahttps?:\/\//i
+      new_url = "http://#{self.domain.name}" + new_url
+    end
+    new_url.gsub!(/\/\Z/i, "")
+    link = SitemapLink.new(:url => new_url, :domain_id => self.domain.id)
+    created = link.save    
+    new_url
+  end
+  
+  def follow?(url)
+    result = false
+    begin
+      return false if self.invalid_urls.include?(url)
+      result = self.same_host?(url)
+    rescue URI::InvalidURIError => e
+#      puts "Invalid #{url.to_s}"
+      self.invalid_urls << url
+      result = false
+    end
+    result && !self.visited_urls.include?(url) && !self.urls_to_visit.include?(url)
+  end
+
+  def same_host?(tester)
+    root = URI.parse("http://#{self.domain.name}")
+    tester = URI.parse(tester)
+    uri0 = root.normalize
+    uri1 = tester.normalize
+
+    case
+    when uri0.absolute? && !uri1.absolute?
+      true # uri1 is not absolute, hence it refers to the same domain
+    when uri0.scheme != uri1.scheme
+      false # Difference scheme: ftp vs http, http vs mailto
+    else
+      # Check only the top-level domain:
+      #  www.mydomain.com == mydomain.com
+      #  jim.mydomain.com == john.mydomain.com
+      #  mydomain.com == mydomain.com
+      uri0_host = uri0.host.split(".").map(&:strip).reject{|e| e =~ /\Awww\Z/i}
+      uri1_host = uri1.host.split(".").map(&:strip).reject{|e| e =~ /\Awww\Z/i}
+      uri0_host.join(".") == uri1_host.join(".")
+    end
+  end
+  
+  def presence_of_domain
+    if self.domain.blank?
+      errors.add_to_base("Domain cannot be found")
+      return false
+    end
   end
 end

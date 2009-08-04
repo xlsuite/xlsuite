@@ -90,8 +90,9 @@ class Import < ActiveRecord::Base
       process "span.phoneNumber span.hiLiteThis", :number => :text
       process "td[width='100%'] a#mapLink0", :url => :text
       process "td[width='100%'] a[name*='lid=email']", :email => :text
+      process "td.icon table tr td img:not([src='/images/th_frame.gif'])" , :image => "@src"
       process "span.address", :address => :text
-      result :company, :number, :url, :email, :address
+      result :company, :number, :url, :email, :image, :address
     end
     
     page = Scraper.define do
@@ -124,7 +125,7 @@ class Import < ActiveRecord::Base
           address_array = entry.address.to_s.split(',')
           address_array = [""] if address_array.empty?
           csv << "#{entry.company.gsub(",", "") if entry.company}, #{entry.email.gsub(",", "") if entry.email}, #{entry.number.gsub(",", "") if entry.number}, #{entry.url.gsub(",", "") if entry.url}, "
-          csv << "#{get_line1(address_array).strip}, #{get_city(address_array).strip}, #{get_state(address_array).strip}, #{get_postal(address_array).strip}"
+          csv << "#{get_line1(address_array).strip}, #{get_city(address_array).strip}, #{get_state(address_array).strip}, #{get_postal(address_array).strip}, #{entry.image.strip if entry.image}"
           csv << "\n"
         end unless entries.blank?
         self.last_scraped_url = url.unshift(root_url).join("/")
@@ -172,14 +173,14 @@ class Import < ActiveRecord::Base
     
     begin
       while !url.blank?
-      logger.debug('/'+url.join('/'))
+        logger.debug('/'+url.join('/'))
         Net::HTTP.start(root_url) {|http|
           http.request_get('/'+url.join('/')) {|res|
             html = res.read_body
             logger.debug("^^^#{url}")
           }
         }
-      
+        
         entries = page.scrape(html)
         entries.each do |entry|
           next if self.mappings[:exclude_no_email] && (entry.email.blank? || entry.email.gsub('mailto:', '').gsub(",", "").blank?)
@@ -192,7 +193,7 @@ class Import < ActiveRecord::Base
         url = paginator.scrape(html)
         url = url.gsub("&amp;", "&").split('/').reject(&:blank?) unless url.blank?
       end
-
+      
       self.csv = csv
       self.save!
     rescue
@@ -208,10 +209,10 @@ class Import < ActiveRecord::Base
         self.scrape!
       end
       self.update_attribute(:state, "Importing...")
-  
+      
       mapper             = Mapper.new(:account_id => self.account.id)
       mapper.mappings    = self.mappings
-  
+      
       header_lines_count = self.mappings[:header_lines_count].to_i
       tag_list_field     = self.mappings[:tag_list]
       create_profile     = self.mappings[:create_profile]
@@ -224,12 +225,12 @@ class Import < ActiveRecord::Base
             raise "aborting" if row[0] == "c"
             import_row(row, mapper, tag_list_field, create_profile, group)
           end
-
+          
           # Prepare for next round, in case of a crash
           self.update_attribute(:imported_rows_count, self.imported_rows_count + rows.length)
         end
       end
-
+      
       raise ImportAbortedByErrors if !self.import_errors.blank? && !self.force?
       self.update_attribute(:state, "Imported")
     rescue ImportAbortedByErrors
@@ -241,12 +242,12 @@ class Import < ActiveRecord::Base
       self.update_attribute("state", "Scrape Failed")
     end
   end
-
+  
   def total_rows_count
     return 0 if self.csv.blank?
     @total_rows_count ||= FasterCSV.parse(self.csv).length - self.mappings[:header_lines_count].to_i
   end
-
+  
   def import_row(row, mapper, tag_list_field, create_profile, group)
     party = mapper.to_object(row)
     return party.destroy if party.email_addresses.map(&:email_address).blank? && self.mappings[:exclude_no_email]
@@ -255,10 +256,10 @@ class Import < ActiveRecord::Base
     party = resolve_conflicts(party)
     resolved_party_id = party.id
     party.tag_list = party.tag_list << " #{tag_list_field}"
-
+    
     party.created_by = self.party
     party.groups << group if group && !party.member_of?(group)
-
+    
     if create_profile then
       unless party.profile
         profile = party.to_new_profile
@@ -274,14 +275,14 @@ class Import < ActiveRecord::Base
     else
       party.save!
     end
-
+    
     self.imported_lines << true
   rescue ActiveRecord::RecordInvalid
     party.destroy if party && (initial_party_id == resolved_party_id)
     self.import_errors << [row, $!.record.errors.full_messages]
     self.imported_lines << false
   end
-
+  
   def resolve_conflicts(new_party)
     addresses = new_party.email_addresses.map(&:email_address)
     
@@ -290,11 +291,11 @@ class Import < ActiveRecord::Base
     routes.reject!{|r|r.routable_type != "Party"}
     logger.debug("^^^#{routes.inspect}")
     case routes.map(&:routable_id).uniq.size
-    when 0
+      when 0
       # None match, return the new party
       #RAILS_DEFAULT_LOGGER.debug("I am a new party")
       new_party
-    when 1
+      when 1
       # Party already on file, update instead of create
       #RAILS_DEFAULT_LOGGER.debug("Existing party found")
       party = routes.first.routable

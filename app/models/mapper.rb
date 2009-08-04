@@ -40,6 +40,7 @@ class Mapper < ActiveRecord::Base
         elsif mapping[:field] =~ /email_address/i
           obj.send("#{mapping[:field]}=", extract_email(tr_row_column))
         elsif mapping[:field] =~ /avatar/i
+          tr_row_column = tr_row_column.strip if tr_row_column
           if tr_row_column =~ /\A(?:ftp|https?):\/\/.*\Z/i
             # external url
             asset = self.account.assets.create!(:external_url => tr_row_column)

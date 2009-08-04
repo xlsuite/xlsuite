@@ -76,7 +76,8 @@ class ImportsController < ApplicationController
                                                         "5"=>{:name=>"Main", :field=>"line1", :tr=>"As-is", :model=>"AddressContactRoute"},
                                                         "6"=>{:name=>"Main", :field=>"city", :tr=>"As-is", :model=>"AddressContactRoute"}, 
                                                         "7"=>{:name=>"Main", :field=>"state", :tr=>"As-is", :model=>"AddressContactRoute"}, 
-                                                        "8"=>{:name=>"Main", :field=>"zip", :tr=>"As-is", :model=>"AddressContactRoute"} }}))
+                                                        "8"=>{:name=>"Main", :field=>"zip", :tr=>"As-is", :model=>"AddressContactRoute"},
+                                                        "9"=>{:name=>"", :field=>"avatar", :tr=>"As-is", :model=>"Party"} }}))
                    
     @import.save!
     MethodCallbackFuture.create!(:model => @import, :method => :go!, :account => current_account, :owner => current_user)

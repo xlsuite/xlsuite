@@ -38,7 +38,7 @@ class ContactRoute < ActiveRecord::Base
   def copy_to(target)
     #RAILS_DEFAULT_LOGGER.debug("I am in copy_to")
     self.class.name.constantize.content_columns.map(&:name).each do |column|
-      next if column =~ /position/i
+      next if column =~ /(position|routable_type)/i
       target.send("#{column}=", self.send(column))
     end
     #RAILS_DEFAULT_LOGGER.debug("I am in copy_to before save!")
