@@ -69,17 +69,6 @@ module TestimonialsHelper
   end
   
   def initialize_edit_author_auto_complete_field
-    if @testimonial.author.nil?
-    %Q`
-      var authorAutoCompleteField = new Ext.form.TextField({
-        name: "testimonial[author_id]",
-        fieldLabel: "Author",
-        width: 480,
-        disabled: true,
-        value: #{@testimonial.author_name.to_json}
-      });
-    `
-    else
     %Q`
       // set up connection and data store of autocomplete field
       var partyNameAutoCompleteRecord = new Ext.data.Record.create([
@@ -93,8 +82,8 @@ module TestimonialsHelper
       var partyNameAutoCompleteStore = new Ext.data.Store({proxy: partyNameAutoCompleteProxy, reader: partyNameAutoCompleteReader});
 
       var authorPartyRecord = new partyNameAutoCompleteRecord({
-        display: #{self.party_auto_complete_display(@testimonial.author).to_json},
-        id: #{@testimonial.author.id.to_json}
+        display: #{(@testimonial.author.nil? ? "" : self.party_auto_complete_display(@testimonial.author)).to_json},
+        id: #{(@testimonial.author.nil? ? "" : @testimonial.author.id).to_json}
       });
       partyNameAutoCompleteStore.add([authorPartyRecord]);
 
@@ -108,16 +97,14 @@ module TestimonialsHelper
         forceSelection: true,
         minChars: 0,
         width: 480,
-        allowBlank: false,
-        value: #{self.party_auto_complete_display(@testimonial.author).to_json},
+        value: #{(@testimonial.author.nil? ? "" : self.party_auto_complete_display(@testimonial.author)).to_json},
         disabled: #{current_user.can?(:edit_testimonials) ? "false" : "true"},
         listeners: {
           render: function(cpt){
-            cpt.hiddenField.setValue(#{@testimonial.author.id.to_json});
+            cpt.hiddenField.setValue(#{(@testimonial.author.nil? ? "" : @testimonial.author.id).to_json});
           }
         }
       });
     `
-    end
   end
 end
