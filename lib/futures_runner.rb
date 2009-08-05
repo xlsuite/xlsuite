@@ -287,6 +287,7 @@ class FuturesRunner
   # Using prime numbers lowers the probability of having each
   # future runner trying to do something at the same time.
   SLEEP_TIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+  SMALL_SLEEP_TIMES = [2, 3]
 
   def self.start(instance_id=0)
     @runner = FuturesRunner.new(instance_id)
@@ -296,6 +297,10 @@ class FuturesRunner
 
   def self.select_random_sleep_time
     SLEEP_TIMES[rand(SLEEP_TIMES.length)]
+  end
+  
+  def self.select_random_small_sleep_time
+    SMALL_SLEEP_TIMES[rand(SMALL_SLEEP_TIMES.length)]
   end
 
   def self.install_signal_handlers
@@ -311,38 +316,43 @@ class FuturesRunner
   def initialize(instance_id)
     @instance_id = instance_id
     @running = true
-    initialized!
+    self.initialized!
   end
 
   def start(sleep_time)
-    starting!(sleep_time)
+    self.starting!(sleep_time)
 
     loop do
-      break unless running?
-      sleeping!
+      break unless self.running?
+      self.sleeping!
       sleep(sleep_time)
-      break unless running?
+      break unless self.running?
 
       future = nil
 
       begin
         future = nil
-        searching!
-        self.acquire_lock do
-          future = self.find_next_executable_runner
-          future.update_attribute(:started_at, Time.now.utc) if future
+        self.searching!
+        if self.is_lock_free?
+          self.acquire_lock do
+            future = self.find_next_executable_runner
+            future.update_attribute(:started_at, Time.now.utc) if future
+          end
+        else
+          sleep(self.class.select_random_small_sleep_time)
+          next
         end
 
         if future then
-          if running? then
+          if self.running? then
             begin
-              running!(future)
+              self.running!(future)
               future.execute
             ensure
-              done!(future)
+              self.done!(future)
             end
           else
-            cancel!(future)
+            self.cancel!(future)
             future.update_attribute(:started_at, nil)
           end
         end
@@ -363,7 +373,7 @@ class FuturesRunner
       end
     end
 
-    stopped!
+    self.stopped!
   end
 
   def state_filename
@@ -371,42 +381,42 @@ class FuturesRunner
   end
 
   def running!(future)
-    change_state!("RUNNING", future)
+    self.change_state!("RUNNING", future)
     log "RUNNING #{future.id}:#{future.class.name}\t#{future.args.inspect}"
   end
 
   def done!(future)
-    change_state!("DONE", future)
+    self.change_state!("DONE", future)
     log "DONE #{future.id}:#{future.class.name}\t#{future.args.inspect}"
   end
 
   def cancel!(future)
-    change_state!("CANCELLING", future)
+    self.change_state!("CANCELLING", future)
     log "CANCELLING will not execute #{future.id}:#{future.class.name}"
   end
 
   def searching!
-    change_state!("SEARCHING")
+    self.change_state!("SEARCHING")
     debug "SEARCHING for work"
   end
 
   def sleeping!
-    change_state!("SLEEPING")
+    self.change_state!("SLEEPING")
     debug "SLEEPING"
   end
 
   def stopped!
-    change_state!("STOPPED")
+    self.change_state!("STOPPED")
     log "STOPPED gracefully"
   end
 
   def starting!(sleep_time)
-    change_state!("STARTING")
+    self.change_state!("STARTING")
     log "STARTING sleep_time = #{sleep_time}"
   end
 
   def initialized!
-    change_state!("INITIALIZED")
+    self.change_state!("INITIALIZED")
     log "INITIALIZED FuturesRunner in #{RAILS_ENV} environment"
   end
 
@@ -420,6 +430,11 @@ class FuturesRunner
 
   def running?
     @running
+  end
+  
+  def is_lock_free?
+    value = ActiveRecord::Base.connection.select_value("SELECT IS_FREE_LOCK('xlsuite.future-runner')")
+    value == "1"
   end
 
   def acquire_lock
