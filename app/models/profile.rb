@@ -404,7 +404,6 @@ class Profile < ActiveRecord::Base
       out << self.main_address.line2
       out << self.main_address.city
       out << self.main_address.state
-      out << self.main_address.country
       out << self.main_address.zip 
     end
     out.delete_if(&:blank?)
