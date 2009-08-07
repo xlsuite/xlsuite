@@ -1043,6 +1043,7 @@ class Account < ActiveRecord::Base
     target_acct = Account.find(options[:target_account_id])
     self.links.each do |link|
       new_link = target_acct.links.new(link.attributes_for_copy_to(target_acct))
+      new_link.approved = link.approved
       new_link.save(false)
       new_link.reload.copy_assets_from!(link)
     end
