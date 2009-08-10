@@ -11,6 +11,7 @@ class AdminMailer < ActionMailer::Base
     recipient_email_address = cr_recipient_email_address.join(",")
 
     default_request_contacts = current_domain.get_config(:default_request_contact).blank? ? current_domain.account.owner.main_email.email_address : current_domain.get_config(:default_request_contact)
+    default_request_contacts = default_request_contacts.split(",").map(&:strip).reject(&:blank?).join(",")
     
     recipient_email_address = default_request_contacts if recipient_email_address.blank?
   
