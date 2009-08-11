@@ -452,7 +452,16 @@ class AssetsController < ApplicationController
     %w(controller action filename id size).each do |p|
       params.delete(p)
     end
-    redirect_to @asset.authenticated_s3_url + "&#{params.to_param}"
+    
+    asset_url = ""
+    if @asset.private 
+      asset_url = @asset.authenticated_s3_url
+      asset_url += "&#{params.to_param}" unless params.empty? 
+    else 
+      asset_url = @asset.s3_url 
+      asset_url += "?#{params.to_param}") unless params.empty?
+    end
+    redirect_to asset_url
   end
 
   def new
