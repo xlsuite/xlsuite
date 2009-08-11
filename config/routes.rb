@@ -500,6 +500,8 @@ ActionController::Routing::Routes.draw do |map|
   map.connect ":controller/:id;:action" 
   map.connect "admin/:controller;:action"
   map.connect "admin/:controller/:id;:action" 
+  
+  map.connect "robots.txt", :controller => "pages", :action => "robots"
 
   map.with_options(:controller => "pages") do |m|
     m.home "/", :action => "show"

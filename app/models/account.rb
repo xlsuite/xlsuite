@@ -389,9 +389,9 @@ class Account < ActiveRecord::Base
           next if options[:exclude_pages].kind_of?(Enumerable) && options[:exclude_pages].include?(t_page.id)
           copy_attrs = page.attributes_for_copy_to(target_acct, options)
           copy_attrs.stringify_keys!
-          copy_attrs.delete("meta_description")
-          copy_attrs.delete("meta_keywords")
-          t_page.attributes = copy_attrs 
+          copy_attrs.delete("meta_description") unless t_page.meta_description.blank?
+          copy_attrs.delete("meta_keywords") unless t_page.meta_keywords.blank?
+          t_page.attributes = copy_attrs
         end
         t_page.save!
       end
