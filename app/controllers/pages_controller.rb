@@ -286,7 +286,7 @@ class PagesController < ApplicationController
   include ActionView::Helpers::TagHelper
 
   required_permissions :edit_pages
-  skip_before_filter :login_required, :check_account_expiration, :massage_dates_and_times, :find_emails, :reject_unconfirmed_user, :only => :show
+  skip_before_filter :login_required, :check_account_expiration, :massage_dates_and_times, :find_emails, :reject_unconfirmed_user, :only => [:show, :robots]
   before_filter :load_page_by_id, :only => %w(edit update destroy embed_code revisions revision)
   before_filter :load_layouts, :only => %w(index new edit)
   before_filter :check_write_access, :only => %w(edit update destroy)
@@ -573,6 +573,22 @@ class PagesController < ApplicationController
         render :json => @revision_page.to_json
       end
     end
+  end
+  
+  def robots
+    @page = nil
+    begin
+    self.load_page_by_slug
+    rescue ActiveRecord::RecordNotFound
+    end
+    robots_txt = if @page
+        @page.body
+      else 
+%Q`User-agent: *
+Request-rate: 1/5
+Crawl-delay: 5`
+      end
+    render :text => robots_txt, :content_type => "text/plain"
   end
 
   protected
