@@ -459,7 +459,7 @@ class AssetsController < ApplicationController
       asset_url += "&#{params.to_param}" unless params.empty? 
     else 
       asset_url = @asset.s3_url 
-      asset_url += "?#{params.to_param}") unless params.empty?
+      asset_url += "?#{params.to_param}" unless params.empty?
     end
     redirect_to asset_url
   end
