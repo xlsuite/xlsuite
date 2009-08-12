@@ -590,6 +590,21 @@ Crawl-delay: 7`
       end
     render :text => robots_txt, :content_type => "text/plain"
   end
+  
+  def convert_to_snippet
+    @pages = Page.find(params[:ids].split(",").map(&:strip).map(&:to_i))
+    failed_pages = []
+    @pages.each do |page|
+      unless page.convert_to_snippet
+        failed_pages = page.fullslug
+      end
+    end
+    respond_to do |format|
+      format.js do
+        render(:json => {:success => failed_pages.empty?, :failed_pages => failed_pages}.to_json)
+      end
+    end
+  end
 
   protected
   def process_page_params
