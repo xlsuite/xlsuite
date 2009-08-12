@@ -301,7 +301,7 @@ class ProfileDrop < Liquid::Drop
   end
   
   def avatar_url
-    self.profile.avatar ? "/admin/assets/#{profile.avatar_id}/download?size=mini" : "/images/Mr-Smith.jpg"
+    self.profile.avatar ? Asset.find(profile.avatar_id).s3_url : "/images/Mr-Smith.jpg"
   end
 
   def name
