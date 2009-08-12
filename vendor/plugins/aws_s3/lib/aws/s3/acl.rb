@@ -385,7 +385,7 @@ module AWS
       class Grantee
         include SelectiveAttributeProxy #:nodoc:
         
-        undef_method :id # Get rid of Object#id
+        undef_method :id if method_defined?(:id) # Get rid of Object#id
         
         def initialize(attributes = {})
           # Set default values for attributes that may not be passed in but we still want the object
@@ -528,7 +528,7 @@ module AWS
         #   bucket.acl(bucket.acl)
         def acl(reload = false)
           policy = reload.is_a?(ACL::Policy) ? reload : nil
-          memoize(reload) do
+          expirable_memoize(reload) do
             self.class.acl(name, policy) if policy
             self.class.acl(name)
           end
@@ -579,7 +579,7 @@ module AWS
         #   object.acl(object.acl)
         def acl(reload = false)
           policy = reload.is_a?(ACL::Policy) ? reload : nil
-          memoize(reload) do
+          expirable_memoize(reload) do
             self.class.acl(key, bucket.name, policy) if policy
             self.class.acl(key, bucket.name)
           end

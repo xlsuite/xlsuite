@@ -8,7 +8,7 @@ module AWS
     #   S3Object.store('me.jpg', open('headshot.jpg'), 'photos')
     #
     # The content type of the object will be inferred by its extension. If the appropriate content type can not be inferred, S3 defaults
-    # to <tt>binary/octect-stream</tt>.
+    # to <tt>binary/octet-stream</tt>.
     #
     # If you want to override this, you can explicitly indicate what content type the object should have with the <tt>:content_type</tt> option:
     # 
@@ -82,7 +82,7 @@ module AWS
     # 
     #   pp song.about
     #   {"last-modified"    => "Sat, 28 Oct 2006 21:29:26 GMT",
-    #    "content-type"     => "binary/octect-stream",
+    #    "content-type"     => "binary/octet-stream",
     #    "etag"             => "\"dc629038ffc674bee6f62eb64ff3a\"",
     #    "date"             => "Sat, 28 Oct 2006 21:30:41 GMT",
     #    "x-amz-request-id" => "B7BC68F55495B1C8",
@@ -107,10 +107,10 @@ module AWS
     #   pp song.metadata
     #   {"x-amz-meta-released" => "2005", 
     #     "x-amz-meta-album"   => "A River Ain't Too Much To Love"}
-    #   song.metada[:released]
+    #   song.metadata[:released]
     #   # => "2005"
-    #   song.metada[:released] = 2006
-    #   pp song.metada
+    #   song.metadata[:released] = 2006
+    #   pp song.metadata
     #   {"x-amz-meta-released" => 2006, 
     #    "x-amz-meta-album"    => "A River Ain't Too Much To Love"}
     class S3Object < Base
@@ -168,7 +168,7 @@ module AWS
           
           # We need to ensure the key doesn't have extended characters but not uri escape it before doing the lookup and comparing since if the object exists, 
           # the key on S3 will have been normalized
-          key    = key.remove_extended unless key.utf8?
+          key    = key.remove_extended unless key.valid_utf8?
           bucket = Bucket.find(bucket_name(bucket), :marker => key.previous, :max_keys => 1)
           # If our heuristic failed, trigger a NoSuchKey exception
           if (object = bucket.objects.first) && object.key == key
@@ -178,13 +178,15 @@ module AWS
           end
         end
         
-        # Makes a copy of the object with <tt>key</tt> to <tt>copy_name</tt>.
+        # Makes a copy of the object with <tt>key</tt> to <tt>copy_key</tt>, preserving the ACL of the existing object if the <tt>:copy_acl</tt> option is true (default false).
         def copy(key, copy_key, bucket = nil, options = {})
           bucket          = bucket_name(bucket)
-          original        = open(url_for(key, bucket))
-          default_options = {:content_type => original.content_type}
-          store(copy_key, original, bucket, default_options.merge(options))
-          acl(copy_key, bucket, acl(key, bucket))
+          source_key      = path!(bucket, key)
+          default_options = {'x-amz-copy-source' => source_key}
+          target_key      = path!(bucket, copy_key)
+          returning put(target_key, default_options) do
+            acl(copy_key, bucket, acl(key, bucket)) if options[:copy_acl]
+          end
         end
         
         # Rename the object with key <tt>from</tt> to have key in <tt>to</tt>.
@@ -483,7 +485,7 @@ module AWS
           reload  = options
           options = {}
         end
-        memoize(reload) do
+        expirable_memoize(reload) do
           self.class.stream(key, bucket.name, options, &block)
         end
       end
@@ -494,7 +496,7 @@ module AWS
       #   pp some_object.about
       #     {"last-modified"    => "Sat, 28 Oct 2006 21:29:26 GMT",
       #      "x-amz-id-2"       =>  "LdcQRk5qLwxJQiZ8OH50HhoyKuqyWoJ67B6i+rOE5MxpjJTWh1kCkL+I0NQzbVQn",
-      #      "content-type"     => "binary/octect-stream",
+      #      "content-type"     => "binary/octet-stream",
       #      "etag"             => "\"dc629038ffc674bee6f62eb68454ff3a\"",
       #      "date"             => "Sat, 28 Oct 2006 21:30:41 GMT",
       #      "x-amz-request-id" => "B7BC68F55495B1C8",
@@ -502,7 +504,7 @@ module AWS
       #      "content-length"   => "3418766"}
       #
       #  some_object.content_type
-      #  # => "binary/octect-stream"
+      #  # => "binary/octet-stream"
       #  some_object.content_type = 'audio/mpeg'
       #  some_object.content_type
       #  # => 'audio/mpeg'
@@ -559,7 +561,7 @@ module AWS
       
       def etag(reload = false)
         return nil unless stored?
-        memoize(reload) do
+        expirable_memoize(reload) do
           reload ? about(reload)['etag'][1...-1] : attributes['e_tag'][1...-1]
         end
       end

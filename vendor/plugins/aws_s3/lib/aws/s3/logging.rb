@@ -97,13 +97,23 @@ module AWS
         end
         
         # Returns the lines for the log. Each line is wrapped in a Log::Line.
-        def lines
-          log.value.map {|line| Line.new(line)}
+        if RUBY_VERSION >= '1.8.7'
+          def lines
+            log.value.lines.map {|line| Line.new(line)}
+          end
+        else
+          def lines
+            log.value.map {|line| Line.new(line)}
+          end
         end
         memoized :lines
         
+        def path
+          log.path
+        end
+        
         def inspect #:nodoc:
-          "#<%s:0x%s '%s'>" % [self.class.name, object_id, log.path]
+          "#<%s:0x%s '%s'>" % [self.class.name, object_id, path]
         end
         
         private
@@ -154,9 +164,7 @@ module AWS
             
             # Time.parse doesn't like %d/%B/%Y:%H:%M:%S %z so we have to transform it unfortunately
             def typecast_time(datetime) #:nodoc:
-              month = datetime[/[a-z]+/i]
-              datetime.sub!(%r|^(\w{2})/(\w{3})|, '\2/\1')
-              datetime.sub!(month, Date::ABBR_MONTHS[month.downcase].to_s)
+              datetime.sub!(%r|^(\w{2})/(\w{3})/(\w{4})|, '\2 \1 \3')
               datetime.sub!(':', ' ')
               Time.parse(datetime)
             end

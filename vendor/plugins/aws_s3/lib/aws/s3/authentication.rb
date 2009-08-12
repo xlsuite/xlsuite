@@ -50,7 +50,7 @@ module AWS
       # parameterize these computations and arrange them in a string form appropriate to how they are used, in one case a http request
       # header value, and in the other case key/value query string parameter pairs.
       class Signature < String #:nodoc:
-        attr_reader :request, :access_key_id, :secret_access_key
+        attr_reader :request, :access_key_id, :secret_access_key, :options
   
         def initialize(request, access_key_id, secret_access_key, options = {})
           super()
@@ -69,7 +69,7 @@ module AWS
     
           def encoded_canonical
             digest   = OpenSSL::Digest::Digest.new('sha1')
-            b64_hmac = Base64.encode64(OpenSSL::HMAC.digest(digest, secret_access_key, canonical_string)).strip
+            b64_hmac = [OpenSSL::HMAC.digest(digest, secret_access_key, canonical_string)].pack("m").strip
             url_encode? ? CGI.escape(b64_hmac) : b64_hmac
           end
           
@@ -99,10 +99,9 @@ module AWS
       # More details about the various authentication schemes can be found in the docs for its containing module, Authentication.
       class QueryString < Signature #:nodoc:
         constant :DEFAULT_EXPIRY, 300 # 5 minutes
-        
         def initialize(*args)
           super
-          @options[:url_encode] = true
+          options[:url_encode] = true
           self << build
         end
         
@@ -115,8 +114,12 @@ module AWS
           #      the +:expires_in+ option
           #   3) The current time in seconds since the epoch plus the default number of seconds (60 seconds)
           def expires
-            return @options[:expires] if @options[:expires]
-            date.to_i + (@options[:expires_in] || DEFAULT_EXPIRY)
+            return options[:expires] if options[:expires]
+            date.to_i + expires_in
+          end
+          
+          def expires_in
+            options.has_key?(:expires_in) ? Integer(options[:expires_in]) : DEFAULT_EXPIRY
           end
           
           # Keep in alphabetical order
