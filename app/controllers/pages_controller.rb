@@ -308,8 +308,8 @@ class PagesController < ApplicationController
         @page.body
       else 
 %Q`User-agent: *
-Request-rate: 1/5
-Crawl-delay: 5`
+Request-rate: 1/7
+Crawl-delay: 7`
       end
     render :text => robots_txt, :content_type => "text/plain"
   end

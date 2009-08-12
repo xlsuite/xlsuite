@@ -20,6 +20,11 @@ class Asset < ActiveRecord::Base
   def http_headers
     returning(self.cache_control_headers) do |headers|
       headers["Etag"] = self.etag if self.etag
+      headers.merge(
+        CacheControl.cache_control_headers(
+            :updated_at => self.updated_at,
+            :cache_timeout_in_seconds => 10.years.to_i,
+            :cache_control_directive => "public"))
     end
   end
   

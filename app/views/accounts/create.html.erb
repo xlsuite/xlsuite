@@ -5,10 +5,10 @@
 <div align="center">
 	<div id="content">
 		<div id="top"></div>
-		<div id="left"></div>
+		<div id="left"><h1><%= @domain.parent.name %></h1></div>
 		
 		<div id="right">
-      <p>Thank you for registering an account at XLsuite.com</p>
+      <p>Thank you for registering an account at <%= @domain.parent.name %></p>
       <p>We have sent you a confirmation E-Mail. Please read the mail and follow the instructions attached.</p>
       <b><p>If you have not received the E-Mail within the next five minutes, please check your spam or junk folder.</p></b>
     </div>

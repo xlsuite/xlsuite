@@ -74,8 +74,13 @@ module AWS #:nodoc:
         # Once in a while, a request to S3 returns an internal error. A glitch in the matrix I presume. Since these 
         # errors are few and far between the request method will rescue InternalErrors the first three times they encouter them
         # and will retry the request again. Most of the time the second attempt will work.
-        rescue *retry_exceptions
-          attempts == 3 ? raise : (attempts += 1; retry)
+        rescue InternalError, RequestTimeout
+          if attempts == 3
+            raise
+          else
+            attempts += 1
+            retry
+          end
         end
 
         [:get, :post, :put, :delete, :head].each do |verb|
@@ -173,10 +178,6 @@ module AWS #:nodoc:
           def bucket_name(name)
             name || current_bucket
           end
-
-          def retry_exceptions
-            [InternalError, RequestTimeout]
-          end
           
           class RequestOptions < Hash #:nodoc:
             attr_reader :options, :verb
@@ -225,7 +226,14 @@ module AWS #:nodoc:
         end
         
         def method_missing(method, *args, &block)
-          attributes[method.to_s] || attributes[method] || super
+          case
+          when attributes.has_key?(method.to_s) 
+            attributes[method.to_s]
+          when attributes.has_key?(method)
+            attributes[method]
+          else 
+            super
+          end
         end
     end
   end

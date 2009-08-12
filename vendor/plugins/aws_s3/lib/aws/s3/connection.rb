@@ -7,7 +7,7 @@ module AWS
         end
         
         def prepare_path(path)
-          path = path.remove_extended unless path.utf8?
+          path = path.remove_extended unless path.valid_utf8?
           URI.escape(path)
         end
       end
@@ -27,18 +27,20 @@ module AWS
         body.rewind if body.respond_to?(:rewind) unless attempts.zero?      
         
         requester = Proc.new do 
-          path    = self.class.prepare_path(path)
+          path    = self.class.prepare_path(path) if attempts.zero? # Only escape the path once
           request = request_method(verb).new(path, headers)
           ensure_content_type!(request)
           add_user_agent!(request)
           authenticate!(request)
           if body
             if body.respond_to?(:read)                                                                
-              request.body_stream    = body                                                           
-              request.content_length = body.respond_to?(:lstat) ? body.lstat.size : body.size         
+              request.body_stream = body                                                           
             else                                                                                      
               request.body = body                                                                     
-            end                                                                                       
+            end
+            request.content_length = body.respond_to?(:lstat) ? body.stat.size : body.size         
+          else
+            request.content_length = 0                                                                                       
           end
           http.request(request, &block)
         end
@@ -49,7 +51,7 @@ module AWS
         else
           http.start(&requester)
         end
-      rescue Errno::EPIPE, Timeout::Error, Errno::EPIPE, Errno::EINVAL
+      rescue Errno::EPIPE, Timeout::Error, Errno::EINVAL, EOFError
         @http = create_connection
         attempts == 3 ? raise : (attempts += 1; retry)
       end
@@ -75,7 +77,14 @@ module AWS
       end
       
       def protocol(options = {})
-        (options[:use_ssl] || http.use_ssl?) ? 'https://' : 'http://'
+        # This always trumps http.use_ssl?
+        if options[:use_ssl] == false 
+          'http://'
+        elsif options[:use_ssl] || http.use_ssl?
+          'https://'
+        else
+          'http://'
+        end
       end
       
       private
@@ -178,7 +187,7 @@ module AWS
           # will be implicitly set to 443, unless specified otherwise. Defaults to false.
           # * <tt>:persistent</tt> - Whether to use a persistent connection to the server. Having this on provides around a two fold 
           # performance increase but for long running processes some firewalls may find the long lived connection suspicious and close the connection.
-          # If you run into connection errors, try setting <tt>:persistent</tt> to false. Defaults to true.
+          # If you run into connection errors, try setting <tt>:persistent</tt> to false. Defaults to false.
           # * <tt>:proxy</tt> - If you need to connect through a proxy, you can specify your proxy settings by specifying a <tt>:host</tt>, <tt>:port</tt>, <tt>:user</tt>, and <tt>:password</tt>
           # with the <tt>:proxy</tt> option.
           # The <tt>:host</tt> setting is required if specifying a <tt>:proxy</tt>. 
@@ -240,73 +249,28 @@ module AWS
       end
         
       class Options < Hash #:nodoc:
-        class << self
-          def valid_options
-            [:access_key_id, :secret_access_key, :server, :port, :use_ssl, :persistent, :proxy]
-          end
-        end
+        VALID_OPTIONS = [:access_key_id, :secret_access_key, :server, :port, :use_ssl, :persistent, :proxy].freeze
         
-        attr_reader :options
         def initialize(options = {})
           super()
-          @options = options
-          validate!
-          extract_proxy_settings!
-          extract_persistent!
-          extract_server!
-          extract_port!
-          extract_remainder!
+          validate(options)
+          replace(:server => DEFAULT_HOST, :port => (options[:use_ssl] ? 443 : 80))
+          merge!(options)
         end
-        
+
         def connecting_through_proxy?
           !self[:proxy].nil?
         end
         
         def proxy_settings
-          proxy_setting_keys.map do |proxy_key| 
-            self[:proxy][proxy_key]
-          end
+          self[:proxy].values_at(:host, :port, :user, :password)
         end
         
         private
-          def proxy_setting_keys
-            [:host, :port, :user, :password]
-          end
-          
-          def missing_proxy_settings?
-            !self[:proxy].keys.include?(:host)
-          end
-          
-          def extract_persistent!
-            self[:persistent] = options.has_key?(:persitent) ? options[:persitent] : true
-          end
-          
-          def extract_proxy_settings!
-            self[:proxy] = options.delete(:proxy) if options.include?(:proxy)
-            validate_proxy_settings!
-          end
-          
-          def extract_server!
-            self[:server] = options.delete(:server) || DEFAULT_HOST
-          end
-
-          def extract_port!
-            self[:port] = options.delete(:port) || (options[:use_ssl] ? 443 : 80)
-          end
-          
-          def extract_remainder!
-            update(options)
-          end
-          
-          def validate!
-            invalid_options = options.keys.select {|key| !self.class.valid_options.include?(key)}
+          def validate(options)
+            invalid_options = options.keys - VALID_OPTIONS
             raise InvalidConnectionOption.new(invalid_options) unless invalid_options.empty?
-          end
-          
-          def validate_proxy_settings!
-            if connecting_through_proxy? && missing_proxy_settings?
-              raise ArgumentError, "Missing proxy settings. Must specify at least :host."
-            end
+            raise ArgumentError, "Missing proxy settings. Must specify at least :host." if options[:proxy] && !options[:proxy][:host]
           end
       end
     end

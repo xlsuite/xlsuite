@@ -90,7 +90,9 @@ require "core_ext/hash"
 require "core_ext/string"
 require "core_ext/object"
 require "core_ext/time"
+require "aws/s3"
 require "s3_backend_ext"
+require 's3_cache_control'
 require "geolocatable"
 
 require "active_merchant_ext/exact"
