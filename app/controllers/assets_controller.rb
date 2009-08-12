@@ -458,9 +458,10 @@ class AssetsController < ApplicationController
       asset_url = @asset.authenticated_s3_url
       asset_url += "&#{params.to_param}" unless params.empty? 
     else 
-      asset_url = @asset.s3_url 
+      asset_url = @asset.s3_url
       asset_url += "?#{params.to_param}" unless params.empty?
     end
+    response.headers.merge!(@asset.http_headers)
     redirect_to asset_url
   end
 
