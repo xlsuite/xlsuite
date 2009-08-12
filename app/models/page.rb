@@ -435,6 +435,15 @@ class Page < Item
   def full_copy
     self.class.new(self.attributes)
   end
+  
+  def convert_to_snippet
+    snippet = Snippet.new(:account => self.account)
+    snippet.title = "/" + self.fullslug
+    snippet.body = self.body
+    snippet.domain_patterns = self.domain_patterns
+    snippet.published_at = Time.now.utc
+    snippet.save
+  end
 
   class << self
     # Returns the list of valid states.
