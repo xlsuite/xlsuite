@@ -373,7 +373,7 @@ class RentalsImportFuture < SpiderFuture
   
   def download_asset(asset_uri, rent)
     begin
-      asset = rent.assets.create!(:temp_data => open(asset_uri).read,
+      asset = rent.assets.create!(:uploaded_data => open(asset_uri).read,
                                           :filename => File.basename(asset_uri.path),
                                           :owner => self.owner,
                                           :account => self.account)

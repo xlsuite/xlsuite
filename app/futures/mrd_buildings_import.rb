@@ -426,7 +426,7 @@ class MrdBuildingsImport < SpiderFuture
     begin
       original_filename = File.basename(asset_uri.path)
       new_filename = @profile.company_name + "." + original_filename.split(".").last
-      asset = self.account.assets.create!(:temp_data => open(asset_uri).read,
+      asset = self.account.assets.create!(:uploaded_data => open(asset_uri).read,
                                           :filename => new_filename,
                                           :owner => self.owner,
                                           :tag_list => "building")

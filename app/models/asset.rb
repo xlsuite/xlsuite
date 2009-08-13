@@ -457,7 +457,7 @@ class Asset < ActiveRecord::Base
   def crop_resized(geometry)
     with_image do |img|
       img2 = img.crop_resized(*geometry.split("x").map(&:to_i))
-      self.temp_data = img2.to_blob
+      self.uploaded_data = img2.to_blob
     end
   end
 
@@ -527,7 +527,7 @@ class Asset < ActiveRecord::Base
             next if File.directory?(path)
             logger.debug {"Adding unpacked #{path.inspect} to assets"}
             assets << asset = self.account.assets.create!(:parent_asset => self,
-                :temp_data => File.open(path, "rb") {|f| f.read},
+                :uploaded_data => File.open(path, "rb") {|f| f.read},
                 :owner => self.owner,
                 :reader_ids => self.reader_ids, :writer_ids => self.writer_ids,
                 :folder_id => self.folder_id, :filename => File.basename(path))
@@ -781,7 +781,7 @@ class Asset < ActiveRecord::Base
     return if self.external_url.blank?
     begin
       external_url_data = open(self.external_url)
-      self.temp_data = external_url_data.read
+      self.uploaded_data = external_url_data.read
       self.content_type = external_url_data.content_type
       filename = self.external_url.split("/").last
       filename = external_url_data.path if filename.blank?
@@ -803,7 +803,7 @@ class Asset < ActiveRecord::Base
   end
 
   def generate_etag
-    self.etag = Digest::MD5.hexdigest(self.temp_data) if self.temp_data
+    self.etag = Digest::MD5.hexdigest(self.read_data) if self.read_data
   end
 
   def generate_etag_from_current_data

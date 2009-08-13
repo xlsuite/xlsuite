@@ -346,7 +346,7 @@ class Invoice < ActiveRecord::Base
         email.about = self
         email.save!
 
-        email.attachments << Attachment.new(:temp_data => self.to_pdf,
+        email.attachments << Attachment.new(:uploaded_data => self.to_pdf,
             :content_type => 'application/pdf', :owner => self.customer,
             :title => "invoice-#{self.number}", :filename => "invoice-#{self.number}.pdf")
 
