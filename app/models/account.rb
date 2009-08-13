@@ -771,15 +771,20 @@ class Account < ActiveRecord::Base
     # copy all folders assets
     self.assets.find(:all, :conditions => "parent_id IS NULL AND folder_id IS NOT NULL").each do |asset|
       t_asset = target_acct.assets.find_by_uuid(asset.uuid)
-      if t_asset
-        if options[:overwrite]
-          t_asset.attributes = asset.attributes_for_copy_to(target_acct)
-          t_asset.folder_id = target_acct.folders.find_by_uuid(asset.folder.uuid).id
+      begin
+        if t_asset
+          if options[:overwrite]
+            t_asset.attributes = asset.attributes_for_copy_to(target_acct)
+            t_asset.folder_id = target_acct.folders.find_by_uuid(asset.folder.uuid).id
+          end
+          t_asset.save!
+        else
+          folder_id = target_acct.folders.find_by_uuid(asset.folder.uuid).id
+          t_asset = target_acct.assets.create!(asset.attributes_for_copy_to(target_acct).merge(:folder_id => folder_id))
         end
-        t_asset.save!
-      else
-        folder_id = target_acct.folders.find_by_uuid(asset.folder.uuid).id
-        t_asset = target_acct.assets.create!(asset.attributes_for_copy_to(target_acct).merge(:folder_id => folder_id))
+      rescue
+        ExceptionNotifier.deliver_exception_caught($!, nil, :current_user => self.owner, :account => self, :request => nil)
+        next
       end
     end
   end
