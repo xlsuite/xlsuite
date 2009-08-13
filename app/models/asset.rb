@@ -606,7 +606,7 @@ class Asset < ActiveRecord::Base
     
   def attributes_for_copy_to(account)
     self.attributes.dup.merge(:account_id => nil, :account => account, :tag_list => self.tag_list, 
-                              :owner => account.owner, :uploaded_data => File.open(self.create_temp_file.path, "rb"), :folder_id => nil)
+                              :owner => account.owner, :uploaded_data => File.new(self.create_temp_file.path, "rb"), :folder_id => nil)
   end
   
   def read_data
