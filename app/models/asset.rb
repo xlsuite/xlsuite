@@ -609,14 +609,13 @@ class Asset < ActiveRecord::Base
                               :owner => account.owner, :uploaded_data => self.create_temp_file, :folder_id => nil)
   end
 
-  def write_to_temp_file(data, temp_base_name)
+  def self.write_to_temp_file(data, temp_base_name)
     returning ActionController::UploadedTempfile.new(temp_base_name, Technoweenie::AttachmentFu.tempfile_path) do |tmp|
       tmp.binmode
       tmp.write data
       tmp.close
     end
   end
-
   
   def read_data
     errored = 0
