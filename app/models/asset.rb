@@ -606,8 +606,17 @@ class Asset < ActiveRecord::Base
     
   def attributes_for_copy_to(account)
     self.attributes.dup.merge(:account_id => nil, :account => account, :tag_list => self.tag_list, 
-                              :owner => account.owner, :uploaded_data => File.new(self.create_temp_file.path, "rb"), :folder_id => nil)
+                              :owner => account.owner, :uploaded_data => self.create_temp_file, :folder_id => nil)
   end
+
+  def write_to_temp_file(data, temp_base_name)
+    returning ActionController::UploadedTempfile.new(temp_base_name, Technoweenie::AttachmentFu.tempfile_path) do |tmp|
+      tmp.binmode
+      tmp.write data
+      tmp.close
+    end
+  end
+
   
   def read_data
     errored = 0
