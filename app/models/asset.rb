@@ -803,7 +803,7 @@ class Asset < ActiveRecord::Base
   end
 
   def generate_etag
-    self.etag = Digest::MD5.hexdigest(self.read_data) if self.read_data
+    self.etag = Digest::MD5.hexdigest(self.temp_data) if self.temp_data
   end
 
   def generate_etag_from_current_data
