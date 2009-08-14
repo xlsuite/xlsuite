@@ -308,7 +308,6 @@ module XlSuite
       file_path = context_options[:file_path].gsub(/^\/z\//i, "")
       file_path = file_path.split("/")
       name = file_path.pop
-      file_path.shift
       path = file_path.join("/")
       asset = current_account.assets.find_by_path_and_filename(path, name)
       
