@@ -306,7 +306,7 @@ class RetsPhotoRetriever < RetsFuture
         next
       end
       asset.content_type = options["Content-Type"]
-      asset.uploaded_data = data
+      asset.temp_data = data
       asset.account = self.account
       asset.tag_list = self.args[:tags] unless self.args[:tags].blank?
       asset.folder_id = folder.id

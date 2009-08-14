@@ -447,7 +447,7 @@ class SiteImportFuture < SpiderFuture
     return assets[asset_uri.to_s] if assets.include?(asset_uri.to_s)
 
     begin
-      asset = self.account.assets.create!(:uploaded_data => open(asset_uri).read,
+      asset = self.account.assets.create!(:temp_data => open(asset_uri).read,
                                           :filename => File.basename(asset_uri.path),
                                           :owner => self.owner)
       self.results[:imported_assets_count] += 1

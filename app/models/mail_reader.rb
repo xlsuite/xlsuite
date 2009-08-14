@@ -335,7 +335,7 @@ class MailReader < ActionMailer::Base
         asset = current_account.assets.create!(
           :title => part.disposition_param("filename"),
           :owner => sender_party, :filename => part.disposition_param("filename"),
-          :content_type => part.content_type, :uploaded_data => part.body)
+          :content_type => part.content_type, :temp_data => part.body)
         email.attachments.create!(:asset => asset)
       end
 
