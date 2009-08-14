@@ -410,6 +410,7 @@ class ContactRequestsController < ApplicationController
             asset.owner = @party if @party
             asset.save!
             extra << "#{k.to_s.humanize}: #{download_asset_url(:id => asset.reload.id, :host => current_domain.name)}<br />"
+            params[:extra].delete(k)
           else
             extra << "#{k.to_s.humanize}: #{v.to_s}<br />"
           end
