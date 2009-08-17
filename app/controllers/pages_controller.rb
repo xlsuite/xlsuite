@@ -350,18 +350,19 @@ class PagesController < ApplicationController
   end
 
   def show
-    begin
-      allow_access = false
-      if @page
-        allow_access = @page.published?
-        if !allow_access && self.current_user? && self.current_user.can?(:edit_pages)
+    allow_access = false
+    if @page
+      allow_access = @page.published?
+      if !allow_access && self.current_user?
+        if self.current_user.can?(:edit_pages)
           allow_access = true
         end
+        if !allow_access
+          allow_access = @page.readable_by?(self.current_user)
+        end
       end
-      raise ActiveRecord::RecordNotFound unless allow_access && @page.readable_by?(current_user)
-    rescue ActiveRecord::RecordNotFound
-      # Catch and process here, instead of bubbling up and being sent to admins
-      logger.debug {"==> #{$!} #{$!.message}\n#{$!.backtrace.join("\n")}"}
+      return render(:missing) if !allow_access
+    else
       return render(:missing)
     end
 
