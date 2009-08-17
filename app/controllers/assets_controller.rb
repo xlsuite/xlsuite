@@ -679,8 +679,8 @@ class AssetsController < ApplicationController
 
   protected
   def load_asset
-    @asset = current_account.assets.find(params[:id])
-    returning(false) {render(:missing)} unless @asset.readable_by?(current_user? ? current_user : nil)
+    @asset = current_account.assets.find_by_id(params[:id])
+    returning(false) {render(:missing)} unless @asset && @asset.readable_by?(current_user? ? current_user : nil)
   end
 
   def ensure_writeable
