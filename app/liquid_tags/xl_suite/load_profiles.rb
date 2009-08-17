@@ -351,16 +351,17 @@ module XlSuite
       offset = page * limit
       
       options = {:limit => limit, :offset => offset} unless @options[:randomize]
-      if context_options[:group].blank?
-        parties = current_account.parties
-      else
+      if !context_options[:group].blank?
+        party_ids = nil
         q = context_options[:group]
-        group = current_account.groups.find_by_label(q)
-        if group
-          parties = current_account.groups.find_by_label(q).parties  
-        else
-          context.scopes.last[@options[:in]] = []
-          return "Group #{q} not found"
+        q.split(",").map(&:strip).each do |label|
+          group = current_account.groups.find_by_label(label)
+          group_party_ids = group ? ActiveRecord::Base.connection.select_values("SELECT `parties`.id FROM `parties` INNER JOIN memberships ON parties.id = memberships.party_id WHERE ((`memberships`.group_id = #{group.id})) AND (archived_at IS NULL) AND (account_id = #{current_account.id})") : []
+          if party_ids
+            party_ids = party_ids & group_party_ids
+          else
+            party_ids = group_party_ids
+          end
         end
       end
 
@@ -425,6 +426,12 @@ module XlSuite
         conditions << "profiles.id NOT IN (#{ids.join(',')})" unless ids.empty?
       end
       
+      if @options[:tag_option] && @options[:tags] && !context_options[:tag_option].blank? && !context_options[:tags].blank?
+        profile_ids = current_account.profiles.find_tagged_with(context_options[:tag_option].to_sym => Tag.parse(context_options[:tags]), :select => "profiles.id" ).map(&:id)  
+        conditions << "profiles.id IN (#{profile_ids.join(',')})" unless profile_ids.empty?
+      end
+      
+      
       if @options[:order_by_point] && context_options[:order_by_point] =~ /^(a|de)sc$/i
         party_ids = nil
         domain = nil
@@ -454,27 +461,20 @@ module XlSuite
       end
       options.merge!(:order => orders.join(",")) unless orders.empty?
       
-      profile_ids = parties.find(:all, :conditions => "profile_id IS NOT NULL", :select => "parties.profile_id").map(&:profile_id)
+      profile_ids = current_account.parties.find(:all, :conditions => ["profile_id IS NOT NULL AND parties.id IN (?)", party_ids], :select => "parties.profile_id").map(&:profile_id)
       conditions << "profiles.id IN (:profile_ids)"
       condition_params.merge!(:profile_ids => profile_ids)
 
       options.merge!(:conditions => [conditions.join(" AND "), condition_params], :joins => joins.join(" AND "))
       options.merge!(:select => "profiles.*") unless options[:select]
 
-      if @options[:tag_option] && @options[:tags] && !context_options[:tag_option].blank? && !context_options[:tags].blank?
-        profiles = current_account.profiles.find_tagged_with(options.merge(context_options[:tag_option].to_sym => Tag.parse(context_options[:tags]) ))
-        if @options[:pages_count] || @options[:total_count]
-          options.delete(:limit)
-          options.delete(:offset)
-          profiles_count = current_account.profiles.count_tagged_with(options.merge(context_options[:tag_option].to_sym => Tag.parse(context_options[:tags]) ))
-        end
-      elsif @options[:search]
+      if @options[:search]
          q = context_options[:search]
          profiles = current_account.profiles.search(q, options)
          if @options[:pages_count] || @options[:total_count]
           options.delete(:limit)
           options.delete(:offset)
-          profiles_count = current_account.profiles.count_result(q, options)
+          profiles_count = current_account.profiles.count_results(q, options)
         end
       else
         options.delete(:limit)
