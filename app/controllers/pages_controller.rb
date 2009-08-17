@@ -351,18 +351,23 @@ class PagesController < ApplicationController
 
   def show
     begin
-      raise ActiveRecord::RecordNotFound unless @page
-      logger.debug {"==> Page #{@page.id} readable by? #{current_user}: #{@page.readable_by?(current_user)}"}
-      raise ActiveRecord::RecordNotFound unless @page.readable_by?(current_user)
+      allow_access = false
+      if @page
+        allow_access = @page.published?
+        if !allow_access && self.current_user? && self.current_user.can?(:edit_pages)
+          allow_access = true
+        end
+      end
+      raise ActiveRecord::RecordNotFound unless allow_access && @page.readable_by?(current_user)
     rescue ActiveRecord::RecordNotFound
       # Catch and process here, instead of bubbling up and being sent to admins
       logger.debug {"==> #{$!} #{$!.message}\n#{$!.backtrace.join("\n")}"}
       return render(:missing)
     end
 
-    options = {:current_account => current_account, :current_account_owner => current_account.owner,
+    options = {:current_account => self.current_account, :current_account_owner => self.current_account.owner,
       :tags => TagsDrop.new, :user_affiliate_username => self.current_user? ? self.current_user.affiliate_username : "",
-      :current_page_url => get_absolute_current_page_url, :current_page_slug => get_current_page_uri, :cart => @cart,
+      :current_page_url => self.get_absolute_current_page_url, :current_page_slug => self.get_current_page_uri, :cart => @cart,
       :flash => {:errors => flash[:warning], :messages => flash[:message], :notices => flash[:notice]}.merge(flash[:liquid] || {})}
 
     request_params = params.clone
@@ -370,13 +375,13 @@ class PagesController < ApplicationController
     request_params.delete("action")
     request_params.delete("path")
     options.merge!(:params => @page_params.merge(request_params), :logged_in => current_user? ? true : false)
-    options.merge!(:current_user => current_user) if current_user?
+    options.merge!(:current_user => self.current_user) if self.current_user?
 
-    options.merge!(:port => request.env["SERVER_PORT"]) if request.env["SERVER_PORT"] != "80" && RAILS_ENV == "development"
-    render_options = @page.render_on_domain(current_domain, options)
+    # options.merge!(:port => request.env["SERVER_PORT"]) if request.env["SERVER_PORT"] != "80" && RAILS_ENV == "development"
+    render_options = @page.render_on_domain(self.current_domain, options)
 
     # Set HTTP headers according to the page's wishes
-    @page.http_headers(current_domain, render_options).each do |name, value|
+    @page.http_headers(self.current_domain, render_options).each do |name, value|
       response.headers[name] = value
     end
 
@@ -700,14 +705,7 @@ Crawl-delay: 7`
     @fullslug.gsub!(/\/\Z/i, "") unless (@fullslug && @fullslug == "/")
     @fullslug = "/" if @fullslug.blank?
     logger.debug {"==> fullslug: #{@fullslug.inspect}"}
-    if self.current_user.can?(:edit_pages) then
-      logger.debug {"==> Authenticated access w/:edit_pages permission to #{@fullslug}"}
-      @page, @page_params = self.current_domain.recognize(@fullslug)
-    else
-      logger.debug {"==> Anonymous access to #{@fullslug}"}
-      @page, @page_params = self.current_domain.recognize(@fullslug)
-      raise ActiveRecord::RecordNotFound if @page.blank? || !@page.published?
-    end
+    @page, @page_params = self.current_domain.recognize(@fullslug)
   end
 
   def json_response_for(page)
