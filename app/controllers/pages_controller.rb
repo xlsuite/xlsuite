@@ -705,7 +705,7 @@ Crawl-delay: 7`
       @page, @page_params = self.current_domain.recognize(@fullslug)
     else
       logger.debug {"==> Anonymous access to #{@fullslug}"}
-      @page, @page_params = self.current_domain.recognize!(@fullslug)
+      @page, @page_params = self.current_domain.recognize(@fullslug)
       raise ActiveRecord::RecordNotFound if @page.blank? || !@page.published?
     end
   end
