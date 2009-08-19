@@ -214,6 +214,11 @@
       ,reader:itemLinesGridPanelStoreReader
       ,sortInfo:{field:"created_on", direction:'ASC'}
       ,groupField:['month_timestamp', 'main_identifier']
+      ,listeners:{
+        load:function(cpt){
+          xl.affiliate.itemLinesGridPanel.setHeight(xl.affiliate.itemLinesGridPanel.ownerCt.getSize().height);
+        }
+      }
     });
 
     xl.affiliate.itemLinesGridView = new Ext.ux.MultiGroupingView({
@@ -251,14 +256,13 @@
         ,{header:"Status", dataIndex:"status", id:"item-line-status", width:150}
       ])
       ,border:false
-      ,autoHeight:true
       ,autoScroll:true
       ,columnWidth:1
       ,autoWidth:true
       ,autoExpandColumn:"item-line-status"
       ,plugins:[new Ext.ux.grid.GridSummary({cls:"wider-left-margin"})]
       ,listeners:{
-        render:function(cpt){cpt.getStore().load()}
+        render:function(cpt){cpt.getStore().load();}
       }
     });
     
@@ -318,6 +322,11 @@
       ,reader:trackingLinesGridPanelStoreReader
       ,sortInfo:{field:"created_on", direction:'ASC'}
       ,groupField:['year', 'month']
+      ,listeners:{
+        load:function(){
+          xl.affiliate.trackingLinesGridPanel.setHeight(xl.affiliate.trackingLinesGridPanel.ownerCt.getSize().height-28);
+        }
+      }
     });
 
     xl.affiliate.trackingLinesGridView = new Ext.ux.MultiGroupingView({
@@ -347,13 +356,12 @@
         ,{header:"Click(s)", width:250, dataIndex:"counter", align:"right", summaryType:"sum", summaryRenderer:xl.affiliate.totalClickRenderer}
       ])
       ,border:false
-      ,autoHeight:true
       ,autoScroll:true
       ,columnWidth:1
       ,autoWidth:true
       ,plugins:[new Ext.ux.grid.GridSummary({cls:"wider-left-margin"})]
       ,listeners:{
-        render:function(cpt){cpt.getStore().load()}
+        render:function(cpt){cpt.getStore().load();}
       }
     });
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
