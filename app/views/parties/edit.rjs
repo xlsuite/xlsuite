@@ -369,6 +369,26 @@ page << create_tab_using_ajax_response(tab_panel_title) do
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  var recordMessagesPanel = new Ext.Panel({
+    id:"party-#{@party.id}-messages"
+    ,title:"Messages"
+    ,html:""
+    ,autoScroll:true
+    ,listeners:{
+      render:function(cpt){
+        Ext.Ajax.request({
+          url:"/admin/emails/show_all_emails"
+          ,method:"GET"
+          ,params:{"ids":#{@party.id}}
+          ,success:function(response){
+            var response = Ext.decode(response.responseText);
+            cpt.body.update(response.string);
+          }
+        })
+      }
+    }
+  });
+
   var tabPanel = new Ext.TabPanel({
     activeTab: 0,
     tabPosition: "bottom",
@@ -385,13 +405,12 @@ page << create_tab_using_ajax_response(tab_panel_title) do
       ,imapAccountPanel
       ,smtpAccountPanel
       ,conversationGridPanel
+      ,recordMessagesPanel
     ]
   });
 
   newPanel.add(tabPanel);
-  
-  refreshEastAccordion();
-  
+    
   noteGridPanel.setHeight(500);
 `
 end

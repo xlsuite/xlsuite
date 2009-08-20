@@ -404,7 +404,9 @@ class EmailsController < ApplicationController
       end
     end
     respond_to do |format|
-      format.js
+      format.js do
+        render(:json => {:string => render_to_string(:partial => "list_record_emails", :collection =>@record_emails)})
+      end
     end
   end
 
