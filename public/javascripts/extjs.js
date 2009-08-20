@@ -146,94 +146,6 @@ Ext.onReady(function() {
     ]
   });
 
-  xl.eastPanel = new Ext.Panel({
-    region: 'east',
-    title: "<div class='right-console-title'>Record Dashboard</div>",
-    id: "eastPanel",
-    titlebar: true,
-    collapsible: true,
-    collapseMode: 'mini',
-    animCollapse: true,
-    split: true,
-    cls: "eastPanel",
-    width: xl.kDefaultColumnWidth,
-
-    layout: 'accordion',
-    layoutConfig: {animate: true},
-    defaults: { plugins: xl.AccordionStatePlugin('eastPanel') },
-    items: [
-      {
-        id: 'eastPanel-messagesPanel',
-        title: "<span id='record-messages-title'>Messages</span>",
-        collapsible: true,
-        animCollapse: true,
-        contentEl: "recordMessagesPanel",
-        tools: [{
-          id:'refresh',
-          on:{
-            click: function(){
-              parent.$('recordMessagesPanel').childElements().each(function(e){e.hide();}); 
-              source = $('current-displayed-iframe-source').value;
-              if( source == "/admin/parties")
-                recordMessagesRefresh($('contact-list-ids').value);
-              else if(source && source.match(/parties\/\d+/)){
-                if(el=$("party_".concat(source.match(/\d+(?!parties\/)/), "_messages")))
-                  el.remove();
-                recordMessagesRefresh($('current-displayed-iframe-source').value.match(/\d+(?!parties\/)/));
-              }
-            }
-          }
-        }]
-      }/**,
-      {
-        id: 'eastPanel-filesPanel',
-        title: "<span id='record-files-title'>Files</span>",
-        collapsible: true,
-        animCollapse: true,
-        contentEl: "recordFilesPanel",
-        tools: [{
-          id:'refresh',
-          on:{
-            click: function(){
-              parent.$('recordFilesPanel').childElements().each(function(e){e.hide();}); 
-              source = $('current-displayed-iframe-source').value;
-              if( source == "/admin/parties")
-                recordFilesRefresh($('contact-list-ids').value);
-              else if(source && source.match(/parties\/\d+/)){
-                if(el=$("party_".concat(source.match(/\d+(?!parties\/)/), "_files")))
-                  el.remove();
-                recordFilesRefresh($('current-displayed-iframe-source').value.match(/\d+(?!parties\/)/));
-              }
-            }
-          }
-        }]
-      },
-      {
-        id: 'eastPanel-paymentsPanel',
-        title: "<span id='record-payments-title'>Payments</span>",
-        collapsible: true,
-        animCollapse: true,
-        contentEl: "recordPaymentsPanel",
-        tools: [{
-          id:'refresh',
-          on:{
-            click: function(){
-              parent.$('recordPaymentsPanel').childElements().each(function(e){e.hide();}); 
-              source = $('current-displayed-iframe-source').value;
-              if( source == "/admin/parties")
-                recordPaymentsRefresh($('contact-list-ids').value);
-              else if(source && source.match(/parties\/\d+/)){
-                if(el=$("party_".concat(source.match(/\d+(?!parties\/)/), "_payments")))
-                  el.remove();
-                recordPaymentsRefresh($('current-displayed-iframe-source').value.match(/\d+(?!parties\/)/));
-              }
-            }
-          }
-        }]
-      }**/
-    ]
-  });
-
   xl.backgroundPanel = new Ext.Panel({
     html: "",
     autoScroll: true
@@ -276,7 +188,6 @@ Ext.onReady(function() {
       }
       ,xl.westPanel
       ,xl.centerPanel
-      ,xl.eastPanel
     ]
   });
 
@@ -315,6 +226,5 @@ Ext.onReady(function() {
     // Maybe we should force logout here for safety!
   // Save the activeItems of the accordions for next time
   Ext.state.Manager.set('westPanel.activeItem.id', xl.westPanel.getLayout().activeItem.getId());
-  Ext.state.Manager.set('eastPanel.activeItem.id', xl.eastPanel.getLayout().activeItem.getId());
   });
 });

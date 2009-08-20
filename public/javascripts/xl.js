@@ -18,7 +18,6 @@ xl.kIconPath = '../images/icons/';
 xl.viewport = null;
 xl.tabPanel  = null;
 xl.westPanel = null;
-xl.eastPanel = null;
 xl.centerPanel = null;
 xl.maskedPanels = new Array();
 
@@ -186,11 +185,6 @@ xl.resizeTabPanel = function() {
     }
   });
   if (xl.viewport) { xl.viewport.render(); };
-};
-
-xl.setEastTitle = function(title, source){
-  xl.eastPanel.setTitle("<div class='right-console-title'>"+title+"</div>");
-  xl.title.set(source, xl.eastPanel.title);
 };
 
 xl.generateIframeIdFromSource = function(source) {
