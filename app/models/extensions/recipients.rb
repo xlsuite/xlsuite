@@ -281,7 +281,7 @@
 module Extensions
   module Recipients
     def to_formatted_s
-      find(:all).map(&:to_formatted_s).join(", ")
+      self.find(:all).map(&:to_formatted_s).join(", ")
     end
   end
 end
