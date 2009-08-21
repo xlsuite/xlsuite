@@ -366,30 +366,46 @@ class PagesController < ApplicationController
       return render(:missing)
     end
 
-    options = {:current_account => self.current_account, :current_account_owner => self.current_account.owner,
-      :tags => TagsDrop.new, :user_affiliate_username => self.current_user? ? self.current_user.affiliate_username : "",
-      :current_page_url => self.get_absolute_current_page_url, :current_page_slug => self.get_current_page_uri, :cart => @cart,
-      :flash => {:errors => flash[:warning], :messages => flash[:message], :notices => flash[:notice]}.merge(flash[:liquid] || {})}
-
-    request_params = params.clone
-    request_params.delete("controller")
-    request_params.delete("action")
-    request_params.delete("path")
-    options.merge!(:params => @page_params.merge(request_params), :logged_in => current_user? ? true : false)
-    options.merge!(:current_user => self.current_user) if self.current_user?
-
-    # options.merge!(:port => request.env["SERVER_PORT"]) if request.env["SERVER_PORT"] != "80" && RAILS_ENV == "development"
-    render_options = @page.render_on_domain(self.current_domain, options)
-
-    # Set HTTP headers according to the page's wishes
-    @page.http_headers(self.current_domain, render_options).each do |name, value|
-      response.headers[name] = value
-    end
-
     if @page.redirect?
+      render_options = @page.render_on_domain(self.current_domain, {})
       render_options.shift
       redirect_to(render_options.first, render_options.last)
     else
+      # Look for cached page if user is not logged in and not ssl request and not a POST request
+      if !self.current_user? && !self.ssl_required? && !request.post?
+        cached_page = CachedPage.find(:first, 
+          :conditions => ["account_id = ? AND domain_id = ? AND uri = ? AND last_refreshed_at IS NOT NULL", self.current_account.id, self.current_domain.id, request.request_uri])
+        if cached_page
+          cached_page.refresh_check!
+          @page.http_headers(self.current_domain, {:text => cached_page.rendered_content}).each do |name, value|
+            response.headers[name] = value
+          end
+          return render(:text => cached_page.rendered_content, :content_type => cached_page.rendered_content_type)
+        else
+          CachedPage.create_from_uri_page_and_domain(request.request_uri, @page, self.current_domain)
+        end
+      end
+      
+      options = {:current_account => self.current_account, :current_account_owner => self.current_account.owner,
+        :tags => TagsDrop.new, :user_affiliate_username => self.current_user? ? self.current_user.affiliate_username : "",
+        :current_page_url => self.get_absolute_current_page_url, :current_page_slug => self.get_current_page_uri, :cart => @cart,
+        :flash => {:errors => flash[:warning], :messages => flash[:message], :notices => flash[:notice]}.merge(flash[:liquid] || {})}
+
+      request_params = params.clone
+      request_params.delete("controller")
+      request_params.delete("action")
+      request_params.delete("path")
+      options.merge!(:params => @page_params.merge(request_params), :logged_in => current_user? ? true : false)
+      options.merge!(:current_user => self.current_user) if self.current_user?
+
+      # options.merge!(:port => request.env["SERVER_PORT"]) if request.env["SERVER_PORT"] != "80" && RAILS_ENV == "development"
+      render_options = @page.render_on_domain(self.current_domain, options)
+
+      # Set HTTP headers according to the page's wishes
+      @page.http_headers(self.current_domain, render_options).each do |name, value|
+        response.headers[name] = value
+      end
+
       render(render_options)
     end
   end
