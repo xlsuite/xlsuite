@@ -301,7 +301,15 @@ class ProfileDrop < Liquid::Drop
   end
   
   def avatar_url
-    self.profile.avatar ? Asset.find(profile.avatar_id).s3_url : "/images/Mr-Smith.jpg"
+    self.profile.avatar ? self.profile.avatar.src : "/images/Mr-Smith.jpg"
+  end
+  
+  Asset::THUMBNAIL_SIZES.merge(:full => "").keys.each do |name|
+    self.class_eval <<-EOF
+      def #{name}_avatar_url
+        self.profile.avatar ? self.profile.avatar.thumbnails.find_by_thumbnail('#{name}').src : "images/Mr-Smith.jpg"
+      end
+    EOF
   end
 
   def name
