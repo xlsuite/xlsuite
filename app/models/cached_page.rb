@@ -12,8 +12,8 @@ class CachedPage < ActiveRecord::Base
   # Increment visit_num attribute by 1
   def refresh_check!
     self.update_attribute(:visit_num, self.visit_num + 1)
-    if self.cap_visit_num <= self.visit_num || self.next_refresh_at <= Time.now.utc
-      self.update_attribute(:visit_num, 0)
+    if !self.refresh_requested? && (self.cap_visit_num <= self.visit_num || self.next_refresh_at <= Time.now.utc)
+      self.update_attribute(:refresh_requested, true)
       MethodCallbackFuture.create!(:account => page.account, :owner => page.account.owner, :model => self, :method => "refresh!")
     end
   end
@@ -56,12 +56,14 @@ class CachedPage < ActiveRecord::Base
 
     self.next_refresh_at = Time.now.utc + self.refresh_period_in_seconds
     self.last_refreshed_at = Time.now.utc
+    self.visit_num = 0
+    self.refresh_requested = false
     self.save!
   end
   
   def self.create_from_uri_page_and_domain(uri, page, domain, other_attributes={})
     cached_page = self.new(:account_id => page.account_id, :domain_id => domain.id, 
-      :page_id => page.id, :page_fullslug => page.fullslug, :uri => uri,
+      :page_id => page.id, :page_fullslug => page.fullslug, :uri => (uri.blank? ? "/" : uri),
       :cap_visit_num => 5, :visit_num => 0,
       :next_refresh_at => Time.now.utc, :refresh_period_in_seconds => 54000)
     cached_page.attributes = other_attributes
