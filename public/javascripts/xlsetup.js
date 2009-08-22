@@ -47,14 +47,6 @@ xl.setup.generateFooterToolbar = function () {
 			Ext.state.Manager.set('westPanel.width', xl.westPanel.getInnerWidth());
 			xl.westPanel.setWidth(xl.kDefaultColumnWidth);
 		}
-		
-		if (xl.eastPanel.getInnerWidth() == xl.kDefaultColumnWidth)
-			xl.eastPanel.setWidth(Ext.state.Manager.get('eastPanel.width') || xl.kDefaultColumnWidth)
-		else {
-			Ext.state.Manager.set('eastPanel.width', xl.eastPanel.getInnerWidth());
-			xl.eastPanel.setWidth(xl.kDefaultColumnWidth);
-		}
-		
 		xl.viewport.render();
 	  }
   });

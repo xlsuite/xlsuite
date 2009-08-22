@@ -219,6 +219,12 @@ page << create_tab_using_ajax_response("Pages | Index", after_render) do
     disabled: true
   });
   
+  var toSnippetAction = new Ext.Action({
+    text: "To Snippet"
+    ,iconCls: "display_none"
+    ,disabled: true
+  });
+  
   var embedCodeAction = new Ext.Action({
     text: "Embed code",
     iconCls: "display_none",
@@ -230,7 +236,7 @@ page << create_tab_using_ajax_response("Pages | Index", after_render) do
   });
   
   selectionMenu.addSeparator();
-  selectionMenu.add(duplicateAction, embedCodeAction);
+  selectionMenu.add(duplicateAction, embedCodeAction, toSnippetAction);
   selectionMenu.addSeparator();
   selectionMenu.add(deleteAction);
   
@@ -276,6 +282,23 @@ page << create_tab_using_ajax_response("Pages | Index", after_render) do
     });
   });
   
+  var toSnippetPagesPath = #{convert_to_snippet_pages_path.to_json}
+  toSnippetAction.setHandler(function(e){
+    Ext.Ajax.request({
+      url:toSnippetPagesPath
+      ,params:{"ids":selectedIds.join(",")}
+      ,method:"POST"
+      ,success:function(response,options){
+        var response = Ext.decode(response.responseText);
+        if(response.success){
+          Ext.Msg.alert("Page to snippet", "All pages successfully converted to snippets. A snippet title is its page fullslug prepended with /");
+        }else{
+          Ext.Msg.alert("Page to snippet | ERROR", "Not all pages were successfully converted. Failed items: " + response.failed_pages.join(", "));
+        }
+      }
+    })
+  });
+  
   newPanel.add(grid);
   xl.runningGrids.set("page", grid);
   newPanel.on("destroy", function(){
@@ -313,6 +336,7 @@ page << create_tab_using_ajax_response("Pages | Index", after_render) do
     if(ids.length>0){
       clearAllAction.enable();
       deleteAction.enable();
+      toSnippetAction.enable();
       if(ids.length==1) {
         duplicateAction.enable();
         embedCodeAction.enable();
@@ -327,6 +351,7 @@ page << create_tab_using_ajax_response("Pages | Index", after_render) do
       selectAllAction.enable();
       duplicateAction.disable();
       embedCodeAction.disable();
+      toSnippetAction.disable();
     }
   });
 

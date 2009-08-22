@@ -12,10 +12,14 @@ class GroupListBuilder < RecipientListBuilder
   end
 
   def group
-    self.account.groups.find(@recipient.recipient_builder_id)
+    self.account.groups.find_by_id(@recipient.recipient_builder_id)
   end
 
   def to_s
-    self.group.name
+    if self.group
+      self.group.name
+    else
+      "[GROUP DELETED]"
+    end
   end
 end

@@ -482,6 +482,32 @@ CREATE TABLE `cached_feeds` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `cached_pages` (
+  `id` int(11) NOT NULL auto_increment,
+  `uri` varchar(1024) default NULL,
+  `account_id` int(11) default NULL,
+  `domain_id` int(11) default NULL,
+  `page_id` int(11) default NULL,
+  `page_fullslug` varchar(256) default NULL,
+  `visit_num` int(11) default '0',
+  `cap_visit_num` int(11) default '15',
+  `next_refresh_at` datetime default NULL,
+  `refresh_period_in_seconds` int(11) default '54000',
+  `rendered_content` mediumblob,
+  `rendered_content_type` varchar(255) default NULL,
+  `last_refreshed_at` datetime default NULL,
+  `css` tinyint(1) default '0',
+  `javascript` tinyint(1) default '0',
+  `created_at` datetime default NULL,
+  `updated_at` datetime default NULL,
+  `refresh_requested` tinyint(1) default '0',
+  PRIMARY KEY  (`id`),
+  KEY `by_account_domain_uri` (`account_id`,`domain_id`,`uri`(255)),
+  KEY `by_account_domain_uri_last_refreshed` (`account_id`,`domain_id`,`uri`(255),`last_refreshed_at`),
+  KEY `by_next_refresh_at` (`next_refresh_at`),
+  KEY `by_visit_num` (`visit_num`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `cart_lines` (
   `id` int(11) NOT NULL auto_increment,
   `cart_id` int(11) default NULL,
@@ -2926,3 +2952,7 @@ INSERT INTO schema_migrations (version) VALUES ('20090721235927');
 INSERT INTO schema_migrations (version) VALUES ('20090724213351');
 
 INSERT INTO schema_migrations (version) VALUES ('20090725020416');
+
+INSERT INTO schema_migrations (version) VALUES ('20090821190703');
+
+INSERT INTO schema_migrations (version) VALUES ('20090822000930');

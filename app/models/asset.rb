@@ -329,6 +329,10 @@ class Asset < ActiveRecord::Base
     self.attributes.dup.merge(:account_id => nil, :account => account, :tag_list => self.tag_list, 
                               :owner => account.owner, :temp_data => self.read_data, :folder_id => nil)
   end
+
+  def temp_data=(data)
+    self.set_temp_data(data)
+  end
   
   def read_data
     errored = 0

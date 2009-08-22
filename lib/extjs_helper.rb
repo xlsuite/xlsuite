@@ -623,26 +623,7 @@ module ExtjsHelper
             if (xl.runningTabs.size() == 0){
               xl.backgroundPanel.show();
             }
-          });
-          
-          var refreshEastAccordion = function(){
-            $('recordMessagesPanel').childElements().each(function(e) { e.hide(); });
-            $('recordFilesPanel').childElements().each(function(e) { e.hide(); });
-            
-            acc_names = $w('messages files payments');
-            acc_names.each(function(s){
-              div = "party_".concat('#{params[:id]}_', s);
-              
-              if($(div)){
-                $(div).show();
-              }
-              else{
-                func_name = "record"+s.capitalize()+"Refresh";
-                ("<script>"+func_name+"('#{params[:id]}');</script>").evalScripts();
-              }
-            });
-            #{initialize_east_console_title}
-          };
+          });          
           
           xl.resizeTabPanel();
           xl.tabPanel.add(newPanel).show();

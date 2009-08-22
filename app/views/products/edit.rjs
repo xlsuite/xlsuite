@@ -430,7 +430,8 @@ page << create_tab_using_ajax_response("Product | #{truncate(@product.name, 20)}
           #{f.text_field(:sku, :label => 'SKU')},
           #{f.text_field(:isbn, :label => 'ISBN')},
           #{f.text_field(:upc, :label => 'UPC')},
-          #{f.text_field(:rfid, :label => 'RFID')}
+          #{f.text_field(:rfid, :label => 'RFID')},
+          #{f.text_field(:model, :label => 'Model')}
         ]
       },{
         layout: 'form',

@@ -65,7 +65,7 @@
             var text = "0%"
             if(json.progress)
               text = Math.round(json.progress).toString() + "%";
-            updateProgressBar(json.progress, "Querying...");
+            updateProgressBar(json.progress, "Processing, please wait...");
           }
         },
         error: function(json){
