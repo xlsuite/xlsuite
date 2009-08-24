@@ -1,5 +1,5 @@
 <p>Thank you for registering a domain at <%= @parent_domain_name %>!</p>
-<p>Please click this link to continue with your registration: <%= link_to(@confirmation_url, @confirmation_url) %></p>
+<p>Please click this link to continue with your registration: <a href="<%= @confirmation_url %>"><%= @confirmation_url %></a></p>
 <p>Welcome aboard!</p>
 <p>
   If you did not make this request, or if you don't want to register <%= @domain_name %>, no further action is required. 
