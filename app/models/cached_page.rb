@@ -15,7 +15,7 @@ class CachedPage < ActiveRecord::Base
     self.update_attribute(:visit_num, self.visit_num + 1)
     if !self.refresh_requested? && (self.cap_visit_num <= self.visit_num || self.next_refresh_at <= Time.now.utc)
       self.update_attribute(:refresh_requested, true)
-      MethodCallbackFuture.create!(:priority => 110, :account => page.account, :owner => page.account.owner, :model => self, :method => "refresh!")
+      MethodCallbackFuture.create!(:priority => 150, :account => page.account, :owner => page.account.owner, :model => self, :method => "refresh!")
     end
   end
 
@@ -70,7 +70,7 @@ class CachedPage < ActiveRecord::Base
     cached_page.attributes = other_attributes
     saved = cached_page.save
     if saved
-      MethodCallbackFuture.create!(:priority => 110, :account => page.account, :owner => page.account.owner, :model => cached_page, :method => "refresh!")
+      MethodCallbackFuture.create!(:priority => 150, :account => page.account, :owner => page.account.owner, :model => cached_page, :method => "refresh!")
     end
     saved
   end
