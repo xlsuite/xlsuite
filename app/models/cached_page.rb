@@ -3,6 +3,8 @@ class CachedPage < ActiveRecord::Base
   belongs_to :domain
   belongs_to :page
   
+  REFRESH_INTERVAL = 108000
+  
   validates_presence_of :account_id, :domain_id, :page_id, :cap_visit_num, :visit_num, :next_refresh_at, :refresh_period_in_seconds
   validates_uniqueness_of :uri, :scope => [:account_id, :domain_id]
   
@@ -63,8 +65,8 @@ class CachedPage < ActiveRecord::Base
   def self.create_from_uri_page_and_domain(uri, page, domain, other_attributes={})
     cached_page = self.new(:account_id => page.account_id, :domain_id => domain.id, 
       :page_id => page.id, :page_fullslug => page.fullslug || "", :uri => uri,
-      :cap_visit_num => 5, :visit_num => 0,
-      :next_refresh_at => Time.now.utc, :refresh_period_in_seconds => 54000)
+      :cap_visit_num => 15, :visit_num => 0,
+      :next_refresh_at => Time.now.utc, :refresh_period_in_seconds => REFRESH_INTERVAL)
     cached_page.attributes = other_attributes
     saved = cached_page.save
     if saved
