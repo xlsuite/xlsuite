@@ -74,4 +74,10 @@ class CachedPage < ActiveRecord::Base
     end
     saved
   end
+  
+  def self.force_refresh_on_account!(account)
+    ActiveRecord::Base.transaction do
+      self.delete_all(["account_id = ?", account.id])
+    end
+  end
 end
