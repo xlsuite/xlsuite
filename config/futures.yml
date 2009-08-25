@@ -71,3 +71,8 @@ FulltextRowUpdateRunner:
   interval: <%= 3.minutes %>
   scheduled_at: <%= 1.minutes.from_now %>
   system: true
+  
+CachedPageUpdateRunner:
+  interval: 2
+  scheduled_at: <%= 1.minutes.from_now %>
+  system: true
