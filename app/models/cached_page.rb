@@ -293,6 +293,7 @@ class CachedPage < ActiveRecord::Base
   # Increment visit_num attribute by 1
   def refresh_check!
     self.update_attribute(:visit_num, self.visit_num + 1)
+    return false if self.uri.split(".").last =~ /css|js/i
     if !self.refresh_requested? && (self.cap_visit_num <= self.visit_num || self.next_refresh_at <= Time.now.utc)
       self.update_attribute(:refresh_requested, true)
       CachedPageUpdate.create(:domain_id => self.domain.id, :cached_page_id => self.id)
