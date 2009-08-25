@@ -482,6 +482,16 @@ CREATE TABLE `cached_feeds` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `cached_page_updates` (
+  `id` int(11) NOT NULL auto_increment,
+  `cached_page_id` int(11) default NULL,
+  `domain_id` int(11) default NULL,
+  `started_at` datetime default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `by_cached_page` (`cached_page_id`),
+  KEY `by_domain_started_at` (`domain_id`,`started_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `cached_pages` (
   `id` int(11) NOT NULL auto_increment,
   `uri` varchar(1024) default NULL,
@@ -2956,3 +2966,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090725020416');
 INSERT INTO schema_migrations (version) VALUES ('20090821190703');
 
 INSERT INTO schema_migrations (version) VALUES ('20090822000930');
+
+INSERT INTO schema_migrations (version) VALUES ('20090825005903');

@@ -95,7 +95,7 @@ class PagesController < ApplicationController
       redirect_to(render_options.first, render_options.last)
     else
       # Look for cached page if user is not logged in and not ssl request and not a POST request
-      if !self.current_user? && !self.ssl_required? && !request.post?
+      if !self.current_user? && @page.allow_cache? && !params[:skip_cache] && !self.ssl_required? && !request.post?
         request_uri = request.request_uri.blank? ? "/" : request.request_uri
         cached_page = CachedPage.find(:first, 
           :conditions => ["account_id = ? AND domain_id = ? AND uri = ? AND last_refreshed_at IS NOT NULL", self.current_account.id, self.current_domain.id, request_uri])

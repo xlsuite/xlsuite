@@ -399,7 +399,8 @@ ActionController::Routing::Routes.draw do |map|
     :collection => {
       :async_get_name_id_hashes => :get,
       :async_add_parties_or_create => :post,
-      :destroy_collection => :delete
+      :destroy_collection => :delete,
+      :reorder => :post
     }
     
   map.resources :roles, :path_prefix => "/admin", 

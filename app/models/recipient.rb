@@ -83,7 +83,7 @@ class Recipient < ActiveRecord::Base
 
   def generate_text!
     self.generated_subject = self.email.subject_template.render(self.liquid_context)
-    self.generated_body = self.email.body_template.render(self.liquid_context, {:registers => {"recipient" => self, "account" => self.email.account}})
+    self.generated_body = self.email.body_template.render(self.liquid_context, {:registers => {"recipient" => self, "account" => self.email.account, "domain" => self.email.domain}})
   end
 
   def send!(now=Time.now)
