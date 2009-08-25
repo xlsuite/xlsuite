@@ -309,7 +309,8 @@ class CachedPage < ActiveRecord::Base
     t_paths = "/" if t_paths.blank?
     
     # get page with its params
-    t_page, page_params = self.domain.recognize!(t_paths)
+    t_page, page_params = self.domain.recognize(t_paths)
+    return self.destroy unless t_page
     self.page = t_page
     self.page_fullslug = self.page.fullslug
 
@@ -339,7 +340,11 @@ class CachedPage < ActiveRecord::Base
     self.last_refreshed_at = Time.now.utc
     self.visit_num = 0
     self.refresh_requested = false
-    self.save!
+    if self.save
+      true
+    else
+      self.destroy
+    end
   end
   
   def self.create_from_uri_page_and_domain(uri, page, domain, other_attributes={})
