@@ -308,6 +308,8 @@ class Page < Item
 
   validate :title_template_syntax
   before_save :cache_title_template
+  
+  after_save :refresh_cached_pages_with_fullslug
 
   serialize :requirements
 
@@ -572,5 +574,9 @@ class Page < Item
 
   def cache_title_template
     self.cached_parsed_title = Marshal.dump(self.parse_title_template)
+  end
+  
+  def refresh_cached_pages_with_fullslug
+    CachedPage.force_refresh_on_account_fullslug!(self.account, self.fullslug)
   end
 end
