@@ -326,7 +326,7 @@ class Account < ActiveRecord::Base
       flaggings
       assignees steps tasks workflows
       installed_account_templates account_modules account_module_subscriptions subscriptions
-      categories affiliates party_domain_points).each do |table|
+      categories affiliates party_domain_points cached_pages).each do |table|
     table.singularize.classify.constantize # Ensure the associated model exists
     has_many table.to_sym, :dependent => :destroy
   end
