@@ -1372,6 +1372,18 @@ class Account < ActiveRecord::Base
     nil
   end
   
+  def force_refresh_on_cached_pages!
+    ActiveRecord::Base.transaction do
+      CachedPage.delete_all(["account_id = ?", self.id])
+    end
+  end
+  
+  def force_refresh_on_cached_pages_with_fullslug!(options)
+    ActiveRecord::Base.transaction do
+      CachedPage.delete_all(["account_id = ? AND page_fullslug = ?", self.id, options[:fullslug]])
+    end
+  end
+  
   protected
   def process_affiliate_account(affiliate_account)
     item = AffiliateAccountItem.new
