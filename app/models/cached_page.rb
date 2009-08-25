@@ -368,4 +368,14 @@ class CachedPage < ActiveRecord::Base
     MethodCallbackFuture.create!(:priority => 150, :account => account, :owner => account.owner, :model => account, 
       :method => "force_refresh_on_cached_pages_with_fullslug!", :params => {:fullslug => fullslug})
   end
+  
+  def self.force_refresh_on_account_stylesheets!(account)
+    MethodCallbackFuture.create!(:priority => 150, :account => account, :owner => account.owner, :model => account, 
+      :method => "force_refresh_on_cached_page_stylesheets!")
+  end
+  
+  def self.force_refresh_on_account_javascripts!(account)
+    MethodCallbackFuture.create!(:priority => 150, :account => account, :owner => account.owner, :model => account, 
+      :method => "force_refresh_on_cached_page_javascripts!")
+  end
 end
