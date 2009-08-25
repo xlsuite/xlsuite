@@ -444,6 +444,8 @@ class SnippetsController < ApplicationController
           s.save!
         end
       end
+      CachedPage.force_refresh_on_account!(self.current_account) if params[:force_refresh]
+      CachedPage.force_refresh_on_account_fullslug!(self.current_account, params[:force_refresh_with_fullslug]) if params[:force_refresh_with_fullslug]
     end
     respond_to do |format|
       flash_success :now, "#{params[:snippet].size} snippets were updated."
