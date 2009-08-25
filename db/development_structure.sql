@@ -511,6 +511,7 @@ CREATE TABLE `cached_pages` (
   `created_at` datetime default NULL,
   `updated_at` datetime default NULL,
   `refresh_requested` tinyint(1) default '0',
+  `last_visited_at` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_account_domain_uri` (`account_id`,`domain_id`,`uri`(255)),
   KEY `by_account_domain_uri_last_refreshed` (`account_id`,`domain_id`,`uri`(255),`last_refreshed_at`),
@@ -2968,3 +2969,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090821190703');
 INSERT INTO schema_migrations (version) VALUES ('20090822000930');
 
 INSERT INTO schema_migrations (version) VALUES ('20090825005903');
+
+INSERT INTO schema_migrations (version) VALUES ('20090825234151');
