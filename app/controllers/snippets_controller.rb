@@ -398,6 +398,9 @@ class SnippetsController < ApplicationController
       end
       @snippet.save!
       @updated = true
+      if @updated && params[:force_refresh]
+        CachedPage.force_refresh_on_account!(self.current_account)
+      end
       respond_to do |format|
         @close = true if params[:commit_type] =~ /close/i
         format.js do
