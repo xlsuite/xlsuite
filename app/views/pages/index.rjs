@@ -273,6 +273,53 @@ page << create_tab_using_ajax_response("Pages | Index", after_render) do
     });
   });
   
+  var refreshRequest = function(msgtext, params){
+    Ext.Msg.confirm("Cache Refresh", msgtext, function(btn){
+      if (btn.match(new RegExp("yes","i"))){
+        Ext.Ajax.request({
+          url:#{refresh_cached_pages_pages_path.to_json}
+          ,method:"POST"
+          ,params:params
+          ,success:function(response,options){
+            var response = Ext.decode(response.responseText);
+            if(response.success){
+              Ext.Msg.alert("Cache Refresh", "Your request has been placed on the queue.");
+            }
+          }
+          ,failure:function(){
+            Ext.Msg.alert("Cache Refresh", "Request FAILED. Please try again later. If problem persists contact XLsuite admin.");
+          }
+        })      
+      }
+    });
+  };
+  
+  var cacheRefreshMenu = new Ext.menu.Menu({
+    items:[
+      new Ext.Action({
+        text: "All"
+        ,iconCls: "display_none"
+        ,handler:function(){
+          refreshRequest("Refresh all cached pages. Are you sure?", {"all":"1"});
+        }
+      })
+      ,new Ext.Action({
+        text: "Stylesheets"
+        ,iconCls: "display_none"
+        ,handler:function(){
+          refreshRequest("Refresh all cached stylesheet pages. Are you sure?", {"stylesheets":"1"});
+        }
+      })
+      ,new Ext.Action({
+        text: "Javascripts"
+        ,iconCls: "display_none"
+        ,handler:function(){
+          refreshRequest("Refresh all cached javascript pages. Are you sure?", {"javascripts":"1"});
+        }
+      })
+    ]
+  });
+  
   var embedCodePagePath = #{embed_code_page_path(:id => "__ID__").to_json};
   embedCodeAction.setHandler(function(e) {
     var selectedId = selectedIds.first();
@@ -324,6 +371,7 @@ page << create_tab_using_ajax_response("Pages | Index", after_render) do
   xl.viewport.render();
   
   grid.getTopToolbar().add({ text: "Actions", menu: selectionMenu });
+  grid.getTopToolbar().add({text:"Cache Refresh", menu: cacheRefreshMenu});
   
   grid.getSelectionModel().on("selectionchange", function(){
     records = grid.getSelectionModel().getSelections();
