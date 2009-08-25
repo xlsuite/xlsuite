@@ -293,7 +293,7 @@ class CachedPage < ActiveRecord::Base
   # or if next_refreshed_at has passed
   # Increment visit_num attribute by 1
   def refresh_check!
-    self.update_attribute(:visit_num, self.visit_num + 1)
+    self.update_attributes({:last_visited_at => Time.now.utc, :visit_num => self.visit_num + 1})
     return false if self.uri.split(".").last =~ /css|js/i
     if !self.refresh_requested? && (self.cap_visit_num <= self.visit_num || self.next_refresh_at <= Time.now.utc)
       self.update_attribute(:refresh_requested, true)
@@ -352,7 +352,7 @@ class CachedPage < ActiveRecord::Base
   def self.create_from_uri_page_and_domain(uri, page, domain, other_attributes={})
     cached_page = self.new(:account_id => page.account_id, :domain_id => domain.id, 
       :page_id => page.id, :page_fullslug => page.fullslug || "", :uri => uri,
-      :cap_visit_num => VISIT_REFRESH_INTERVAL, :visit_num => 0,
+      :cap_visit_num => VISIT_REFRESH_INTERVAL, :visit_num => 0, :last_visited_at => Time.now.utc,
       :next_refresh_at => Time.now.utc, :refresh_period_in_seconds => REFRESH_INTERVAL)
     cached_page.attributes = other_attributes
     saved = cached_page.save
