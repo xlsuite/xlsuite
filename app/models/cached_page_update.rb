@@ -295,9 +295,9 @@ class CachedPageUpdate < ActiveRecord::Base
   end
   
   def do_refresh!
-    if self.cached_page.refresh!
-      return self.destroy
+    if self.cached_page
+      self.cached_page.refresh!
     end
-    false
+    self.destroy
   end
 end
