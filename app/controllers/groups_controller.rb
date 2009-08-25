@@ -434,6 +434,23 @@ class GroupsController < ApplicationController
       end
     end
   end
+  
+  def reorder
+    source = current_account.groups.find(params[:id])
+    if params[:type] == "append"
+      target = current_account.groups.find(params[:target_id])
+    else
+      target = current_account.groups.find(params[:target_id]).parent
+    end
+    source.parent = target
+    saved = source.save
+    
+    respond_to do |format|
+      format.js do
+        render :json => {:success => saved, :flash => saved ? "Group '#{source.label}' has been moved" : source.errors.full_messages}
+      end
+    end
+  end
 
   def effective_permissions
     effective_permissions = @group.effective_permissions
@@ -519,7 +536,7 @@ class GroupsController < ApplicationController
       end
       hash.merge!(:children => children_hashes)
     else
-      hash.merge!(:leaf => true)
+      hash.merge!(:children => [], :expanded => true)
     end
     hash
   end

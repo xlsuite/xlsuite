@@ -123,6 +123,7 @@ page << create_tab_using_ajax_response("Groups", after_render) do
       url: #{formatted_groups_path(:format => :json).to_json},
       baseAttrs: {uiProvider: Ext.tree.TreeCheckNodeUI}
     }),
+    enableDD: true,
     tbar: [addToRootAction, addAction, deleteAction],
     listeners: {
         check: function(node, checked){
@@ -145,9 +146,35 @@ page << create_tab_using_ajax_response("Groups", after_render) do
         },
         dblclick: function(node, event){
           xl.openNewTabPanel('groups_edit_' + 'node.id', editGroupPath.sub("__ID__", node.id));
+        },
+        beforenodedrop: function(e){
+          var ids = [];
+          var options = {
+            url: "/admin/groups/reorder",
+            method: "post",
+            scope: this,
+            callback: groupDropCallback,
+            params: {
+              id: e.data.node.id,
+              target_id: e.target.id,
+              type: e.point
+            }
+          };
+          Ext.Ajax.request(options);
+          return true;
         }
       }
   });
+  
+  var groupDropCallback = function(options, success, response) {
+    response = Ext.decode(response.responseText);
+    if(response.success){
+      $("status-bar-notifications").innerHTML = response.flash;
+    }
+    else{
+      Ext.Msg.alert("Error moving group", response.errors);
+    } 
+  };
   
   xl.groupsTreePanel = groupsFileTreePanel;
 
