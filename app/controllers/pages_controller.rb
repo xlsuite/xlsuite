@@ -536,6 +536,20 @@ class PagesController < ApplicationController
       format.js
     end
   end
+  
+  def refresh_cached_pages
+    if params[:all]
+      CachedPage.force_refresh_on_account! 
+    else
+      CachedPage.force_refresh_on_account_stylesheets!(self.current_account) if params[:stylesheets]
+      CachedPage.force_refresh_on_account_javascripts!(self.current_account) if params[:javascripts]
+    end
+    respond_to do |format|
+      format.js do
+        render(:json => {:success => true}.to_json)
+      end
+    end
+  end
 
   def behavior
     @page = load_page_by_id rescue current_account.pages.build

@@ -282,7 +282,8 @@ ActionController::Routing::Routes.draw do |map|
       :collection => {:destroy_collection => :post, :async_get_selection => :get}
   map.resources :pages, :path_prefix => "/admin",
       :member => {:behavior => :get, :embed_code => :get, :revisions => :get, :revision => :get}, :new => {:behavior => :get},
-      :collection => {:sandbox => :get, :find_pages_json => :get, :destroy_collection => :post, :convert_to_snippet => :post}
+      :collection => {:sandbox => :get, :find_pages_json => :get, :destroy_collection => :post, :convert_to_snippet => :post,
+        :refresh_cached_pages => :post}
   
   map.resources :redirects, :path_prefix => "/admin", 
     :collection => {:destroy_collection => :post, :update_collection => :put, :import => :post}
