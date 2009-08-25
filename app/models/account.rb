@@ -1384,6 +1384,14 @@ class Account < ActiveRecord::Base
     end
   end
   
+  def force_refresh_on_cached_page_stylesheets!
+    CachedPage.delete_all(["account_id = ? AND page_fullslug LIKE '%.css'", self.id])
+  end
+  
+  def force_refresh_on_cached_page_javascripts!
+    CachedPage.delete_all(["account_id = ? AND page_fullslug LIKE '%.js'", self.id])
+  end
+  
   protected
   def process_affiliate_account(affiliate_account)
     item = AffiliateAccountItem.new
