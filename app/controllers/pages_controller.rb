@@ -539,7 +539,7 @@ class PagesController < ApplicationController
   
   def refresh_cached_pages
     if params[:all]
-      CachedPage.force_refresh_on_account! 
+      CachedPage.force_refresh_on_account!(self.current_account)
     else
       CachedPage.force_refresh_on_account_stylesheets!(self.current_account) if params[:stylesheets]
       CachedPage.force_refresh_on_account_javascripts!(self.current_account) if params[:javascripts]
