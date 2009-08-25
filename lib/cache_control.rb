@@ -296,6 +296,10 @@ module CacheControl
 
     CacheControl.cache_control_headers(params)
   end
+  
+  def allow_cache?
+    self.cache_control_directive != "no-cache"
+  end
 
   # Returns a Hash of headers suitable for HTTP which control caching.
   def self.cache_control_headers(params={})
