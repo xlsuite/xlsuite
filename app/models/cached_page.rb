@@ -76,8 +76,11 @@ class CachedPage < ActiveRecord::Base
   end
   
   def self.force_refresh_on_account!(account)
-    ActiveRecord::Base.transaction do
-      self.delete_all(["account_id = ?", account.id])
-    end
+    MethodCallbackFuture.create!(:priority => 150, :account => account, :owner => account.owner, :model => account, :method => "force_refresh_on_cached_pages!")
+  end
+  
+  def self.force_refresh_on_account_fullslug!(account, fullslug)
+    MethodCallbackFuture.create!(:priority => 150, :account => account, :owner => account.owner, :model => account, 
+      :method => "force_refresh_on_cached_pages_with_fullslug!", :params => {:fullslug => fullslug})
   end
 end
