@@ -714,6 +714,17 @@ CREATE TABLE `destinations` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `domain_available_items` (
+  `id` int(11) NOT NULL auto_increment,
+  `account_id` int(11) default NULL,
+  `domain_id` int(11) default NULL,
+  `item_type` varchar(255) default NULL,
+  `item_id` int(11) default NULL,
+  `created_at` datetime default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `by_domain_item_type_item_id` (`domain_id`,`item_type`,`item_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `domain_subscriptions` (
   `id` int(11) NOT NULL auto_increment,
   `started_at` datetime default NULL,
@@ -2977,3 +2988,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090825234151');
 INSERT INTO schema_migrations (version) VALUES ('20090825235234');
 
 INSERT INTO schema_migrations (version) VALUES ('20090826000341');
+
+INSERT INTO schema_migrations (version) VALUES ('20090826192046');
