@@ -516,7 +516,9 @@ CREATE TABLE `cached_pages` (
   KEY `by_account_domain_uri` (`account_id`,`domain_id`,`uri`(255)),
   KEY `by_account_domain_uri_last_refreshed` (`account_id`,`domain_id`,`uri`(255),`last_refreshed_at`),
   KEY `by_next_refresh_at` (`next_refresh_at`),
-  KEY `by_visit_num` (`visit_num`)
+  KEY `by_visit_num` (`visit_num`),
+  KEY `by_last_visited_at` (`last_visited_at`),
+  KEY `by_account_page_fullslug` (`account_id`,`page_fullslug`(255))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `cart_lines` (
@@ -2971,3 +2973,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090822000930');
 INSERT INTO schema_migrations (version) VALUES ('20090825005903');
 
 INSERT INTO schema_migrations (version) VALUES ('20090825234151');
+
+INSERT INTO schema_migrations (version) VALUES ('20090825235234');
