@@ -25,6 +25,8 @@ ActionController::Routing::Routes.draw do |map|
     :member => {:attach_product_categories => :post, :detach_product_categories => :delete, :change_password => :post, :embed_code => :get},
     :collection => {:check_alias => :get, :check_custom_url => :get, :auto_complete => :get}
   
+  map.resources :domain_available_items, :path_prefix => "/admin", :collection => {:destroy_collection => :delete, :add_collection => :post}
+  
   map.resources :product_items, :path_prefix => "/admin", :collection => {:destroy_collection => :delete}
   
   map.resources :product_grants, :path_prefix => "/admin", :collection => {:destroy_collection => :delete}
