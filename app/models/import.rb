@@ -495,12 +495,14 @@ class Import < ActiveRecord::Base
       create_profile     = self.mappings[:create_profile]
       group_name         = self.mappings[:group]
       group              = self.account.groups.find_by_name(group_name)
+      available_on_domain_id = self.mappings[:domain_id]
+      
       self.import_errors, self.imported_lines = [], []
       FasterCSV.parse(self.csv)[header_lines_count + self.imported_rows_count .. -1].in_groups_of(100, false) do |rows|
         Party.transaction do
           rows.each do |row|
             raise "aborting" if row[0] == "c"
-            import_row(row, mapper, tag_list_field, create_profile, group)
+            import_row(row, mapper, tag_list_field, create_profile, group, available_on_domain_id)
           end
           
           # Prepare for next round, in case of a crash
@@ -525,7 +527,7 @@ class Import < ActiveRecord::Base
     @total_rows_count ||= FasterCSV.parse(self.csv).length - self.mappings[:header_lines_count].to_i
   end
   
-  def import_row(row, mapper, tag_list_field, create_profile, group)
+  def import_row(row, mapper, tag_list_field, create_profile, group, available_on_domain_id)
     party = mapper.to_object(row)
     return party.destroy if party.email_addresses.map(&:email_address).blank? && self.mappings[:exclude_no_email]
     
@@ -546,6 +548,10 @@ class Import < ActiveRecord::Base
       if party.biography 
         profile.about = party.biography
         profile.save!
+      end
+      if !available_on_domain_id.blank?
+        available_on_domain_id = available_on_domain_id.to_i
+        DomainAvailableItem.create(:account_id => profile.account_id, :domain_id => available_on_domain_id, :item_type => profile.class.name, :item_id => profile.id)
       end
       party.save!
       party.reload.copy_contact_routes_to_profile!
