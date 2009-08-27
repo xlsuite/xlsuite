@@ -44,6 +44,11 @@
   </p>
 &nbsp; | &nbsp;
   <p>
+    <label>Add To Domain:</label>
+    <%= select_tag "mappings[domain_id]", "<option value=''>None</option><option value='0'>All</option>" + options_from_collection_for_select(@domains, "id", "name", (@import && @import.mappings ? (@import.mappings[:domain_id] || "") : "")) %>
+  </p>
+&nbsp; | &nbsp;
+  <p>
     <label>Create Profile for Imports:</label>
     <%= check_box_tag "mappings[create_profile]", 1, (@import && @import.mappings ? (@import.mappings[:create_profile].blank? ? false : @import.mappings[:create_profile]) : false) %>
   </p>
