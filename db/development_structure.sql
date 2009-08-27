@@ -511,11 +511,14 @@ CREATE TABLE `cached_pages` (
   `created_at` datetime default NULL,
   `updated_at` datetime default NULL,
   `refresh_requested` tinyint(1) default '0',
+  `last_visited_at` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `by_account_domain_uri` (`account_id`,`domain_id`,`uri`(255)),
   KEY `by_account_domain_uri_last_refreshed` (`account_id`,`domain_id`,`uri`(255),`last_refreshed_at`),
   KEY `by_next_refresh_at` (`next_refresh_at`),
-  KEY `by_visit_num` (`visit_num`)
+  KEY `by_visit_num` (`visit_num`),
+  KEY `by_last_visited_at` (`last_visited_at`),
+  KEY `by_account_page_fullslug` (`account_id`,`page_fullslug`(255))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `cart_lines` (
@@ -710,6 +713,17 @@ CREATE TABLE `destinations` (
   `cost_currency` varchar(4) default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `domain_available_items` (
+  `id` int(11) NOT NULL auto_increment,
+  `account_id` int(11) default NULL,
+  `domain_id` int(11) default NULL,
+  `item_type` varchar(255) default NULL,
+  `item_id` int(11) default NULL,
+  `created_at` datetime default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `by_domain_item_type_item_id` (`domain_id`,`item_type`,`item_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `domain_subscriptions` (
   `id` int(11) NOT NULL auto_increment,
@@ -2968,3 +2982,11 @@ INSERT INTO schema_migrations (version) VALUES ('20090821190703');
 INSERT INTO schema_migrations (version) VALUES ('20090822000930');
 
 INSERT INTO schema_migrations (version) VALUES ('20090825005903');
+
+INSERT INTO schema_migrations (version) VALUES ('20090825234151');
+
+INSERT INTO schema_migrations (version) VALUES ('20090825235234');
+
+INSERT INTO schema_migrations (version) VALUES ('20090826000341');
+
+INSERT INTO schema_migrations (version) VALUES ('20090826192046');

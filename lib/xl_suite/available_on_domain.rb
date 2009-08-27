@@ -278,106 +278,77 @@
 # POSSIBILITY OF SUCH DAMAGES.
 # 
 # 		     END OF TERMS AND CONDITIONS
-class CachedPage < ActiveRecord::Base
-  belongs_to :account
-  belongs_to :domain
-  belongs_to :page
-  
-  REFRESH_INTERVAL = 600
-  VISIT_REFRESH_INTERVAL = 5
-  
-  validates_presence_of :account_id, :domain_id, :page_id, :cap_visit_num, :visit_num, :next_refresh_at, :refresh_period_in_seconds
-  validates_uniqueness_of :uri, :scope => [:account_id, :domain_id]
-  
-  # This method creates MethodCallbackFuture to refresh the page when visit_num is bigger than cap_visit_num
-  # or if next_refreshed_at has passed
-  # Increment visit_num attribute by 1
-  def refresh_check!
-    self.update_attributes({:last_visited_at => Time.now.utc, :visit_num => self.visit_num + 1})
-    return false if self.uri.split(".").last =~ /css|js/i
-    if !self.refresh_requested? && (self.cap_visit_num <= self.visit_num || self.next_refresh_at <= Time.now.utc)
-      self.update_attribute(:refresh_requested, true)
-      CachedPageUpdate.create(:domain_id => self.domain.id, :cached_page_id => self.id)
-    end
-  end
+module XlSuite
+  module AvailableOnDomain
+    def self.included(base) #:nodoc:
+      base.send :extend, AvailableOnDomain::ClassMethods
+      base.send :include, AvailableOnDomain::InstanceMethods
+    end  
 
-  # This method refresh the rendered_content and rendered_content_type attributes
-  def refresh!
-    cart = self.account.carts.build
-    cart.domain = self.domain
-
-    t_paths, t_params = self.uri.split("?")
-    t_paths.gsub!(/\/\Z/i, "") if (t_paths && t_paths != "/")
-    t_paths = "/" if t_paths.blank?
+    module ClassMethods
+      def count_available_on_domain(domain)
+        domain = case domain
+          when Domain
+            domain
+          when Fixnum
+            Domain.find(domain)
+          end
+        DomainAvailableItem.count(:select => "DISTINCT item_id", :conditions => {:account_id => domain.account.id, 
+          :item_type => self.name, :domain_id => [0, domain.id]})
+      end
     
-    # get page with its params
-    t_page, page_params = self.domain.recognize(t_paths)
-    return self.destroy unless t_page
-    self.page = t_page
-    self.page_fullslug = self.page.fullslug
+      def available_on_domain_ids(domain)
+        domain = case domain
+          when Domain
+            domain
+          when Fixnum
+            Domain.find(domain)
+          end
+        DomainAvailableItem.all(:select => "DISTINCT item_id", :conditions => {:account_id => domain.account.id, 
+          :item_type => self.name, :domain_id => [0, domain.id]}).map(&:item_id)
+      end
+    
+      def available_on_domain(domain)
+        self.all(:conditions => {:id => self.available_on_domain_ids(domain)})
+      end      
+    end
 
-    params = {}
-    if t_params
-      t_params.gsub!(/#.*/i, "")
-      t_params = t_params.split("&") 
-      t_params.each do |t_param|
-        key, value = t_param.split("=")
-        # sometimes a param doesn't have value
-        params[key] = CGI::unescape(value) if value
+    module InstanceMethods
+      def add_domain(domain)
+        domain_id = domain
+        if domain != 0
+          domain_id = case domain
+            when Domain
+              domain
+            when Fixnum
+              Domain.find(domain)
+            end
+        end
+        DomainAvailableItem.create(:item_type => self.class.name, :item_id => self.id, :account_id => self.account.id, :domain_id => domain_id)
+      end
+      
+      def remove_domain(domain)
+        domain_id = domain
+        if domain != 0
+          domain_id = case domain
+            when Domain
+              domain
+            when Fixnum
+              Domain.find(domain)
+            end
+        end
+        DomainAvailableItem.delete_all(:item_type => self.class.name, :item_id => self.id, :account_id => self.account.id, :domain_id => domain_id)
+      end
+
+      def available_on_domain?(domain)
+        domain = case domain
+          when Domain
+            domain
+          when Fixnum
+            Domain.find(domain)
+          end
+        DomainAvailableItem.count(:id, :conditions => {:account_id => domain.account.id, :domain_id => [0, domain.id]}) > 0
       end
     end
-    params.merge!(page_params)
-       
-    options = {:current_account => self.account, :current_account_owner => self.account.owner,
-      :tags => TagsDrop.new, :user_affiliate_username => "",
-      :current_page_url => ("http://" + self.domain.name + self.uri), :current_page_slug => self.uri, :cart => cart,
-      :flash => {:errors => "", :messages => "", :notices => ""},
-      :params => params, :logged_in => false}
-
-    render_options = self.page.render_on_domain(self.domain, options)
-    self.rendered_content = render_options[:text]
-    self.rendered_content_type = render_options[:content_type]
-
-    self.next_refresh_at = Time.now.utc + self.refresh_period_in_seconds
-    self.last_refreshed_at = Time.now.utc
-    self.visit_num = 0
-    self.refresh_requested = false
-    if self.save
-      true
-    else
-      self.destroy
-    end
-  end
-  
-  def self.create_from_uri_page_and_domain(uri, page, domain, other_attributes={})
-    cached_page = self.new(:account_id => page.account_id, :domain_id => domain.id, 
-      :page_id => page.id, :page_fullslug => page.fullslug || "", :uri => uri,
-      :cap_visit_num => VISIT_REFRESH_INTERVAL, :visit_num => 0, :last_visited_at => Time.now.utc,
-      :next_refresh_at => Time.now.utc, :refresh_period_in_seconds => REFRESH_INTERVAL)
-    cached_page.attributes = other_attributes
-    saved = cached_page.save
-    if saved
-      CachedPageUpdate.create(:domain_id => domain.id, :cached_page_id => cached_page.id)
-    end
-    saved
-  end
-  
-  def self.force_refresh_on_account!(account)
-    MethodCallbackFuture.create!(:priority => 150, :account => account, :owner => account.owner, :model => account, :method => "force_refresh_on_cached_pages!")
-  end
-  
-  def self.force_refresh_on_account_fullslug!(account, fullslug)
-    MethodCallbackFuture.create!(:priority => 150, :account => account, :owner => account.owner, :model => account, 
-      :method => "force_refresh_on_cached_pages_with_fullslug!", :params => {:fullslug => fullslug})
-  end
-  
-  def self.force_refresh_on_account_stylesheets!(account)
-    MethodCallbackFuture.create!(:priority => 150, :account => account, :owner => account.owner, :model => account, 
-      :method => "force_refresh_on_cached_page_stylesheets!")
-  end
-  
-  def self.force_refresh_on_account_javascripts!(account)
-    MethodCallbackFuture.create!(:priority => 150, :account => account, :owner => account.owner, :model => account, 
-      :method => "force_refresh_on_cached_page_javascripts!")
   end
 end

@@ -25,6 +25,8 @@ ActionController::Routing::Routes.draw do |map|
     :member => {:attach_product_categories => :post, :detach_product_categories => :delete, :change_password => :post, :embed_code => :get},
     :collection => {:check_alias => :get, :check_custom_url => :get, :auto_complete => :get}
   
+  map.resources :domain_available_items, :path_prefix => "/admin", :collection => {:destroy_collection => :delete, :add_collection => :post}
+  
   map.resources :product_items, :path_prefix => "/admin", :collection => {:destroy_collection => :delete}
   
   map.resources :product_grants, :path_prefix => "/admin", :collection => {:destroy_collection => :delete}
@@ -282,7 +284,8 @@ ActionController::Routing::Routes.draw do |map|
       :collection => {:destroy_collection => :post, :async_get_selection => :get}
   map.resources :pages, :path_prefix => "/admin",
       :member => {:behavior => :get, :embed_code => :get, :revisions => :get, :revision => :get}, :new => {:behavior => :get},
-      :collection => {:sandbox => :get, :find_pages_json => :get, :destroy_collection => :post, :convert_to_snippet => :post}
+      :collection => {:sandbox => :get, :find_pages_json => :get, :destroy_collection => :post, :convert_to_snippet => :post,
+        :refresh_cached_pages => :post}
   
   map.resources :redirects, :path_prefix => "/admin", 
     :collection => {:destroy_collection => :post, :update_collection => :put, :import => :post}

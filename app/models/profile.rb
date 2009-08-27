@@ -3,6 +3,8 @@
 
 class Profile < ActiveRecord::Base
   include XlSuite::Commentable
+  include XlSuite::AvailableOnDomain
+  
   belongs_to :account
   has_one :party, :class_name => "Party", :foreign_key => :profile_id
   belongs_to :owner, :class_name => "Party", :foreign_key => :owner_id
