@@ -288,6 +288,7 @@ class ImportsController < ApplicationController
   
   before_filter :load_import, :except => %w(index new create destroy_all summaries new_scrape scrape)
   before_filter :load_groups, :only => %w(edit new_scrape)
+  before_filter :load_domains, :only => %w(edit new_scrape)
   
   helper MappersHelper
   
@@ -459,6 +460,10 @@ protected
   
   def load_groups
     @groups = current_account.groups
+  end
+  
+  def load_domains
+    @domains = Domain.all(:conditions => {:account_id => self.current_account.id}, :order => "name")
   end
   
   def check_account_authorization
