@@ -380,7 +380,6 @@ page << create_tab_using_ajax_response(tab_panel_title) do
     proxy:domainAvailableProxy
     ,baseParams:{item_type:"Profile", item_id:#{@profile.id}}
     ,reader:domainAvailableReader
-    ,autoLoad:true
   });
 
   var domainAvailableCheckColumn = new Ext.grid.CheckColumn({
@@ -421,6 +420,9 @@ page << create_tab_using_ajax_response(tab_panel_title) do
       domainAvailableCheckColumn
       ,{header:"Domain", dataIndex:"domain_name", width:300}
     ])
+    ,listeners:{
+      "render":function(cpt){cpt.getStore().load()}
+    }
   });
   
   //===============================================END OF DOMAIN AVAILABLE GRID=================================================//  
