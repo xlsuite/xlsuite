@@ -310,10 +310,36 @@ module XlSuite
     
       def available_on_domain(domain)
         self.all(:conditions => {:id => self.available_on_domain_ids(domain)})
-      end
+      end      
     end
 
     module InstanceMethods
+      def add_domain(domain)
+        domain_id = domain
+        if domain != 0
+          domain_id = case domain
+            when Domain
+              domain
+            when Fixnum
+              Domain.find(domain)
+            end
+        end
+        DomainAvailableItem.create(:item_type => self.class.name, :item_id => self.id, :account_id => self.account.id, :domain_id => domain_id)
+      end
+      
+      def remove_domain(domain)
+        domain_id = domain
+        if domain != 0
+          domain_id = case domain
+            when Domain
+              domain
+            when Fixnum
+              Domain.find(domain)
+            end
+        end
+        DomainAvailableItem.delete_all(:item_type => self.class.name, :item_id => self.id, :account_id => self.account.id, :domain_id => domain_id)
+      end
+
       def available_on_domain?(domain)
         domain = case domain
           when Domain
