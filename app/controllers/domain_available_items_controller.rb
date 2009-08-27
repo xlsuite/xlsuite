@@ -2,7 +2,7 @@ class DomainAvailableItemsController < ApplicationController
   required_permissions %w(index add_collection destroy_collection) => "current_user?"
   
   def index
-    available_domain_ids = DomainAvailableItem.all(:conditions => {:item_type => params[:item_type], :item_id => params[:item_id]}).map(&:id)
+    available_domain_ids = DomainAvailableItem.all(:conditions => {:item_type => params[:item_type], :item_id => params[:item_id]}).map(&:domain_id)
     domains = Domain.all(:conditions => {:account_id => self.current_account.id}, :order => "name")
     result = [{:domain_name => "All", :domain_id => 0, :checked => available_domain_ids.include?(0)}]
     domains.each do |domain|
