@@ -1,40 +1,103 @@
 after_render = ""
 
+addGroupWindow = %Q`
+      var win = new Ext.Window({
+        title: "New Group",
+        modal: true,
+        width:350,
+        autoHeight:true,
+        closeAction:'hide',
+        plain: true,
+        items: [ newGroupFormPanel ],
+        buttons: [{
+          text:'Submit',
+          handler: function(){
+            newGroupFormPanel.getForm().doAction("submit",
+                {
+                  url: #{groups_path.to_json},
+                  method: "POST",
+                  success: function(form, action){
+                    var response = action.result;
+                    if (response.success){
+                      groupsFileTreePanel.getLoader().load(groupsRootTreeNode);
+                    }
+                    else {
+                      Ext.Msg.alert("Error:", response.errors);
+                    }
+                    groupsFileTreePanel.el.unmask();
+                  },
+                  failure: function(form, action){
+                    var response = action.result;
+                    Ext.Msg.alert("Error:", response.errors);
+                    groupsFileTreePanel.el.unmask();
+                  }
+                }
+              );
+            win.hide();
+          }
+      },{
+          text: 'Close',
+          handler: function(){
+              win.hide();
+          }
+        }]
+      });
+      
+      win.show();
+`
+
 page << create_tab_using_ajax_response("Groups", after_render) do
 %Q`
   var selectedIds = new Array();
   var clickedId = null;
   
+  var groupParentIdField = new Ext.form.Hidden({
+    name: "group[parent_id]"
+  });
+  
+  var newGroupFormPanel = new Ext.form.FormPanel({
+    defaults: { width:200 },
+    items:[
+      new Ext.form.TextField({
+        fieldLabel: "Name",
+        name: "group[name]"
+      }),
+      new Ext.form.TextField({
+        fieldLabel: "Label",
+        name: "group[label]"
+      }),
+      new Ext.form.Checkbox({
+        fieldLabel: "Private?",
+        name: "group[private]",
+        inputValue: '1'
+      }),
+      new Ext.form.TextField({
+        fieldLabel: "Tag List",
+        name: "group[tag_list]"
+      }),
+      new Ext.form.TextArea({
+        fieldLabel: "Description",
+        name: "group[description]"
+      }),
+      new Ext.form.TextArea({
+        fieldLabel: "Private Description",
+        name: "group[private_description]"
+      }),
+      new Ext.form.TextArea({
+        fieldLabel: "Web Copy",
+        name: "group[web_copy]"
+      }),
+      groupParentIdField
+    ]
+  });
+  
   var addToRootAction = new Ext.Action({
     text: "Add to Root",
     iconCls: "display_none",
     handler: function(){
-      var params = {};
-      Ext.Msg.prompt("Root Group Label", "Enter the root group label:", function(btn, text){
-        if (btn == "ok") {
-          params["group[label]"] = text;
-          groupsFileTreePanel.el.mask("Adding '"+ text +"' to the root...");
-          Ext.Ajax.request({
-            url: #{groups_path.to_json},
-            method: "POST",
-            params: params,
-            callback: function(options, success, response){
-              var response = Ext.util.JSON.decode(response.responseText);
-              if (response.success){
-                groupsFileTreePanel.getLoader().load(groupsRootTreeNode);
-              }
-              else {
-                Ext.Msg.alert("Error:", response.errors);
-              }
-              groupsFileTreePanel.el.unmask();
-            },
-            failure: function(response, options){
-              #{self.connection_error_message}
-              groupsFileTreePanel.el.unmask();
-            }
-          });
-        }
-      });
+      groupParentIdField.setValue(null);
+      
+      #{addGroupWindow}
     }
   });
   
@@ -43,33 +106,9 @@ page << create_tab_using_ajax_response("Groups", after_render) do
     text: "Add",
     iconCls: "display_none",
     handler: function(){
-      var params = {};
-      params["group[parent_id]"] = clickedId;
-      Ext.Msg.prompt("Group Label", "Please enter the group label:", function(btn, text){
-        if (btn == "ok") {
-          params["group[label]"] = text;
-          groupsFileTreePanel.el.mask("Adding a new group...");
-          Ext.Ajax.request({
-            url: #{groups_path.to_json},
-            method: "POST",
-            params: params,
-            callback: function(options, success, response){
-              var response = Ext.util.JSON.decode(response.responseText);
-              if (response.success){
-                groupsFileTreePanel.getLoader().load(groupsRootTreeNode);
-              }
-              else {
-                Ext.Msg.alert("Error:", response.errors);
-              }
-              groupsFileTreePanel.el.unmask();
-            },
-            failure: function(response, options){
-              #{self.connection_error_message}
-              groupsFileTreePanel.el.unmask();
-            }
-          });
-        }
-      });
+      groupParentIdField.setValue(clickedId);
+      
+      #{addGroupWindow}
     }
   });
 
