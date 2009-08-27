@@ -31,8 +31,12 @@ class DomainAvailableItemsController < ApplicationController
   end
     
   def destroy_collection
-    domain_ids = params[:domain_ids].split(",").map(&:to_i)
-    DomainAvailableItem.delete_all({:item_type => params[:item_type], :item_id => params[:item_id], :domain_id => domain_ids})
+    if params[:all]
+      DomainAvailableItem.delete_all({:item_type => params[:item_type], :item_id => params[:item_id]})
+    else
+      domain_ids = params[:domain_ids].split(",").map(&:to_i)
+      DomainAvailableItem.delete_all({:item_type => params[:item_type], :item_id => params[:item_id], :domain_id => domain_ids})
+    end
     respond_to do |format|
       format.js do
         render(:json => {:success => true}.to_json)

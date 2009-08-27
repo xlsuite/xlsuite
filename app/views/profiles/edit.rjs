@@ -402,13 +402,33 @@ page << create_tab_using_ajax_response(tab_panel_title) do
       domainAvailablePanel.el.mask("Processing..."); 
     }
     Ext.Ajax.request({
-      url: url,
-      params: params,
-      method: method,
-      success: function(response, options){
+      url: url
+      ,params: params
+      ,method: method
+      ,success: function(response, options){
         domainAvailablePanel.el.unmask();
       }
     });
+  });
+  
+  var domainAvailableToolbar = new Ext.Toolbar({
+    items:[
+      new Ext.Toolbar.Button({
+        text:"Clear All"
+        ,handler:function(btn){
+          domainAvailablePanel.el.mask("Processing...");
+          Ext.Ajax.request({
+            url:"/admin/domain_available_items/destroy_collection"
+            ,params:{all:"1", item_type:"Profile", item_id:#{@profile.id.to_json}}
+            ,method:"DELETE"
+            ,success:function(response, options){
+              domainAvailablePanel.getStore().reload();
+              domainAvailablePanel.el.unmask();
+            }
+          })
+        }
+      })
+    ]
   });
   
   var domainAvailablePanel = new Ext.grid.GridPanel({
@@ -420,6 +440,7 @@ page << create_tab_using_ajax_response(tab_panel_title) do
       domainAvailableCheckColumn
       ,{header:"Domain", dataIndex:"domain_name", width:300}
     ])
+    ,bbar:domainAvailableToolbar
     ,listeners:{
       "render":function(cpt){cpt.getStore().load()}
     }
