@@ -286,6 +286,7 @@ module XlSuite
     GroupSyntax = /group:\s*(#{Liquid::QuotedFragment})/
     TagOptionSyntax = /tag_option:\s*(#{Liquid::QuotedFragment})/
     TagsSyntax = /tags:\s*(#{Liquid::QuotedFragment})/
+    DomainNamesSyntax = /domain_names:\s*(#{Liquid::QuotedFragment})/
     OrderSyntax = /order:\s*(#{Liquid::QuotedFragment})/
     PagesCountSyntax = /pages_count:\s*([\w_]+)/
     TotalCountSyntax = /total_count:\s*([\w_]+)/
@@ -327,6 +328,7 @@ module XlSuite
       @options[:point_to_month] = $1 if markup =~ PointToMonthSyntax
       @options[:point_from_year] = $1 if markup =~ PointFromYearSyntax
       @options[:point_from_month] = $1 if markup =~ PointFromMonthSyntax
+      @options[:domain_names] = $1 if markup =~ DomainNamesSyntax
 
       raise SyntaxError, "Missing in: parameter in #{markup.inspect}" unless @options[:in]
       if @options[:page_num] || @options[:per_page] then
@@ -340,7 +342,7 @@ module XlSuite
       context_options = Hash.new
       
       [:page_num, :per_page, :group, :search, :tag_option, :tags, :order, :city, :state, :country, :randomize, :exclude,
-      :order_by_point, :point_domain, :point_to_year, :point_to_month, :point_from_year, :point_from_month].each do |option_sym|
+      :order_by_point, :point_domain, :point_to_year, :point_to_month, :point_from_year, :point_from_month, :domain_names].each do |option_sym|
         context_options[option_sym] = context[@options[option_sym]]
         context_options[option_sym] = @options[option_sym] unless context_options[option_sym]
       end      
@@ -463,6 +465,18 @@ module XlSuite
       
       profile_ids = party_ids ? current_account.parties.find(:all, :conditions => ["profile_id IS NOT NULL AND parties.id IN (?)", party_ids], :select => "parties.profile_id").map(&:profile_id) : 
                                 current_account.parties.find(:all, :conditions => "profile_id IS NOT NULL", :select => "parties.profile_id").map(&:profile_id)
+      
+      if @options[:domain_names]
+        domain_names = context_options[:domain_names].split(",").map(&:strip)
+        domains = Domain.all(:conditions => {:name => domain_names})
+        t_profile_ids = []
+        domains.each do |domain|
+          t_profile_ids += Profile.available_on_domain_ids(domain)
+        end
+        t_profile_ids.uniq!
+        profile_ids = profile_ids & t_profile_ids
+      end
+      
       conditions << "profiles.id IN (:profile_ids)"
       condition_params.merge!(:profile_ids => profile_ids)
 
