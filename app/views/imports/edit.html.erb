@@ -28,7 +28,7 @@
   <p>
     <label>Use Mapper:</label>
     <select id="defaultMapperSelection" onChange="sendAJAXRequestToUpdateMappings(this)">
-      <%= options_for_select([["None", 0]] + @mappers.map {|e| [e.name, e.id]}, 0) %>
+      <%= options_for_select([["None", 0], ["Default", "default"]] + @mappers.map {|e| [e.name, e.id]}, 0) %>
     </select>
     <%= throbber("defaultMapperSelection_throbber") %>
   </p>
