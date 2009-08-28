@@ -369,7 +369,7 @@ module XlSuite
       
       protected
       def delete_domain_available_items
-        DomainAvailableItem.delete_all(:conditions => {:item_type => self.class.name, :item_id => self.id})
+        DomainAvailableItem.delete_all({:item_type => self.class.name, :item_id => self.id})
       end
       
       def update_domain_available_items
