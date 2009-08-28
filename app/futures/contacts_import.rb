@@ -280,7 +280,7 @@
 # 		     END OF TERMS AND CONDITIONS
 class ContactsImport < Future
   def run
-    Import.find(:all, :conditions => "state = 'Waiting'",
+    Import.find(:all, :conditions => "state = 'Scheduled'",
               :order => "created_at", :limit => 10).each do |import|
       begin
         if import.scrape && (import.csv == nil)
