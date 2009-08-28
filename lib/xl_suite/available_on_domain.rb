@@ -285,6 +285,7 @@ module XlSuite
       base.send :include, AvailableOnDomain::InstanceMethods
       
       base.after_destroy :delete_domain_available_items
+      base.after_save :update_domain_available_items
     end  
 
     module ClassMethods
@@ -316,27 +317,41 @@ module XlSuite
     end
 
     module InstanceMethods
+      def add_domain=(domain_name)
+        @_add_domain = domain_name
+      end
+      
+      def replace_domains=(string_domain_names)
+        @_replace_domains = string_domain_names
+      end
+      
       def add_domain(domain)
-        domain_id = domain
+        domain_id = nil
+        domain_id = 0 if domain_id == "0"
         if domain != 0
           domain_id = case domain
+            when String
+              Domain.find_by_name(domain).id
             when Domain
-              domain
+              domain.id
             when Fixnum
-              Domain.find(domain)
+              Domain.find(domain).id
             end
         end
         DomainAvailableItem.create(:item_type => self.class.name, :item_id => self.id, :account_id => self.account.id, :domain_id => domain_id)
       end
       
       def remove_domain(domain)
-        domain_id = domain
+        domain_id = nil
+        domain_id = 0 if domain_id == "0"
         if domain != 0
           domain_id = case domain
+            when String
+              Domain.find_by_name(domain).id
             when Domain
-              domain
+              domain.id
             when Fixnum
-              Domain.find(domain)
+              Domain.find(domain).id
             end
         end
         DomainAvailableItem.delete_all(:item_type => self.class.name, :item_id => self.id, :account_id => self.account.id, :domain_id => domain_id)
@@ -355,6 +370,29 @@ module XlSuite
       protected
       def delete_domain_available_items
         DomainAvailableItem.delete_all(:conditions => {:item_type => self.class.name, :item_id => self.id})
+      end
+      
+      def update_domain_available_items
+        return unless @_add_domain || @_replace_domains
+        ActiveRecord::Base.transaction do
+          begin
+            domain_names = []
+            if @_add_domain
+              domain_names << @_add_domain
+            end
+            if @_replace_domains
+              self.send(:delete_domain_available_items)
+              domain_names = @_replace_domains.split(",").map(&:strip)
+            end
+            
+            Domain.all(:conditions => {:name => domain_names}).each do |domain|
+              self.add_domain(domain)
+            end
+            true
+          rescue
+            false
+          end
+        end
       end
     end
   end
