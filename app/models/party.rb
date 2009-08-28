@@ -289,6 +289,7 @@ class Party < ActiveRecord::Base
   include ActionView::Helpers::SanitizeHelper
 
   include XlSuite::AffiliateAccountHelper
+  include XlSuite::AvailableOnDomain
 
   attr_accessor :update_effective_permissions
   attr_protected :update_effective_permissions
