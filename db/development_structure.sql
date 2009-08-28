@@ -704,6 +704,18 @@ CREATE TABLE `contact_routes` (
   KEY `by_routable_position` (`routable_type`,`routable_id`,`position`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `denied_domain_memberships` (
+  `id` int(11) NOT NULL auto_increment,
+  `domain_id` int(11) default NULL,
+  `group_id` int(11) default NULL,
+  `party_id` int(11) default NULL,
+  `created_at` datetime default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `by_domain_group_party` (`domain_id`,`group_id`,`party_id`),
+  KEY `by_domain_group` (`domain_id`,`group_id`),
+  KEY `by_group_party` (`group_id`,`party_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `destinations` (
   `id` int(11) NOT NULL auto_increment,
   `country` varchar(255) default NULL,
@@ -2990,3 +3002,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090825235234');
 INSERT INTO schema_migrations (version) VALUES ('20090826000341');
 
 INSERT INTO schema_migrations (version) VALUES ('20090826192046');
+
+INSERT INTO schema_migrations (version) VALUES ('20090828195319');
