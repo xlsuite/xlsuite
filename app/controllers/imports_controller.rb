@@ -346,7 +346,7 @@ class ImportsController < ApplicationController
     @import = current_account.imports.build(params[:import])
     @import.party = current_user
     @import.scrape = true
-    @import.state = "Waiting"
+    @import.state = "Scheduled"
     @import.mappings = Mapper.decode_mappings(params[:mappings].merge({:map=>{ "1"=>{:name=>"", :field=>"company_name", :tr=>"As-is", :model=>"Party"}, 
                                                         "2"=>{:name=>"Main", :field=>"email_address", :tr=>"As-is", :model=>"EmailContactRoute"},
                                                         "3"=>{:name=>"Main", :field=>"number", :tr=>"As-is", :model=>"PhoneContactRoute"}, 
@@ -358,7 +358,6 @@ class ImportsController < ApplicationController
                                                         "9"=>{:name=>"", :field=>"avatar", :tr=>"As-is", :model=>"Party"} }}))
                    
     @import.save!
-    MethodCallbackFuture.create!(:model => @import, :method => :go!, :account => current_account, :owner => current_user)
     render :action => 'go'
   end
   
@@ -413,7 +412,6 @@ class ImportsController < ApplicationController
     @import.save!
 
     # Schedule the import as soon as possible
-    MethodCallbackFuture.create!(:model => @import, :method => :go!, :account => current_account, :owner => current_user)
   end
   
   # Save the mapping of a particular import
