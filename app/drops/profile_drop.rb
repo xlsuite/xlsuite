@@ -307,8 +307,12 @@ class ProfileDrop < Liquid::Drop
   Asset::THUMBNAIL_SIZES.merge(:full => "").keys.each do |name|
     self.class_eval <<-EOF
       def #{name}_avatar_url
-        thumb = self.profile.avatar.thumbnails.find_by_thumbnail('#{name}')
-        self.profile.avatar ? ( thumb ? thumb.src : "public/images/thumbisbeinggen.gif" ) : "/images/Mr-Smith.jpg"
+        if self.profile.avatar
+          thumb = self.profile.avatar.thumbnails.find_by_thumbnail('#{name}')
+          thumb ? thumb.src : "public/images/thumbisbeinggen.gif"
+        else
+          "/images/Mr-Smith.jpg"
+        end
       end
     EOF
   end
