@@ -283,6 +283,8 @@ module XlSuite
     def self.included(base) #:nodoc:
       base.send :extend, AvailableOnDomain::ClassMethods
       base.send :include, AvailableOnDomain::InstanceMethods
+      
+      base.after_destroy :delete_domain_available_items
     end  
 
     module ClassMethods
@@ -348,6 +350,11 @@ module XlSuite
             Domain.find(domain)
           end
         DomainAvailableItem.count(:id, :conditions => {:account_id => domain.account.id, :domain_id => [0, domain.id]}) > 0
+      end
+      
+      protected
+      def delete_domain_available_items
+        DomainAvailableItem.delete_all(:conditions => {:item_type => self.class.name, :item_id => self.id})
       end
     end
   end
