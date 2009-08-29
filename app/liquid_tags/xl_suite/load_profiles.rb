@@ -340,6 +340,7 @@ module XlSuite
       current_account = context.current_account
       options = Hash.new
       context_options = Hash.new
+      party_ids = nil
       
       [:page_num, :per_page, :group, :search, :tag_option, :tags, :order, :city, :state, :country, :randomize, :exclude,
       :order_by_point, :point_domain, :point_to_year, :point_to_month, :point_from_year, :point_from_month, :domain_names].each do |option_sym|
@@ -462,20 +463,24 @@ module XlSuite
         end
       end
       options.merge!(:order => orders.join(",")) unless orders.empty?
-      
-      profile_ids = party_ids ? current_account.parties.find(:all, :conditions => ["profile_id IS NOT NULL AND parties.id IN (?)", party_ids], :select => "parties.profile_id").map(&:profile_id) : 
-                                current_account.parties.find(:all, :conditions => "profile_id IS NOT NULL", :select => "parties.profile_id").map(&:profile_id)
-      
+
       if @options[:domain_names]
         domain_names = context_options[:domain_names].split(",").map(&:strip)
         domains = Domain.all(:conditions => {:name => domain_names})
-        t_profile_ids = []
+        t_party_ids = []
         domains.each do |domain|
-          t_profile_ids += Profile.available_on_domain_ids(domain)
+          t_party_ids += Party.available_on_domain_ids(domain)
         end
-        t_profile_ids.uniq!
-        profile_ids = profile_ids & t_profile_ids
+        t_party_ids.uniq!
+        if party_ids
+          party_ids = party_ids & t_party_ids
+        else
+          party_ids = t_party_ids
+        end
       end
+      
+      profile_ids = party_ids ? current_account.parties.find(:all, :conditions => ["profile_id IS NOT NULL AND parties.id IN (?)", party_ids], :select => "parties.profile_id").map(&:profile_id) : 
+                                current_account.parties.find(:all, :conditions => "profile_id IS NOT NULL", :select => "parties.profile_id").map(&:profile_id)
       
       conditions << "profiles.id IN (:profile_ids)"
       condition_params.merge!(:profile_ids => profile_ids)
