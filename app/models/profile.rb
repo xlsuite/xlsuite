@@ -291,6 +291,8 @@ class Profile < ActiveRecord::Base
 
   include XlSuite::PicturesHelper
   belongs_to :avatar, :class_name => "Asset", :foreign_key => "avatar_id"
+  
+  after_save :update_party_available_on_domains
 
   has_many :profile_add_requests
   has_many :profile_claim_requests
@@ -602,6 +604,14 @@ class Profile < ActiveRecord::Base
     end
   end
   
+  def add_domain=(domain_name)
+    @_add_domain = domain_name
+  end
+  
+  def replace_domains=(string_domain_names)
+    @_replace_domains = string_domain_names
+  end
+  
   protected
   
   def generate_display_name
@@ -715,6 +725,17 @@ class Profile < ActiveRecord::Base
 
   def email_addresses_as_text
     self.email_addresses.map(&:address)
+  end
+  
+  def update_party_available_on_domains
+    t_party = self.party
+    return unless t_party
+    if @_add_domain || @_replace_domains
+      t_party.add_domain = @_add_domain
+      t_party.replace_domains = @_replace_domains
+      t_party.save
+    end
+    true
   end
   
   def method_missing(method, *args, &block)
