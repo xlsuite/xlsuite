@@ -549,14 +549,15 @@ class Import < ActiveRecord::Base
         profile.about = party.biography
         profile.save!
       end
-      if !available_on_domain_id.blank?
-        available_on_domain_id = available_on_domain_id.to_i
-        DomainAvailableItem.create(:account_id => profile.account_id, :domain_id => available_on_domain_id, :item_type => profile.class.name, :item_id => profile.id)
-      end
       party.save!
       party.reload.copy_contact_routes_to_profile!
     else
       party.save!
+    end
+
+    if !available_on_domain_id.blank?
+      available_on_domain_id = available_on_domain_id.to_i
+      DomainAvailableItem.create(:account_id => party.account_id, :domain_id => available_on_domain_id, :item_type => party.class.name, :item_id => party.id)
     end
     
     self.imported_lines << true
