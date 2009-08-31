@@ -42,7 +42,9 @@ page << create_tab_using_ajax_response("ContactRequests | Index", after_render) 
     {name: 'completed', mapping: 'completed'},
     {name: 'subject', mapping: 'subject'},
     {name: 'party_id', mapping: 'party_id'},
-    {name: 'party_email', mapping: 'party_email'}
+    {name: 'party_email', mapping: 'party_email'},
+    {name: 'domain_id', mapping: 'domain_id'},
+    {name: 'domain_name', mapping: 'domain_name'}
   ]);
   // data reader to parse the json response
   var reader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, ContactRequestRecord);
@@ -135,6 +137,7 @@ page << create_tab_using_ajax_response("ContactRequests | Index", after_render) 
           {id: "subject", header: "Subject", width: 70, sortable: true, dataIndex: 'subject'},
           {id: "name", width: 110, header: "Name", sortable: true, dataIndex: 'name'},
           {id: "email", width: 130, header: "Email", sortable: true, dataIndex: 'party_email'},
+          {id: "domain", width: 130, header: "Domain", sortable: true, dataIndex: 'domain_id', renderer: function(val, meta, record, row, col, store){return record.get("domain_name");}},
           {id: "created_at", width: 75, header: "Created At", sortable: true, dataIndex: 'created_at'},
           {id: "completed_at", width: 75, header: "Completed At", sortable: true, dataIndex: 'completed_at', renderer: completedAtRenderer},
           completedCheckColumn

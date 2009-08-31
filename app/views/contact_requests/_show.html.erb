@@ -1,4 +1,5 @@
 From: <%= link_to_function(@contact_request.name, @contact_request.party ? "xl.openNewTabPanel('parties_edit_#{@contact_request.party_id}',#{edit_party_path(@contact_request.party).to_json});" : "")%> 
+<br />Domain: <%= @contact_request.domain ? @contact_request.domain.name : "Unknown" %>
 <% subject = @contact_request.subject.gsub("#", "%23") rescue "Contact Request" %>
 <% party_email = (@contact_request.party && @contact_request.party.main_email) ? @contact_request.party.main_email.email_address.to_json : false %>
 <% if party_email %>

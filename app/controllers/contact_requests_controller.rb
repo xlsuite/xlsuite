@@ -644,6 +644,8 @@ class ContactRequestsController < ApplicationController
       :completed_at => record.completed_at ? record.completed_at.strftime(timestamp_format) : "",
       :completed => record.completed_at ? true : false,
       :subject => record.subject,
+      :domain_id => record.domain_id,
+      :domain_name => record.domain ? record.domain.name : "Unknown",
       :party_id => record.party_id,
       :party_email => (record.party && record.party.main_email) ? record.party.main_email.email_address : record.email,
       :flash => flash[:notice].to_s
