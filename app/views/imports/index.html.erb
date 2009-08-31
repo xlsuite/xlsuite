@@ -10,9 +10,6 @@
 </div>
 
 <p class="small inline"><%= link_to "New Import", new_import_path %>&nbsp; | &nbsp;</p>
-<% if current_account.options.imports_scraper? %>
-  <p class="small inline"><%= link_to "Scrape", new_scrape_imports_path %>&nbsp; | &nbsp;</p>
-<% end -%>
 <p class="small inline"><%= link_to "Import Mappers", mappers_path %>&nbsp; | &nbsp;</p>
 <p class="small inline"><%= link_to "Import from Webmail", plaxo_parties_path %></p>
 

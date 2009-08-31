@@ -320,20 +320,6 @@ class Import < ActiveRecord::Base
     self.csv = file.read
   end
   
-  def scrape!
-    
-    url = self.filename.gsub("http://", "").split('/')
-    
-    case url.first
-      when /www.yellowpages\.com/i
-        do_yellowpages_com_scrape(url)
-      when /yellowpages\.ca/i
-        do_yellowpages_ca_scrape(url)
-      else
-        raise InvalidScrapeUrl
-      end
-  end
-  
   def get_line1(address_array)
     address_array.length > 2 ? (address_array.first || "") : ""
   end
@@ -359,132 +345,8 @@ class Import < ActiveRecord::Base
     return $1 ? $1 : ''
   end
   
-  def do_yellowpages_ca_scrape(url)
-    html = nil
-    
-    entry = Scraper.define do
-      process "td[width='100%'] a span", :company => :text
-      process "span.phoneNumber span.hiLiteThis", :number => :text
-      process "td[width='100%'] a#mapLink0", :url => :text
-      process "td[width='100%'] a[name*='lid=email']", :email => :text
-      process "td.icon table tr td img:not([src='/images/th_frame.gif'])" , :image => "@src"
-      process "span.address", :address => :text
-      result :company, :number, :url, :email, :image, :address
-    end
-    
-    page = Scraper.define do
-      array :entries
-      process "div.listing", :entries => entry
-      result :entries
-    end
-    
-    paginator = Scraper.define do
-      process "td.yellowHead td.alignRight a:last-child", :url => "@href"
-      result :url
-    end
-    
-    root_url = url.shift
-
-    csv = ""
-    
-    begin
-      while !url.blank?
-      logger.debug('/'+url.join('/'))
-        Net::HTTP.start(root_url) {|http|
-          http.request_get('/'+url.join('/')) {|res|
-            html = res.read_body
-          }
-        }
-        
-        entries = page.scrape(html)
-        entries.each do |entry|
-          next if self.mappings[:exclude_no_email] && (entry.email.blank? || entry.email.gsub(",", "").blank?)
-          address_array = entry.address.to_s.split(',')
-          address_array = [""] if address_array.empty?
-          csv << "#{entry.company.gsub(",", "") if entry.company}, #{entry.email.gsub(",", "") if entry.email}, #{entry.number.gsub(",", "") if entry.number}, #{entry.url.gsub(",", "") if entry.url}, "
-          csv << "#{get_line1(address_array).strip}, #{get_city(address_array).strip}, #{get_state(address_array).strip}, #{get_postal(address_array).strip}, #{entry.image.strip if entry.image}"
-          csv << "\n"
-        end unless entries.blank?
-        self.last_scraped_url = url.unshift(root_url).join("/")
-        
-        url = paginator.scrape(html)
-        logger.debug("^^^page: #{url.inspect}")
-        url = url.split('/').reject(&:blank?) unless url.blank?
-      end
-        
-      self.csv = csv
-      self.save!
-    rescue      
-      self.save
-      self.update_attribute("import_errors", $!.message + $!.backtrace.join("\n"))
-      raise ScrapeAbortedByErrors
-    end
-  end
-  
-  def do_yellowpages_com_scrape(url)
-    html = nil
-    
-    entry = Scraper.define do
-      process "h2 a", :company => :text, :url => "@href"
-      process "a.email", :email => "@href"
-      process "li.number", :number => :text
-      process "li a.web", :url => "@href"
-      process "h2+p", :address => :element
-      result :email, :company, :url, :number, :address
-    end
-    
-    page = Scraper.define do
-      array :entries
-      process "div#mid-column li.listing", :entries => entry
-      result :entries
-    end
-    
-    paginator = Scraper.define do
-      process "div#toolbar-btm li.next a", :url => "@href"
-      result :url
-    end
-    
-    root_url = url.shift
-
-    csv = ""
-    
-    begin
-      while !url.blank?
-        logger.debug('/'+url.join('/'))
-        Net::HTTP.start(root_url) {|http|
-          http.request_get('/'+url.join('/')) {|res|
-            html = res.read_body
-            logger.debug("^^^#{url}")
-          }
-        }
-        
-        entries = page.scrape(html)
-        entries.each do |entry|
-          next if self.mappings[:exclude_no_email] && (entry.email.blank? || entry.email.gsub('mailto:', '').gsub(",", "").blank?)
-          address_array = entry.address.to_s.gsub(/<.*?>/, "").split(/\n|,/)
-          csv << "#{(entry.company).gsub(",", "") if entry.company}, #{entry.email.gsub('mailto:', '').gsub(",", "") if entry.email}, #{entry.number.gsub(",", "") if entry.number}, #{entry.url.gsub(",", "") if entry.url}, "
-          csv << "#{get_line1(address_array).strip}, #{get_city(address_array).strip}, #{get_state(address_array).strip}, #{get_zip(address_array).strip}"
-          csv << "\n"
-        end unless entries.blank?
-        self.last_scraped_url = url.unshift(root_url).join("/")
-        url = paginator.scrape(html)
-        url = url.gsub("&amp;", "&").split('/').reject(&:blank?) unless url.blank?
-      end
-      
-      self.csv = csv
-      self.save!
-    rescue
-      self.save
-      self.update_attribute("import_errors", $!.message + $!.backtrace.join("\n"))
-      raise ScrapeAbortedByErrors
-    end
-  end
-  
   def go!      
     begin
-      if self.scrape && (self.csv == nil)
-        self.scrape!
-      end
       self.update_attribute(:state, "Importing...")
       
       mapper             = Mapper.new(:account_id => self.account.id)
