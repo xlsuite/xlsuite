@@ -114,9 +114,13 @@ CREATE TABLE `action_handlers` (
   `label` varchar(255) default NULL,
   `description` text,
   `last_checked_at` datetime default NULL,
+  `activated_at` datetime default NULL,
+  `deactivated_at` datetime default NULL,
   `created_at` datetime default NULL,
   `updated_at` datetime default NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `by_account_label` (`account_id`,`label`),
+  KEY `by_last_checked_activated_deactivated_at` (`last_checked_at`,`activated_at`,`deactivated_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `affiliate_account_domain_activations` (
