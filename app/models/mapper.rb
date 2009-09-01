@@ -103,6 +103,23 @@ class Mapper < ActiveRecord::Base
     return hash
   end
   
+  def self.default_mappings
+    {:map=>[nil, {:name=>"", :field=>"first_name", :tr=>"As-is", :model=>"Party"}, 
+                 {:name=>"", :field=>"last_name", :tr=>"As-is", :model=>"Party"}, 
+                 {:name=>"", :field=>"position", :tr=>"As-is", :model=>"Party"}, 
+                 {:name=>"", :field=>"company_name", :tr=>"As-is", :model=>"Party"}, 
+                 {:name=>"Main", :field=>"line1", :tr=>"As-is", :model=>"AddressContactRoute"}, 
+                 {:name=>"Main", :field=>"city", :tr=>"As-is", :model=>"AddressContactRoute"}, 
+                 {:name=>"Main", :field=>"state", :tr=>"As-is", :model=>"AddressContactRoute"}, 
+                 {:name=>"Main", :field=>"zip", :tr=>"As-is", :model=>"AddressContactRoute"}, 
+                 {:name=>"Office", :field=>"number", :tr=>"As-is", :model=>"PhoneContactRoute"}, 
+                 {:name=>"Cell", :field=>"number", :tr=>"As-is", :model=>"PhoneContactRoute"}, 
+                 {:name=>"Fax", :field=>"number", :tr=>"As-is", :model=>"PhoneContactRoute"}, 
+                 {:name=>"Main", :field=>"email_address", :tr=>"As-is", :model=>"EmailContactRoute"}, 
+                 {:name=>"Company", :field=>"url", :tr=>"As-is", :model=>"LinkContactRoute"}, 
+                 {:name=>"", :field=>"avatar", :tr=>"As-is", :model=>"Party"}]}
+  end
+  
   protected
   def mapping_to_object(mapping, root)
     case mapping[:model]

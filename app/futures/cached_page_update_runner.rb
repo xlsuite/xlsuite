@@ -280,9 +280,10 @@
 # 		     END OF TERMS AND CONDITIONS
 class CachedPageUpdateRunner < Future
   def run
-    cached_page_update = CachedPageUpdate.first(:conditions => "started_at IS NULL")
-    if cached_page_update
-      cached_page_update.refresh!
+    cached_page_updates = CachedPageUpdate.all(:conditions => "started_at IS NULL", :limit => 20)
+    if !cached_page_updates.empty?
+      cached_page_updates.map(&:refresh!)
+      cached_page_update = cached_page_updates.first
       cached_page_updates = CachedPageUpdate.all(:conditions => ["domain_id = ? AND started_at IS NULL", cached_page_update.domain_id], :limit => 20)
       unless cached_page_updates.empty?
         CachedPageUpdate.update_all({:started_at => Time.now.utc}, {:id => cached_page_updates.map(&:id)})

@@ -75,6 +75,7 @@ class GroupsController < ApplicationController
     params[:group][:party_ids] = params[:parties] if params[:parties]
     @group = current_account.groups.build(params[:group])
     @group.created_by = @group.updated_by = current_user
+    @group.private = false unless params[:group][:private]
     @created = @group.save
     respond_to do |format|
       format.html do

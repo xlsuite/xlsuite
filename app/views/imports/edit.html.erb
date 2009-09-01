@@ -28,7 +28,7 @@
   <p>
     <label>Use Mapper:</label>
     <select id="defaultMapperSelection" onChange="sendAJAXRequestToUpdateMappings(this)">
-      <%= options_for_select([["None", 0]] + @mappers.map {|e| [e.name, e.id]}, 0) %>
+      <%= options_for_select([["None", 0], ["Default", "default"]] + @mappers.map {|e| [e.name, e.id]}, 0) %>
     </select>
     <%= throbber("defaultMapperSelection_throbber") %>
   </p>
@@ -41,6 +41,11 @@
   <p>
     <label>Add To Group:</label>
     <%= select_tag "mappings[group]", "<option value="">None</option>" + options_from_collection_for_select(@groups, "name", "name", (@import && @import.mappings ? (@import.mappings[:group] || "") : "")) %>
+  </p>
+&nbsp; | &nbsp;
+  <p>
+    <label>Add To Domain:</label>
+    <%= select_tag "mappings[domain_id]", "<option value=''>None</option><option value='0'>All</option>" + options_from_collection_for_select(@domains, "id", "name", (@import && @import.mappings ? (@import.mappings[:domain_id] || "") : "")) %>
   </p>
 &nbsp; | &nbsp;
   <p>

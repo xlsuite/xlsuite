@@ -364,90 +364,6 @@ page << create_tab_using_ajax_response(tab_panel_title) do
   //===============================================END OF COMMENTS PANEL========================================================//
   
   
-  ////////////////////////////////////////////////START OF DOMAIN AVAILABLE GRID//////////////////////////////////////////////////
-
-  var DomainAvailableRecord = new Ext.data.Record.create([
-    {name:'domain_name', type:"string"}
-    ,{name:'domain_id', type:"int"}
-    ,{name:'checked', type:"boolean"}
-  ]);
-  
-  var domainAvailableReader = new Ext.data.JsonReader({totalProperty: "total", root: "collection"}, DomainAvailableRecord);
-  var domainAvailableConnection = new Ext.data.Connection({url:"/admin/domain_available_items.json", method:"GET"});
-  var domainAvailableProxy = new Ext.data.HttpProxy(domainAvailableConnection);
-  
-  var domainAvailableStore = new Ext.data.Store({
-    proxy:domainAvailableProxy
-    ,baseParams:{item_type:"Profile", item_id:#{@profile.id}}
-    ,reader:domainAvailableReader
-  });
-
-  var domainAvailableCheckColumn = new Ext.grid.CheckColumn({
-    dataIndex: 'checked',
-    width: 30
-  });
-
-  domainAvailableCheckColumn.addListener("click", function(element, event, record){
-    var params = {item_type:"Profile", item_id:#{@profile.id}, domain_ids:record.get("domain_id")};
-    var url = null;
-    var method = null;
-    if(record.get("checked")){
-      url = "/admin/domain_available_items/add_collection";
-      method = "POST";
-      domainAvailablePanel.el.mask("Processing..."); 
-    }
-    else{
-      url = "/admin/domain_available_items/destroy_collection";
-      method = "DELETE";
-      domainAvailablePanel.el.mask("Processing..."); 
-    }
-    Ext.Ajax.request({
-      url: url
-      ,params: params
-      ,method: method
-      ,success: function(response, options){
-        domainAvailablePanel.el.unmask();
-      }
-    });
-  });
-  
-  var domainAvailableToolbar = new Ext.Toolbar({
-    items:[
-      new Ext.Toolbar.Button({
-        text:"Clear All"
-        ,handler:function(btn){
-          domainAvailablePanel.el.mask("Processing...");
-          Ext.Ajax.request({
-            url:"/admin/domain_available_items/destroy_collection"
-            ,params:{all:"1", item_type:"Profile", item_id:#{@profile.id.to_json}}
-            ,method:"DELETE"
-            ,success:function(response, options){
-              domainAvailablePanel.getStore().reload();
-              domainAvailablePanel.el.unmask();
-            }
-          })
-        }
-      })
-    ]
-  });
-  
-  var domainAvailablePanel = new Ext.grid.GridPanel({
-    title:"Available on Domains"
-    ,width:350
-    ,ds:domainAvailableStore
-    ,plugins:domainAvailableCheckColumn
-    ,cm:new Ext.grid.ColumnModel([
-      domainAvailableCheckColumn
-      ,{header:"Domain", dataIndex:"domain_name", width:300}
-    ])
-    ,bbar:domainAvailableToolbar
-    ,listeners:{
-      "render":function(cpt){cpt.getStore().load()}
-    }
-  });
-  
-  //===============================================END OF DOMAIN AVAILABLE GRID=================================================//  
-  
   var tabPanel = new Ext.TabPanel({
     activeTab: 0,
     tabPosition: "bottom",
@@ -457,7 +373,6 @@ page << create_tab_using_ajax_response(tab_panel_title) do
       ,{title: "Contact Routes", items:[profileRoutesPanel], listeners: {show: function(panel){xl.viewport.render();}} }
       ,{title: "Other Field(s)", items:[otherFieldsPanel], listeners: {show: function(panel){xl.viewport.render();}} }
       ,{title: "Comments", items:[commentsPanel], listeners: {show: function(panel){xl.viewport.render();}} }
-      ,domainAvailablePanel
     ]
   });
 

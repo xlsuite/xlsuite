@@ -23,30 +23,20 @@
   <% end -%>
 </div>
 
-<% if @import.state =~ /invalid url/i %>
-  <p>Reason: Scraper module only supports yellowpages.com and yellowpages.ca</p>
-<% elsif @import.state =~ /scrape failed/i %>
-  <p>An error prevented the URL from being scraped. Please ensure the page exists.</p>
-<% else %>
-  <% unless @import.import_errors.blank? then -%>
-    <table>
-      <thead>
-        <tr>
-          <th width="5%">Row #</th>
-          <th width="75%">Row content</th>
-          <th class="red">Error message</th>
-        </tr>
-      </thead>
-      <tbody>
-        <%= render_import_errors(@import) %>
-      <tbody>
-    </table>
-  <% end -%>
+<% unless @import.import_errors.blank? then -%>
+  <table>
+    <thead>
+      <tr>
+        <th width="5%">Row #</th>
+        <th width="75%">Row content</th>
+        <th class="red">Error message</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= render_import_errors(@import) %>
+    <tbody>
+  </table>
 <% end -%>
-
-<% if @import.scrape && @import.last_scraped_url %>
-<div>Last scraped URL: <%= @import.last_scraped_url %></div>
-<% end %>
 
 <%= link_to "Back to import index", imports_path %>
 </div>

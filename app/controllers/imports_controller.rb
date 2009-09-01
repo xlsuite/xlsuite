@@ -5,12 +5,12 @@ require "net/http"
 require "fastercsv"
 
 class ImportsController < ApplicationController
-  before_filter :check_account_authorization, :only => %w(new_scrape scrape)
   required_permissions %w(index summary summaries) => "current_user?", %w(go) => :allow_importing, 
-      %w(new create show edit update destroy save destroy_all new_scrape scrape) => :edit_imports
+      %w(new create show edit update destroy save destroy_all) => :edit_imports
   
-  before_filter :load_import, :except => %w(index new create destroy_all summaries new_scrape scrape)
-  before_filter :load_groups, :only => %w(edit new_scrape)
+  before_filter :load_import, :except => %w(index new create destroy_all summaries)
+  before_filter :load_groups, :only => %w(edit)
+  before_filter :load_domains, :only => %w(edit)
   
   helper MappersHelper
   
@@ -22,9 +22,6 @@ class ImportsController < ApplicationController
   # Render a layout that asks user for an import file
   def new
     @import = Import.new
-  end
-  
-  def new_scrape
   end
   
   # Save the uploaded import file
@@ -61,27 +58,6 @@ class ImportsController < ApplicationController
   rescue CSV::IllegalFormatError, FasterCSV::MalformedCSVError
       flash_failure "Error: Could not parse CSV file"
       redirect_to(new_import_path)
-  end
-  
-  # Note: to use this in development mode, set config.cache_classes to true in development.rb
-  def scrape
-    @import = current_account.imports.build(params[:import])
-    @import.party = current_user
-    @import.scrape = true
-    @import.state = "Waiting"
-    @import.mappings = Mapper.decode_mappings(params[:mappings].merge({:map=>{ "1"=>{:name=>"", :field=>"company_name", :tr=>"As-is", :model=>"Party"}, 
-                                                        "2"=>{:name=>"Main", :field=>"email_address", :tr=>"As-is", :model=>"EmailContactRoute"},
-                                                        "3"=>{:name=>"Main", :field=>"number", :tr=>"As-is", :model=>"PhoneContactRoute"}, 
-                                                        "4"=>{:name=>"Company", :field=>"url", :tr=>"As-is", :model=>"LinkContactRoute"}, 
-                                                        "5"=>{:name=>"Main", :field=>"line1", :tr=>"As-is", :model=>"AddressContactRoute"},
-                                                        "6"=>{:name=>"Main", :field=>"city", :tr=>"As-is", :model=>"AddressContactRoute"}, 
-                                                        "7"=>{:name=>"Main", :field=>"state", :tr=>"As-is", :model=>"AddressContactRoute"}, 
-                                                        "8"=>{:name=>"Main", :field=>"zip", :tr=>"As-is", :model=>"AddressContactRoute"},
-                                                        "9"=>{:name=>"", :field=>"avatar", :tr=>"As-is", :model=>"Party"} }}))
-                   
-    @import.save!
-    MethodCallbackFuture.create!(:model => @import, :method => :go!, :account => current_account, :owner => current_user)
-    render :action => 'go'
   end
   
   # Render the edit page of an import
@@ -135,7 +111,6 @@ class ImportsController < ApplicationController
     @import.save!
 
     # Schedule the import as soon as possible
-    MethodCallbackFuture.create!(:model => @import, :method => :go!, :account => current_account, :owner => current_user)
   end
   
   # Save the mapping of a particular import
@@ -184,10 +159,7 @@ protected
     @groups = current_account.groups
   end
   
-  def check_account_authorization
-    return if current_account.options.imports_scraper?
-    @authorization = "Imports Scraper"
-    access_denied
-    false
+  def load_domains
+    @domains = Domain.all(:conditions => {:account_id => self.current_account.id}, :order => "name")
   end
 end

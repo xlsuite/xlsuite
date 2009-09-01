@@ -29,8 +29,8 @@ CartsCleaner:
   system: true
   
 ContactsImport:
-  interval: <%= 31.minutes %>
-  scheduled_at: <%= 15.minutes.from_now %>
+  interval: <%= 10.minutes %>
+  scheduled_at: <%= 1.minutes.from_now %>
   system: true
 
 ListingsCleaner:

@@ -4,7 +4,7 @@
 class MappersController < ApplicationController
 
   required_permissions %w(index) => "current_user?", %w(create edit update destroy) => :edit_mappings
-  before_filter :find_mapper, :only => %w(edit update destroy)
+  before_filter :find_mapper, :only => %w(update destroy)
   
   # Display a list of mapper objects created
   def index
@@ -46,7 +46,7 @@ class MappersController < ApplicationController
   
   # Render the edit page of a mapper object
   def edit
-    @mappings = @mapper.mappings
+    @mappings = params[:id] =~ /default/i ? Mapper.default_mappings : current_account.mappers.find(params[:id]).mappings
     respond_to do |format|
       format.html
       format.js do 

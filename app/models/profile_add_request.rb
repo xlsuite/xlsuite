@@ -18,6 +18,13 @@ class ProfileAddRequest < ProfileRequest
     end
     
     @party.created_by = @party.updated_by = @party.referred_by = self.created_by
+
+    domain_ids = DomainAvailableItem.all(:select => "domain_id", :conditions => {:item_type => self.class.name, :item_id => self.id}).map(&:domain_id).uniq
+    if domain_ids.empty?
+      domains = Domain.find(domain_ids)
+      @party.replace_domains = domains.map(&:name).join(",")
+    end
+    
     @party.save!
     
     if self.group_ids

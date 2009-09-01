@@ -5,7 +5,7 @@ class AccountModule < ActiveRecord::Base
   belongs_to :account
   validates_presence_of :account_id, :module
   
-  AVAILABLE_MODULES = AccountTemplate::AVAILABLE_MODULES + %w(mass_mail rets_import imports_scraper site_import redirects)
+  AVAILABLE_MODULES = AccountTemplate::AVAILABLE_MODULES + %w(mass_mail rets_import site_import redirects)
   validates_inclusion_of :module, :in => AVAILABLE_MODULES
   validates_uniqueness_of :module, :scope => [:account_id]
   
