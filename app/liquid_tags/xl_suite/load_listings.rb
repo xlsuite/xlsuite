@@ -494,11 +494,11 @@ module XlSuite
                      else
                        raise SyntaxError, "None of mls_no, all_listings, ids, status, search, category, tagged any or all available"
                      end
-          context[@options[:pages_count]] = (listings_count / limit).to_i + (listings_count % limit > 0 ? 1 : 0)
-          context[@options[:total_count]] = listings_count
+          context.scopes.last[@options[:pages_count]] = (listings_count / limit).to_i + (listings_count % limit > 0 ? 1 : 0)
+          context.scopes.last[@options[:total_count]] = listings_count
         end
         
-        context[@options[:in]] = listings
+        context.scopes.last[@options[:in]] = listings
       end
     end
   end

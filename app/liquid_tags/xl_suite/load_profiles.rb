@@ -513,8 +513,8 @@ module XlSuite
       end
       
       if @options[:pages_count] || @options[:total_count]
-        context[@options[:pages_count]] = (profiles_count / limit).to_i + (profiles_count % limit > 0 ? 1 : 0)
-        context[@options[:total_count]] = profiles_count
+        context.scopes.last[@options[:pages_count]] = (profiles_count / limit).to_i + (profiles_count % limit > 0 ? 1 : 0)
+        context.scopes.last[@options[:total_count]] = profiles_count
       end
       
       context.scopes.last[@options[:in]] = profiles.map(&:to_liquid)
