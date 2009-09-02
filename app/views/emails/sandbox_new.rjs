@@ -143,7 +143,7 @@ var fromComboBox = new Ext.form.ComboBox({
     ,fieldNames:['address', 'id']
     ,doLoad:true
     ,onLoad:function() {
-      fromComboBox.setValue(fromComboBox.store.getAt(0).get('id'));
+      fromComboBox.setValue(fromComboBox.store.getAt(0).get('address'));
       fromComboBox.mode = 'local';
     }
   })
@@ -151,11 +151,11 @@ var fromComboBox = new Ext.form.ComboBox({
   ,mode:'remote'
   ,triggerAction:'all'
   ,fieldLabel:'From'
-  ,name:'email[smtp_email_account_id]'
+  ,name:'email[sender][address]'
   ,displayField:'address'
   ,width:300
   ,editable:false
-  ,valueField:'id'
+  ,valueField:'address'
 });
 manager.add(fromComboBox);
 
@@ -164,6 +164,12 @@ var fromName = new Ext.form.Hidden({
   value: #{current_user.name.to_forward_s.to_json}
 });
 manager.add(fromName);
+
+var fromSmtpEmailAccountId = new Ext.form.Hidden({
+  name:'email[smtp_email_account_id]'
+  ,value:#{current_user.own_smtp_account.id.to_json}
+});
+manager.add(fromSmtpEmailAccountId);
 
 var toArea = new Ext.form.TextArea({
   fieldLabel: "  ",
@@ -775,6 +781,7 @@ var layoutPanel = new Ext.Panel({
   ,items: [
     isMassMailCheckbox
     ,fromName
+    ,fromSmtpEmailAccountId
     ,fromComboBox,
     
     { // ColumnLayout
