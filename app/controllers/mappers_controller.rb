@@ -323,7 +323,7 @@ class MappersController < ApplicationController
   
   # Render the edit page of a mapper object
   def edit
-    @mappings = params[:id] =~ /default/i ? Mapper.default_mappings : current_account.mappers.find(params[:id]).mappings
+    @mappings = params[:id] =~ /default(\d)/i ? Mapper.default_mappings[$1.to_i-1] : current_account.mappers.find(params[:id]).mappings
     respond_to do |format|
       format.html
       format.js do 
