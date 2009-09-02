@@ -90,6 +90,39 @@ CREATE TABLE `accounts` (
   KEY `by_master` (`master`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `action_handler_sequences` (
+  `id` int(11) NOT NULL auto_increment,
+  `action_type` varchar(255) default NULL,
+  `action_args` text,
+  `position` int(11) default NULL,
+  `conditions` text,
+  `description` text,
+  `action_handler_id` int(11) default NULL,
+  `repeat_period_length` int(11) default NULL,
+  `repeat_period_unit` varchar(255) default NULL,
+  `after_period_length` int(11) default NULL,
+  `after_period_unit` varchar(255) default NULL,
+  `time_reference` varchar(255) default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `by_action_handler` (`action_handler_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `action_handlers` (
+  `id` int(11) NOT NULL auto_increment,
+  `account_id` int(11) default NULL,
+  `name` varchar(255) default NULL,
+  `label` varchar(255) default NULL,
+  `description` text,
+  `last_checked_at` datetime default NULL,
+  `activated_at` datetime default NULL,
+  `deactivated_at` datetime default NULL,
+  `created_at` datetime default NULL,
+  `updated_at` datetime default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `by_account_label` (`account_id`,`label`),
+  KEY `by_last_checked_activated_deactivated_at` (`last_checked_at`,`activated_at`,`deactivated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `affiliate_account_domain_activations` (
   `id` int(11) NOT NULL auto_increment,
   `affiliate_account_id` int(11) default NULL,
@@ -2990,3 +3023,7 @@ INSERT INTO schema_migrations (version) VALUES ('20090825235234');
 INSERT INTO schema_migrations (version) VALUES ('20090826000341');
 
 INSERT INTO schema_migrations (version) VALUES ('20090826192046');
+
+INSERT INTO schema_migrations (version) VALUES ('20090901225208');
+
+INSERT INTO schema_migrations (version) VALUES ('20090901230608');
