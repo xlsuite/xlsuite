@@ -1,0 +1,106 @@
+page << create_tab_using_ajax_response("Action Handler") do
+%Q`
+  var ActionHandlerRecord = new Ext.data.Record.create([
+    {name:'activated_on', type:"date"}
+    ,{name:'deactivated_on', type:"date"}
+    ,{name:'name', type:"string"}
+    ,{name:'label', type:"string"}
+    ,{name:'description', type:"string"}
+    ,{name:'id', type:"int"}
+  ]);
+
+  var actionHandlerReader = new Ext.data.JsonReader({totalProperty:"total", root:"collection"}, ActionHandlerRecord);
+  var actionHandlerConnection = new Ext.data.Connection({url:"/admin/action_handlers.json", method:"GET"});
+  var actionHandlerProxy = new Ext.data.HttpProxy(actionHandlerConnection);
+
+  var actionHandlerStore = new Ext.data.Store({
+    proxy:actionHandlerProxy
+    ,reader:actionHandlerReader
+    ,remoteSort:false
+  });
+
+  var newActionHandlerFormPanel = new Ext.form.FormPanel({
+    defaults:{width:200}
+    ,items:[
+      new Ext.form.TextField({
+        fieldLabel:"Name"
+        ,name:"action_handler[name]"
+      })
+      ,new Ext.form.TextField({
+        fieldLabel:"Label"
+        ,name:"action_handler[label]"
+      })
+      ,new Ext.form.TextArea({
+        fieldLabel:"Description"
+        ,name:"action_handler[description]"
+      })
+      ,new Ext.form.Checkbox({
+        fieldLabel:"Activate immediately?"
+        ,name:"action_handler[activate_now]"
+      })
+    ]
+  });
+
+  var newActionHandlerButton = new Ext.Button({
+    text:"New"
+    ,handler:function(btn){
+      var win = new Ext.Window({
+        title:"New Action Handler"
+        ,modal:true
+        ,width:350
+        ,autoHeight:true
+        ,closeAction:'hide'
+        ,plain:true
+        ,items:[newActionHandlerFormPanel]
+        ,buttons:[{
+            text:'Submit'
+            ,handler: function(){
+              newActionHandlerFormPanel.getForm().doAction("submit",
+                  {
+                    url:#{action_handlers_path.to_json}
+                    ,method:"POST"
+                    ,success:function(form, action){
+                      var response = action.result;
+                      if (response.success){
+                        actionHandlerGrid.getStore().reload();
+                        win.hide();
+                      }
+                      else {
+                        Ext.Msg.alert("Error:", response.errors);
+                      }
+                    }
+                    ,failure: function(form, action){
+                      var response = action.result;
+                      Ext.Msg.alert("Error:", response.errors);
+                    }
+                  }
+                );
+            }
+          },{
+            text:'Close'
+            ,handler:function(){win.hide();}
+          }]
+      });
+
+      win.show();
+    }
+  });
+  
+  var actionHandlerGrid = new Ext.grid.GridPanel({
+    store:actionHandlerStore
+    ,cm: new Ext.grid.ColumnModel([
+      {header:"Name", width:100, dataIndex:"name"}
+      ,{header:"Label", width:80, dataIndex:"label"}
+      ,{header:"Description", width:100, dataIndex:"description"}
+      ,{header:"Activated on", width:100, dataIndex:"activated_on", renderer:Ext.util.Format.dateRenderer("M j, Y")}
+      ,{header:"Deactivated on", width:100, dataIndex:"deactivated_on"}
+    ])
+    ,listeners:{
+      render:function(cpt){cpt.getStore().load()}
+    }
+    ,tbar:new Ext.Toolbar({items:[newActionHandlerButton]})
+  });
+
+  newPanel.add(actionHandlerGrid);
+`
+end

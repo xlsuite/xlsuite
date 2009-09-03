@@ -468,7 +468,7 @@ xl.generateSimpleHttpJSONStore = function(config) {
   });
   
   var reader = new Ext.data.JsonReader(
-    {totalProperty: "total", root: "collection", id: "id"},
+    {totalProperty: "total", root: "collection"},
     new Ext.data.Record.create(mappings)
   );
 

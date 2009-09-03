@@ -330,8 +330,6 @@ class EmailsController < ApplicationController
   
   # create and send the newly created email
   def create
-    params[:email][:sender][:address] = SmtpEmailAccount.find(:first, 
-      :conditions => {:account_id => self.current_account.id, :id => params[:email][:smtp_email_account_id]}).username
     scheduled_at = params[:email].delete(:scheduled_at)
     Email.transaction do
       @sender = params[:email].delete(:sender)
@@ -367,8 +365,6 @@ class EmailsController < ApplicationController
   end
   
   def save
-    params[:email][:sender][:address] = SmtpEmailAccount.find(:first, 
-      :conditions => {:account_id => self.current_account.id, :id => params[:email][:smtp_email_account_id]}).username
     scheduled_at = params[:email].delete(:scheduled_at)
     Email.transaction do
       @sender = params[:email].delete(:sender)
@@ -509,6 +505,11 @@ class EmailsController < ApplicationController
   def async_get_account_addresses
     email_accounts = self.current_user.all_smtp_accounts
     address_ids = email_accounts.collect { |email_account| {'address' => email_account.username, 'id' => email_account.id.to_s } }
+    if self.current_user.email_addresses.count > 0 && address_ids.size == 1
+      self.current_user.email_addresses.each do |email_address|
+        address_ids << {"address" => email_address.email_address, "id" => email_accounts.first.id} unless email_address.email_address == email_accounts.first.username
+      end
+    end
     wrapper = {'total' => address_ids.size, 'collection' => address_ids}
     respond_to do |format|
       format.js do 

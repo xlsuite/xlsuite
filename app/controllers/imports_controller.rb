@@ -31,7 +31,7 @@ class ImportsController < ApplicationController
     end
     if params[:import][:csv_from_url]
       full_url = params[:import][:csv_from_url]
-      url = params[:import].delete("csv_from_url").gsub("http://", "").split('/')
+      url = params[:import].delete("csv_from_url").gsub("http://", "").gsub(" ", "%20").split('/')
       
       csv = ""
       
