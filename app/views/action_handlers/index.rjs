@@ -141,6 +141,8 @@ page << create_tab_using_ajax_response("Action Handler") do
     items: [selectAllAction, clearAllAction, "-", deleteAction, duplicateAction]
   });
   
+  var editPath = #{edit_action_handler_path(:id => "__ID__").to_json};
+  
   var actionHandlerGrid = new Ext.grid.GridPanel({
     store:actionHandlerStore
     ,cm: new Ext.grid.ColumnModel([
@@ -152,6 +154,10 @@ page << create_tab_using_ajax_response("Action Handler") do
     ])
     ,listeners:{
       render:function(cpt){cpt.getStore().load()}
+      ,rowdblclick:function(cpt, rowIndex, event){
+        var record = cpt.getStore().getAt(rowIndex);
+        xl.openNewTabPanel('action_handlers_edit_' + record.get("id"), editPath.sub("__ID__", record.get("id")));
+      }
     }
     ,tbar:new Ext.Toolbar({items:[newActionHandlerButton, {text:"Actions", menu:actionMenu}]})
   });
