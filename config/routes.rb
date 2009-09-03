@@ -41,6 +41,8 @@ ActionController::Routing::Routes.draw do |map|
   map.resource :gigya, :member => {:login => :any, :signup => :any, :authenticate => :any, :authorize => :any}, 
     :controller => "gigya", :path_prefix => "/admin"
   
+  map.resources :action_handlers, :path_prefix => "/admin"
+  
   map.resources :account_module_subscriptions, :path_prefix => "/admin",
     :collection => {:ipn => :post, :ipn_cancel => :post},
     :member => {:pay => :post, :cancel => :put}
