@@ -602,30 +602,6 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
 
   grid.getTopToolbar().add({ text: "Actions", menu: selectionMenu });
 
-  var delayedRecordAjaxTask = new Ext.util.DelayedTask(function(){
-    ids = selectedIds.join(",");
-    $('recordMessagesPanel').childElements().each(function(e){e.hide();});
-    $('recordFilesPanel').childElements().each(function(e){e.hide();});
-    $('recordPaymentsPanel').childElements().each(function(e){e.hide();});
-    if($("party_"+ids+"_messages")){
-      $("party_"+ids+"_messages").show();
-    }
-    if($("party_"+ids+"_files")){
-      $("party_"+ids+"_files").show();
-    }
-    if($("party_"+ids+"_payments")){
-      $("party_"+ids+"_payments").show();
-    }
-
-    else{
-      blankregex = /^[\s]*$/;
-      if(!blankregex.test(ids))
-        recordMessagesRefresh(ids);
-        recordFilesRefresh(ids);
-        recordPaymentsRefresh(ids);
-    }
-  });
-
   grid.getSelectionModel().on("selectionchange", function(){
     records = grid.getSelectionModel().getSelections();
     var ids = new Array();
@@ -646,20 +622,11 @@ page << create_tab_using_ajax_response("Contact List", after_render) do
       }
       printSummaryAction.disable();
       sendFileAction.disable();
-
-      if (ids.length == 1)
-        xl.setEastTitle("Related to " + ds.getById("party_"+ids).get("displayName"),
-          $('current-displayed-iframe-source').value);
-      else
-        xl.setEastTitle("Related to: multiple", $('current-displayed-iframe-source').value);
     }
     else{
       selectionMenu.items.each(function(e) {e.disable();});
       selectAllAction.enable();
     }
-
-    //delay 1.5seconds before refreshing the east accordions
-    delayedRecordAjaxTask.delay(1500);
   });
 
   //Update messages on rowclick (should be something like selectionchange, but selectionchange
