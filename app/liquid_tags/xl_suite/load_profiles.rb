@@ -431,7 +431,7 @@ module XlSuite
       
       if @options[:tag_option] && @options[:tags] && !context_options[:tag_option].blank? && !context_options[:tags].blank?
         profile_ids = current_account.profiles.find_tagged_with(context_options[:tag_option].to_sym => Tag.parse(context_options[:tags]), :select => "profiles.id" ).map(&:id)  
-        conditions << "profiles.id IN (#{profile_ids.join(',')})" unless profile_ids.empty?
+        conditions << "profiles.id IN (#{profile_ids.empty? ? 0 : profile_ids.join(',')})" 
       end
       
       
