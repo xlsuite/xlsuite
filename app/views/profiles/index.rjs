@@ -134,7 +134,7 @@ page << create_tab_using_ajax_response("Profile List", after_render) do
       filterField,
       clearButton
     ],
-    bbar: [paging],
+    bbar: paging,
     footer: true,
     loadMask: true,
     iconCls: 'icon-grid'
