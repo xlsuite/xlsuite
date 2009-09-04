@@ -1506,7 +1506,7 @@ CREATE TABLE `layout_versions` (
   `no_update` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
   KEY `index_layout_versions_on_layout_id` (`layout_id`),
-  KEY `by_layout` (`layout_id`)
+  KEY `by_layout_version` (`layout_id`,`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `layouts` (
