@@ -638,11 +638,6 @@ module ExtjsHelper
           newPanel.on("show", function(){
             xl.viewport.render();
             xl.resizeTabPanel();
-
-            if(#{mapped_id.to_json}.match(new RegExp("parties_edit", "i"))){
-              refreshEastAccordion();
-            }
-            
           });
           
           // Execute the post-render callback if present

@@ -86,19 +86,108 @@ page << create_tab_using_ajax_response("Action Handler") do
     }
   });
   
+  var selectAllAction = new Ext.Action({
+    text:"Select all"
+    ,iconCls:"display_none"
+    ,handler:function(btn){
+      actionHandlerGrid.getSelectionModel().selectAll();
+      btn.disable();
+    }
+  });
+
+  var clearAllAction = new Ext.Action({
+    text:"Clear all"
+    ,iconCls:"display_none"
+    ,disabled:true
+    ,handler:function(btn){
+      actionHandlerGrid.getSelectionModel().clearSelections();
+      btn.disable();    
+    }
+  });
+
+  var duplicateAction = new Ext.Action({
+    text:"Duplicate"
+    ,iconCls:"display_none"
+    ,disabled:true
+  });
+  
+  var deleteAction = new Ext.Action({
+    text:"Delete"
+    ,iconCls:"display_none"
+    ,disabled:true
+    ,handler:function(e){
+      Ext.Msg.confirm("", "Delete selected item(s) permanently?", function(btn){
+        if( btn.match(new RegExp("yes","i")) ){
+          actionHandlerGrid.el.mask("Deleting...");
+          Ext.Ajax.request({
+            url:#{destroy_collection_action_handlers_path.to_json}
+            ,method:"DELETE"
+            ,params:{"ids":selectedIds.join(",")}
+            ,success:function(response, options){
+              actionHandlerGrid.getStore().reload();
+              actionHandlerGrid.el.unmask();
+            }
+            ,failure:function(response, options){
+              Ext.Msg.alert("Deleting FAILED", "Please try again")
+              actionHandlerGrid.el.unmask();
+            }
+          });
+        }
+      });
+    }
+  });
+  
+  var actionMenu =  new Ext.menu.Menu({
+    items: [selectAllAction, clearAllAction, "-", deleteAction, duplicateAction]
+  });
+  
+  var editPath = #{edit_action_handler_path(:id => "__ID__").to_json};
+  
   var actionHandlerGrid = new Ext.grid.GridPanel({
     store:actionHandlerStore
     ,cm: new Ext.grid.ColumnModel([
-      {header:"Name", width:100, dataIndex:"name"}
-      ,{header:"Label", width:80, dataIndex:"label"}
-      ,{header:"Description", width:100, dataIndex:"description"}
+      {header:"Name", width:125, dataIndex:"name"}
+      ,{header:"Label", width:125, dataIndex:"label"}
+      ,{header:"Description", width:150, dataIndex:"description"}
       ,{header:"Activated on", width:100, dataIndex:"activated_on", renderer:Ext.util.Format.dateRenderer("M j, Y")}
-      ,{header:"Deactivated on", width:100, dataIndex:"deactivated_on"}
+      ,{header:"Deactivated on", width:100, dataIndex:"deactivated_on", renderer:Ext.util.Format.dateRenderer("M j, Y")}
     ])
     ,listeners:{
       render:function(cpt){cpt.getStore().load()}
+      ,rowdblclick:function(cpt, rowIndex, event){
+        var record = cpt.getStore().getAt(rowIndex);
+        xl.openNewTabPanel('action_handlers_edit_' + record.get("id"), editPath.sub("__ID__", record.get("id")));
+      }
     }
-    ,tbar:new Ext.Toolbar({items:[newActionHandlerButton]})
+    ,tbar:new Ext.Toolbar({items:[newActionHandlerButton, {text:"Actions", menu:actionMenu}]})
+  });
+
+  var selectedIds = new Array();
+  var selectedRecords = new Array();
+  
+  actionHandlerGrid.getSelectionModel().on("selectionchange", function(sm){
+    selectedRecords = sm.getSelections();
+    var ids = new Array();
+    selectedRecords.each( function(e) {
+      ids.push(e.get("id"));
+    });
+    selectedIds = ids;
+    
+    if(ids.length>0){
+      clearAllAction.enable();
+      deleteAction.enable();
+      if(ids.length==1){
+        duplicateAction.enable();
+      }
+      else{
+        duplicateAction.disable();
+      }
+    }
+    else{
+      deleteAction.disable();
+      selectAllAction.enable();
+      duplicateAction.disable();
+    }
   });
 
   newPanel.add(actionHandlerGrid);

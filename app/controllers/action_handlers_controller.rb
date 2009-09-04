@@ -33,10 +33,11 @@ class ActionHandlersController < ApplicationController
   end
   
   def update
-    updated = false
+    @action_handler.attributes = params[:action_handler]
+    updated = @action_handler.save
     respond_to do |format|
       format.js do
-        render(:json => {:success => updated}.to_json)
+        render(:json => {:success => updated, :errors => @action_handler.errors.full_messages.join(",")}.to_json)
       end
     end
   end
@@ -65,6 +66,10 @@ protected
       }
     end
     out
+  end
+  
+  def load_action_handler
+    @action_handler = ActionHandler.find(params[:id])
   end
   
   def authorized?
