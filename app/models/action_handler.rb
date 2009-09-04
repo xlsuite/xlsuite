@@ -1,5 +1,6 @@
 class ActionHandler < ActiveRecord::Base
   belongs_to :account
+  has_many :sequences, :class_name => "ActionHandlerSequence", :foreign_key => "action_handler_id", :dependent => :destroy, :order => 'position'
   
   validates_presence_of :label, :name, :account_id
   validates_uniqueness_of :label, :scope => :account_id
