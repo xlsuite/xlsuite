@@ -1,0 +1,148 @@
+page << create_tab_using_ajax_response("Editing Action Handler | #{@action_handler.label}") do
+%Q`
+  var updateValue = function(params){
+    Ext.Ajax.request({
+      url:#{action_handler_path(@action_handler).to_json}
+      ,method:"PUT"
+      ,params:params
+      ,success:function(response, options){
+        var response = Ext.decode(response.responseText);
+        if(!response.success)
+          Ext.Msg.alert("Update FAILED", "Errors: " + response.errors);
+      }
+      ,failure:function(response, options){
+        Ext.Msg.alert("Update FAILED", "Connection failed, please try again");
+      }
+    })
+  };
+
+  var nameField = new Ext.form.TextField({
+    name:"action_handler[name]"
+    ,value:#{@action_handler.name.to_json}
+    ,fieldLabel:"Name"
+    ,listeners:{
+      change:function(cpt, newValue, oldValue){
+        updateValue({"action_handler[name]":newValue})
+      }
+    }
+  });
+
+  var labelField = new Ext.form.TextField({
+    name:"action_handler[label]"
+    ,value:#{@action_handler.label.to_json}
+    ,fieldLabel:"Label"
+    ,listeners:{
+      change:function(cpt, newValue, oldValue){
+        updateValue({"action_handler[label]":newValue})
+      }
+    }
+  });
+
+  var descriptionField = new Ext.form.TextArea({
+    name:"action_handler[description]"
+    ,value:#{@action_handler.description.to_json}
+    ,fieldLabel:"Description"
+    ,width:550
+    ,height:80
+    ,listeners:{
+      change:function(cpt, newValue, oldValue){
+        updateValue({"action_handler[description]":newValue})
+      }
+    }
+  });
+
+  var leftUpperPanel = new Ext.Panel({
+    layout:"form"
+    ,items:[nameField, labelField]
+    ,width:300
+  });
+
+  var activatedOnCheckbox = new Ext.form.Checkbox({
+    fieldLabel:"Activated"
+    ,checked:#{!@action_handler.activated_at.nil?}
+    ,listeners:{
+      'check':function(me, checked){
+        if(checked){
+          activatedOnDateField.enable();
+          updateValue({"action_handler[activated_at]":activatedOnDateField.getValue().format("M j, Y")});
+        }else{
+          activatedOnDateField.disable();
+          updateValue({"action_handler[activated_at]":""});
+        }
+      }
+    }
+  });
+
+  var activatedOnDateField = new Ext.form.DateField({
+    fieldLabel:"on"
+    ,labelSeparator:""
+    ,format:"M j, Y"
+    ,value:#{(@action_handler.activated_at.nil? ? Time.now : @action_handler.activated_at).strftime(DATE_STRFTIME_FORMAT).to_json}
+    ,disabled:#{@action_handler.activated_at.nil?}
+    ,listeners:{
+      change:function(cpt, newValue, oldValue){
+        updateValue({"action_handler[activated_at]":newValue.format("M j, Y")});
+      }
+    }
+  });
+
+  var deactivatedOnCheckbox = new Ext.form.Checkbox({
+    fieldLabel:"Deactivated"
+    ,checked:#{!@action_handler.deactivated_at.nil?}
+    ,listeners:{
+      'check':function(me, checked){
+        if(checked){
+          deactivatedOnDateField.enable();
+          updateValue({"action_handler[deactivated_at]":activatedOnDateField.getValue().format("M j, Y")});
+        }else{
+          deactivatedOnDateField.disable();
+          updateValue({"action_handler[deactivated_at]":""});
+        }
+      }
+    }
+  });
+
+  var deactivatedOnDateField = new Ext.form.DateField({
+    fieldLabel:"on"
+    ,format:"M j, Y"
+    ,labelSeparator:""
+    ,value:#{(@action_handler.deactivated_at.nil? ? Time.now : @action_handler.deactivated_at).strftime(DATE_STRFTIME_FORMAT).to_json}
+    ,disabled:#{@action_handler.deactivated_at.nil?}
+    ,listeners:{
+      change:function(cpt, newValue, oldValue){
+        updateValue({"action_handler[deactivated_at]":newValue.format("M j, Y")});
+      }
+    }
+  });
+
+  var rightUpperPanel = new Ext.Panel({
+    layout:"column"
+    ,defaults:{
+      layout:"form"
+    }
+    ,items:[
+      {columnWidth:0.33, labelWidth:70, items:[activatedOnCheckbox]}
+      ,{columnWidth:0.67, labelWidth:25, items:[activatedOnDateField]}
+      ,{columnWidth:0.33, labelWidth:70, items:[deactivatedOnCheckbox]}
+      ,{columnWidth:0.67, labelWidth:25, items:[deactivatedOnDateField]}
+      ]
+    ,width:300
+  });
+
+  var midPanel = new Ext.Panel({
+    layout:"form"
+    ,items:[descriptionField]
+  });
+
+  var upperPanel = new Ext.Panel({
+    layout:"column"
+    ,items:[leftUpperPanel, rightUpperPanel]
+  });
+
+  var wrapperPanel = new Ext.Panel({
+    items:[upperPanel, midPanel]
+  });
+
+  newPanel.add(wrapperPanel);
+`
+end
