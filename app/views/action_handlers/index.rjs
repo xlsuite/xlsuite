@@ -146,11 +146,11 @@ page << create_tab_using_ajax_response("Action Handler") do
   var actionHandlerGrid = new Ext.grid.GridPanel({
     store:actionHandlerStore
     ,cm: new Ext.grid.ColumnModel([
-      {header:"Name", width:100, dataIndex:"name"}
-      ,{header:"Label", width:80, dataIndex:"label"}
-      ,{header:"Description", width:100, dataIndex:"description"}
+      {header:"Name", width:125, dataIndex:"name"}
+      ,{header:"Label", width:125, dataIndex:"label"}
+      ,{header:"Description", width:150, dataIndex:"description"}
       ,{header:"Activated on", width:100, dataIndex:"activated_on", renderer:Ext.util.Format.dateRenderer("M j, Y")}
-      ,{header:"Deactivated on", width:100, dataIndex:"deactivated_on"}
+      ,{header:"Deactivated on", width:100, dataIndex:"deactivated_on", renderer:Ext.util.Format.dateRenderer("M j, Y")}
     ])
     ,listeners:{
       render:function(cpt){cpt.getStore().load()}
