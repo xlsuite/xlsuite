@@ -363,7 +363,7 @@ class Mapper < ActiveRecord::Base
     mappings = mappings.clone || {}
     hash = {:header_lines_count => mappings[:header_lines_count].to_i, :tag_list => mappings[:tag_list], 
             :create_profile => mappings[:create_profile], :group => mappings[:group], 
-            :exclude_no_email => mappings[:exclude_no_email],
+            :exclude_no_email => mappings[:exclude_no_email], :domain_id => mappings[:domain_id],
             :ignore_websites_regex => mappings[:ignore_websites_regex]}
     map_array = []
     map = mappings[:map]
