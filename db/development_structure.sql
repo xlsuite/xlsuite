@@ -1505,7 +1505,8 @@ CREATE TABLE `layout_versions` (
   `updator_id` int(11) default NULL,
   `no_update` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
-  KEY `index_layout_versions_on_layout_id` (`layout_id`)
+  KEY `index_layout_versions_on_layout_id` (`layout_id`),
+  KEY `by_layout` (`layout_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `layouts` (
@@ -3027,3 +3028,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090826192046');
 INSERT INTO schema_migrations (version) VALUES ('20090901225208');
 
 INSERT INTO schema_migrations (version) VALUES ('20090901230608');
+
+INSERT INTO schema_migrations (version) VALUES ('20090904191327');
