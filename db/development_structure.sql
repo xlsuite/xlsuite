@@ -1439,7 +1439,8 @@ CREATE TABLE `item_versions` (
   `updator_id` int(11) default NULL,
   `no_update` tinyint(1) default '0',
   PRIMARY KEY  (`id`),
-  KEY `index_item_versions_on_item_id` (`item_id`)
+  KEY `index_item_versions_on_item_id` (`item_id`),
+  KEY `by_item_version` (`item_id`,`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `items` (
@@ -3030,3 +3031,5 @@ INSERT INTO schema_migrations (version) VALUES ('20090901225208');
 INSERT INTO schema_migrations (version) VALUES ('20090901230608');
 
 INSERT INTO schema_migrations (version) VALUES ('20090904191327');
+
+INSERT INTO schema_migrations (version) VALUES ('20090904194634');
