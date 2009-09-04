@@ -1,5 +1,7 @@
 page << create_tab_using_ajax_response("Editing Action Handler | #{@action_handler.label}") do
 %Q`
+  ///////////////////////////////////////////UPPER SIDE PANEL FOR MAIN INFO//////////////////////////////////////////////
+
   var updateValue = function(params){
     Ext.Ajax.request({
       url:#{action_handler_path(@action_handler).to_json}
@@ -139,8 +141,98 @@ page << create_tab_using_ajax_response("Editing Action Handler | #{@action_handl
     ,items:[leftUpperPanel, rightUpperPanel]
   });
 
+  //======================================END OF UPPER SIDE PANEL (MAIN INFO)===========================================//
+
+  ///////////////////////////////////////////// SEQUENCES GRID PANEL /////////////////////////////////////////////////////
+  var SequenceRecord = new Ext.data.Record.create([
+    {name:'action', type:"string"}
+    ,{name:'period', type:"string"}
+    ,{name:'from', type:"string"}
+    ,{name:'conditions', type:"string"}
+    ,{name:'recipients_num', type:"int"}
+    ,{name:'id', type:"int"}
+  ]);
+
+  var sequencesReader = new Ext.data.JsonReader({totalProperty:"total", root:"collection"}, SequenceRecord);
+  var sequencesConnection = new Ext.data.Connection({
+    url:#{formatted_action_handler_action_handler_sequences_path(:action_handler_id => @action_handler.id, :format => :json).to_json}
+    ,method:"GET"
+  });
+  var sequencesProxy = new Ext.data.HttpProxy(sequencesConnection);
+
+  var sequencesStore = new Ext.data.Store({
+    proxy:sequencesProxy
+    ,reader:sequencesReader
+    ,remoteSort:false
+  });
+  
+  var newAction = new Ext.Action({
+    text:"New"
+    ,iconCls:"display_none"
+    ,handler:function(btn){
+      console.log("im clicked %o", btn);
+    }
+  });
+
+  var deleteAction = new Ext.Action({
+    text:"Delete"
+    ,iconCls:"display_none"
+    ,disabled:true
+    ,handler:function(btn){
+      console.log("im clicked %o", btn);
+    }
+  });
+    
+  var sequencesGrid = new Ext.grid.GridPanel({
+    store:sequencesStore
+    ,title:"Sequences (Double click to edit)"
+    ,cm:new Ext.grid.ColumnModel([
+      { 
+        id:'action'
+        ,header:"Action"
+        ,width:300
+        ,dataIndex:"action"
+        ,sortable:false
+      }
+      ,{header:"Period", dataIndex:"period", sortable:false}
+      ,{header:"From", dataIndex:"from", width:100, sortable:false}
+      ,{header:"Conditions", dataIndex:"conditions", width:100, sortable:false}
+      ,{header:"Recipients #", dataIndex:"recipients_num", width:100, sortable:false}
+    ])
+    ,enableDragDrop:true
+    ,bbar:new Ext.Toolbar({items:[newAction, deleteAction]})
+    ,listeners:{
+      render:function(cpt){
+        cpt.setHeight(cpt.ownerCt.getSize().height-135);
+      }
+    }
+  })
+
+  var selectedIds = new Array();
+  var selectedRecords = new Array();
+  
+  sequencesGrid.getSelectionModel().on("selectionchange", function(sm){
+    selectedRecords = sm.getSelections();
+    var ids = new Array();
+    selectedRecords.each( function(e) {
+      ids.push(e.get("id"));
+    });
+    selectedIds = ids;
+    
+    if(ids.length>0){
+      deleteAction.enable();
+    }
+    else{
+      deleteAction.disable();
+    }
+  });
+
+
+  //=========================================END OF SEQUENCES GRID PANEL================================================//
+
+
   var wrapperPanel = new Ext.Panel({
-    items:[upperPanel, midPanel]
+    items:[upperPanel, midPanel, sequencesGrid]
   });
 
   newPanel.add(wrapperPanel);
