@@ -266,7 +266,7 @@ page << create_tab_using_ajax_response("Files", after_render) do
         ,filterField 
         ,clearButton
       ],
-      bbar: [paging],
+      bbar:paging,
       footer: true,
       iconCls: 'icon-grid',
       renderTo: document.body,
