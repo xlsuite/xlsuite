@@ -30,7 +30,7 @@ class PartyDrop < Liquid::Drop
       profile.save
       self.party.profile = profile
       self.party.save!
-      return profile
+      return profile.reload
     end
   end
 

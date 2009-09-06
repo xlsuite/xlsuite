@@ -41,7 +41,9 @@ ActionController::Routing::Routes.draw do |map|
   map.resource :gigya, :member => {:login => :any, :signup => :any, :authenticate => :any, :authorize => :any}, 
     :controller => "gigya", :path_prefix => "/admin"
   
-  map.resources :action_handlers, :path_prefix => "/admin", :collection => {:destroy_collection => :delete}
+  map.resources :action_handlers, :path_prefix => "/admin", :collection => {:destroy_collection => :delete} do |action_handler|
+    action_handler.resources :action_handler_sequences, :collection => {:destroy_collection => :delete}
+  end
   
   map.resources :account_module_subscriptions, :path_prefix => "/admin",
     :collection => {:ipn => :post, :ipn_cancel => :post},
@@ -112,9 +114,6 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :assignees, :path_prefix => "/admin",
       :collection => {:destroy_collection => :delete, :mark_completed => :post, :unmark_completed => :post}
   
-  map.resources :workflows, :path_prefix => "/admin",
-      :collection => {:destroy_collection => :delete}
-
   map.resources :triggers, :path_prefix => "/admin",
       :collection => {:destroy_collection => :delete}
   
