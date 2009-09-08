@@ -1,3 +1,12 @@
+afteredit_function = %Q`
+  function(oldValue, decodedResponse, plainResponse, me){
+    xl.updateStatusBar(decodedResponse.flash);
+    if(decodedResponse.success){
+      #{refresh_grid_datastore_of("blog_post")};
+    }    
+  }
+`
+
 limit = params[:limit] || 50
 after_render = self.set_active_tab
 page << create_tab_using_ajax_response("Post | #{truncate(@blog_post.title, 15)}", after_render) do
@@ -6,6 +15,52 @@ page << create_tab_using_ajax_response("Post | #{truncate(@blog_post.title, 15)}
   #{render_tags_panel("blog_post[tag_list]", @blog_post, current_account.blog_posts.tags, {}, {:collapsible => false, :title => ""})}
 
   #{self.generate_save_close_cancel_toolbar(@blog_post, blog_post_path(@blog_post), blog_post_path(:id => @blog_post.id, :commit_type => "close"))}
+    
+  var authorNameField = new Ext.form.TextField({
+    fieldLabel: "Author name",
+    labelSeparator: ":",
+    name: "blog[author_name]",
+    grow: true,
+    growMin: 150,
+    value: #{@blog_post.author_name.to_json},
+    disabled: #{!current_user.can?(:edit_blogs)}
+  });
+  
+  // set up connection and data store of autocomplete field
+  var partyNameAutoCompleteRecord = new Ext.data.Record.create([
+    {name: 'display', mapping: 'display'},
+    {name: 'name', mapping: 'value'},
+    {name: 'id', mapping: 'id'}
+  ]);
+
+  var partyNameAutoCompleteReader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, partyNameAutoCompleteRecord)
+  var partyNameAutoCompleteConnection = new Ext.data.Connection({url: #{formatted_auto_complete_party_field_listings_path(:format => :json).to_json}, method: 'get'});
+  var partyNameAutoCompleteProxy = new Ext.data.HttpProxy(partyNameAutoCompleteConnection)
+  var partyNameAutoCompleteStore = new Ext.data.Store({proxy: partyNameAutoCompleteProxy, reader: partyNameAutoCompleteReader});
+  
+  var authorAutoCompleteField = new Ext.form.ComboBox({
+    store: partyNameAutoCompleteStore,
+    displayField: 'display',
+    valueField: 'id',
+    hiddenName: "blog_post[author_id]",
+    fieldLabel: "Author",
+    triggerAction: 'all',
+    forceSelection: true,
+    emptyText: "Autocomplete field, please start typing",
+    hideTrigger:true,
+    minChars: 0,
+    width: 400,
+    allowBlank: false,
+    value: #{(@blog_post.author ? @blog_post.author.display_name : "").to_json},
+    listeners: {
+        "change": function(comboBox, newValue, oldValue){
+          var partyName = partyNameAutoCompleteStore.getById(newValue).get("name");
+          authorNameField.setValue(partyName);
+        }
+      },
+    disabled: #{!current_user.can?(:edit_blogs)}
+  });
+
   
   var tbarbbarButtons2 = [{
     text: 'Save',
@@ -566,7 +621,9 @@ page << create_tab_using_ajax_response("Post | #{truncate(@blog_post.title, 15)}
                 growMin: 150,
                 name: "blog_post[title]",
                 value: #{@blog_post.title.to_json}
-              })
+              }),
+              authorAutoCompleteField,
+              authorNameField
             ]
           },
           {

@@ -35,6 +35,50 @@ page << create_tab_using_ajax_response("New Post") do
     style: "font-family:monospace"
   });
   
+  var authorNameField = new Ext.form.TextField({
+    fieldLabel: "Author name",
+    labelSeparator: ":",
+    name: "blog[author_name]",
+    grow: true,
+    growMin: 150,
+    value: "",
+    disabled: #{!current_user.can?(:edit_blogs)}
+  });
+  
+  // set up connection and data store of autocomplete field
+  var partyNameAutoCompleteRecord = new Ext.data.Record.create([
+    {name: 'display', mapping: 'display'},
+    {name: 'name', mapping: 'value'},
+    {name: 'id', mapping: 'id'}
+  ]);
+
+  var partyNameAutoCompleteReader = new Ext.data.JsonReader({totalProperty: "total", root: "collection", id: "id"}, partyNameAutoCompleteRecord)
+  var partyNameAutoCompleteConnection = new Ext.data.Connection({url: #{formatted_auto_complete_party_field_listings_path(:format => :json).to_json}, method: 'get'});
+  var partyNameAutoCompleteProxy = new Ext.data.HttpProxy(partyNameAutoCompleteConnection)
+  var partyNameAutoCompleteStore = new Ext.data.Store({proxy: partyNameAutoCompleteProxy, reader: partyNameAutoCompleteReader});
+  
+  var authorAutoCompleteField = new Ext.form.ComboBox({
+    store: partyNameAutoCompleteStore,
+    displayField: 'display',
+    valueField: 'id',
+    hiddenName: "blog_post[author_id]",
+    fieldLabel: "Author",
+    triggerAction: 'all',
+    forceSelection: true,
+    emptyText: "Autocomplete field, please start typing",
+    hideTrigger:true,
+    minChars: 0,
+    width: 480,
+    allowBlank: false,
+    listeners: {
+        "change": function(comboBox, newValue, oldValue){
+          var partyName = partyNameAutoCompleteStore.getById(newValue).get("name");
+          authorNameField.setValue(partyName);
+        }
+      },
+    disabled: #{!current_user.can?(:edit_blogs)}
+  });
+  
   var bodyField = new Ext.ux.HtmlEditor({
     hideLabel: true,
     name: 'blog_post[body]',
@@ -218,6 +262,8 @@ var publishedCheckbox = new Ext.form.Checkbox({
         name: "blog_post[link]",
         value: ""
       }),
+      authorAutoCompleteField,
+      authorNameField,
       {
         layout: 'column',
         items: [{
