@@ -151,6 +151,7 @@ page << create_tab_using_ajax_response("Editing Action Handler | #{@action_handl
     ,{name:'conditions', type:"string"}
     ,{name:'recipients_num', type:"int"}
     ,{name:'id', type:"int"}
+    ,{name:'position', type:"int"}
   ]);
 
   var sequencesReader = new Ext.data.JsonReader({totalProperty:"total", root:"collection"}, SequenceRecord);
@@ -165,12 +166,87 @@ page << create_tab_using_ajax_response("Editing Action Handler | #{@action_handl
     ,reader:sequencesReader
     ,remoteSort:false
   });
+
+  var editSequenceUrl = #{edit_action_handler_action_handler_sequence_path(:action_handler_id => @action_handler.id, :id => "__ID__").to_json};
+
+  var availActionsStore = new Ext.data.SimpleStore({
+    fields:['display', 'value']
+    ,data:[["Send mass email", "send_mass_email"]]
+  });
+  
+  var createSequenceFormPanel = new Ext.form.FormPanel({
+    items: [
+      new Ext.form.ComboBox({
+        fieldLabel:"Action"
+        ,labelSeparator:":"
+        ,hiddenName:"sequence[action_type]"
+        ,store:availActionsStore
+        ,displayField:'display'
+        ,valueField:'value'
+        ,triggerAction:'all'
+        ,minChars:0
+        ,allowBlank:false
+        ,editable:true
+        ,mode:'local'
+        ,value:"send_mass_email"
+      })
+    ]
+  });
+
+  var createSequenceWindow = new Ext.Window({
+    title:"Please select an action"
+    ,items:[createSequenceFormPanel]
+    ,height:95
+    ,width:350
+    ,resizable:false
+    ,closeAction:'hide'
+    ,listeners:{hide:function(panel){sequencesGrid.enable();}}
+    ,buttons:[
+        {
+          text:"Create"
+          ,handler:function(){
+              createSequenceFormPanel.getForm().doAction("submit",
+                {
+                  url:#{action_handler_action_handler_sequences_path(:action_handler_id => @action_handler.id).to_json}
+                  ,method:"POST"
+                  ,success:function(form, action){
+                    response = action.result;
+                    sequencesGrid.getStore().reload();
+                    xl.openNewTabPanel('action_handler_sequences_edit_'+response.id, editSequenceUrl.sub("__ID__", response.id));
+                  }
+                  ,failure: function(form, action){
+                    response = action.result;
+                    Ext.Msg.show({
+                      title:"Saving failed"
+                      ,msg:response.errors
+                      ,buttons:Ext.Msg.OK
+                      ,minWidth:750
+                    });
+                  }
+                }
+              )
+              if(createSequenceFormPanel.getForm().isValid()) {
+                sequencesGrid.enable();
+                createSequenceWindow.hide();
+              }
+            }
+        }
+        ,{
+          text:'Cancel'
+          ,handler:function(){
+            sequencesGrid.enable();
+            createSequenceWindow.hide();
+          }
+        }
+      ]
+  });
   
   var newAction = new Ext.Action({
     text:"New"
     ,iconCls:"display_none"
     ,handler:function(btn){
-      console.log("im clicked %o", btn);
+      sequencesGrid.disable();
+      createSequenceWindow.show();
     }
   });
 
@@ -187,23 +263,26 @@ page << create_tab_using_ajax_response("Editing Action Handler | #{@action_handl
     store:sequencesStore
     ,title:"Sequences (Double click to edit)"
     ,cm:new Ext.grid.ColumnModel([
-      { 
+      {header:"No", dataIndex:"position", width:30, sortable:false}
+      ,{ 
         id:'action'
         ,header:"Action"
         ,width:300
         ,dataIndex:"action"
         ,sortable:false
       }
-      ,{header:"Period", dataIndex:"period", sortable:false}
+      ,{header:"Period", dataIndex:"period", width:150, sortable:false}
       ,{header:"From", dataIndex:"from", width:100, sortable:false}
       ,{header:"Conditions", dataIndex:"conditions", width:100, sortable:false}
       ,{header:"Recipients #", dataIndex:"recipients_num", width:100, sortable:false}
     ])
     ,enableDragDrop:true
+    ,width:800
     ,bbar:new Ext.Toolbar({items:[newAction, deleteAction]})
     ,listeners:{
       render:function(cpt){
         cpt.setHeight(cpt.ownerCt.getSize().height-135);
+        cpt.getStore().load();
       }
     }
   })
@@ -227,9 +306,12 @@ page << create_tab_using_ajax_response("Editing Action Handler | #{@action_handl
     }
   });
 
+  Ext.StoreMgr.add("action_handler_sequences_#{@action_handler.id}", sequencesGrid.getStore());
+  newPanel.on("destroy", function(){
+    Ext.StoreMgr.removeKey("action_handler_sequences_#{@action_handler.id}");
+  });
 
   //=========================================END OF SEQUENCES GRID PANEL================================================//
-
 
   var wrapperPanel = new Ext.Panel({
     items:[upperPanel, midPanel, sequencesGrid]
