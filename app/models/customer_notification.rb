@@ -283,7 +283,7 @@ class CustomerNotification < ActionMailer::Base
     subject     "New Account @ #{params[:domain]}"
     body        params
     recipients  params[:customer].main_email.to_formatted_s
-    from        "Account System #{params[:domain]} <accounts@#{params[:domain]}>"
+    from        "Account System #{params[:domain]} <admin@xlsuite.com>"
     sent_on     sent_at
   end
 
@@ -325,18 +325,20 @@ class CustomerNotification < ActionMailer::Base
     
     reset_password_url = "http://#{domain.name}/admin/parties/forgot_password"
 
+    from_address = "admin@xlsuite.com"
+    if payable_subject.account.get_config(:use_account_owner_smtp) && payable_subject.account.owner.own_smtp_account?
+      smtp_account = payable_subject.account.owner.own_smtp_account
+      self.alternate_smtp_settings = SmtpMailer.convert_email_account_to_smtp_settings(smtp_account)
+      from_address = payable_subject.account.owner.main_email.email_address
+    end
+
     subject    subject_value
     body       params.merge(:payment => payable.payment, :payable_subject => payable_subject, :customer => customer, :needs_to_ship => needs_to_ship, 
                             :needs_to_download => needs_to_download, :download_page => download_page, :confirmation_url => confirmation_url,
                             :reset_password_url => reset_password_url)
     recipients customer.main_email.to_formatted_s
-    from       "Payment Processor #{domain} <payments@#{mail_domain}>"
+    from       "Payment Processor #{domain} <#{from_address}>"
     sent_on    sent_at
     content_type "text/html"
-    
-    if payable_subject.account.get_config(:use_account_owner_smtp) && payable_subject.account.owner.own_smtp_account?
-      smtp_account = payable_subject.account.owner.own_smtp_account
-      self.alternate_smtp_settings = SmtpMailer.convert_email_account_to_smtp_settings(smtp_account)
-    end
   end
 end

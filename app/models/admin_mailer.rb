@@ -314,17 +314,19 @@ class AdminMailer < ActionMailer::Base
     confirmation_url = confirmation_url.call(route.routable, confirmation_token) if confirmation_url.respond_to?(:call)
     domain_name = confirmation_url.slice(/\/\/([^\/]+)\//, 1)
     
-    recipients route.to_formatted_s
-    from "admin@#{domain_name.gsub("www.", "")}"
-    subject "#{domain_name} Confirmation Email"
-    body(:domain_name => domain_name, :confirmation_url => confirmation_url, :confirmation_code => confirmation_token)
-    content_type "text/html"
-
+    from_address = "admin@xlsuite.com"
     account = Domain.find_by_name(domain_name.gsub("www.", "")).account
     if account.get_config(:use_account_owner_smtp) && account.owner.own_smtp_account?
       smtp_account = account.owner.own_smtp_account
       self.alternate_smtp_settings = SmtpMailer.convert_email_account_to_smtp_settings(smtp_account)
-    end
+      from_address = account.owner.main_email.email_address
+    end    
+    
+    recipients route.to_formatted_s
+    from from_address
+    subject "#{domain_name} Confirmation Email"
+    body(:domain_name => domain_name, :confirmation_url => confirmation_url, :confirmation_code => confirmation_token)
+    content_type "text/html"
   end
   
   def group_subscribe_confirmation_email(options={})
@@ -332,17 +334,19 @@ class AdminMailer < ActionMailer::Base
     confirmation_url = options[:confirmation_url]
     domain_name = confirmation_url.slice(/\/\/([^\/]+)\//, 1)
 
-    recipients route.to_formatted_s
-    from "admin@#{domain_name.gsub("www.", "")}"
-    subject "#{domain_name} Subscription Confirmation Email"
-    body(:domain_name => domain_name, :confirmation_url => confirmation_url, :groups => options[:groups])
-    content_type "text/html"
-
+    from_address = "admin@xlsuite.com"
     account = Domain.find_by_name(domain_name.gsub("www.", "")).account
     if account.get_config(:use_account_owner_smtp) && account.owner.own_smtp_account?
       smtp_account = account.owner.own_smtp_account
       self.alternate_smtp_settings = SmtpMailer.convert_email_account_to_smtp_settings(smtp_account)
+      from_address = account.owner.main_email.email_address
     end
+
+    recipients route.to_formatted_s
+    from from_address
+    subject "#{domain_name} Subscription Confirmation Email"
+    body(:domain_name => domain_name, :confirmation_url => confirmation_url, :groups => options[:groups])
+    content_type "text/html"
   end
   
   def account_confirmation_email(options={})
@@ -367,6 +371,12 @@ class AdminMailer < ActionMailer::Base
     body(:public_listing_urls => options[:public_listing_urls], :private_listing_urls => options[:private_listing_urls], 
       :recipient => recipient, :account_owner => account_owner, :forgot_password_url => options[:forgot_password_url])
     content_type "text/html"
+
+    account = recipient.account
+    if account.get_config(:use_account_owner_smtp) && account.owner.own_smtp_account?
+      smtp_account = account.owner.own_smtp_account
+      self.alternate_smtp_settings = SmtpMailer.convert_email_account_to_smtp_settings(smtp_account)
+    end
   end
 
   def bug_report_email(options={})
@@ -376,6 +386,13 @@ class AdminMailer < ActionMailer::Base
       from_address = nil if from_address !~ /#{EmailContactRoute::ValidAddressRegexp}/i
     end
     from_address = options[:current_account].owner.main_email.email_address unless from_address
+
+    account = options[:current_account]
+    if account.get_config(:use_account_owner_smtp) && account.owner.own_smtp_account?
+      smtp_account = account.owner.own_smtp_account
+      self.alternate_smtp_settings = SmtpMailer.convert_email_account_to_smtp_settings(smtp_account)
+      from_address = account.owner.main_email.email_address
+    end
 
     recipient_email_address = options[:current_account].get_config(:bug_report_recipients) 
     recipient_email_address = options[:current_account].owner.main_email.email_address if recipient_email_address.blank?
@@ -398,8 +415,8 @@ class AdminMailer < ActionMailer::Base
     @domain = @order.domain
 
     recipients params[:recipients]
-    from "Order Fullfillment <orders@#{@domain.name}>"
-    subject "New Order: \##{@order.number}"
+    from "Order Fullfillment <admin@xlsuite.com>"
+    subject "New Order on #{@domain.name}: \##{@order.number}"
     body :order => @order, :account => @account, :customer => @order.invoice_to, :domain => @domain,
         :ship_to => @order.ship_to || @order.invoice_to.main_address
   end
@@ -426,7 +443,7 @@ class AdminMailer < ActionMailer::Base
   
   def feed_error_email(feed, error_recipients)
     recipients error_recipients
-    from "XLsuite Feed Fetcher <no-repy@xlsuite.com>"
+    from "XLsuite Feed Fetcher <admin@xlsuite.com>"
     subject "[XL] Fatal error retrieving feed: #{feed.label}"
     content_type "text/html"
     body :feed => feed
@@ -466,17 +483,19 @@ class AdminMailer < ActionMailer::Base
   def comment_notification(comment, commentable_description, recipient_email)
     domain = comment.domain ? comment.domain : comment.account.domains.first
     domain_name = domain.name
-    
-    recipients recipient_email
-    from "admin@#{domain_name.gsub("www.", "")}"
-    subject "New Comment on #{domain_name} on your #{comment.commentable_type.titleize}"
-    content_type "text/html"
-    body :domain_name => domain_name, :description => commentable_description, :referrer_url => comment.referrer_url
-    
+
+    from_address = "admin@xlsuite.com"
     account = Domain.find_by_name(domain_name.gsub("www.", "")).account
     if account.get_config(:use_account_owner_smtp) && account.owner.own_smtp_account?
       smtp_account = account.owner.own_smtp_account
       self.alternate_smtp_settings = SmtpMailer.convert_email_account_to_smtp_settings(smtp_account)
+      from_address = accont.owner.main_email.email_address
     end
+    
+    recipients recipient_email
+    from from_address
+    subject "New Comment on #{domain_name} on your #{comment.commentable_type.titleize}"
+    content_type "text/html"
+    body :domain_name => domain_name, :description => commentable_description, :referrer_url => comment.referrer_url 
   end
 end
