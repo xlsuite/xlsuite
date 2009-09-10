@@ -255,9 +255,21 @@ page << create_tab_using_ajax_response("Editing Action Handler | #{@action_handl
     ,iconCls:"display_none"
     ,disabled:true
     ,handler:function(btn){
-      console.log("im clicked %o", btn);
+      Ext.Ajax.request({
+        url:#{destroy_collection_action_handler_action_handler_sequences_path(:action_handler_id => @action_handler.id).to_json}
+        ,method:"DELETE"
+        ,params:{"ids":selectedIds.join(",")}
+        ,success:function(){
+          sequencesStore.reload();
+        }
+        ,failure:function(){
+          Ext.Msg.alert("Sequence Delete FAILED", "Please try again");
+        }
+      })
     }
   });
+  
+  var editSequencePath = #{edit_action_handler_action_handler_sequence_path(:action_handler_id => @action_handler.id, :id => "__ID__").to_json};
     
   var sequencesGrid = new Ext.grid.GridPanel({
     store:sequencesStore
@@ -271,7 +283,7 @@ page << create_tab_using_ajax_response("Editing Action Handler | #{@action_handl
         ,dataIndex:"action"
         ,sortable:false
       }
-      ,{header:"Period", dataIndex:"period", width:150, sortable:false}
+      ,{header:"Period", dataIndex:"period", width:225, sortable:false}
       ,{header:"From", dataIndex:"from", width:100, sortable:false}
       ,{header:"Conditions", dataIndex:"conditions", width:100, sortable:false}
       ,{header:"Recipients #", dataIndex:"recipients_num", width:100, sortable:false}
@@ -283,6 +295,10 @@ page << create_tab_using_ajax_response("Editing Action Handler | #{@action_handl
       render:function(cpt){
         cpt.setHeight(cpt.ownerCt.getSize().height-135);
         cpt.getStore().load();
+      }
+      ,rowdblclick:function(cpt, rowIndex, event){
+        var record = cpt.getStore().getAt(rowIndex);
+        xl.openNewTabPanel('action_handler_sequences_edit_'+record.get("id"), editSequencePath.sub("__ID__", record.get("id")));
       }
     }
   })
