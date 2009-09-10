@@ -282,13 +282,17 @@ class ActionHandlerSequence < ActiveRecord::Base
   belongs_to :action_handler
   validates_presence_of :action_type, :action_handler_id, :time_reference
   
-  TIME_REFERENCE_VALUES = ["start", "last_sequence"]
+  TIME_REFERENCE_VALUES = ["subscription", "last_sequence"]
   validates_inclusion_of :time_reference, :in => TIME_REFERENCE_VALUES
   acts_as_period :after_period, :repeat_period, :allow_nil => true
   
   acts_as_list :scope => :action_handler_id
   
   serialize :action_args, Hash
+  
+  def repeatable?
+    !(self.repeat_period_length == 0)
+  end
   
   def action
     @_action ||= ("new_action_" + self.action_type).classify.constantize.new(self.action_args)
@@ -309,7 +313,7 @@ class ActionHandlerSequence < ActiveRecord::Base
     elsif self.repeat_period
       text << "immediately"
     end
-    if self.repeat_period && self.repeat_period_unit != 0
+    if self.repeatable?
       text << ", repeat every " + self.repeat_period.to_s
     end
     text
@@ -317,7 +321,7 @@ class ActionHandlerSequence < ActiveRecord::Base
   
   def time_reference_description
     case self.time_reference
-    when "start"
+    when "subscription"
       "Subscription"
     when "last_sequence"
       "Last sequence"
@@ -338,6 +342,6 @@ class ActionHandlerSequence < ActiveRecord::Base
   end
   
   def self.default_attributes
-    {:time_reference => "last_sequence", :after_period_unit => "weeks", :after_period_length => 1, :action_args => {}}
+    {:time_reference => "last_sequence", :after_period_unit => "weeks", :after_period_length => 1, :repeat_period_length => 0, :repeat_period_unit => "days", :action_args => {}}
   end
 end
