@@ -301,7 +301,7 @@ class AdminMailer < ActionMailer::Base
     
     recipients recipient_email_address
     bcc        bcc_recipients if current_domain.get_config(:bcc_default_request_contacts) and !bcc_recipients.blank?
-    from       contact_request.email
+    from       "admin@xlsuite.com"
     subject    subject_name
     body       :body => contact_request.body
     content_type "text/html"
