@@ -282,6 +282,7 @@ class ActionHandlerSequencesController < ApplicationController
   required_permissions :none
   
   before_filter :load_action_handler
+  before_filter :load_sequence, :only => %w(edit)
   
   def index
     respond_to do |format|
@@ -304,13 +305,26 @@ class ActionHandlerSequencesController < ApplicationController
     end
   end
   
+  def edit
+    @action = @sequence.action
+    respond_to do |format|
+      format.js
+    end
+  end
+  
   def update
     sequence = @action_handler.sequences.find(params[:id])
     sequence.attributes = params[:sequence]
+    if params[:_action]
+      args = sequence.action_args || {}
+      sequence.action_args = args.merge(params[:_action])
+    end
     updated = sequence.save
+    flash = sequence.errors.full_messages.join(",")
+    flash = "Sequence updated" if flash.blank?
     respond_to do |format|
       format.js do
-        render(:json => {:success => updated, :errors => sequence.errors.full_messages.join(",")}.to_json)
+        render(:json => {:success => updated, :flash => flash}.to_json)
       end
     end
   end
@@ -333,6 +347,7 @@ protected
     out = []
     records.each do |record|
       out << {
+        :id => record.id,
         :position => record.position,
         :action => record.action_description,
         :period => record.period_description,
@@ -341,6 +356,10 @@ protected
       }
     end
     out
+  end
+  
+  def load_sequence
+    @sequence = ActionHandlerSequence.find(:first, :conditions => {:action_handler_id => @action_handler.id, :id => params[:id]})
   end
 
   def load_action_handler
