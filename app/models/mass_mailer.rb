@@ -283,6 +283,18 @@ class MassMailer < ActionMailer::Base
   include ActionView::Helpers::SanitizeHelper
 
   def mailing(email)
+    account = email.account
+    if account.owner.own_smtp_account?
+      smtp_account = account.owner.own_smtp_account
+      self.alternate_smtp_settings = SmtpMailer.convert_email_account_to_smtp_settings(smtp_account)
+    end
+
+    if email.smtp_email_account
+      self.alternate_smtp_settings = SmtpMailer.convert_email_account_to_smtp_settings(email.smtp_email_account)
+    end
+    
+    raise "Alternate smtp settings not set" unless self.alternate_smtp_settings
+  
     self.recipients = email.tos.map(&:to_s).flatten
     self.cc = email.ccs.map(&:to_s).flatten
     self.bcc = email.bccs.map(&:to_s).flatten
@@ -298,24 +310,28 @@ class MassMailer < ActionMailer::Base
     end
 
     generate_bodies(email.mail_type, body_text)
-
-    if email.smtp_email_account
-      self.alternate_smtp_settings = SmtpMailer.convert_email_account_to_smtp_settings(email.smtp_email_account)
-    end
   end
   
   def mass_mailing(email, recipient)
+    account = email.account
+    if account.owner.own_smtp_account?
+      smtp_account = account.owner.own_smtp_account
+      self.alternate_smtp_settings = SmtpMailer.convert_email_account_to_smtp_settings(smtp_account)
+    end
+    
+    if email.smtp_email_account
+      self.alternate_smtp_settings = SmtpMailer.convert_email_account_to_smtp_settings(email.smtp_email_account)
+    end
+
+    raise "Alternate smtp settings not set" unless self.alternate_smtp_settings
+
     self.from = email.sender.to_s
     self.recipients = recipient.to_s
     self.subject = recipient.generated_subject
     body_text = recipient.generated_body
     generate_bodies(email.mail_type, body_text)
 
-    add_inline_attachments(email) if email.inline_attachments?
-    
-    if email.smtp_email_account
-      self.alternate_smtp_settings = SmtpMailer.convert_email_account_to_smtp_settings(email.smtp_email_account)
-    end
+    add_inline_attachments(email) if email.inline_attachments?    
   end
 
   protected
