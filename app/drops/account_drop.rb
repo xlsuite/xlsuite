@@ -294,6 +294,10 @@ class AccountDrop < Liquid::Drop
     self.account.blog_posts.published.by_publication_date
   end
   
+  def profile_cities
+    self.account.address_contact_routes.all(:conditions => "routable_type = 'Profile' and city is not null", :select => "distinct city").map{|route|route.city.strip}.uniq.sort
+  end
+  
   def listings
     ListingsDrop.new(self.account)
   end
