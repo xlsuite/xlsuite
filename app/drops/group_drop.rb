@@ -9,6 +9,10 @@ class GroupDrop < Liquid::Drop
     @group = group
   end
   
+  def children
+    self.group.children.map(&:to_liquid)
+  end
+  
   def user_member_of
     return false unless self.context && self.context["user"] && self.context["user"].party
     self.context["user"].party.member_of?(self.group)

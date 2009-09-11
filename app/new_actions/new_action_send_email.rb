@@ -278,107 +278,52 @@
 # POSSIBILITY OF SUCH DAMAGES.
 # 
 # 		     END OF TERMS AND CONDITIONS
-class ActionHandlerSequencesController < ApplicationController
-  required_permissions :none
-  
-  before_filter :load_action_handler
-  before_filter :load_sequence, :only => %w(edit)
-  
-  def index
-    respond_to do |format|
-      format.json do
-        sequences = self.assemble_records(@action_handler.sequences)
-        render(:json => {:total => sequences.size, :collection => sequences}.to_json)
-      end
+class NewActionSendEmail < Action
+  attr_accessor :template_id, :sender_address, :mail_type
+
+  def run_against(*args)
+    options = args.last.kind_of?(Hash) ? args.pop : Hash.new
+    recipients = args.flatten.compact
+    return if recipients.empty?
+    returning(Email.create!(:subject => self.template.subject, :body => self.template.body,
+        :mail_type => self.mail_type, :mass_mail => false,
+        :sender => self.sender, :tos => recipients, :account => options[:account])) do |email|
+      email.release!
     end
-  end
-  
-  def create
-    sequence = ActionHandlerSequence.new(:action_handler => @action_handler)
-    sequence.attributes = ActionHandlerSequence.default_attributes
-    sequence.attributes = params[:sequence]
-    created = sequence.save
-    respond_to do |format|
-      format.js do
-        render(:json => {:success => created, :errors => sequence.errors.full_messages.join(",")}.to_json)
-      end
-    end
-  end
-  
-  def edit
-    @action = @sequence.action
-    respond_to do |format|
-      format.js
-    end
-  end
-  
-  def update
-    sequence = @action_handler.sequences.find(params[:id])
-    sequence.attributes = params[:sequence]
-    if params[:_action]
-      args = sequence.action_args || {}
-      sequence.action_args = args.merge(params[:_action])
-    end
-    updated = sequence.save
-    flash = sequence.errors.full_messages.join(",")
-    flash = "Sequence updated" if flash.blank?
-    respond_to do |format|
-      format.js do
-        render(:json => {:success => updated, :flash => flash}.to_json)
-      end
-    end
-  end
-  
-  def update_ordering
-    ids = params[:ids].split(",").map(&:strip).to_a
-    positions = params[:positions].split(",").map(&:strip).map(&:to_i).to_a
-    ActionHandlerSequence.transaction do
-      (0..ids.length-1).each do |i|
-        @action_handler.sequences.find(ids[i]).update_attribute(:position, positions[i]+1)
-      end
-    end
-    respond_to do |format|
-      format.js do
-        render(:json => {:success => true}.to_json)
-      end
-    end
-  end
-  
-  def destroy_collection
-    sequences = ActionHandlerSequence.all(:conditions => {:action_handler_id => @action_handler.id, :id => params[:ids].split(",").map(&:strip).map(&:to_i)})
-    result = sequences.map(&:destroy).all?
-    respond_to do |format|
-      format.js do
-        render(:json => {:success => result}.to_json)
-      end
-    end
-  end
-  
-protected
-  def assemble_records(records)
-    out = []
-    records.each do |record|
-      out << {
-        :id => record.id,
-        :position => record.position,
-        :action => record.action_description,
-        :period => record.period_description,
-        :from => record.time_reference_description,
-        :recipients_num => record.recipients_num
-      }
-    end
-    out
-  end
-  
-  def load_sequence
-    @sequence = ActionHandlerSequence.find(:first, :conditions => {:action_handler_id => @action_handler.id, :id => params[:id]})
   end
 
-  def load_action_handler
-    @action_handler = ActionHandler.find(:first, :conditions => {:account_id => self.current_account.id, :id => params[:action_handler_id]})
+  def template
+    @template ||= (self.template_id ? Template.find(self.template_id) : nil rescue nil)
+  end
+
+  def template=(template)
+    self.template_id = template.id
+    @template = template
+  end
+
+  def description
+    "Send mail template \"#{self.template.label rescue nil}\" from \"#{self.sender_address}\""
   end
   
-  def authorized?
-    true
+  def duplicate(account, options={})
+    action = self.class.new
+    if self.template
+      target_template = account.templates.find_by_label(self.template.label)
+      if options[:create_dependencies]
+        target_template ||= account.templates.create!(self.template.attributes_for_copy_to(account))
+      end
+      action.template_id = target_template.id if target_template
+    end
+    action.sender_address = self.sender_address
+    action.mail_type = self.mail_type
+    action
+  end
+  
+  class << self
+    def parameters
+      [ {:sender_address => {:type => :string, :field => "selection", :store => "current_account.email_addresses_with_smtp_access.map{|e| [e, e]}"}},
+        {:template => {:type => :templates, :field => "selection", :store => "current_account.templates.find_all_accessible_by(current_user, :order => 'label ASC').map{|t|[t.label, t.id]}"}}, 
+        {:mail_type => {:type => :string, :field => "selection", :store => "Email::ValidMailTypes.map{|e|[e, e]}"}} ]
+    end
   end
 end

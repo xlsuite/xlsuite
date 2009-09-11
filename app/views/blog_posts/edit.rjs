@@ -52,6 +52,7 @@ page << create_tab_using_ajax_response("Post | #{truncate(@blog_post.title, 15)}
     width: 400,
     allowBlank: false,
     value: #{(@blog_post.author ? @blog_post.author.display_name : "").to_json},
+    hiddenValue: #{(@blog_post.author ? @blog_post.author.id : nil)},
     listeners: {
         "change": function(comboBox, newValue, oldValue){
           var partyName = partyNameAutoCompleteStore.getById(newValue).get("name");

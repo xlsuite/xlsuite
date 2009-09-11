@@ -13,6 +13,7 @@ Rails::Initializer.run do |config|
   # Add additional load paths for your own custom dirs
   config.load_paths += Dir[File.join(RAILS_ROOT, 'vendor', 'gems', '*[0-9]', 'lib')]
   config.load_paths << File.join(RAILS_ROOT, "app", "actions")
+  config.load_paths << File.join(RAILS_ROOT, "app", "new_actions")
   config.load_paths << File.join(RAILS_ROOT, "app", "apis")
   config.load_paths << File.join(RAILS_ROOT, "app", "behaviors")
   config.load_paths << File.join(RAILS_ROOT, "app", "concerns")
@@ -145,6 +146,12 @@ end
 # Load action objects so that they exist in memory and YAML::load can
 # instantiate the correct classes, or else the objects are left as YAML::Object.
 Dir[File.join(RAILS_ROOT, "app", "actions", "*.rb")].each do |filename|
+  File.basename(filename, ".rb").classify.constantize
+end
+
+# Load new action objects so that they exist in memory and YAML::load can
+# instantiate the correct classes, or else the objects are left as YAML::Object.
+Dir[File.join(RAILS_ROOT, "app", "new_actions", "*.rb")].each do |filename|
   File.basename(filename, ".rb").classify.constantize
 end
 

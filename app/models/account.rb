@@ -1115,6 +1115,11 @@ class Account < ActiveRecord::Base
     CachedPage.delete_all(["account_id = ? AND page_fullslug LIKE '%.js'", self.id])
   end
   
+  def email_addresses_with_smtp_access
+    party_ids = SmtpEmailAccount.all(:select => "party_id", :conditions => {:account_id => self.id, :enabled => true}).map(&:party_id)
+    EmailContactRoute.all(:select => "email_address", :conditions => {:routable_type => "Party", :routable_id => party_ids}).map(&:email_address).uniq.sort
+  end
+  
   protected
   def process_affiliate_account(affiliate_account)
     item = AffiliateAccountItem.new

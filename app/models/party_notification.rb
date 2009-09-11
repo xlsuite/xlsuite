@@ -6,6 +6,6 @@ class PartyNotification < ActionMailer::Base
     @subject    = "New Password Notification - #{options[:site_name]}"
     @body       = options
     @recipients = options[:party].main_email
-    @from       = "Account Manager <accounts@#{options[:site_name]}>"
+    @from       = "Account Manager <admin@xlsuite.com>"
   end
 end

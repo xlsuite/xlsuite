@@ -278,107 +278,80 @@
 # POSSIBILITY OF SUCH DAMAGES.
 # 
 # 		     END OF TERMS AND CONDITIONS
-class ActionHandlerSequencesController < ApplicationController
-  required_permissions :none
-  
-  before_filter :load_action_handler
-  before_filter :load_sequence, :only => %w(edit)
-  
-  def index
-    respond_to do |format|
-      format.json do
-        sequences = self.assemble_records(@action_handler.sequences)
-        render(:json => {:total => sequences.size, :collection => sequences}.to_json)
+class NewActionSendMassEmail < NewActionSendEmail
+  attr_accessor :template_id, :mail_type, :return_to_url, :opt_out_url
+
+  def run_against(*args)
+    options = args.last.kind_of?(Hash) ? args.pop : Hash.new
+    recipients = args.flatten.compact
+    return if recipients.empty?
+    returning(Email.create!(:subject => self.template.subject, :body => self.template_body,
+        :mail_type => self.mail_type, :mass_mail => true, :domain => self.domain,
+        :sender => self.sender, :tos => recipients, :account => options[:account],
+        :return_to_url => self.return_to_url.blank? ? '/admin/opt-out/unsubscribed' : self.return_to_url, 
+        :tags_to_remove => self.tags_to_remove, :opt_out_url => self.opt_out_url.blank? ? '/admin/opt-out' : self.opt_out_url)) do |email|
+      email.release!
+      
+      # building inactive recipients TagListBuilder and GroupListBuilder for the email
+      Step.find(options[:step_id]).lines.each do |line|
+        next if line.excluded? || line.operator != "="
+        case line.field
+        when /^tagged/i
+          line.value.split(",").map(&:strip).each do |tag|
+            recipient = email.tos.build(:account => options[:account], :email => email, :inactive => true)
+            recipient.update_attributes(:tag_syntax => tag,
+                                    :recipient_builder_type => TagListBuilder.name)
+          end
+        when /^group_label$/i
+          group = options[:account].groups.find_by_label(line.value)
+          next unless group   
+          recipient = email.tos.build(:account => options[:account], :email => email, :inactive => true)
+          recipient.update_attributes(:recipient_builder_id => group.id,
+                                  :recipient_builder_type => GroupListBuilder.name)                        
+        end
       end
+      
     end
-  end
-  
-  def create
-    sequence = ActionHandlerSequence.new(:action_handler => @action_handler)
-    sequence.attributes = ActionHandlerSequence.default_attributes
-    sequence.attributes = params[:sequence]
-    created = sequence.save
-    respond_to do |format|
-      format.js do
-        render(:json => {:success => created, :errors => sequence.errors.full_messages.join(",")}.to_json)
-      end
-    end
-  end
-  
-  def edit
-    @action = @sequence.action
-    respond_to do |format|
-      format.js
-    end
-  end
-  
-  def update
-    sequence = @action_handler.sequences.find(params[:id])
-    sequence.attributes = params[:sequence]
-    if params[:_action]
-      args = sequence.action_args || {}
-      sequence.action_args = args.merge(params[:_action])
-    end
-    updated = sequence.save
-    flash = sequence.errors.full_messages.join(",")
-    flash = "Sequence updated" if flash.blank?
-    respond_to do |format|
-      format.js do
-        render(:json => {:success => updated, :flash => flash}.to_json)
-      end
-    end
-  end
-  
-  def update_ordering
-    ids = params[:ids].split(",").map(&:strip).to_a
-    positions = params[:positions].split(",").map(&:strip).map(&:to_i).to_a
-    ActionHandlerSequence.transaction do
-      (0..ids.length-1).each do |i|
-        @action_handler.sequences.find(ids[i]).update_attribute(:position, positions[i]+1)
-      end
-    end
-    respond_to do |format|
-      format.js do
-        render(:json => {:success => true}.to_json)
-      end
-    end
-  end
-  
-  def destroy_collection
-    sequences = ActionHandlerSequence.all(:conditions => {:action_handler_id => @action_handler.id, :id => params[:ids].split(",").map(&:strip).map(&:to_i)})
-    result = sequences.map(&:destroy).all?
-    respond_to do |format|
-      format.js do
-        render(:json => {:success => result}.to_json)
-      end
-    end
-  end
-  
-protected
-  def assemble_records(records)
-    out = []
-    records.each do |record|
-      out << {
-        :id => record.id,
-        :position => record.position,
-        :action => record.action_description,
-        :period => record.period_description,
-        :from => record.time_reference_description,
-        :recipients_num => record.recipients_num
-      }
-    end
-    out
-  end
-  
-  def load_sequence
-    @sequence = ActionHandlerSequence.find(:first, :conditions => {:action_handler_id => @action_handler.id, :id => params[:id]})
   end
 
-  def load_action_handler
-    @action_handler = ActionHandler.find(:first, :conditions => {:account_id => self.current_account.id, :id => params[:action_handler_id]})
+  def description
+    "Send mass mail template \"#{self.template.label rescue nil}\" from \"#{self.sender_address rescue nil}\""
   end
   
-  def authorized?
-    true
+  def name
+    "Send mass mail"
+  end
+  
+  def template_body
+    t_body = self.template.body || ""
+    unless t_body =~ /\{%\s*opt_out_url\s*%\}/
+      t_body = t_body + "<br /><p>If you feel you have received this email in error, or would like to remove yourself from future mailings, simply opt out here : {% opt_out_url %}. Thank you.</p>"
+    end
+    t_body
+  end
+  
+  def duplicate(account, options={})
+    action = self.class.new
+    if self.template
+      target_template = account.templates.find_by_label(self.template.label)
+      if options[:create_dependencies]
+        target_template ||= account.templates.create!(self.template.attributes_for_copy_to(account))
+      end
+      action.template_id = target_template.id if target_template
+    end
+    action.sender_id = account.owner.id
+    action.domain = account.domains.first
+    %w(mail_type return_to_url tags_to_remove opt_out_url).each do |attr|
+      action.send("#{attr}=", self.send(attr)) if action.respond_to?("#{attr}=".to_sym)
+    end
+    action
+  end
+
+  class << self
+    def parameters
+      super +
+        [{:opt_out_url => {:type => :string, :label => "Set unscubscribe page URL", :field => "selection", :store => "current_account.pages.find(:all, :order => 'fullslug ASC').map{|p|[p.fullslug, p.fullslug]}.unshift(['/admin/opt-out', '/admin/opt-out'], ['/admin/opt-out/unsubscribed', '/admin/opt-out/unsubscribed'])", :default_value => "@action.opt_out_url ? @action.opt_out_url : '/admin/opt-out'"}},
+        {:return_to_url => {:type => :string, :label => "Set confirmation page URL", :field => "selection", :store => "current_account.pages.find(:all, :order => 'fullslug ASC').map{|p|[p.fullslug, p.fullslug]}.unshift(['/admin/opt-out', '/admin/opt-out'], ['/admin/opt-out/unsubscribed', '/admin/opt-out/unsubscribed'])", :default_value => "@action.return_to_url ? @action.return_to_url : '/admin/opt-out/unsubscribed'"}}]
+    end
   end
 end

@@ -278,107 +278,22 @@
 # POSSIBILITY OF SUCH DAMAGES.
 # 
 # 		     END OF TERMS AND CONDITIONS
-class ActionHandlerSequencesController < ApplicationController
-  required_permissions :none
+class NewAction
+  AVAILABLE_ACTIONS = Dir[File.join(RAILS_ROOT, "app", "new_actions", "*")].map do |file| 
+    File.basename(file, ".rb").classify
+  end
   
-  before_filter :load_action_handler
-  before_filter :load_sequence, :only => %w(edit)
-  
-  def index
-    respond_to do |format|
-      format.json do
-        sequences = self.assemble_records(@action_handler.sequences)
-        render(:json => {:total => sequences.size, :collection => sequences}.to_json)
-      end
+  def initialize(params={})
+    params.each_pair do |key, value|
+      self.send("#{key}=", value)
     end
   end
   
-  def create
-    sequence = ActionHandlerSequence.new(:action_handler => @action_handler)
-    sequence.attributes = ActionHandlerSequence.default_attributes
-    sequence.attributes = params[:sequence]
-    created = sequence.save
-    respond_to do |format|
-      format.js do
-        render(:json => {:success => created, :errors => sequence.errors.full_messages.join(",")}.to_json)
-      end
-    end
+  def description
+    raise "Please implement in child class"
   end
   
-  def edit
-    @action = @sequence.action
-    respond_to do |format|
-      format.js
-    end
-  end
-  
-  def update
-    sequence = @action_handler.sequences.find(params[:id])
-    sequence.attributes = params[:sequence]
-    if params[:_action]
-      args = sequence.action_args || {}
-      sequence.action_args = args.merge(params[:_action])
-    end
-    updated = sequence.save
-    flash = sequence.errors.full_messages.join(",")
-    flash = "Sequence updated" if flash.blank?
-    respond_to do |format|
-      format.js do
-        render(:json => {:success => updated, :flash => flash}.to_json)
-      end
-    end
-  end
-  
-  def update_ordering
-    ids = params[:ids].split(",").map(&:strip).to_a
-    positions = params[:positions].split(",").map(&:strip).map(&:to_i).to_a
-    ActionHandlerSequence.transaction do
-      (0..ids.length-1).each do |i|
-        @action_handler.sequences.find(ids[i]).update_attribute(:position, positions[i]+1)
-      end
-    end
-    respond_to do |format|
-      format.js do
-        render(:json => {:success => true}.to_json)
-      end
-    end
-  end
-  
-  def destroy_collection
-    sequences = ActionHandlerSequence.all(:conditions => {:action_handler_id => @action_handler.id, :id => params[:ids].split(",").map(&:strip).map(&:to_i)})
-    result = sequences.map(&:destroy).all?
-    respond_to do |format|
-      format.js do
-        render(:json => {:success => result}.to_json)
-      end
-    end
-  end
-  
-protected
-  def assemble_records(records)
-    out = []
-    records.each do |record|
-      out << {
-        :id => record.id,
-        :position => record.position,
-        :action => record.action_description,
-        :period => record.period_description,
-        :from => record.time_reference_description,
-        :recipients_num => record.recipients_num
-      }
-    end
-    out
-  end
-  
-  def load_sequence
-    @sequence = ActionHandlerSequence.find(:first, :conditions => {:action_handler_id => @action_handler.id, :id => params[:id]})
-  end
-
-  def load_action_handler
-    @action_handler = ActionHandler.find(:first, :conditions => {:account_id => self.current_account.id, :id => params[:action_handler_id]})
-  end
-  
-  def authorized?
-    true
+  def run_against(*args)
+    raise "Please implement in child class"
   end
 end

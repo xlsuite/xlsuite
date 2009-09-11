@@ -90,6 +90,27 @@ CREATE TABLE `accounts` (
   KEY `by_master` (`master`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `action_handler_memberships` (
+  `id` int(11) NOT NULL auto_increment,
+  `action_handler_id` int(11) default NULL,
+  `party_id` int(11) default NULL,
+  `domain_id` int(11) default NULL,
+  `created_at` datetime default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `action_handler_party_completed_sequences` (
+  `id` int(11) NOT NULL auto_increment,
+  `domain_id` int(11) default NULL,
+  `account_id` int(11) default NULL,
+  `party_id` int(11) default NULL,
+  `action_handler_sequence_id` int(11) default NULL,
+  `last_ran_at` datetime default NULL,
+  `ran_counter` int(11) default NULL,
+  `created_at` datetime default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `action_handler_sequences` (
   `id` int(11) NOT NULL auto_increment,
   `action_type` varchar(255) default NULL,
@@ -3033,3 +3054,7 @@ INSERT INTO schema_migrations (version) VALUES ('20090901230608');
 INSERT INTO schema_migrations (version) VALUES ('20090904191327');
 
 INSERT INTO schema_migrations (version) VALUES ('20090904194634');
+
+INSERT INTO schema_migrations (version) VALUES ('20090911014251');
+
+INSERT INTO schema_migrations (version) VALUES ('20090911015326');
