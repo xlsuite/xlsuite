@@ -289,20 +289,43 @@ page << create_tab_using_ajax_response("Editing Action Handler | #{@action_handl
       ,{header:"Recipients #", dataIndex:"recipients_num", width:100, sortable:false}
     ])
     ,enableDragDrop:true
+    ,ddGroup:"actionHandlerSequences#{@action_handler.id}"
     ,width:800
     ,bbar:new Ext.Toolbar({items:[newAction, deleteAction]})
     ,listeners:{
       render:function(cpt){
         cpt.setHeight(cpt.ownerCt.getSize().height-135);
         cpt.getStore().load();
+
+        var ddRow = new Ext.ux.dd.GridReorderDropTarget(cpt, {
+           copy:false
+           ,listeners:{
+             afterrowmove:function(objThis, oldIndex, newIndex, records){
+               var ds = cpt.getStore();
+               var positions = [];
+               all_records = ds.getRange(0, ds.getCount()-1);
+               all_records.each(function(record){
+                 positions.push(ds.indexOfId(record.id));
+               });
+               Ext.Ajax.request({
+                 url:#{update_ordering_action_handler_action_handler_sequences_path(:action_handler_id => @action_handler.id).to_json}
+                 ,method:"PUT"
+                 ,params:{ids:all_records.invoke("get", "id").join(","), positions:positions.join(",")}
+                 ,success:function(){ds.reload()}
+                 ,failure:function(){Ext.Msg.alert("Sequence ordering FAILED", "Please try again"); ds.reload()}
+               });
+             }
+           }
+        });
+
       }
       ,rowdblclick:function(cpt, rowIndex, event){
         var record = cpt.getStore().getAt(rowIndex);
         xl.openNewTabPanel('action_handler_sequences_edit_'+record.get("id"), editSequencePath.sub("__ID__", record.get("id")));
       }
     }
-  })
-
+  });
+  
   var selectedIds = new Array();
   var selectedRecords = new Array();
   
