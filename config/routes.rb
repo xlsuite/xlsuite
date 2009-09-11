@@ -42,7 +42,7 @@ ActionController::Routing::Routes.draw do |map|
     :controller => "gigya", :path_prefix => "/admin"
   
   map.resources :action_handlers, :path_prefix => "/admin", :collection => {:destroy_collection => :delete} do |action_handler|
-    action_handler.resources :action_handler_sequences, :collection => {:destroy_collection => :delete}
+    action_handler.resources :action_handler_sequences, :collection => {:destroy_collection => :delete, :update_ordering => :put}
   end
   
   map.resources :account_module_subscriptions, :path_prefix => "/admin",
