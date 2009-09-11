@@ -305,7 +305,7 @@ class ActionHandlerSequence < ActiveRecord::Base
   def period_description
     text = "Starts "
     if self.after_period
-      if self.after_period_unit == 0
+      if self.after_period_length == 0
         text << "immediately"
       else
         text << "in " + self.after_period.to_s
