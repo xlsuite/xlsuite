@@ -1,0 +1,288 @@
+afteredit_function = %Q`
+  function(oldValue, decodedResponse, plainResponse){
+    xl.updateStatusBar(decodedResponse.flash);
+    if(decodedResponse.success){
+      var store = Ext.StoreMgr.get("action_handler_sequences_#{@action_handler.id}");
+      if(store){
+        store.reload();
+      }
+    }    
+  }
+`
+  
+renderTextFieldEditor =
+  %Q`
+    new Ext.form.TextField({
+      selectOnFocus: true
+    })
+  `
+  
+partyNameComboBox = %Q!
+  new Ext.form.ComboBox({
+    store: partyNameAutoCompleteStore
+    ,displayField:'display'
+    ,valueField:'value'
+    ,hideLabel:true
+    ,triggerAction:'all'
+    ,forceSelection:true
+    ,emptyText:"Autocomplete field, please start typing"
+    ,minChars:0
+    ,width:480
+    ,allowBlank:false
+  });
+!
+
+def generate_hidden_name(obj_type, field_name)
+  field_name = field_name + "_id" if obj_type.classify.constantize.respond_to?(:content_columns)
+  return ("_action["+field_name+"]").to_json
+end
+
+def generate_default_value(param_hash)
+  if param_hash.values.first[:default_value]
+    return eval(param_hash.values.first[:default_value]).to_json
+  end
+  
+  obj_type = param_hash.values.first[:type].to_s
+  field_name = param_hash.keys.first.to_s
+  field_name = field_name + "_id" if obj_type.classify.constantize.respond_to?(:content_columns)
+  return @action.send(field_name).to_json
+end
+
+def generate_mode(param_hash)
+  if param_hash.values.first[:mode]
+    return param_hash.values.first[:mode].to_json
+  else
+    return "local".to_json
+  end
+end
+
+def generate_store(param_hash)
+  if param_hash.values.first[:store][:helper]
+    return eval(param_hash.values.first[:store][:helper])
+  else
+    return %Q`
+      new Ext.data.SimpleStore({
+        fields:['display', 'value']
+        ,data:#{eval(param_hash.values.first[:store]).to_json}
+      })
+    `
+  end
+end
+
+def generate_width(param_hash)
+  if param_hash.values.first[:width]
+    return param_hash.values.first[:width]
+  else
+    return 200
+  end
+end
+
+def generate_empty_text(param_hash)
+  if param_hash.values.first[:empty_text]
+    return param_hash.values.first[:empty_text].to_json
+  else
+    return "".to_json
+  end
+end
+
+page << create_tab_using_ajax_response("Sequence | Edit") do
+out = ""
+
+out << %Q`
+  var form = {
+    url:#{action_handler_action_handler_sequence_path(:action_handler_id => @action_handler.id, :id => @sequence.id).to_json}
+    ,method:"PUT"
+    ,object: '_action'
+  };
+  
+  //------------------------------- GENERAL PANEL ---------------------------//
+  var generalPanel = new Ext.Panel({
+    layout:'form'
+    ,style:'margin-bottom:10px'
+    ,items:[
+`
+items = []
+@sequence.action.class.parameters.each do |param_hash|
+items << if param_hash.values.first[:field] =~ /selection/i
+    [%Q`
+      xl.widget.InlineActiveField({
+          form:form
+          ,afteredit:#{afteredit_function}
+          ,field:{
+            fieldLabel:#{(param_hash.values.first[:label] || param_hash.keys.first.to_s.humanize).to_json}
+            ,hiddenName:#{generate_hidden_name(param_hash.values.first[:type].to_s, param_hash.keys.first.to_s)}
+            ,name:#{("name"+param_hash.keys.first.to_s).to_json}
+            ,displayField:'display'
+            ,valueField:'value'
+            ,mode:#{generate_mode(param_hash)}
+            ,store:#{generate_store(param_hash)}
+            ,width:#{generate_width(param_hash)}
+            ,emptyText:#{generate_empty_text(param_hash)}
+            ,minChars:0
+            ,type:"combobox"
+            ,triggerAction:'all'
+            ,editable:true
+            ,value:#{generate_default_value(param_hash)}
+          }
+        })
+    `]
+  elsif param_hash.values.first[:field] =~ /textarea/i
+    [%Q`
+      xl.widget.InlineActiveField({
+        form:form
+        ,afteredit:#{afteredit_function}
+        ,field: {
+          width:350
+          ,fieldLabel:#{(param_hash.values.first[:label] || param_hash.keys.first.to_s.humanize).to_json}
+          ,name:#{param_hash.keys.first.to_json}
+          ,type:"textarea"
+          ,value:#{(@sequence.action.send(param_hash.keys.first)).to_json}
+        }
+      })
+    `]
+  else
+    [%Q`
+      xl.widget.InlineActiveField({
+        form:form
+        ,afteredit:#{afteredit_function}
+        ,field: {
+          width:350
+          ,fieldLabel:#{(param_hash.values.first[:label] || param_hash.keys.first.to_s.humanize).to_json}
+          ,name:#{param_hash.keys.first.to_json}
+          ,value:#{(@sequence.action.send(param_hash.keys.first)).to_json}
+        }
+      })
+    `]
+  end
+end
+out << items.join(",")
+out << %Q`
+    ]
+    ,autoHeight: true
+  });
+  
+  newPanel.add(generalPanel);
+`
+
+out << %Q`
+  var updateSequenceForm = {
+    url:#{action_handler_action_handler_sequence_path(:action_handler_id => @action_handler.id, :id => @sequence.id).to_json}
+    ,method:"PUT"
+    ,object:'sequence'
+  };
+    
+  var afterPeriodLengthField = xl.widget.InlineActiveField({
+    form:updateSequenceForm
+    ,afteredit:#{afteredit_function}
+    ,field:{
+      width:100
+      ,fieldLabel:"After"
+      ,name:"after_period_length"
+      ,value:#{@sequence.after_period_length.to_json}
+    }
+  });
+  
+  var afterPeriodUnitStore = new Ext.data.SimpleStore({
+    fields:['display', 'value']
+    ,data:[["hours", "hours"], ["days", "days"], ["weeks", "weeks"], ["months", "months"], ["years", "years"]]  });
+  
+  var afterPeriodUnitField = xl.widget.InlineActiveField({
+    form:updateSequenceForm
+    ,afteredit:#{afteredit_function}
+    ,field:{
+      width:90
+      ,name:"sequence[after_period_unit]"
+      ,hideLabel:true
+      ,type:"combobox"
+      ,store:afterPeriodUnitStore
+      ,displayField:"display"
+      ,valueField:"value"
+      ,hiddenName:"sequence[after_period_unit]"
+      ,triggerAction:'all'
+      ,mode:"local"
+      ,editable:false
+      ,value:#{@sequence.after_period_unit.to_json}
+    }
+  });
+
+  var repeatPeriodLengthField = xl.widget.InlineActiveField({
+    form:updateSequenceForm
+    ,afteredit:#{afteredit_function}
+    ,field:{
+      width:100
+      ,fieldLabel:"Repeat every"
+      ,name:"repeat_period_length"
+      ,value:#{@sequence.repeat_period_length.to_json}
+    }
+  });
+  
+  var repeatPeriodUnitStore = new Ext.data.SimpleStore({
+    fields:['display', 'value']
+    ,data:[["hours", "hours"], ["days", "days"], ["weeks", "weeks"], ["months", "months"], ["years", "years"]]  });
+  
+  var repeatPeriodUnitField = xl.widget.InlineActiveField({
+    form:updateSequenceForm
+    ,afteredit:#{afteredit_function}
+    ,field:{
+      width:90
+      ,name:"sequence[repeat_period_unit]"
+      ,hideLabel:true
+      ,type:"combobox"
+      ,store:afterPeriodUnitStore
+      ,displayField:"display"
+      ,valueField:"value"
+      ,hiddenName:"sequence[repeat_period_unit]"
+      ,triggerAction:'all'
+      ,mode:"local"
+      ,editable:false
+      ,value:#{@sequence.repeat_period_unit.to_json}
+    }
+  });
+
+  var timeReferenceStore = new Ext.data.SimpleStore({
+    fields:['display', 'value']
+    ,data:[["Last sequence", "last_sequence"], ["Subscription", "subscription"]]  });
+  
+  var timeReferenceField = xl.widget.InlineActiveField({
+    form:updateSequenceForm
+    ,afteredit:#{afteredit_function}
+    ,field:{
+      width:150
+      ,name:"sequence[time_reference]"
+      ,fieldLabel:"From"
+      ,type:"combobox"
+      ,store:timeReferenceStore
+      ,displayField:"display"
+      ,valueField:"value"
+      ,hiddenName:"sequence[time_reference]"
+      ,triggerAction:'all'
+      ,mode:"local"
+      ,editable:false
+      ,value:#{@sequence.time_reference.to_json}
+    }
+  });
+
+  var commonElementsPanel = new Ext.Panel({
+    layout:"column"
+    ,defaults:{
+      layout:"form"
+    }
+    ,items:[
+      {columnWidth:1, labelWidth:70, items:[timeReferenceField]}
+      ,{columnWidth:0.67, labelWidth:70, items:[afterPeriodLengthField]}
+      ,{columnWidth:0.33, labelWidth:5, items:[afterPeriodUnitField]}
+      ,{columnWidth:0.67, labelWidth:70, items:[repeatPeriodLengthField]}
+      ,{columnWidth:0.33, labelWidth:5, items:[repeatPeriodUnitField]}
+      ]
+    ,width:280
+  });
+  
+  var wrapperPanel = new Ext.Panel({
+    items:[commonElementsPanel, generalPanel]
+    ,autoScroll:true
+    ,title:"Sequence Editor: " + #{@sequence.action.name.to_json}
+  });
+  newPanel.add(wrapperPanel);
+`
+out
+end
