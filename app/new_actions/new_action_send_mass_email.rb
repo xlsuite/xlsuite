@@ -279,7 +279,7 @@
 # 
 # 		     END OF TERMS AND CONDITIONS
 class NewActionSendMassEmail < NewActionSendEmail
-  attr_accessor :template_id, :sender_id, :mail_type, :return_to_url, :tags_to_remove, :opt_out_url
+  attr_accessor :template_id, :mail_type, :return_to_url, :opt_out_url
 
   def run_against(*args)
     options = args.last.kind_of?(Hash) ? args.pop : Hash.new
@@ -315,7 +315,7 @@ class NewActionSendMassEmail < NewActionSendEmail
   end
 
   def description
-    "Send mass mail template \"#{self.template.label rescue nil}\" from \"#{self.sender.display_name rescue nil}\""
+    "Send mass mail template \"#{self.template.label rescue nil}\" from \"#{self.sender_address rescue nil}\""
   end
   
   def name
@@ -351,8 +351,7 @@ class NewActionSendMassEmail < NewActionSendEmail
     def parameters
       super +
         [{:opt_out_url => {:type => :string, :label => "Set unscubscribe page URL", :field => "selection", :store => "current_account.pages.find(:all, :order => 'fullslug ASC').map{|p|[p.fullslug, p.fullslug]}.unshift(['/admin/opt-out', '/admin/opt-out'], ['/admin/opt-out/unsubscribed', '/admin/opt-out/unsubscribed'])", :default_value => "@action.opt_out_url ? @action.opt_out_url : '/admin/opt-out'"}},
-        {:return_to_url => {:type => :string, :label => "Set confirmation page URL", :field => "selection", :store => "current_account.pages.find(:all, :order => 'fullslug ASC').map{|p|[p.fullslug, p.fullslug]}.unshift(['/admin/opt-out', '/admin/opt-out'], ['/admin/opt-out/unsubscribed', '/admin/opt-out/unsubscribed'])", :default_value => "@action.return_to_url ? @action.return_to_url : '/admin/opt-out/unsubscribed'"}},
-        {:tags_to_remove => {:type => :string, :label => "Remove tag(s) from unsubscriber", :field => "selection", :store => "current_account.parties.tags.map{|t|[t.name, t.name]}"}}]
+        {:return_to_url => {:type => :string, :label => "Set confirmation page URL", :field => "selection", :store => "current_account.pages.find(:all, :order => 'fullslug ASC').map{|p|[p.fullslug, p.fullslug]}.unshift(['/admin/opt-out', '/admin/opt-out'], ['/admin/opt-out/unsubscribed', '/admin/opt-out/unsubscribed'])", :default_value => "@action.return_to_url ? @action.return_to_url : '/admin/opt-out/unsubscribed'"}}]
     end
   end
 end
