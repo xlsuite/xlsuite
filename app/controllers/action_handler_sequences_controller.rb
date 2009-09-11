@@ -330,6 +330,18 @@ class ActionHandlerSequencesController < ApplicationController
   end
   
   def update_ordering
+    ids = params[:ids].split(",").map(&:strip).to_a
+    positions = params[:positions].split(",").map(&:strip).map(&:to_i).to_a
+    ActionHandlerSequence.transaction do
+      (0..ids.length-1).each do |i|
+        @action_handler.sequences.find(ids[i]).update_attribute(:position, positions[i]+1)
+      end
+    end
+    respond_to do |format|
+      format.js do
+        render(:json => {:success => true}.to_json)
+      end
+    end
   end
   
   def destroy_collection
