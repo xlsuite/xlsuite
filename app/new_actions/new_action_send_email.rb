@@ -321,7 +321,7 @@ class NewActionSendEmail < Action
   
   class << self
     def parameters
-      [ {:sender => {:type => :string, :field => "selection", :store => {:helper => "party_auto_complete_store"}, :mode => "remote", :width => 350, :empty_text => "Autocomplete field, please start typing", :default_value => "@action.sender_address ? @action.sender_address : ''"}}, 
+      [ {:sender_address => {:type => :string, :field => "selection", :store => "current_account.email_addresses_with_smtp_access.map{|e| [e, e]}"}},
         {:template => {:type => :templates, :field => "selection", :store => "current_account.templates.find_all_accessible_by(current_user, :order => 'label ASC').map{|t|[t.label, t.id]}"}}, 
         {:mail_type => {:type => :string, :field => "selection", :store => "Email::ValidMailTypes.map{|e|[e, e]}"}} ]
     end
