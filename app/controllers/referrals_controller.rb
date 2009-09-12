@@ -344,6 +344,7 @@ class ReferralsController < ApplicationController
     referral[:friends].delete_if {|friend| friend.email.blank?}
     
     
+=begin
     Referral.transaction do
       current_user? do
         party = Party.find_by_account_and_email_address(current_account, referral[:from].email)
@@ -354,14 +355,18 @@ class ReferralsController < ApplicationController
       @referral.save!
       @referral.email.release!
     end
+=end
 
     respond_to do |format|
       format.html do
+=begin
         flash_success "Sent the referral to #{@referral.friends.size} friend(s)"
         redirect_to @referral.return_to || @referral.referral_url
+=end
+        return render(:missing)
       end
       format.js do
-        return render(:json => {:success => true}.to_json)
+        return render(:json => {:success => false}.to_json)
       end
     end
     
