@@ -280,6 +280,8 @@
 # 		     END OF TERMS AND CONDITIONS
 class ActionHandlerSequence < ActiveRecord::Base
   belongs_to :action_handler
+  has_many :completed_parties, :class_name => ActionHandlerPartyCompletedSequence, :foreign_key => :action_handler_sequence_id
+  
   validates_presence_of :action_type, :action_handler_id, :time_reference
   
   TIME_REFERENCE_VALUES = ["subscription", "last_sequence"]
@@ -334,11 +336,76 @@ class ActionHandlerSequence < ActiveRecord::Base
     0
   end
   
-  def run
-    ActiveRecord::Base.transaction do
-      domain_members = []
-      self.action.run_against(domain_members)
+  # returns a group of members that needs to be run for the very first time
+  def members_without_completed_sequence
+    # get the previous sequence
+    all_sequence_ids = self.action_handler.sequences.all(:select => "id, position", :order => "position").map(&:id)
+    previous_sequence_id = nil
+    current_pos = all_sequence_ids.index(self.id)
+    if current_pos
+      if current_pos > 0
+        previous_sequence_id = all_sequence_ids[current_pos-1]
+      end
     end
+    
+    # obtain previous sequence members
+    # if a previous sequence exists, use the completed parties of the previous sequence
+    # otherwise, use all members of the action handler
+    previous_sequence_members = []
+    if previous_sequence_id
+      previous_sequence_members = ActionHandlerPartyCompletedSequence.all(
+        :select => "party_id, domain_id",
+        :conditions => ["action_handler_sequence_id = ? AND created_at <= ?", previous_sequence_id, Time.now.utc - self.after_period.to_i],
+        :order => "domain_id").map{|e| [e.domain_id, e.party_id]}
+    else
+      previous_sequence_members = ActionHandlerMembership.all(:select => "party_id, domain_id",
+        :conditions => ["action_handler_id = ? AND created_at <= ?", self.id, Time.now.utc - self.after_period.to_i], :order => "domain_id").map{|e| [e.domain_id, e.party_id]}
+    end
+    
+    # TODO: when we support conditions later on for a sequence, do checking for previous sequence members here
+    filtered_members = previous_sequence_members
+        
+    # grab all the completed parties of this sequence
+    completed_members = 
+    filtered_members - completed_members
+  end
+  
+  def members_with_completed_sequence
+    ActionHandlerPartyCompletedSequence.all(:select => "party_id, domain_id", :conditions => {:action_handler_sequence_id => self.id}, :order => "domain_id").map{|e| [e.domain_id, e.party_id]}
+  end
+  
+  def current_completed_members_to_repeat
+    return [] unless self.repeatable?
+    ActionHandlerPartyCompletedSequence.all(:select => "party_id, domain_id", :conditions => ["action_handler_sequence_id = ? AND last_ran_at <= ?", self.id, Time.now.utc - self.repeat_period.to_i], :order => "domain_id").map{|e| [e.domain_id, e.party_id]}
+  end
+  
+  def run!
+    ActiveRecord::Base.transaction do
+      account_id = self.action_handler.account_id
+
+      domain_parties = self.members_without_completed_sequence
+      self.action.run_against(domain_parties)
+      as = nil
+      domain_parties.each do |domain_id, party_id|
+        as = ActionHandlerPartyCompletedSequence.find_or_initialize_by_action_handler_sequence_id_and_domain_id_and_party_id(self.id, domain_id, party_id)
+        as.ran_counter = as.ran_counter || 0
+        as.ran_counter += 1
+        as.account_id = account_id
+        as.last_ran_at = Time.now.utc
+        as.save!
+      end
+      
+      domain_parties = self.current_completed_members_to_repeat
+      self.action.run_against(domain_parties)
+      domain_parties.each do |domain_id, party_id|
+        as = ActionHandlerPartyCompletedSequence.find(:first, 
+          :conditions => {:action_handler_sequence_id => self.id, :domain_id => domain_id, :party_id => party_id})
+        as.ran_counter += 1
+        as.last_ran_at = Time.now.utc
+        as.save!
+      end
+    end
+    true
   end
   
   def self.default_attributes
