@@ -414,6 +414,22 @@ Ext.onReady(function() {
             },
 <% end -%>
             {
+              text:"Auto Responder"
+              ,menu:{
+                cls: "no-icon-menu"
+                ,defaults: {
+                  iconCls: "no-icon-menu"
+                }
+                ,items:[
+                  {
+                    text:"New"
+                    ,handler:function(){xl.openNewTabPanel('action_handlers_new_nil', <%= new_action_handler_path.to_json %>)}
+                  }
+                ]
+              }
+              ,handler:function(){xl.openNewTabPanel('action_handlers_index_nil', <%= action_handlers_path.to_json %>)}
+            },
+            {
               text:"Tutorial"
               ,href:"http://xlsuite.com/blogs/training"
               ,hrefTarget:"_blank"
