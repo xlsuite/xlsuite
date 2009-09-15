@@ -300,6 +300,8 @@ class ProfileClaimRequest < ProfileRequest
     @profile.tag_list = @profile.tag_list + "," + self.tag_list
     @party.tag_list = @party.tag_list + "," + self.tag_list
     
+    @party.replace_domains = self.available_on_domains.map(&:name).join(",")
+    
     @profile.info = self.info
     @profile.owner = nil
     @profile.claimed_at = Time.now
