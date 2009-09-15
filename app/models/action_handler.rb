@@ -295,6 +295,7 @@ class ActionHandler < ActiveRecord::Base
   
   def run!
     self.sequences.map(&:run!).all?
+    self.update_attribute(:last_checked_at, Time.now.utc)
   end
   
   protected
