@@ -313,6 +313,13 @@ class ProfileAddRequest < ProfileRequest
     @profile = @party.to_new_profile
     @profile.info = self.info
     @profile.owner = self.created_by
+
+    # Adding domain membership of action handlers to the newly created profile
+    if !self.action_handler_labels.blank? && !self.domain_id.blank?
+      @profile.action_handler_labels = self.action_handler_labels
+      @profile.action_handler_domain_id = self.domain_id
+    end
+
     @profile.save!
     self.comments.each do |comment|
       comment.commentable = @profile
