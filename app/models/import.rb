@@ -358,13 +358,14 @@ class Import < ActiveRecord::Base
       group_name         = self.mappings[:group]
       group              = self.account.groups.find_by_name(group_name)
       available_on_domain_id = self.mappings[:domain_id]
+      action_handler_id = self.mappings[:action_handler_id]
       
       self.import_errors, self.imported_lines = [], []
       FasterCSV.parse(self.csv)[header_lines_count + self.imported_rows_count .. -1].in_groups_of(100, false) do |rows|
         Party.transaction do
           rows.each do |row|
             raise "aborting" if row[0] == "c"
-            import_row(row, mapper, tag_list_field, create_profile, group, available_on_domain_id)
+            import_row(row, mapper, tag_list_field, create_profile, group, available_on_domain_id, action_handler_id)
           end
           
           # Prepare for next round, in case of a crash
@@ -389,7 +390,7 @@ class Import < ActiveRecord::Base
     @total_rows_count ||= FasterCSV.parse(self.csv).length - self.mappings[:header_lines_count].to_i
   end
   
-  def import_row(row, mapper, tag_list_field, create_profile, group, available_on_domain_id)
+  def import_row(row, mapper, tag_list_field, create_profile, group, available_on_domain_id, action_handler_id)
     party = mapper.to_object(row)
     return party.destroy if party.email_addresses.map(&:email_address).blank? && self.mappings[:exclude_no_email]
     
@@ -420,7 +421,14 @@ class Import < ActiveRecord::Base
     if !available_on_domain_id.blank?
       available_on_domain_id = available_on_domain_id.to_i
       DomainAvailableItem.create(:account_id => party.account_id, :domain_id => available_on_domain_id, :item_type => party.class.name, :item_id => party.id)
+
+      if !action_handler_id.blank?
+        action_handler_id = action_handler_id.to_i
+        ActionHandlerMembership.create(:party => party, :domain_id => available_on_domain_id,
+          :action_handler => party.account.action_handlers.find(action_handler_id))
+      end
     end
+    
     
     self.imported_lines << true
   rescue ActiveRecord::RecordInvalid
