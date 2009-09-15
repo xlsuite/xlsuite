@@ -281,13 +281,28 @@
 class ActionHandler < ActiveRecord::Base
   belongs_to :account
   has_many :sequences, :class_name => "ActionHandlerSequence", :foreign_key => "action_handler_id", :dependent => :destroy, :order => 'position'
-  
+  has_many :memberships, :class_name => "ActionHandlerMembership", :foreign_key => "action_handler_id", :dependent => :destroy
+
   validates_presence_of :label, :name, :account_id
   validates_uniqueness_of :label, :scope => :account_id
   
   before_validation :set_label_if_blank
+  before_save :set_last_checked_at_if_blank
+  
+  def destroy_membership_on_domain(party, domain)
+    self.memberships.all(:conditions => {:domain_id => domain.id, :party_id => party.id}).map(&:destroy).all?
+  end
+  
+  def run!
+    self.sequences.map(&:run!).all?
+  end
   
   protected
+  def set_last_checked_at_if_blank
+    return unless self.last_checked_at.blank?
+    self.last_checked_at = 1.years.ago
+  end
+  
   def set_label_if_blank
     return unless self.label.blank?
     self.set_label
