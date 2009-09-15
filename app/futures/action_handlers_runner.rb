@@ -280,7 +280,7 @@
 # 		     END OF TERMS AND CONDITIONS
 class ActionHandlersRunner < Future
   def run
-    ActionHandler.all(:limit => 100, 
+    ActionHandler.all(:limit => 100, :order => "last_checked_at ASC",
       :conditions => ["activated_at <= ? AND (deactivated_at IS NULL OR deactivated_at >= ?)", Time.now, Time.now]).each do |action_handler|
       puts "Running #{action_handler.label}"
       action_handler.run!
