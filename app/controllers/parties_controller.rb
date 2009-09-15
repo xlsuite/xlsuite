@@ -1366,7 +1366,7 @@ protected
   end
 
   ALLOWED_FIELDS = %w(company_name last_name middle_name first_name full_name honorific position group_ids group_labels avatar_id
-      signature password password_confirmation old_password tag_list birthdate_day birthdate_month birthdate_year referred_by_id).freeze
+      signature password password_confirmation old_password tag_list birthdate_day birthdate_month birthdate_year referred_by_id add_domain replace_domains).freeze
 
   ALLOWED_SIGNUP_FIELDS = ALLOWED_FIELDS
 end
