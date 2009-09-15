@@ -441,6 +441,13 @@ protected
     @domains = Domain.all(:conditions => {:account_id => self.current_account.id}, :order => "name")
   end
   
+  def check_account_authorization
+    return if current_account.options.imports_scraper?
+    @authorization = "Imports Scraper"
+    access_denied
+    false
+  end
+  
   def load_action_handlers
     @action_handlers = ActionHandler.all(:conditions => {:account_id => self.current_account.id}, :order => "name")
   end
