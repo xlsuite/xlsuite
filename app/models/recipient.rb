@@ -421,6 +421,16 @@ class Recipient < ActiveRecord::Base
     return [self.party.email_addresses.find_by_address(self.address)] if self.party && self.address
     [EmailContactRoute.new(:email_address => self.address)]
   end
+  
+  def unsubscribeable_action_handlers
+    action_handlers = []
+    party = self.party
+    self.email.tos.map{|t|t.send("recipient_builder")}.select{|t|t.class==ActionHandlerListBuilder}.each do |builder|
+      action_handler = ActionHandler.first(:conditions => {:account_id => self.party.account.id, :id => builder.recipient_builder_id})
+      action_handlers << action_handler if action_handler
+    end
+    action_handlers
+  end
 
   def unsubscribeable_groups
     groups = []
