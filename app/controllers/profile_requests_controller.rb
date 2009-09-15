@@ -353,6 +353,8 @@ class ProfileRequestsController < ApplicationController
   end
   
   def create_claim
+    @avatar = params[:profile].delete("avatar")
+
     flash[:liquid] ||= {}
     flash[:liquid][:params] = params
     
@@ -367,7 +369,6 @@ class ProfileRequestsController < ApplicationController
         raise "Email has already been taken"
       end
       @email = params[:profile].delete("email")
-      @avatar = params[:profile].delete("avatar")
       @phone = params[:profile].delete("phone")
       @link = params[:profile].delete("link")
       @address = params[:profile].delete("address")
@@ -421,6 +422,8 @@ class ProfileRequestsController < ApplicationController
   end
   
   def create_add
+    @avatar = params[:profile].delete("avatar")
+
     flash[:liquid] ||= {}
     flash[:liquid][:params] = params
     begin
@@ -431,7 +434,6 @@ class ProfileRequestsController < ApplicationController
       end
       
       @email = params[:profile].delete("email")
-      @avatar = params[:profile].delete("avatar")
       @phone = params[:profile].delete("phone")
       @link = params[:profile].delete("link")
       @address = params[:profile].delete("address")
