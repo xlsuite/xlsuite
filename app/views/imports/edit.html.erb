@@ -51,7 +51,7 @@
 &nbsp; | &nbsp;
   <p>
     <label>Add To Action Handler:</label>
-    <%= select_tag "mappings[action_handler_id]", "<option value=''>None</option><option value=''>All</option>" + options_from_collection_for_select(@action_handlers, "id", "name", (@import && @import.mappings ? (@import.mappings[:action_handler_id] || "") : "")) %>
+    <%= select_tag "mappings[action_handler_id]", "<option value=''>None</option>" + options_from_collection_for_select(@action_handlers, "id", "name", (@import && @import.mappings ? (@import.mappings[:action_handler_id] || "") : "")) %>
   </p>
   <br class="clear" />
   
