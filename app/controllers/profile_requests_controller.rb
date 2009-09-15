@@ -375,6 +375,9 @@ class ProfileRequestsController < ApplicationController
       @group_labels = params[:profile].delete(:group_labels)
       @profile_claim_request = current_account.profile_claim_requests.build(params[:profile])
       
+      # Attaching current domain id to the profile claim request
+      @profile_claim_request.domain_id = self.current_domain.id
+      
       self.process_request(@profile_claim_request, params) 
       @profile_claim_request.created_by = current_user if current_user?
       @profile_claim_request.profile = @profile
