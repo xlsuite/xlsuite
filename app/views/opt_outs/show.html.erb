@@ -4,6 +4,10 @@
   <%= hidden_field_tag "uuid", @recipient.uuid %>
   <p>Please confirm you want to unsubscribe from the following lists: </p>
   <table>
+  <% @recipient.unsubscribeable_action_handlers.each do |action_handler| %>
+    <tr><td><%= check_box_tag "action_handlers[]", action_handler.id, true%></td><td><%= action_handler.name %></td></tr>
+  <% end %>
+
   <% @recipient.unsubscribeable_groups.each do |group| %>
     <tr><td><%= check_box_tag "groups[]", group.id, true%></td><td>Group "<%= group.name %>" </td></tr>
   <% end %>
