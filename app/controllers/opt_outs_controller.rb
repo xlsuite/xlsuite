@@ -312,6 +312,13 @@ class OptOutsController < ApplicationController
       end
     end
     
+    unless params[:action_handlers].blank? then
+      params[:action_handlers].reject(&:blank?).each do |a_id|
+        action_handler = self.current_account.action_handlers.find(a_id)
+        action_handler.destroy_membership_on_domain(@recipient.party, self.current_domain)
+      end
+    end
+    
     logger.debug {"==> return_to_url: #{@recipient.return_to_url}\n#{request.env.to_yaml}"}
     redirect_to @recipient.email.return_to_url
   end
