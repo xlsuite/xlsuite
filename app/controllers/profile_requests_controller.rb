@@ -76,6 +76,8 @@ class ProfileRequestsController < ApplicationController
   end
   
   def create_claim
+    @avatar = params[:profile].delete("avatar")
+
     flash[:liquid] ||= {}
     flash[:liquid][:params] = params
     
@@ -90,12 +92,14 @@ class ProfileRequestsController < ApplicationController
         raise "Email has already been taken"
       end
       @email = params[:profile].delete("email")
-      @avatar = params[:profile].delete("avatar")
       @phone = params[:profile].delete("phone")
       @link = params[:profile].delete("link")
       @address = params[:profile].delete("address")
       @group_labels = params[:profile].delete(:group_labels)
       @profile_claim_request = current_account.profile_claim_requests.build(params[:profile])
+      
+      # Attaching current domain id to the profile claim request
+      @profile_claim_request.domain_id = self.current_domain.id
       
       self.process_request(@profile_claim_request, params) 
       @profile_claim_request.created_by = current_user if current_user?
@@ -144,6 +148,8 @@ class ProfileRequestsController < ApplicationController
   end
   
   def create_add
+    @avatar = params[:profile].delete("avatar")
+
     flash[:liquid] ||= {}
     flash[:liquid][:params] = params
     begin
@@ -154,7 +160,6 @@ class ProfileRequestsController < ApplicationController
       end
       
       @email = params[:profile].delete("email")
-      @avatar = params[:profile].delete("avatar")
       @phone = params[:profile].delete("phone")
       @link = params[:profile].delete("link")
       @address = params[:profile].delete("address")

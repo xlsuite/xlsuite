@@ -23,6 +23,14 @@ class ProfileClaimRequest < ProfileRequest
     @profile.tag_list = @profile.tag_list + "," + self.tag_list
     @party.tag_list = @party.tag_list + "," + self.tag_list
     
+    # Adding domain membership of action handlers to the attached profile
+    if !self.action_handler_labels.blank? && !self.domain_id.blank?
+      @profile.action_handler_labels = self.action_handler_labels
+      @profile.action_handler_domain_id = self.domain_id
+    end
+    
+    @party.replace_domains = self.available_on_domains.map(&:name).join(",")
+    
     @profile.info = self.info
     @profile.owner = nil
     @profile.claimed_at = Time.now

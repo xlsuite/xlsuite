@@ -42,18 +42,24 @@
     <label>Add To Group:</label>
     <%= select_tag "mappings[group]", "<option value="">None</option>" + options_from_collection_for_select(@groups, "name", "name", (@import && @import.mappings ? (@import.mappings[:group] || "") : "")) %>
   </p>
-&nbsp; | &nbsp;
+  <br class="clear" />
+
   <p>
     <label>Add To Domain:</label>
     <%= select_tag "mappings[domain_id]", "<option value=''>None</option><option value='0'>All</option>" + options_from_collection_for_select(@domains, "id", "name", (@import && @import.mappings ? (@import.mappings[:domain_id] || "") : "")) %>
   </p>
 &nbsp; | &nbsp;
   <p>
-    <label>Create Profile for Imports:</label>
-    <%= check_box_tag "mappings[create_profile]", 1, (@import && @import.mappings ? (@import.mappings[:create_profile].blank? ? false : @import.mappings[:create_profile]) : false) %>
+    <label>Add To Action Handler:</label>
+    <%= select_tag "mappings[action_handler_id]", "<option value=''>None</option>" + options_from_collection_for_select(@action_handlers, "id", "name", (@import && @import.mappings ? (@import.mappings[:action_handler_id] || "") : "")) %>
   </p>
   <br class="clear" />
   
+  <p>
+    <label>Create Profile for Imports:</label>
+    <%= check_box_tag "mappings[create_profile]", 1, (@import && @import.mappings ? (@import.mappings[:create_profile].blank? ? false : @import.mappings[:create_profile]) : false) %>
+  </p>
+&nbsp; | &nbsp;
   <p>
     Ignore websites matching&nbsp;
      <%= text_field_tag "mappings[ignore_websites_regex]", (@import && @import.mappings ? (@import.mappings[:ignore_websites_regex] || "") : ""), :class => "ignore_websites_regex" %>

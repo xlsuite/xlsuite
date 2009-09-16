@@ -356,6 +356,10 @@ module XlSuite
         end
         DomainAvailableItem.delete_all(:item_type => self.class.name, :item_id => self.id, :account_id => self.account.id, :domain_id => domain_id)
       end
+      
+      def available_on_domains
+        DomainAvailableItem.all(:conditions => {:item_type => self.class.name, :item_id => self.id, :account_id => self.account.id}).map(&:domain)
+      end
 
       def available_on_domain?(domain)
         domain = case domain
@@ -364,7 +368,7 @@ module XlSuite
           when Fixnum
             Domain.find(domain)
           end
-        DomainAvailableItem.count(:id, :conditions => {:account_id => domain.account.id, :domain_id => [0, domain.id]}) > 0
+        DomainAvailableItem.count(:id, :conditions => {:item_type => self.class.name, :item_id => self.id, :account_id => domain.account.id, :domain_id => [0, domain.id]}) > 0
       end
       
       protected

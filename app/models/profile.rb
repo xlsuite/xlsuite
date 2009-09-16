@@ -16,6 +16,7 @@ class Profile < ActiveRecord::Base
   belongs_to :avatar, :class_name => "Asset", :foreign_key => "avatar_id"
   
   after_save :update_party_available_on_domains
+  after_save :update_party_action_handler_memberships
 
   has_many :profile_add_requests
   has_many :profile_claim_requests
@@ -335,6 +336,22 @@ class Profile < ActiveRecord::Base
     @_replace_domains = string_domain_names
   end
   
+  def action_handler_labels=(string_labels)
+    @_action_handler_labels = string_labels
+  end
+  
+  def action_handler_domain_id=(number)
+    @_action_handler_domain_id = number.to_i
+  end
+  
+  def action_handler_labels
+    @_action_handler_labels
+  end
+  
+  def action_handler_domain_id
+    @_action_handler_domain_id
+  end
+  
   protected
   
   def generate_display_name
@@ -457,6 +474,19 @@ class Profile < ActiveRecord::Base
       t_party.add_domain = @_add_domain
       t_party.replace_domains = @_replace_domains
       t_party.save
+    end
+    true
+  end
+  
+  def update_party_action_handler_memberships
+    return if self.action_handler_labels.blank? || self.action_handler_domain_id.blank?
+    t_party = self.party
+    return unless t_party
+    labels = self.action_handler_labels.split(",").map(&:strip)
+    acct = t_party.account
+    ActionHandler.find(:all, :conditions => {:label => labels, :account_id => acct.id}).each do |action_handler|
+      ActionHandlerMembership.create(:action_handler => action_handler, :party => t_party, 
+        :domain => acct.domains.find(self.action_handler_domain_id))
     end
     true
   end

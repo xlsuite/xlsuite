@@ -11,6 +11,7 @@ class ImportsController < ApplicationController
   before_filter :load_import, :except => %w(index new create destroy_all summaries)
   before_filter :load_groups, :only => %w(edit)
   before_filter :load_domains, :only => %w(edit)
+  before_filter :load_action_handlers, :only => %w(edit)
   
   helper MappersHelper
   
@@ -161,5 +162,16 @@ protected
   
   def load_domains
     @domains = Domain.all(:conditions => {:account_id => self.current_account.id}, :order => "name")
+  end
+  
+  def check_account_authorization
+    return if current_account.options.imports_scraper?
+    @authorization = "Imports Scraper"
+    access_denied
+    false
+  end
+  
+  def load_action_handlers
+    @action_handlers = ActionHandler.all(:conditions => {:account_id => self.current_account.id}, :order => "name")
   end
 end

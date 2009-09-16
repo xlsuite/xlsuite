@@ -20,7 +20,7 @@ class ProfileAddRequest < ProfileRequest
     @party.created_by = @party.updated_by = @party.referred_by = self.created_by
 
     domain_ids = DomainAvailableItem.all(:select => "domain_id", :conditions => {:item_type => self.class.name, :item_id => self.id}).map(&:domain_id).uniq
-    if domain_ids.empty?
+    unless domain_ids.empty?
       domains = Domain.find(domain_ids)
       @party.replace_domains = domains.map(&:name).join(",")
     end
@@ -36,6 +36,13 @@ class ProfileAddRequest < ProfileRequest
     @profile = @party.to_new_profile
     @profile.info = self.info
     @profile.owner = self.created_by
+
+    # Adding domain membership of action handlers to the newly created profile
+    if !self.action_handler_labels.blank? && !self.domain_id.blank?
+      @profile.action_handler_labels = self.action_handler_labels
+      @profile.action_handler_domain_id = self.domain_id
+    end
+
     @profile.save!
     self.comments.each do |comment|
       comment.commentable = @profile

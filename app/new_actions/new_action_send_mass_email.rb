@@ -281,37 +281,37 @@
 class NewActionSendMassEmail < NewActionSendEmail
   attr_accessor :template_id, :mail_type, :return_to_url, :opt_out_url
 
-  def run_against(*args)
-    options = args.last.kind_of?(Hash) ? args.pop : Hash.new
-    recipients = args.flatten.compact
-    return if recipients.empty?
-    returning(Email.create!(:subject => self.template.subject, :body => self.template_body,
-        :mail_type => self.mail_type, :mass_mail => true, :domain => self.domain,
-        :sender => self.sender, :tos => recipients, :account => options[:account],
-        :return_to_url => self.return_to_url.blank? ? '/admin/opt-out/unsubscribed' : self.return_to_url, 
-        :tags_to_remove => self.tags_to_remove, :opt_out_url => self.opt_out_url.blank? ? '/admin/opt-out' : self.opt_out_url)) do |email|
-      email.release!
-      
-      # building inactive recipients TagListBuilder and GroupListBuilder for the email
-      Step.find(options[:step_id]).lines.each do |line|
-        next if line.excluded? || line.operator != "="
-        case line.field
-        when /^tagged/i
-          line.value.split(",").map(&:strip).each do |tag|
-            recipient = email.tos.build(:account => options[:account], :email => email, :inactive => true)
-            recipient.update_attributes(:tag_syntax => tag,
-                                    :recipient_builder_type => TagListBuilder.name)
-          end
-        when /^group_label$/i
-          group = options[:account].groups.find_by_label(line.value)
-          next unless group   
-          recipient = email.tos.build(:account => options[:account], :email => email, :inactive => true)
-          recipient.update_attributes(:recipient_builder_id => group.id,
-                                  :recipient_builder_type => GroupListBuilder.name)                        
-        end
+  def run_against(domain_parties, sequence)
+    recipients = {}
+    account = sequence.action_handler.account
+    domain_parties.each do |domain_id, party_id|
+      if recipients.has_key?(domain_id)
+        recipients[domain_id] << party_id
+      else
+        recipients.merge!(domain_id => [party_id])
       end
-      
     end
+    return if recipients.empty?
+    sender_party = EmailContactRoute.find(:first, :conditions => {:account_id => account.id, :routable_type => "Party", :email_address => self.sender_address}).routable
+    sender = Sender.create!(:account => account, :party => sender_party, :address => self.sender_address, :name => sender_party.name.to_s)
+    
+    recipients.each do |domain_id, party_ids|
+      returning(Email.create!(:subject => self.template.subject, :body => self.template_body,
+          :mail_type => self.mail_type, :mass_mail => true, :domain => Domain.find(domain_id),
+          :sender => sender, :tos => Party.find(party_ids), :account => account,
+          :smtp_email_account_id => sender_party.own_smtp_account.id,
+          :return_to_url => self.return_to_url.blank? ? '/admin/opt-out/unsubscribed' : self.return_to_url,
+          :opt_out_url => self.opt_out_url.blank? ? '/admin/opt-out' : self.opt_out_url)) do |email|
+        email.release!
+        
+        # building inactive recipients ActionHandlerListBuilder for the email
+        # this inactive ListBuilder is used for the opting out of the mass email
+        recipient = email.tos.build(:account => account, :email => email, :inactive => true)
+        recipient.update_attributes(:recipient_builder_id => sequence.action_handler.id,
+                                :recipient_builder_type => ActionHandlerListBuilder.name)
+      end
+    end
+    true
   end
 
   def description

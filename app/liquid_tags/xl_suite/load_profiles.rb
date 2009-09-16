@@ -82,7 +82,7 @@ module XlSuite
         q = context_options[:group]
         q.split(",").map(&:strip).each do |label|
           group = current_account.groups.find_by_label(label)
-          group_party_ids = group ? ActiveRecord::Base.connection.select_values("SELECT `parties`.id FROM `parties` INNER JOIN memberships ON parties.id = memberships.party_id WHERE ((`memberships`.group_id = #{group.id})) AND (archived_at IS NULL) AND (account_id = #{current_account.id})") : []
+          group_party_ids = group ? ActiveRecord::Base.connection.select_values("SELECT `parties`.id FROM `parties` INNER JOIN memberships ON parties.id = memberships.party_id WHERE ((`memberships`.group_id = #{group.id})) AND (archived_at IS NULL) AND (account_id = #{current_account.id})").map(&:to_i) : []
           if party_ids
             party_ids = party_ids & group_party_ids
           else

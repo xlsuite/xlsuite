@@ -13,6 +13,10 @@ class ProductCategoryDrop < Liquid::Drop
   alias_method :main_image, :avatar
   alias_method :picture, :avatar
 
+  def self_and_all_children
+    self.product_category.self_and_all_children.map(&:to_liquid)
+  end
+
   def products
     product_ids = ActiveRecord::Base.connection.select_values("SELECT product_id FROM product_categories_products WHERE product_category_id = #{self.product_category.id}")
     Product.find(:all, :conditions => {:id => product_ids}, :order => "LOWER(name) ASC")

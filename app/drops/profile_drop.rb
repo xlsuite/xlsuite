@@ -15,6 +15,14 @@ class ProfileDrop < Liquid::Drop
 
   alias_method :forum_alias, :alias
   
+  def available_on_domains
+    self.profile.party.available_on_domains.map(&:to_liquid)
+  end
+  
+  def available_on_domain_names
+    self.profile.party.available_on_domains.map(&:name).join(",")
+  end
+  
   def owned_profiles
     self.profile.party.owned_profiles
   end

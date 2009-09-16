@@ -366,7 +366,7 @@ class ActionHandlerSequence < ActiveRecord::Base
     filtered_members = previous_sequence_members
         
     # grab all the completed parties of this sequence
-    completed_members = 
+    completed_members = self.members_with_completed_sequence
     filtered_members - completed_members
   end
   
@@ -384,7 +384,7 @@ class ActionHandlerSequence < ActiveRecord::Base
       account_id = self.action_handler.account_id
 
       domain_parties = self.members_without_completed_sequence
-      self.action.run_against(domain_parties)
+      self.action.run_against(domain_parties, self)
       as = nil
       domain_parties.each do |domain_id, party_id|
         as = ActionHandlerPartyCompletedSequence.find_or_initialize_by_action_handler_sequence_id_and_domain_id_and_party_id(self.id, domain_id, party_id)
@@ -396,7 +396,7 @@ class ActionHandlerSequence < ActiveRecord::Base
       end
       
       domain_parties = self.current_completed_members_to_repeat
-      self.action.run_against(domain_parties)
+      self.action.run_against(domain_parties, self)
       domain_parties.each do |domain_id, party_id|
         as = ActionHandlerPartyCompletedSequence.find(:first, 
           :conditions => {:action_handler_sequence_id => self.id, :domain_id => domain_id, :party_id => party_id})
