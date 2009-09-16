@@ -384,6 +384,10 @@ class ProductCategory < ActiveRecord::Base
     c
   end
   
+  def self_and_all_children
+    [self, self.all_children].flatten
+  end
+  
   def attributes_for_copy_to(account)
     attributes = self.attributes.dup.merge(:account_id => account.id, :parent_id => nil, :avatar_id => nil)
  
