@@ -65,8 +65,8 @@ namespace :db do
           view_estimate view_installer view_invoice view_orders view_own_contacts_only
           view_own_quotes view_own_schedule view_party view_payment view_quote
           view_schedule view_staff view_supplier view_team view_todos)
-      party.update_effective_permissions = party.confirmed = true
-      party.save!
+      party.update_effective_permissions = true
+      party.confirm!
 
       account.update_attribute(:owner, party)
 
