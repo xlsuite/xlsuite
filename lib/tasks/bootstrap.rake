@@ -42,6 +42,10 @@ namespace :db do
       puts "Creating and activating localhost domain, nearly there..."
       account.domains.create!(:name => "localhost")
       account.domains.first.activate!
+      
+      puts "Inserting xlsuite.com domain"
+      xlsuite_domain = account.domains.create!(:name => "xlsuite.com")
+      xlsuite_domain.activate!
 
       account.layouts.create!(:title => "HTML", :domain_patterns => "**", :body => File.read(File.dirname(__FILE__) + "/layout.html"))
       account.pages.create!(:title => "Home Page", :layout => "HTML", :status => "published", :behavior => "plain_text", :domain_patterns => "**", :fullslug => "/", :body => File.read(File.dirname(__FILE__) + "/home.html"))
