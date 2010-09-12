@@ -4,10 +4,13 @@ XLsuite is built on-top of MySQL and cannot currently use any other database ser
 
 1. cp config/database.yml.sample config/database.yml
 2. Edit config/database.yml to suit you (must use MySQL)
-3. rake db:create db:structure:load db:bootstrap
-4. script/server
-5. http://localhost:3000/
+**3. bundle install **
+4. rake db:create db:structure:load db:bootstrap
+5. script/server
+6. http://localhost:3000/
 
+
+Please note that I have this tested for **Ruby Enterprise Edition**
 = Complete Installation
 
 You will need to register an account at Amazon's Web Services to use the Simple Storage Service (S3).  XLsuite stores it's assets in S3.  You may configure Asset to store the files on the local filesystem by changing the :storage key of the #has_attachment call to :file_system.
