@@ -1,0 +1,16 @@
+On Snow Leopard, If you having issues installing the mysql gem.
+
+Try the following:
+
+sudo env ARCHFLAGS="-arch i386" gem install mysql -- \
+  --with-mysql-dir=/usr/local/mysql --with-mysql-lib=/usr/local/mysql/lib \
+  --with-mysql-include=/usr/local/mysql/include
+
+
+If this works, rerun bundle install..
+Have  A Nice Day!
+
+This tip was revealed to me by:
+http://wonko.com/post/how-to-install-the-mysqlruby-gem-on-mac-os-x-leopard
+
+

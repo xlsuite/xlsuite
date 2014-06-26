@@ -47,28 +47,28 @@ Rails::Initializer.run do |config|
   # This has been done in the production branch - don't freak out, François.
   config.action_controller.session = { :session_key => "session_id", :secret => "some secret phrase of at least 30 characters" }
 
-  config.gem "actionwebservice",    :version => "= 1.2.6", :lib => "action_web_service"
-  config.gem "hpricot"
-  config.gem "builder",             :version => "~> 2.1"
-  config.gem "money",               :version => "~> 1.7"
-  config.gem "builder",             :version => "~> 2.1"
-  config.gem "chronic",             :version => "~> 0.2"
-  config.gem "fastercsv",           :version => "~> 1.4"
-  config.gem "graticule",           :version => "~> 0.2"
-  config.gem "main",                :version => "~> 2.8"
-  config.gem "paypal",              :version => "~> 2.0"
-  config.gem "paginator",           :version => "~> 1.0"
-  config.gem "scrapi",              :version => "~> 1.2"
-  config.gem "uuidtools",           :version => "~> 1.0"
-  config.gem "mechanize",           :version => "~> 0.8"
+#  config.gem "actionwebservice",    :version => "= 1.2.6", :lib => "action_web_service"
+#  config.gem "hpricot"
+#  config.gem "builder",             :version => "~> 2.1"
+#  config.gem "money",               :version => "~> 1.7"
+#  config.gem "builder",             :version => "~> 2.1"
+#  config.gem "chronic",             :version => "~> 0.2"
+#  config.gem "fastercsv",           :version => "~> 1.4"
+#  config.gem "graticule",           :version => "~> 0.2"
+#  config.gem "main",                :version => "~> 2.8"
+#  config.gem "paypal",              :version => "~> 2.0"
+#  config.gem "paginator",           :version => "~> 1.0"
+#  config.gem "scrapi",              :version => "~> 1.2"
+#  config.gem "uuidtools",           :version => "~> 1.0"
+#  config.gem "mechanize",           :version => "~> 0.8"
   # config.gem "XMLCanonicalizer",    :version => "~> 1.0", :lib => "xmlcanonicalizer"
-  config.gem "archive-tar-minitar", :version => "~> 0.5", :lib => "archive/tar/minitar"
+#  config.gem "archive-tar-minitar", :version => "~> 0.5", :lib => "archive/tar/minitar"
   config.gem "pdf-writer",          :version => "~> 1.1", :lib => "pdf/writer"
-  config.gem "RedCloth",            :version => "~> 4.0", :lib => "redcloth"
-  config.gem "mime-types",          :version => "~> 1.15", :lib => "mime/types"
+#  config.gem "RedCloth",            :version => "~> 4.0", :lib => "redcloth"
+#  config.gem "mime-types",          :version => "~> 1.15", :lib => "mime/types"
 
   # We do depend on the mysql gem, but it is loaded through another mechanism
-  # config.gem "mysql",               :version => "~> 2.7"
+   #config.gem "mysql2",               :version => "~> 2.7"
 end
 
 # Add new inflection rules using the following format
