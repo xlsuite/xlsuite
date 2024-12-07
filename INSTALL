@@ -4,11 +4,24 @@ XLsuite is built on-top of MySQL and cannot currently use any other database ser
 
 1. cp config/database.yml.sample config/database.yml
 2. Edit config/database.yml to suit you (must use MySQL)
-3. rake db:create db:structure:load db:bootstrap
-4. script/server
-5. http://localhost:3000/
+**3. bundle install **
+4. rake db:create db:structure:load db:bootstrap
+5. script/server
+6. http://localhost:3000/
 
 = Complete Installation
+Please note that I have this tested for **Ruby Enterprise Edition**
+
+If bundler is blowing up on you with the mysql gem, please see the MYSQL_GEM_INSTALL_NOTES
+
+Also, make sure that the mysql binary is in PATH.
+I know this sounds stupid, but I have seen servers before that when you did this:
+
+$mysql
+mysql: command not found
+
+Yet mysql was actually installed.
+If this is you, google is your friend. This issue is outside the scope of installing this beast of a rails app. Don't get me wrong, it is a great program, it is just big.
 
 You will need to register an account at Amazon's Web Services to use the Simple Storage Service (S3).  XLsuite stores it's assets in S3.  You may configure Asset to store the files on the local filesystem by changing the :storage key of the #has_attachment call to :file_system.
 
